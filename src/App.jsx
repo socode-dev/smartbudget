@@ -1,0 +1,31 @@
+import React, { Suspense, lazy } from "react";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import MainLayout from "./layout/MainLayout";
+
+const Dashboard = lazy(() => import("./pages/Dashboard"));
+const Transactions = lazy(() => import("./pages/Transactions"));
+const Budgets = lazy(() => import("./pages/Budgets"));
+const Reports = lazy(() => import("./pages/Reports"));
+const Goals = lazy(() => import("./pages/Goals"));
+const Insights = lazy(() => import("./pages/Insights"));
+
+function App() {
+  return (
+    <BrowserRouter>
+      <Suspense fallback={<div className="p-8">Loading...</div>}>
+        <Routes>
+          <Route path="/" element={<MainLayout />}>
+            <Route index element={<Dashboard />} />
+            <Route path="transactions" element={<Transactions />} />
+            <Route path="budgets" element={<Budgets />} />
+            <Route path="reports" element={<Reports />} />
+            <Route path="goals" element={<Goals />} />
+            <Route path="insights" element={<Insights />} />
+          </Route>
+        </Routes>
+      </Suspense>
+    </BrowserRouter>
+  );
+}
+
+export default App;

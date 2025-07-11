@@ -1,0 +1,31 @@
+@import "tailwindcss";
+
+@theme {
+  --breakpoint-lg: 922px;
+}
+
+:root {
+  --color-brand: 37 99 235;
+  --color-bg: 255 255 255;
+  --color-text: 15 23 42;
+  --color-gray-bg: 243 244 246; /* light gray for AI settings dropdowns */
+  --color-gray-bg-settings: 245 245 245; /* darker gray for settings dropdown */
+  --color-gray-border: 229 229 229; /* border for dropdowns */
+}
+
+.dark {
+  --color-bg: 0 0 0;
+  --color-brand: 96 165 250;
+  --color-text: 255 255 255;
+  --color-gray-bg: 64 64 64; /* dark gray for AI settings dropdowns */
+  --color-gray-bg-settings: 23 23 23; /* darker gray for settings dropdown */
+  --color-gray-border: 64 64 64; /* border for dropdowns */
+}
+
+html {
+  @apply scroll-smooth;
+}
+
+body {
+  @apply bg-[rgb(var(--color-bg))] text-[rgb(var(--color-text))] transition-colors duration-100;
+}
