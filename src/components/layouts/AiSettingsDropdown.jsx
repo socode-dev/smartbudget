@@ -3,7 +3,7 @@ import { FaBellSlash } from "react-icons/fa";
 const AiSettingsDropdown = ({ open, onClose }) => {
   if (!open) return null;
   return (
-    <div className="absolute -right-14 top-10 ml-2 w-56 bg-[rgb(var(--color-gray-bg))] border border-[rgb(var(--color-gray-border))] rounded-lg shadow-lg z-50 text-xs">
+    <div className="absolute -right-14 top-10 ml-2 w-56 bg-[rgb(var(--color-gray-bg))] border border-[rgb(var(--color-gray-border))] rounded-lg shadow-lg z-70 text-xs">
       <ul className="py-2">
         <li className="px-4 py-2 cursor-pointer flex items-center justify-between hover:bg-[rgb(var(--color-gray-bg-settings))] transition-colors">
           <span>Enable Forecasting</span>

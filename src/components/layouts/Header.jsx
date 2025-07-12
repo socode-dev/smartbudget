@@ -61,10 +61,9 @@ const Header = ({ onSidebarToggle }) => {
 
   return (
     <>
-      <header className="fixed top-0 left-0 w-full h-14 bg-[rgb(var(--color-bg))] text-[rgb(var(--color-text))] shadow flex items-center px-4 lg:px-6 justify-between">
-        {/* Left: Hamburger for mobile, App Name */}
+      <header className="lg:h-14 h-14 lg:relative fixed top-0 left-0 w-full bg-[rgb(var(--color-bg))] text-[rgb(var(--color-text))] shadow flex items-center py-3 px-4 lg:px-6 justify-between z-50">
+        {/* Left: Hamburger for mobile */}
         <div className="flex items-center gap-2">
-          {/* Hamburger menu only visible on mobile (<922px) */}
           <button
             className="lg:hidden mr-2 p-2 cursor-pointer"
             onClick={onSidebarToggle}
@@ -72,15 +71,11 @@ const Header = ({ onSidebarToggle }) => {
           >
             <FaBars size={22} />
           </button>
-          <span className="font-semibold text-lg text-gray-800 hidden lg:inline ml-48">
-            Financial Dashboard
-          </span>
         </div>
 
-        {/* Right: Icons and User Avatar */}
-        <div className="flex items-center gap-6">
-          {/* Desktop: show searchbar, Mobile: show search icon */}
-          <div className="hidden lg:block w-64">
+        {/* Center: Searchbar on desktop */}
+        <div className="hidden lg:flex items-center justify-center flex-1">
+          <div className="w-96">
             <Input
               type="text"
               value={searchValue}
@@ -89,6 +84,11 @@ const Header = ({ onSidebarToggle }) => {
               ref={searchInputRef}
             />
           </div>
+        </div>
+
+        {/* Right: Icons and User Avatar */}
+        <div className="flex items-center gap-6">
+          {/* Mobile: show search icon */}
           <button
             className="flex items-center text-gray-600 hover:text-blue-600 transition-colors cursor-pointer relative lg:hidden"
             aria-label="Search"
@@ -144,7 +144,7 @@ const Header = ({ onSidebarToggle }) => {
       </header>
       {/* Mobile searchbar below header */}
       {showMobileSearch && (
-        <div className="lg:hidden fixed top-14 left-0 w-full bg-white z-30 px-4 py-2 shadow flex justify-center">
+        <div className="lg:hidden fixed top-14 left-0 w-full bg-white z-40 px-4 py-2 shadow flex justify-center">
           <div className="w-full max-w-[500px]">
             <Input
               type="text"
