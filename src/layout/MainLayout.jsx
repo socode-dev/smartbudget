@@ -20,12 +20,12 @@ const MainLayout = () => {
   }, [sidebarOpen]);
 
   return (
-    <div className="relative flex clex-col h-screen bg-[rgb(var(--color-bg))]">
-      <Header onSidebarToggle={handleSidebarToggle} />
-      <div className="grow flex">
-        <Sidebar isOpen={sidebarOpen} onClose={handleSidebarClose} />
-        <main className="bg-[rgb(var(--color-bg))] grow pt-16 pl-5 md:pl-10 md:pr-0 transition-all duration-200">
-          {/* pt-16 for header, md:pl-16 for sidebar */}
+    <div className="relative flex h-screen bg-[rgb(var(--color-bg))]">
+      <Sidebar isOpen={sidebarOpen} onClose={handleSidebarClose} />
+      <div className="flex flex-col grow">
+        <Header onSidebarToggle={handleSidebarToggle} />
+        <main className="bg-[rgb(var(--color-bg))] overflow-y-auto grow px-5 md:px-10 transition-all duration-200 lg:pt-0 pt-14">
+          {/* pt-14 for mobile header, lg:pt-0 for desktop */}
           <Outlet />
         </main>
       </div>

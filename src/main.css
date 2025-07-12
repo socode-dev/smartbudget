@@ -1,13 +1,19 @@
 @import "tailwindcss";
 
 @theme {
+  --breakpoint-sm: 640px;
+  --breakpoint-md: 768px;
   --breakpoint-lg: 922px;
+  --breakpoint-xl: 1280px;
 }
 
 :root {
   --color-brand: 37 99 235;
-  --color-bg: 255 255 255;
+  --color-brand-hover: 29 78 216;
+  --color-bg: 245 245 245;
+  --color-bg-card: 255 255 255;
   --color-text: 15 23 42;
+  --color-muted: 107 114 128;
   --color-gray-bg: 243 244 246; /* light gray for AI settings dropdowns */
   --color-gray-bg-settings: 245 245 245; /* darker gray for settings dropdown */
   --color-gray-border: 229 229 229; /* border for dropdowns */
@@ -15,8 +21,11 @@
 
 .dark {
   --color-bg: 0 0 0;
-  --color-brand: 96 165 250;
+  --color-bg-card: 23 23 23;
+  --color-brand: 59 130 246;
+  --color-brand-hover: 37 99 235;
   --color-text: 255 255 255;
+  --color-muted: 107 114 128;
   --color-gray-bg: 64 64 64; /* dark gray for AI settings dropdowns */
   --color-gray-bg-settings: 23 23 23; /* darker gray for settings dropdown */
   --color-gray-border: 64 64 64; /* border for dropdowns */
@@ -28,4 +37,53 @@ html {
 
 body {
   @apply bg-[rgb(var(--color-bg))] text-[rgb(var(--color-text))] transition-colors duration-100;
+}
+
+/* Budget Ring Styles */
+.budget-ring-income {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: conic-gradient(
+    rgb(37 99 235) 0deg 259.2deg,
+    rgb(229 231 235) 259.2deg 360deg
+  );
+  display: inline-block;
+  position: relative;
+}
+
+.budget-ring-income::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  background: rgb(var(--color-bg-card));
+}
+
+.budget-ring-expense {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: conic-gradient(
+    rgb(245 158 11) 0deg 298.8deg,
+    rgb(229 231 235) 298.8deg 360deg
+  );
+  display: inline-block;
+  position: relative;
+}
+
+.budget-ring-expense::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  background: rgb(var(--color-bg-card));
 }
