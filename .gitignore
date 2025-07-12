@@ -7,10 +7,14 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-# node_modules
+# Cursor and development folders
+node_modules
+.cursor/
+dev-dist/
 dist
 dist-ssr
 *.local
+
 
 # Editor directories and files
 .vscode/*
@@ -23,7 +27,3 @@ dist-ssr
 *.sln
 *.sw?
 
-# Cursor and development folders
-cursor/
-dev-dist/
-node_modules
