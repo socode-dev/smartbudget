@@ -25,6 +25,17 @@ export const addTransaction = async (transaction) => {
   });
 };
 
+export const deleteTransaction = async (id) => {
+  const db = await getDB();
+  await db.delete(STORE_NAME, id);
+};
+
+export const updateTransaction = async (transaction) => {
+  const db = await getDB();
+  await db.put(STORE_NAME, transaction);
+  return transaction;
+};
+
 export const clearTransactions = async () => {
   const db = await getDB();
   await db.clear(STORE_NAME);
