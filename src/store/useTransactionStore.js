@@ -1,7 +1,11 @@
 import { create } from "zustand";
 import useCurrencyStore from "./useCurrencyStore";
 import CURRENCY_SYMBOLS from "../data/currencySymbols";
-import { addTransaction, getAllTransactions } from "../data/idbTransactions";
+import {
+  addTransaction,
+  getAllTransactions,
+  deleteTransaction,
+} from "../data/idbTransactions";
 import { toast } from "react-hot-toast";
 
 const CATEGORY_OPTIONS = [
@@ -35,6 +39,11 @@ const useTransactionStore = create((set, get) => ({
     } finally {
       console.log("Loading transactions completed");
     }
+  },
+  deleteTransaction: async (id) => {
+    await deleteTransaction(id);
+    const txs = await getAllTransactions();
+    set({ transactions: txs });
   },
   addTransactionToStore: async (transaction) => {
     const { setCategory, setType, setAmount, setDate, setDescription } = get();
