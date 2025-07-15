@@ -1,6 +1,7 @@
 import React, { Suspense, lazy } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import MainLayout from "./layout/MainLayout";
+// import { TransactionProvider } from "./context/TransactionContext";
 
 const Overview = lazy(() => import("./pages/Overview"));
 const Transactions = lazy(() => import("./pages/Transactions"));
@@ -13,6 +14,7 @@ function App() {
   return (
     <BrowserRouter>
       <Suspense fallback={<div className="p-8">Loading...</div>}>
+        {/* <TransactionProvider> */}
         <Routes>
           <Route path="/" element={<MainLayout />}>
             <Route index element={<Overview />} />
@@ -23,6 +25,7 @@ function App() {
             <Route path="insights" element={<Insights />} />
           </Route>
         </Routes>
+        {/* </TransactionProvider> */}
       </Suspense>
     </BrowserRouter>
   );

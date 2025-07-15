@@ -1,6 +1,9 @@
 import { FiPlus, FiTarget, FiDownload } from "react-icons/fi";
+import useTransactionStore from "../../store/useTransactionStore";
 
 const QuickActions = () => {
+  const { setDisplayModal } = useTransactionStore();
+
   return (
     <>
       <h2 className="text-xl font-semibold mb-2">Quick Actions</h2>
@@ -10,7 +13,10 @@ const QuickActions = () => {
 
       {/* Action Buttons */}
       <div className="flex flex-wrap justify-between gap-4 mt-10">
-        <button className="bg-green-600 hover:bg-green-700 text-white text-sm font-medium px-4 py-2 rounded-lg shadow-md transition cursor-pointer flex items-center gap-2">
+        <button
+          onClick={() => setDisplayModal(true)}
+          className="bg-green-600 hover:bg-green-700 text-white text-sm font-medium px-4 py-2 rounded-lg shadow-md transition cursor-pointer flex items-center gap-2"
+        >
           <FiPlus className="w-4 h-4" />
           <span>Add Expense</span>
         </button>
