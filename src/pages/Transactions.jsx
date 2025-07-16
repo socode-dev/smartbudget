@@ -13,7 +13,6 @@ const Transactions = () => {
     displayModal,
     transactions,
     currencySymbol,
-    // setTransactions,
   } = useTransactionStore();
   const [searchDescription, setSearchDescription] = useState("");
   const [dateFrom, setDateFrom] = useState("");
