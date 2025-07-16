@@ -1,5 +1,99 @@
 import React from "react";
+import { HiOutlinePlus, HiOutlinePencil, HiOutlineTrash } from "react-icons/hi";
+import CircularProgress from "../components/ui/CircularProgress";
 
-const Goals = () => <div className="text-2xl font-bold">Goals</div>;
+const Goals = () => {
+  return (
+    <main className="p-4">
+      <h2 className="text-2xl font-semibold mb-2">Goals</h2>
+      <p className="text-base text-[rgb(var(--color-muted))] mb-6">
+        Stay focused on what you are saving for.
+      </p>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {/* Emergency Fund */}
+        <div className="bg-[rgb(var(--color-bg-card))] p-4 rounded-lg flex justify-between items-start gap-4 ">
+          {/* Goal details */}
+          <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-2 grow">
+              <h3 className="text-lg font-semibold">Emergency Fund</h3>
+              <p className="text-sm text-[rgb(var(--color-muted))]">
+                Target: <strong>$3,000.00</strong>
+              </p>
+              <p className="text-sm text-[rgb(var(--color-muted))]">
+                Saved: <strong>$1,000.00</strong>
+              </p>
+            </div>
+            {/* Progress bar */}
+            <div className="flex items-center ">
+              <CircularProgress progress={13.65} />
+            </div>
+
+            {/* Due date */}
+            <p className="text-sm text-[rgb(var(--color-muted))]">
+              Due date: <strong>July 31, 2025</strong>
+            </p>
+          </div>
+
+          {/* Action buttons */}
+          <div className="flex justify-end gap-4">
+            <button className="text-lg text-blue-500 hover:text-blue-600 transition cursor-pointer">
+              <HiOutlinePencil />
+            </button>
+            <button className="text-lg text-red-500 hover:text-red-600 transition cursor-pointer">
+              <HiOutlineTrash />
+            </button>
+          </div>
+        </div>
+
+        {/* Vacation */}
+        <div className="bg-[rgb(var(--color-bg-card))] p-4 rounded-lg flex justify-between items-start gap-4">
+          {/* Goal details */}
+          <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-2 grow">
+              <h3 className="text-lg font-semibold">Vacation</h3>
+              <p className="text-sm text-[rgb(var(--color-muted))]">
+                Target: <strong>$2,500.00</strong>
+              </p>
+              <p className="text-sm text-[rgb(var(--color-muted))]">
+                Saved: <strong>$1,950.00</strong>
+              </p>
+            </div>
+
+            {/* Progress bar */}
+            <div className="flex items-center">
+              <CircularProgress progress={68} />
+            </div>
+
+            {/* Due date */}
+            <p className="text-sm text-[rgb(var(--color-muted))]">
+              Due date: <strong>August 31, 2025</strong>
+            </p>
+          </div>
+
+          {/* Action buttons */}
+          <div className="flex justify-end gap-4">
+            <button className="text-lg text-blue-500 hover:text-blue-600 transition cursor-pointer">
+              <HiOutlinePencil />
+            </button>
+            <button className="text-lg text-red-500 hover:text-red-600 transition cursor-pointer">
+              <HiOutlineTrash />
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div className="mt-6 flex flex-col items-center">
+        <p className="text-base text-[rgb(var(--color-muted))] mb-6">
+          You have not added any goals yet.
+        </p>
+        <button className="bg-blue-500 text-sm font-medium text-white px-4 py-1.5 md:py-2 rounded-md cursor-pointer hover:bg-blue-600 transition flex items-center gap-2">
+          <HiOutlinePlus />
+          Add Your First Goal
+        </button>
+      </div>
+    </main>
+  );
+};
 
 export default Goals;
