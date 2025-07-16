@@ -87,21 +87,3 @@ body {
   border-radius: 50%;
   background: rgb(var(--color-bg-card));
 }
-
-.my-button {
-  padding-inline: 16px;
-  padding-block: 8px;
-  background-color: hsl(120, 100%, 35%);
-  color: white;
-  border-radius: 10px;
-  font-size: 16px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-  border: none;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.my-button:hover {
-  background-color: hsl(120, 100%, 25%);
-}
