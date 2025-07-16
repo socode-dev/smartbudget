@@ -35,23 +35,17 @@ const Reports = () => {
       </div>
 
       {/* Export */}
-      <div className="flex justify-end flex-wrap mt-10 gap-4 sm:gap-6 md:gap-8 lg:gap-10">
+      <div className="flex justify-end mt-10 gap-4 sm:gap-6 md:gap-8 lg:gap-10">
         <button className="flex items-center gap-2 px-3 py-1.5 rounded-full shadow-md border border-green-200 bg-green-50 hover:bg-green-100 transition text-green-800 font-semibold text-sm focus:outline-none focus:ring-2 focus:ring-green-300 cursor-pointer">
-          <span className="bg-green-100 p-2 rounded-full flex items-center justify-center">
-            <FaFileCsv className="w-5 h-5" />
-          </span>
+          <FaFileCsv className="w-5 h-5" />
           <span>CSV</span>
         </button>
         <button className="flex items-center gap-2 px-3 py-1.5 rounded-full shadow-md border border-red-200 bg-red-50 hover:bg-red-100 transition text-red-800 font-semibold text-sm focus:outline-none focus:ring-2 focus:ring-red-300 cursor-pointer">
-          <span className="bg-red-100 p-2 rounded-full flex items-center justify-center">
-            <FaFilePdf className="w-5 h-5" />
-          </span>
+          <FaFilePdf className="w-5 h-5" />
           <span>PDF</span>
         </button>
         <button className="flex items-center gap-2 px-3 py-1.5 rounded-full shadow-md border border-blue-200 bg-blue-50 hover:bg-blue-100 transition text-blue-800 font-semibold text-sm focus:outline-none focus:ring-2 focus:ring-blue-300 cursor-pointer">
-          <span className="bg-blue-100 p-2 rounded-full flex items-center justify-center">
-            <FaFileCode className="w-5 h-5" />
-          </span>
+          <FaFileCode className="w-5 h-5" />
           <span>JSON</span>
         </button>
       </div>
