@@ -43,7 +43,7 @@ const Sidebar = ({ isOpen, onClose }) => {
         className={`fixed left-0 top-0 h-screen bg-[rgb(var(--color-bg))] text-[rgb(var(--color-text))] flex flex-col shadow-lg transition-all duration-200 z-60 
           ${expanded ? "lg:w-48 w-56" : "lg:w-20 w-16"}
           lg:translate-x-0 lg:static
-          ${isOpen ? "translate-x-0" : "-translate-x-50 lg:translate-x-0"}`}
+          ${isOpen ? "translate-x-0" : "-translate-x-100 lg:translate-x-0"}`}
         style={{ minWidth: expanded ? "10rem" : "4rem" }}
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
@@ -60,7 +60,7 @@ const Sidebar = ({ isOpen, onClose }) => {
           SB
         </div>
         {/* Navigation */}
-        <nav className="grow flex flex-col gap-1 mt-12 px-2 overflow-y-auto">
+        <nav className="flex flex-col gap-1 mt-12 px-2 overflow-y-auto">
           {navLinks.map((link) => (
             <Link
               key={link.to}
@@ -86,7 +86,7 @@ const Sidebar = ({ isOpen, onClose }) => {
           ))}
         </nav>
         {/* Record Sale Button (vertically between nav and user) */}
-        <div className="flex flex-col justify-end grow mt-6">
+        <div className="flex flex-col mt-8">
           <div className="px-2 mb-4">
             <button
               className={`w-full flex items-center gap-2 py-2 rounded-lg bg-[rgb(var(--color-brand))] hover:bg-[rgb(var(--color-brand-hover))] text-white font-semibold transition cursor-pointer ${

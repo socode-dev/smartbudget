@@ -25,8 +25,6 @@ const CATEGORY_OPTIONS = [
 ];
 
 const useTransactionStore = create((set, get) => ({
-  displayModal: false,
-  setDisplayModal: (display) => set({ displayModal: display }),
   transactions: [],
   setTransactions: (txs) => set({ transactions: txs }),
   loadTransactions: async () => {
@@ -55,7 +53,6 @@ const useTransactionStore = create((set, get) => ({
       duration: 3000,
       position: "top-center",
     });
-    set({ displayModal: false });
     set({ category: "" });
     set({ type: "" });
     set({ amount: "" });
@@ -67,7 +64,7 @@ const useTransactionStore = create((set, get) => ({
   setCategory: (category) => set({ category }),
   amount: "",
   setAmount: (amount) => set({ amount }),
-  date: "",
+  date: new Date().toISOString().split("T")[0],
   setDate: (date) => set({ date }),
   description: "",
   setDescription: (description) => set({ description }),
@@ -97,7 +94,6 @@ const useTransactionStore = create((set, get) => ({
       selectedCurrency,
       currencySymbol,
       addTransactionToStore,
-      setDisplayModal,
       isFormValid,
       type,
     } = get();
@@ -119,7 +115,6 @@ const useTransactionStore = create((set, get) => ({
           description: description || undefined,
         };
         await addTransactionToStore(transaction);
-        setDisplayModal(false);
       }
     } catch (err) {
       console.error("Error adding transaction:", err);
