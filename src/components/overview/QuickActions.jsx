@@ -1,8 +1,8 @@
 import { FiPlus, FiTarget, FiDownload } from "react-icons/fi";
-import useTransactionStore from "../../store/useTransactionStore";
+import { useModalContext } from "../../context/ModalContext";
 
 const QuickActions = () => {
-  const { setDisplayModal } = useTransactionStore();
+  const { onOpenModal } = useModalContext();
 
   return (
     <>
@@ -14,16 +14,27 @@ const QuickActions = () => {
       {/* Action Buttons */}
       <div className="flex flex-wrap justify-between gap-4 mt-10">
         <button
-          onClick={() => setDisplayModal(true)}
+          onClick={() => onOpenModal("expense")}
           className="bg-green-600 hover:bg-green-700 text-white text-sm font-medium px-4 py-2 rounded-lg shadow-md transition cursor-pointer flex items-center gap-2"
         >
           <FiPlus className="w-4 h-4" />
           <span>Add Expense</span>
         </button>
 
-        <button className="bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium px-4 py-2 rounded-lg shadow-md transition cursor-pointer flex items-center gap-2">
+        <button
+          onClick={() => onOpenModal("budget")}
+          className="bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium px-4 py-2 rounded-lg shadow-md transition cursor-pointer flex items-center gap-2"
+        >
           <FiTarget className="w-4 h-4" />
           <span>Set Budget</span>
+        </button>
+
+        <button
+          onClick={() => onOpenModal("goal")}
+          className="bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium px-4 py-2 rounded-lg shadow-md transition cursor-pointer flex items-center gap-2"
+        >
+          <FiTarget className="w-4 h-4" />
+          <span>Set Goal</span>
         </button>
 
         <button className="bg-gray-700 hover:bg-gray-800 text-white text-sm font-medium px-4 py-2 rounded-lg shadow-md transition cursor-pointer flex items-center gap-2">

@@ -4,16 +4,12 @@ import TransactionTable from "../components/transaction/TransactionTable";
 import { FaPlus } from "react-icons/fa";
 import Filter from "../components/transaction/Filter";
 import useTransactionStore from "../store/useTransactionStore";
-import AddExpense from "../components/modals/AddExpense";
+import { useModalContext } from "../context/ModalContext";
 
 const Transactions = () => {
-  const {
-    loadTransactions,
-    setDisplayModal,
-    displayModal,
-    transactions,
-    currencySymbol,
-  } = useTransactionStore();
+  const { onOpenModal } = useModalContext();
+  const { loadTransactions, transactions, currencySymbol } =
+    useTransactionStore();
   const [searchDescription, setSearchDescription] = useState("");
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
@@ -85,7 +81,12 @@ const Transactions = () => {
     return acc;
   }, 0);
 
-  const netBalance = totalIncome - totalExpenses;
+  const totalBalance = filteredTransactions.reduce(
+    (acc, tx) => acc + Number(tx.amount),
+    0
+  );
+
+  const netBalance = totalBalance - totalExpenses;
 
   return (
     <main className="my-8">
@@ -132,7 +133,7 @@ const Transactions = () => {
               Total Balance:{" "}
               <span className="font-semibold text-blue-500 text-sm">
                 {currencySymbol}
-                {netBalance.toFixed(2)}
+                {totalBalance.toFixed(2)}
               </span>
             </p>
             <p className="text-[rgb(var(--color-muted))]">
@@ -157,18 +158,21 @@ const Transactions = () => {
           <p className="text-sm text-[rgb(var(--color-muted))]">
             Start by adding your first expense.
           </p>
-          <button
-            onClick={() => setDisplayModal(true)}
-            className="bg-green-500 hover:bg-green-600 transition cursor-pointer text-white px-4 py-2 rounded-md text-sm font-medium flex items-center gap-2"
-          >
-            <FaPlus />
-            <span>Add Expense</span>
-          </button>
         </div>
       )}
-
-      {/* Add Expense Modal */}
-      {displayModal && <AddExpense />}
+      <button
+        onClick={() => onOpenModal("expense")}
+        className={`mt-8 ${
+          !filteredTransactions.length && "mx-auto"
+        } bg-green-500 hover:bg-green-600 transition cursor-pointer text-white px-4 py-2 rounded-md text-sm font-medium flex items-center gap-2`}
+      >
+        <FaPlus />
+        <span>
+          {filteredTransactions.length > 0
+            ? "Add Transaction"
+            : "Add First Transaction"}
+        </span>
+      </button>
     </main>
   );
 };
