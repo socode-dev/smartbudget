@@ -16,10 +16,10 @@ const MainLayout = () => {
   // Disable window scroll when modal is open
   useEffect(() => {
     if (
-      modalState.expense ||
-      modalState.budget ||
-      modalState.goal ||
-      modalState.contribution ||
+      modalState.transactions ||
+      modalState.budgets ||
+      modalState.goals ||
+      modalState.contributions ||
       sidebarOpen
     ) {
       document.body.style.overflow = "hidden";
@@ -45,30 +45,30 @@ const MainLayout = () => {
     <div className="relative flex h-svh bg-[rgb(var(--color-bg))]">
       <Toaster />
       {/* Modals */}
-      {modalState.expense && (
+      {modalState.transactions && (
         <Modal
-          label="expense"
-          title="Add Expense"
+          label="transactions"
+          title="Add Transaction"
           description="Track your spending in real time."
         />
       )}
-      {modalState.budget && (
+      {modalState.budgets && (
         <Modal
-          label="budget"
+          label="budgets"
           title="Set Budget"
           description="Set a financial target to track and achieve."
         />
       )}
-      {modalState.goal && (
+      {modalState.goals && (
         <Modal
-          label="goal"
+          label="goals"
           title="Set Goal"
           description="Set a financial target to track and achieve."
         />
       )}
-      {modalState.contribution && (
+      {modalState.contributions && (
         <Modal
-          label="contribution"
+          label="contributions"
           title="Add Contribution"
           description="Make progress towards your savings goal."
         />

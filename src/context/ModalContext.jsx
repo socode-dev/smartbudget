@@ -3,10 +3,10 @@ import { createContext, useContext, useReducer } from "react";
 const ModalContext = createContext();
 
 const modalInitialState = {
-  expense: false,
-  budget: false,
-  goal: false,
-  contribution: false,
+  transactions: false,
+  budgets: false,
+  goals: false,
+  contributions: false,
 };
 
 const modalReducer = (state, action) => {

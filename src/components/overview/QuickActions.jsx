@@ -14,7 +14,7 @@ const QuickActions = () => {
       {/* Action Buttons */}
       <div className="flex flex-wrap justify-between gap-4 mt-10">
         <button
-          onClick={() => onOpenModal("expense")}
+          onClick={() => onOpenModal("transactions")}
           className="bg-green-600 hover:bg-green-700 text-white text-sm font-medium px-4 py-2 rounded-lg shadow-md transition cursor-pointer flex items-center gap-2"
         >
           <FiPlus className="w-4 h-4" />
@@ -22,7 +22,7 @@ const QuickActions = () => {
         </button>
 
         <button
-          onClick={() => onOpenModal("budget")}
+          onClick={() => onOpenModal("budgets")}
           className="bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium px-4 py-2 rounded-lg shadow-md transition cursor-pointer flex items-center gap-2"
         >
           <FiTarget className="w-4 h-4" />
@@ -30,7 +30,7 @@ const QuickActions = () => {
         </button>
 
         <button
-          onClick={() => onOpenModal("goal")}
+          onClick={() => onOpenModal("goals")}
           className="bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium px-4 py-2 rounded-lg shadow-md transition cursor-pointer flex items-center gap-2"
         >
           <FiTarget className="w-4 h-4" />
