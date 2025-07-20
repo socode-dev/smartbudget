@@ -1,61 +1,46 @@
 import useTransactionStore from "../../store/useTransactionStore";
 import { useModalContext } from "../../context/ModalContext";
+import useFormSubmit from "../../hooks/useFormSubmit";
 
 const ModalForm = ({ label }) => {
   const { onCloseModal } = useModalContext();
+  const { onSubmit, register, watch, errors, isValid } = useFormSubmit(label);
 
-  const {
-    category,
-    setCategory,
-    type,
-    setType,
-    amount,
-    setAmount,
-    date,
-    setDate,
-    description,
-    setDescription,
-    isFormValid,
-    CATEGORY_OPTIONS,
-    handleSave,
-    currencySymbol,
-  } = useTransactionStore();
+  const { CATEGORY_OPTIONS, currencySymbol } = useTransactionStore();
 
-  const formIsValid = isFormValid();
+  const categoryValue = watch("category");
 
-  const handleSubmit = (e) => {
-    handleSave(e);
-    onCloseModal(label);
-  };
+  const transactions = label === "transactions";
+  const budgets = label === "budgets";
+  const goals = label === "goals";
+  const contributions = label === "contributions";
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form onSubmit={onSubmit}>
       {/* Goal name for goal */}
-      {label === "goal" && (
+      {(goals || contributions) && (
         <div className="mb-4">
           <label htmlFor="goal" className="block text-sm font-medium mb-1">
             Goal Name
           </label>
           <input
+            {...register("name")}
             type="text"
             id="goal"
             placeholder="Input goal name"
-            required
-            readOnly={label === "contribution"}
+            readOnly={label === "contributions"}
             className="rounded border border-[rgb(var(--color-gray-border))] bg-[rgb(var(--color-bg-card))] outline-none focus:border-[rgb(var(--color-brand))] text-xs w-full p-2"
           />
         </div>
       )}
 
       {/* Category Dropdown */}
-      {(label === "expense" || label === "budget") && (
+      {(transactions || budgets) && (
         <div className="mb-4">
           <label className="block text-sm font-medium mb-1">Category</label>
           <select
+            {...register("category")}
             className="rounded border border-[rgb(var(--color-gray-border))] bg-[rgb(var(--color-bg-card))] outline-none focus:border-[rgb(var(--color-brand))] text-xs w-full p-2 cursor-pointer"
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
-            required
           >
             <option value="" disabled>
               Select category
@@ -66,20 +51,24 @@ const ModalForm = ({ label }) => {
               </option>
             ))}
           </select>
+          {errors.category && (
+            <p className="text-[13px] text-red-500 mt-1">
+              {errors.category.message}
+            </p>
+          )}
           {/* Show type radio buttons if category is other */}
-          {category.toLowerCase() === "other" && label === "expense" && (
+          {categoryValue?.toLowerCase() === "other" && transactions && (
             <div className="flex flex-col mt-2">
               <h3 className="text-sm font-medium mb-1">Type</h3>
               <div className="flex items-center gap-2">
                 {/* Income Radio Button */}
                 <div className="flex items-center gap-2">
                   <input
+                    {...register("type")}
                     type="radio"
                     name="type"
-                    checked={type === "income"}
-                    value="income"
                     id="income"
-                    onChange={(e) => setType(e.target.value)}
+                    value="income"
                     className="hidden peer"
                   />
                   <label
@@ -93,12 +82,11 @@ const ModalForm = ({ label }) => {
                 {/* Expense Radio Button */}
                 <div className="flex items-center gap-2">
                   <input
+                    {...register("type")}
                     type="radio"
                     name="type"
-                    checked={type === "expense"}
-                    value="expense"
                     id="expense"
-                    onChange={(e) => setType(e.target.value)}
+                    value="expense"
                     className="hidden peer"
                   />
                   <label
@@ -119,11 +107,11 @@ const ModalForm = ({ label }) => {
         {/* Amount Input */}
         <div>
           <label className="block text-sm font-medium mb-1">
-            {label === "expense"
+            {transactions
               ? "Amount"
-              : label === "budget"
+              : budgets
               ? "Budget Limit"
-              : label === "goal"
+              : goals
               ? "Target Amount"
               : "Contribution Amount"}
           </label>
@@ -132,54 +120,61 @@ const ModalForm = ({ label }) => {
               {currencySymbol}
             </span>
             <input
+              {...register("amount")}
               type="number"
               className="rounded border border-[rgb(var(--color-gray-border))] bg-[rgb(var(--color-bg-card))] outline-none focus:border-[rgb(var(--color-brand))] text-xs w-full p-2 cursor-pointer"
               placeholder="0.00"
               step="0.01"
-              min="0"
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
-              required
             />
           </div>
+          {errors.amount && (
+            <p className="text-[13px] text-red-500 mt-1">
+              {errors.amount.message}
+            </p>
+          )}
         </div>
 
         {/* Date Picker */}
         <div>
           <label className="block text-sm font-medium mb-1">
-            {label === "expense"
+            {transactions
               ? "Date"
-              : label === "budget"
+              : budgets
               ? "Start Date"
-              : label === "goal"
+              : goals
               ? "Due Date"
               : "Contribution Date"}
           </label>
           <input
+            {...register("date")}
             type="date"
             className="rounded border border-[rgb(var(--color-gray-border))] bg-[rgb(var(--color-bg-card))] outline-none focus:border-[rgb(var(--color-brand))] text-xs w-full p-2 cursor-pointer"
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
-            required={label === "expense" || label === "budget"}
           />
+          {errors.date && (
+            <p className="text-[13px] text-red-500 mt-1">
+              {errors.date.message}
+            </p>
+          )}
         </div>
       </div>
 
       {/* Description || Notes Textarea */}
       <div className="mb-6">
         <label className="block text-sm font-medium mb-1">
-          {label === "expense" ? "Description" : "Notes"}{" "}
+          {transactions ? "Description" : "Notes"}{" "}
           <span className="text-[rgb(var(--color-muted))]">(optional)</span>
         </label>
         <textarea
           className="rounded border border-[rgb(var(--color-gray-border))] bg-[rgb(var(--color-bg-card))] outline-none focus:border-[rgb(var(--color-brand))] text-xs w-full p-2 resize-none"
           rows={3}
-          placeholder={
-            label === "expense" ? "Short description" : "Short notes"
-          }
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
+          placeholder={transactions ? "Short description" : "Short notes"}
+          {...register("description")}
         />
+        {errors.description && (
+          <p className="text-[13px] text-red-500 mt-1">
+            {errors.description.message}
+          </p>
+        )}
       </div>
       {/* Buttons Row */}
       <footer className="flex justify-end gap-2">
@@ -193,14 +188,14 @@ const ModalForm = ({ label }) => {
         <button
           type="submit"
           className="bg-[rgb(var(--color-brand))] text-white hover:bg-[rgb(var(--color-brand-hover))] transition cursor-pointer px-4 py-2 rounded-md text-xs font-medium"
-          disabled={!formIsValid}
+          disabled={!isValid}
         >
           Save{" "}
-          {label === "expense"
-            ? "Expense"
-            : label === "budget"
+          {transactions
+            ? "Transaction"
+            : budgets
             ? "Budget"
-            : label === "goal"
+            : goals
             ? "Goal"
             : "Contribution"}
         </button>

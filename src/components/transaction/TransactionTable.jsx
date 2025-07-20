@@ -62,7 +62,9 @@ const TransactionTable = ({ transactions }) => {
                 </td>
                 <td className="p-2">
                   <button
-                    onClick={() => deleteTransaction(transaction.id)}
+                    onClick={() =>
+                      deleteTransaction(transaction.id, "transactions")
+                    }
                     className="cursor-pointer text-red-500 hover:text-red-600 transition"
                   >
                     <HiOutlineTrash className="text-sm " />
@@ -109,7 +111,9 @@ const TransactionTable = ({ transactions }) => {
                 </p>
               </div>
               <button
-                onClick={() => deleteTransaction(transaction.id)}
+                onClick={() =>
+                  deleteTransaction(transaction.id, "transactions")
+                }
                 className="cursor-pointer text-red-500 hover:text-red-600 transition"
               >
                 <HiOutlineTrash className="text-sm " />

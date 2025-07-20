@@ -1,11 +1,7 @@
 import { create } from "zustand";
 import useCurrencyStore from "./useCurrencyStore";
 import CURRENCY_SYMBOLS from "../data/currencySymbols";
-import {
-  addTransaction,
-  getAllTransactions,
-  deleteTransaction,
-} from "../data/idbTransactions";
+import idbTransactions from "../store/idbTransactions";
 import { toast } from "react-hot-toast";
 
 const CATEGORY_OPTIONS = [
@@ -26,11 +22,18 @@ const CATEGORY_OPTIONS = [
 
 const useTransactionStore = create((set, get) => ({
   transactions: [],
-  setTransactions: (txs) => set({ transactions: txs }),
-  loadTransactions: async () => {
+  budgets: [],
+  goals: [],
+  contributions: [],
+  setTransactions: (transactions) => set({ transactions }),
+  setBudgets: (budgets) => set({ budgets }),
+  setGoals: (goals) => set({ goals }),
+  setContributions: (contributions) => set({ contributions }),
+  loadTransactions: async (label) => {
     try {
-      const txs = await getAllTransactions();
-      set({ transactions: txs });
+      const { getAllTransactions } = idbTransactions(label);
+      const txs = await getAllTransactions(label);
+      set({ [label]: txs });
     } catch (err) {
       console.error("Error loading transactions:", err);
       toast.error("Failed to load transactions. Please try again.");
@@ -38,90 +41,32 @@ const useTransactionStore = create((set, get) => ({
       console.log("Loading transactions completed");
     }
   },
-  deleteTransaction: async (id) => {
-    await deleteTransaction(id);
-    const txs = await getAllTransactions();
-    set({ transactions: txs });
+  deleteTransaction: async (id, label) => {
+    const { deleteTransaction, getAllTransactions } = idbTransactions(label);
+    await deleteTransaction(id, label);
+    const txs = await getAllTransactions(label);
+    set({ [label]: txs });
   },
-  addTransactionToStore: async (transaction) => {
-    const { setCategory, setType, setAmount, setDate, setDescription } = get();
-    await addTransaction(transaction);
+  clearTransactions: async (label) => {
+    const { clearTransactions, getAllTransactions } = idbTransactions(label);
+    await clearTransactions(label);
+    const txs = await getAllTransactions(label);
+    set({ [label]: [] });
+  },
+  addTransactionToStore: async (transaction, label) => {
+    const { addTransaction, getAllTransactions } = idbTransactions(label);
+    await addTransaction(transaction, label);
     // Reload from idb to ensure sync
-    const txs = await getAllTransactions();
-    set({ transactions: txs });
-    toast.success("Expense added successfully", {
-      duration: 3000,
-      position: "top-center",
-    });
-    set({ category: "" });
-    set({ type: "" });
-    set({ amount: "" });
-    set({ date: "" });
-    set({ description: "" });
+    const txs = await getAllTransactions(label);
+    set({ [label]: txs });
   },
   CATEGORY_OPTIONS,
-  category: "",
-  setCategory: (category) => set({ category }),
-  amount: "",
-  setAmount: (amount) => set({ amount }),
-  date: new Date().toISOString().split("T")[0],
-  setDate: (date) => set({ date }),
-  description: "",
-  setDescription: (description) => set({ description }),
-  type: "income",
-  setType: (type) => set({ type }),
   get selectedCurrency() {
     return useCurrencyStore.getState().selectedCurrency;
   },
   get currencySymbol() {
     const selectedCurrency = useCurrencyStore.getState().selectedCurrency;
     return CURRENCY_SYMBOLS[selectedCurrency] || selectedCurrency;
-  },
-  isFormValid: () => {
-    const { category, amount, date } = get();
-    const parsedAmount = parseFloat(amount);
-    const isAmountValid = !isNaN(parsedAmount) && parsedAmount > 0;
-    const isDateValid = Boolean(date && !isNaN(Date.parse(date)));
-    return Boolean(category && isAmountValid && isDateValid);
-  },
-  handleSave: async (e) => {
-    e.preventDefault();
-    const {
-      category,
-      amount,
-      date,
-      description,
-      selectedCurrency,
-      currencySymbol,
-      addTransactionToStore,
-      isFormValid,
-      type,
-    } = get();
-    const formIsValid = isFormValid();
-
-    const categoryType = CATEGORY_OPTIONS.find(
-      (opt) => opt.name === category
-    )?.type;
-
-    try {
-      if (formIsValid) {
-        const transaction = {
-          category,
-          currencySymbol,
-          currency: selectedCurrency,
-          amount,
-          type: categoryType === "other" ? type : categoryType,
-          date,
-          description: description || undefined,
-        };
-        await addTransactionToStore(transaction);
-      }
-    } catch (err) {
-      console.error("Error adding transaction:", err);
-      toast.error("Failed to add transaction. Please try again.");
-    } finally {
-      console.log("Transaction concluded");
-    }
   },
 }));
 

@@ -20,7 +20,7 @@ const Transactions = () => {
   useEffect(() => {
     let isMounted = true;
     const load = async () => {
-      await loadTransactions();
+      await loadTransactions("transactions");
     };
     load();
 
@@ -30,7 +30,7 @@ const Transactions = () => {
     };
   }, []);
 
-  const filteredTransactions = transactions.filter((tx) => {
+  const filteredTransactions = transactions?.filter((tx) => {
     const matchesDescription =
       searchDescription === ""
         ? true
@@ -62,26 +62,21 @@ const Transactions = () => {
   });
   console.log(filteredTransactions);
 
-  // const handleClearTransactions = async () => {
-  //   await clearTransactions();
-  //   setTransactions([]);
-  // };
-
-  const totalIncome = filteredTransactions.reduce((acc, tx) => {
+  const totalIncome = filteredTransactions?.reduce((acc, tx) => {
     if (tx.type === "income") {
       return acc + Number(tx.amount);
     }
     return acc;
   }, 0);
 
-  const totalExpenses = filteredTransactions.reduce((acc, tx) => {
+  const totalExpenses = filteredTransactions?.reduce((acc, tx) => {
     if (tx.type === "expense") {
       return acc + Number(tx.amount);
     }
     return acc;
   }, 0);
 
-  const totalBalance = filteredTransactions.reduce(
+  const totalBalance = filteredTransactions?.reduce(
     (acc, tx) => acc + Number(tx.amount),
     0
   );
@@ -95,7 +90,7 @@ const Transactions = () => {
         Track all your expenses and income in one place.
       </p>
 
-      {filteredTransactions.length > 0 && (
+      {filteredTransactions?.length > 0 && (
         <>
           {/* Filter Row (Search by note, date range and category) */}
           <Filter
@@ -147,10 +142,15 @@ const Transactions = () => {
         </>
       )}
 
-      {/* <button onClick={handleClearTransactions}>Clear Transactions</button> */}
+      {/* <button
+        onClick={() => clearTransactions("transactions")}
+        className="bg-red-500 hover:bg-red-600 transition cursor-pointer text-white px-4 py-2 rounded-md text-sm font-medium my-4"
+      >
+        Clear Transactions
+      </button> */}
 
       {/* Empty transaction state */}
-      {filteredTransactions.length === 0 && (
+      {filteredTransactions?.length === 0 && (
         <div className="text-center text-sm text-[rgb(var(--color-muted))] flex flex-col items-center gap-4">
           <h3 className="text-xl text-[rgb(var(--color-muted))] font-semibold mb-2">
             No transactions yet.
@@ -161,14 +161,14 @@ const Transactions = () => {
         </div>
       )}
       <button
-        onClick={() => onOpenModal("expense")}
+        onClick={() => onOpenModal("transactions")}
         className={`mt-8 ${
-          !filteredTransactions.length && "mx-auto"
+          !filteredTransactions?.length && "mx-auto"
         } bg-green-500 hover:bg-green-600 transition cursor-pointer text-white px-4 py-2 rounded-md text-sm font-medium flex items-center gap-2`}
       >
         <FaPlus />
         <span>
-          {filteredTransactions.length > 0
+          {filteredTransactions?.length > 0
             ? "Add Transaction"
             : "Add First Transaction"}
         </span>
