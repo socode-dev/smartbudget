@@ -1,10 +1,18 @@
 import useTransactionStore from "../../store/useTransactionStore";
 import { useModalContext } from "../../context/ModalContext";
 import useFormSubmit from "../../hooks/useFormSubmit";
+import { useFormContext } from "../../context/FormContext";
 
-const ModalForm = ({ label }) => {
+const ModalForm = ({ label, mode }) => {
   const { onCloseModal } = useModalContext();
-  const { onSubmit, register, watch, errors, isValid } = useFormSubmit(label);
+  const { onSubmit } = useFormSubmit(label, mode);
+  const forms = useFormContext(label);
+  const {
+    register,
+    watch,
+    formState: { errors },
+  } = forms;
+  console.log(mode);
 
   const { CATEGORY_OPTIONS, currencySymbol } = useTransactionStore();
 
@@ -188,7 +196,6 @@ const ModalForm = ({ label }) => {
         <button
           type="submit"
           className="bg-[rgb(var(--color-brand))] text-white hover:bg-[rgb(var(--color-brand-hover))] transition cursor-pointer px-4 py-2 rounded-md text-xs font-medium"
-          disabled={!isValid}
         >
           Save{" "}
           {transactions

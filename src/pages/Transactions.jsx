@@ -161,7 +161,7 @@ const Transactions = () => {
         </div>
       )}
       <button
-        onClick={() => onOpenModal("transactions")}
+        onClick={() => onOpenModal("transactions", "add")}
         className={`mt-8 ${
           !filteredTransactions?.length && "mx-auto"
         } bg-green-500 hover:bg-green-600 transition cursor-pointer text-white px-4 py-2 rounded-md text-sm font-medium flex items-center gap-2`}

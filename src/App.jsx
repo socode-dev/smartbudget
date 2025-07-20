@@ -2,6 +2,7 @@ import React, { Suspense, lazy } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import MainLayout from "./layout/MainLayout";
 import { ModalProvider } from "./context/ModalContext";
+import { FormProvider } from "./context/FormContext";
 
 const Overview = lazy(() => import("./pages/Overview"));
 const Transactions = lazy(() => import("./pages/Transactions"));
@@ -15,16 +16,18 @@ function App() {
     <BrowserRouter>
       <Suspense fallback={<div className="p-8">Loading...</div>}>
         <ModalProvider>
-          <Routes>
-            <Route path="/" element={<MainLayout />}>
-              <Route index element={<Overview />} />
-              <Route path="transactions" element={<Transactions />} />
-              <Route path="budgets" element={<Budgets />} />
-              <Route path="reports" element={<Reports />} />
-              <Route path="goals" element={<Goals />} />
-              <Route path="insights" element={<Insights />} />
-            </Route>
-          </Routes>
+          <FormProvider>
+            <Routes>
+              <Route path="/" element={<MainLayout />}>
+                <Route index element={<Overview />} />
+                <Route path="transactions" element={<Transactions />} />
+                <Route path="budgets" element={<Budgets />} />
+                <Route path="reports" element={<Reports />} />
+                <Route path="goals" element={<Goals />} />
+                <Route path="insights" element={<Insights />} />
+              </Route>
+            </Routes>
+          </FormProvider>
         </ModalProvider>
       </Suspense>
     </BrowserRouter>

@@ -25,10 +25,18 @@ const useTransactionStore = create((set, get) => ({
   budgets: [],
   goals: [],
   contributions: [],
+  editTransaction: null,
+  editBudget: null,
+  editGoal: null,
+  editContribution: null,
   setTransactions: (transactions) => set({ transactions }),
+  setEditTransaction: (editTransaction) => set({ editTransaction }),
   setBudgets: (budgets) => set({ budgets }),
+  setEditBudget: (editBudget) => set({ editBudget }),
   setGoals: (goals) => set({ goals }),
+  setEditGoal: (editGoal) => set({ editGoal }),
   setContributions: (contributions) => set({ contributions }),
+  setEditContribution: (editContribution) => set({ editContribution }),
   loadTransactions: async (label) => {
     try {
       const { getAllTransactions } = idbTransactions(label);
@@ -57,6 +65,12 @@ const useTransactionStore = create((set, get) => ({
     const { addTransaction, getAllTransactions } = idbTransactions(label);
     await addTransaction(transaction, label);
     // Reload from idb to ensure sync
+    const txs = await getAllTransactions(label);
+    set({ [label]: txs });
+  },
+  updateTransaction: async (transaction, label) => {
+    const { updateTransaction, getAllTransactions } = idbTransactions(label);
+    await updateTransaction(transaction, label);
     const txs = await getAllTransactions(label);
     set({ [label]: txs });
   },
