@@ -45,30 +45,40 @@ const MainLayout = () => {
     <div className="relative flex h-svh bg-[rgb(var(--color-bg))]">
       <Toaster />
       {/* Modals */}
-      {modalState.transactions && (
+      {modalState.transactions.open && (
         <Modal
           label="transactions"
-          title="Add Transaction"
+          mode={modalState.transactions.mode}
+          title={
+            modalState.transactions.mode === "add"
+              ? "Add Transaction"
+              : "Edit Transaction"
+          }
           description="Track your spending in real time."
         />
       )}
-      {modalState.budgets && (
+      {modalState.budgets.open && (
         <Modal
           label="budgets"
-          title="Set Budget"
+          mode={modalState.budgets.mode}
+          title={
+            modalState.budgets.mode === "add" ? "Set Budget" : "Edit Budget"
+          }
           description="Set a financial target to track and achieve."
         />
       )}
-      {modalState.goals && (
+      {modalState.goals.open && (
         <Modal
           label="goals"
-          title="Set Goal"
+          mode={modalState.goals.mode}
+          title={modalState.goals.mode === "add" ? "Set Goal" : "Edit Goal"}
           description="Set a financial target to track and achieve."
         />
       )}
-      {modalState.contributions && (
+      {modalState.contributions.open && (
         <Modal
           label="contributions"
+          mode={modalState.contributions.mode}
           title="Add Contribution"
           description="Make progress towards your savings goal."
         />

@@ -14,7 +14,7 @@ const QuickActions = () => {
       {/* Action Buttons */}
       <div className="flex flex-wrap justify-between gap-4 mt-10">
         <button
-          onClick={() => onOpenModal("transactions")}
+          onClick={() => onOpenModal("transactions", "add")}
           className="bg-green-600 hover:bg-green-700 text-white text-sm font-medium px-4 py-2 rounded-lg shadow-md transition cursor-pointer flex items-center gap-2"
         >
           <FiPlus className="w-4 h-4" />

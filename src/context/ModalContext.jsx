@@ -3,18 +3,24 @@ import { createContext, useContext, useReducer } from "react";
 const ModalContext = createContext();
 
 const modalInitialState = {
-  transactions: false,
-  budgets: false,
-  goals: false,
-  contributions: false,
+  transactions: { open: false, mode: "add" },
+  budgets: { open: false, mode: "add" },
+  goals: { open: false, mode: "add" },
+  contributions: { open: false, mode: "add" },
 };
 
 const modalReducer = (state, action) => {
   switch (action.type) {
     case "OPEN":
-      return { ...state, [action.label]: true };
+      return {
+        ...state,
+        [action.label]: { open: true, mode: action.mode || "add" },
+      };
     case "CLOSE":
-      return { ...state, [action.label]: false };
+      return {
+        ...state,
+        [action.label]: { ...state[action.label], open: false },
+      };
     default:
       return state;
   }
@@ -26,8 +32,8 @@ export const ModalProvider = ({ children }) => {
     modalInitialState
   );
 
-  const onOpenModal = (modal) => {
-    modalDispatch({ type: "OPEN", label: modal });
+  const onOpenModal = (modal, mode = "add") => {
+    modalDispatch({ type: "OPEN", label: modal, mode });
   };
 
   const onCloseModal = (modal) => {

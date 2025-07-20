@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import ModalForm from "../forms/ModalForm";
 
-const Modal = ({ label, title, description }) => {
+const Modal = ({ label, title, description, mode }) => {
   return (
     <>
       {/* Modal Backdrop */}
@@ -22,7 +22,7 @@ const Modal = ({ label, title, description }) => {
           <p className="text-sm text-[rgb(var(--color-muted))] mb-4">
             {description}
           </p>
-          <ModalForm label={label} />
+          <ModalForm label={label} mode={mode} />
         </header>
       </motion.div>
     </>

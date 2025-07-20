@@ -1,13 +1,40 @@
 import useTransactionStore from "../../store/useTransactionStore";
-// import { FaTrash } from "react-icons/fa";
-import { HiOutlineTrash } from "react-icons/hi";
+import { HiOutlineTrash, HiOutlinePencil } from "react-icons/hi";
+import { useModalContext } from "../../context/ModalContext";
+import { useFormContext } from "../../context/FormContext";
 
 const TransactionTable = ({ transactions }) => {
-  const { deleteTransaction } = useTransactionStore();
+  const { deleteTransaction, setEditTransaction, editTransaction } =
+    useTransactionStore();
+  const { onOpenModal } = useModalContext();
+
+  const forms = useFormContext("transactions");
+  const { setValue } = forms;
+
   // Sort transactions by date (latest first)
   const sortedTransactions = [...transactions].sort(
     (a, b) => new Date(b.date) - new Date(a.date)
   );
+
+  const handleEditTransaction = (id, label) => {
+    const transaction = transactions.find((tx) => tx.id === id);
+    if (!transaction && !label) return;
+
+    setValue("name", transaction.name);
+    setValue("category", transaction.category);
+    setValue("type", transaction.type);
+    setValue("amount", transaction.amount.toFixed(2));
+    setValue("date", transaction.date);
+    setValue("description", transaction.description);
+
+    onOpenModal(label, "edit");
+    setEditTransaction(transaction);
+  };
+  console.log(editTransaction);
+
+  const handleDeleteTransaction = (id) => {
+    deleteTransaction(id, "transactions");
+  };
 
   // Helper to format amount with .00 if integer
   const formatAmount = (amount) => {
@@ -63,8 +90,14 @@ const TransactionTable = ({ transactions }) => {
                 <td className="p-2">
                   <button
                     onClick={() =>
-                      deleteTransaction(transaction.id, "transactions")
+                      handleEditTransaction(transaction.id, "transactions")
                     }
+                    className="cursor-pointer text-blue-500 hover:text-blue-600 transition mr-2"
+                  >
+                    <HiOutlinePencil className="text-sm " />
+                  </button>
+                  <button
+                    onClick={() => handleDeleteTransaction(transaction.id)}
                     className="cursor-pointer text-red-500 hover:text-red-600 transition"
                   >
                     <HiOutlineTrash className="text-sm " />
@@ -112,8 +145,14 @@ const TransactionTable = ({ transactions }) => {
               </div>
               <button
                 onClick={() =>
-                  deleteTransaction(transaction.id, "transactions")
+                  handleEditTransaction(transaction.id, "transactions")
                 }
+                className="cursor-pointer text-blue-500 hover:text-blue-600 transition mr-2"
+              >
+                <HiOutlinePencil className="text-sm " />
+              </button>
+              <button
+                onClick={() => handleDeleteTransaction(transaction.id)}
                 className="cursor-pointer text-red-500 hover:text-red-600 transition"
               >
                 <HiOutlineTrash className="text-sm " />
