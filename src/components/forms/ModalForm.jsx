@@ -12,39 +12,26 @@ const ModalForm = ({ label, mode }) => {
     watch,
     formState: { errors },
   } = forms;
-  console.log(mode);
 
   const { CATEGORY_OPTIONS, currencySymbol } = useTransactionStore();
 
   const categoryValue = watch("category");
 
-  const transactions = label === "transactions";
-  const budgets = label === "budgets";
-  const goals = label === "goals";
-  const contributions = label === "contributions";
+  const transactionLabel = label === "transactions";
+  const budgetLabel = label === "budgets";
+  const goalLabel = label === "goals";
+  const contributionLabel = label === "contributions";
+
+  // Get current date
+  const getTodayDate = () => new Date().toISOString().split("T")[0];
 
   return (
-    <form onSubmit={onSubmit}>
+    <form onSubmit={onSubmit} className="space-y-4">
       {/* Goal name for goal */}
-      {(goals || contributions) && (
-        <div className="mb-4">
-          <label htmlFor="goal" className="block text-sm font-medium mb-1">
-            Goal Name
-          </label>
-          <input
-            {...register("name")}
-            type="text"
-            id="goal"
-            placeholder="Input goal name"
-            readOnly={label === "contributions"}
-            className="rounded border border-[rgb(var(--color-gray-border))] bg-[rgb(var(--color-bg-card))] outline-none focus:border-[rgb(var(--color-brand))] text-xs w-full p-2"
-          />
-        </div>
-      )}
 
       {/* Category Dropdown */}
-      {(transactions || budgets) && (
-        <div className="mb-4">
+      {(transactionLabel || budgetLabel) && (
+        <div>
           <label className="block text-sm font-medium mb-1">Category</label>
           <select
             {...register("category")}
@@ -64,49 +51,80 @@ const ModalForm = ({ label, mode }) => {
               {errors.category.message}
             </p>
           )}
-          {/* Show type radio buttons if category is other */}
-          {categoryValue?.toLowerCase() === "other" && transactions && (
-            <div className="flex flex-col mt-2">
-              <h3 className="text-sm font-medium mb-1">Type</h3>
-              <div className="flex items-center gap-2">
-                {/* Income Radio Button */}
-                <div className="flex items-center gap-2">
-                  <input
-                    {...register("type")}
-                    type="radio"
-                    name="type"
-                    id="income"
-                    value="income"
-                    className="hidden peer"
-                  />
-                  <label
-                    htmlFor="income"
-                    className="text-xs border-2 rounded-lg border-[rgb(var(--color-gray-border))] px-4 py-1 peer-checked:border-[rgb(var(--color-brand))] transition cursor-pointer"
-                  >
-                    Income
-                  </label>
-                </div>
+        </div>
+      )}
 
-                {/* Expense Radio Button */}
-                <div className="flex items-center gap-2">
-                  <input
-                    {...register("type")}
-                    type="radio"
-                    name="type"
-                    id="expense"
-                    value="expense"
-                    className="hidden peer"
-                  />
-                  <label
-                    htmlFor="expense"
-                    className="text-xs border-2 rounded-lg border-[rgb(var(--color-gray-border))] px-4 py-1 peer-checked:border-[rgb(var(--color-brand))] transition cursor-pointer"
-                  >
-                    Expense
-                  </label>
-                </div>
-              </div>
-            </div>
+      {/* Goal and budget name for goal and budget */}
+      {(categoryValue?.toLowerCase() === "other" ||
+        goalLabel ||
+        contributionLabel) && (
+        <div>
+          <label htmlFor="name" className="block text-sm font-medium mb-1">
+            {budgetLabel
+              ? "Budget Name"
+              : transactionLabel
+              ? "Transaction Name"
+              : "Goal Name"}
+          </label>
+          <input
+            {...register("name")}
+            type="text"
+            id="name"
+            placeholder={`Input ${
+              transactionLabel ? "transaction" : budgetLabel ? "budget" : "goal"
+            } name`}
+            readOnly={label === "contributions"}
+            className="rounded border border-[rgb(var(--color-gray-border))] bg-[rgb(var(--color-bg-card))] outline-none focus:border-[rgb(var(--color-brand))] text-xs w-full p-2"
+          />
+          {errors.name && (
+            <p className="text-[13px] text-red-500 mt-1">
+              {errors.name.message}
+            </p>
           )}
+        </div>
+      )}
+
+      {/* Show type radio buttons if category is other */}
+      {categoryValue?.toLowerCase() === "other" && transactionLabel && (
+        <div className="flex flex-col">
+          <h3 className="text-sm font-medium mb-1">Type</h3>
+          <div className="flex items-center gap-2">
+            {/* Income Radio Button */}
+            <div className="flex items-center gap-2">
+              <input
+                {...register("type")}
+                type="radio"
+                name="type"
+                id="income"
+                value="income"
+                className="hidden peer"
+              />
+              <label
+                htmlFor="income"
+                className="text-xs border-2 rounded-lg border-[rgb(var(--color-gray-border))] px-4 py-1 peer-checked:border-[rgb(var(--color-brand))] transition cursor-pointer"
+              >
+                Income
+              </label>
+            </div>
+
+            {/* Expense Radio Button */}
+            <div className="flex items-center gap-2">
+              <input
+                {...register("type")}
+                type="radio"
+                name="type"
+                id="expense"
+                value="expense"
+                className="hidden peer"
+              />
+              <label
+                htmlFor="expense"
+                className="text-xs border-2 rounded-lg border-[rgb(var(--color-gray-border))] px-4 py-1 peer-checked:border-[rgb(var(--color-brand))] transition cursor-pointer"
+              >
+                Expense
+              </label>
+            </div>
+          </div>
         </div>
       )}
 
@@ -115,13 +133,13 @@ const ModalForm = ({ label, mode }) => {
         {/* Amount Input */}
         <div>
           <label className="block text-sm font-medium mb-1">
-            {transactions
+            {transactionLabel
               ? "Amount"
-              : budgets
-              ? "Budget Limit"
-              : goals
-              ? "Target Amount"
-              : "Contribution Amount"}
+              : budgetLabel
+              ? "Limit"
+              : goalLabel
+              ? "Target"
+              : "Contribution"}
           </label>
           <div className="flex items-center">
             <span className="text-[rgb(var(--color-muted))] mr-2">
@@ -145,11 +163,11 @@ const ModalForm = ({ label, mode }) => {
         {/* Date Picker */}
         <div>
           <label className="block text-sm font-medium mb-1">
-            {transactions
+            {transactionLabel
               ? "Date"
-              : budgets
+              : budgetLabel
               ? "Start Date"
-              : goals
+              : goalLabel
               ? "Due Date"
               : "Contribution Date"}
           </label>
@@ -167,15 +185,15 @@ const ModalForm = ({ label, mode }) => {
       </div>
 
       {/* Description || Notes Textarea */}
-      <div className="mb-6">
+      <div>
         <label className="block text-sm font-medium mb-1">
-          {transactions ? "Description" : "Notes"}{" "}
+          {transactionLabel ? "Description" : "Notes"}{" "}
           <span className="text-[rgb(var(--color-muted))]">(optional)</span>
         </label>
         <textarea
           className="rounded border border-[rgb(var(--color-gray-border))] bg-[rgb(var(--color-bg-card))] outline-none focus:border-[rgb(var(--color-brand))] text-xs w-full p-2 resize-none"
           rows={3}
-          placeholder={transactions ? "Short description" : "Short notes"}
+          placeholder={transactionLabel ? "Short description" : "Short notes"}
           {...register("description")}
         />
         {errors.description && (
@@ -197,12 +215,12 @@ const ModalForm = ({ label, mode }) => {
           type="submit"
           className="bg-[rgb(var(--color-brand))] text-white hover:bg-[rgb(var(--color-brand-hover))] transition cursor-pointer px-4 py-2 rounded-md text-xs font-medium"
         >
-          Save{" "}
-          {transactions
+          {mode === "add" ? "Save" : "Edit"}{" "}
+          {transactionLabel
             ? "Transaction"
-            : budgets
+            : budgetLabel
             ? "Budget"
-            : goals
+            : goalLabel
             ? "Goal"
             : "Contribution"}
         </button>

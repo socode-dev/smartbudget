@@ -2,6 +2,7 @@ import useTransactionStore from "../store/useTransactionStore";
 import { useModalContext } from "../context/ModalContext";
 import { toast } from "react-hot-toast";
 import { useFormContext } from "../context/FormContext";
+import { generateCategoryKey } from "../utils/generateKey";
 
 const useFormSubmit = (label, mode) => {
   const forms = useFormContext(label);
@@ -22,6 +23,46 @@ const useFormSubmit = (label, mode) => {
   const goals = label === "goals";
   // const contributions = label === "contributions";
 
+  //Generate unique category key
+  const getUniqueCategoryKey = (prefix, name) => {
+    if ((transactions || budgets) && prefix?.toLowerCase() === "other") {
+      console.log(`$prefix}:${name}`);
+
+      return generateCategoryKey(prefix, name);
+    } else if (goals) {
+      console.log("goal:", name);
+
+      return generateCategoryKey("goal", name);
+    } else {
+      console.log("txn:", prefix);
+
+      return generateCategoryKey("txn", prefix);
+    }
+  };
+
+  // Get transaction type
+  const getTransactionType = (categoryType, type) => {
+    const isCategoryOther = categoryType?.toLowerCase() === "other";
+    if ((transactions || budgets) && isCategoryOther) {
+      return type;
+    } else if (goals) {
+      return null;
+    } else {
+      return categoryType;
+    }
+  };
+
+  // Get Transaction / Budget / Goal name
+  const getName = (categoryType, category, name) => {
+    if ((transactions || budgets) && categoryType !== "other") {
+      return category;
+    } else if (goals) {
+      return name;
+    } else {
+      return name;
+    }
+  };
+
   const onSubmit = handleSubmit(async (data) => {
     const categoryType = CATEGORY_OPTIONS.find(
       (opt) => opt.name === data.category
@@ -31,17 +72,13 @@ const useFormSubmit = (label, mode) => {
       if (!transactions && !budgets && !goals) return;
 
       const transaction = {
-        name: goals ? data.name : null,
+        name: getName(categoryType, data.category, data.name),
         category: goals ? null : data.category,
+        categoryKey: getUniqueCategoryKey(data.category, data.name),
         currencySymbol,
         currency: selectedCurrency,
         amount: data.amount,
-        type:
-          transactions || budgets
-            ? categoryType === "other"
-              ? data.type
-              : categoryType
-            : null,
+        type: getTransactionType(categoryType, data.type),
         date: data.date,
         description: data.description,
       };
@@ -61,7 +98,7 @@ const useFormSubmit = (label, mode) => {
       reset();
       onCloseModal(label);
       toast.success(
-        `${label.charAt(0).toUpperCase() + label.slice(1)} ${
+        `${(label.charAt(0).toUpperCase() + label.slice(1)).slice(0, -1)} ${
           mode === "add" ? "added" : "updated"
         } successfully`,
         {
