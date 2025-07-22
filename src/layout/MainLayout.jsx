@@ -16,10 +16,10 @@ const MainLayout = () => {
   // Disable window scroll when modal is open
   useEffect(() => {
     if (
-      modalState.transactions ||
-      modalState.budgets ||
-      modalState.goals ||
-      modalState.contributions ||
+      modalState.transactions.open ||
+      modalState.budgets.open ||
+      modalState.goals.open ||
+      modalState.contributions.open ||
       sidebarOpen
     ) {
       document.body.style.overflow = "hidden";

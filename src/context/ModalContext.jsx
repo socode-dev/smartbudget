@@ -1,4 +1,5 @@
 import { createContext, useContext, useReducer } from "react";
+import { useFormContext } from "../context/FormContext";
 
 const ModalContext = createContext();
 
@@ -31,6 +32,8 @@ export const ModalProvider = ({ children }) => {
     modalReducer,
     modalInitialState
   );
+  const forms = useFormContext("budgets");
+  const { reset } = forms;
 
   const onOpenModal = (modal, mode = "add") => {
     modalDispatch({ type: "OPEN", label: modal, mode });
@@ -38,6 +41,7 @@ export const ModalProvider = ({ children }) => {
 
   const onCloseModal = (modal) => {
     modalDispatch({ type: "CLOSE", label: modal });
+    reset();
   };
 
   return (

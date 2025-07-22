@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 // import { clearTransactions } from "../data/idbTransactions";
 import TransactionTable from "../components/transaction/TransactionTable";
 import { FaPlus } from "react-icons/fa";
@@ -8,27 +8,13 @@ import { useModalContext } from "../context/ModalContext";
 
 const Transactions = () => {
   const { onOpenModal } = useModalContext();
-  const { loadTransactions, transactions, currencySymbol } =
-    useTransactionStore();
+  const { transactions, currencySymbol } = useTransactionStore();
   const [searchDescription, setSearchDescription] = useState("");
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [typeFilter, setTypeFilter] = useState("all");
   console.log(transactions);
-
-  useEffect(() => {
-    let isMounted = true;
-    const load = async () => {
-      await loadTransactions("transactions");
-    };
-    load();
-
-    // Cleanup to avoid memory leaks
-    return () => {
-      isMounted = false;
-    };
-  }, []);
 
   const filteredTransactions = transactions?.filter((tx) => {
     const matchesDescription =
