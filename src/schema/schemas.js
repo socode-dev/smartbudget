@@ -43,6 +43,7 @@ const schemas = {
     description: z.string().optional(),
   }),
   contributions: z.object({
+    name: z.string().min(1, { message: "Enter a name" }),
     amount: z.coerce
       .number({ invalid_type: "Please enter a valid amount" })
       .gt(0, { message: "Amount must be greater than 0" }),

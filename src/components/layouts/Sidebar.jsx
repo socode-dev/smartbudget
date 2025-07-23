@@ -67,7 +67,7 @@ const Sidebar = ({ isOpen, onClose }) => {
               to={link.to}
               onClick={onClose}
               aria-label={link.label}
-              className={`relative group flex items-center gap-3 px-2 py-2 rounded-lg hover:bg-blue-700 hover:text-white transition-colors text-gray-800 ${
+              className={`relative group flex items-center gap-3 px-2 py-2 rounded-lg hover:bg-blue-700 hover:text-white transition-colors text-[rgb(var(--color-muted))] ${
                 expanded ? "justify-start pl-2" : "justify-center"
               }  ${
                 location.pathname === link.to ? "bg-blue-100 text-blue-700" : ""
@@ -89,7 +89,7 @@ const Sidebar = ({ isOpen, onClose }) => {
         <div className="flex flex-col mt-8">
           <div className="px-2 mb-4">
             <button
-              className={`w-full flex items-center gap-2 py-2 rounded-lg bg-[rgb(var(--color-brand))] hover:bg-[rgb(var(--color-brand-hover))] text-white font-semibold transition cursor-pointer ${
+              className={`w-full flex items-center gap-2 py-2 rounded-lg bg-[rgb(var(--color-brand))] hover:bg-[rgb(var(--color-brand-hover))] text-[rgb(var(--color-muted))] font-semibold transition cursor-pointer ${
                 expanded ? "justify-start pl-2" : "justify-center"
               }`}
               aria-label="Record Sale"
@@ -106,13 +106,13 @@ const Sidebar = ({ isOpen, onClose }) => {
           </div>
           {/* User Info */}
           <div
-            className={`flex items-center gap-2 mb-6 px-2 ${
+            className={`flex items-center text-[rgb(var(--color-muted))] gap-2 mb-6 px-2 ${
               expanded ? "justify-start" : "justify-center"
             }`}
           >
-            <FaUserCircle size={28} className="text-gray-400" />
+            <FaUserCircle size={28} />
             <span
-              className={`text-gray-500 font-normal text-xs transition-all duration-200 ${
+              className={` font-normal text-xs transition-all duration-200 ${
                 expanded ? "inline" : "hidden"
               } custom980:inline`}
             >

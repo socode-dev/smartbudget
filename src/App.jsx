@@ -18,7 +18,7 @@ function App() {
   useEffect(() => {
     let isMounted = true;
     const load = () => {
-      const labels = ["transactions", "budgets", "goals"];
+      const labels = ["transactions", "budgets", "goals", "contributions"];
       labels.forEach(async (label) => {
         await loadTransactions(label);
       });

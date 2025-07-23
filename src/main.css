@@ -13,10 +13,11 @@
   --color-bg: 245 245 245;
   --color-bg-card: 255 255 255;
   --color-text: 15 23 42;
-  --color-muted: 107 114 128;
+  --color-muted: 55, 65, 81;
   --color-gray-bg: 243 244 246; /* light gray for AI settings dropdowns */
   --color-gray-bg-settings: 245 245 245; /* darker gray for settings dropdown */
   --color-gray-border: 229 229 229; /* border for dropdowns */
+  --color-contribution-bg: 240, 253, 244;
 }
 
 .dark {
@@ -25,10 +26,11 @@
   --color-brand: 59 130 246;
   --color-brand-hover: 37 99 235;
   --color-text: 255 255 255;
-  --color-muted: 156 163 175;
+  --color-muted: 156, 163, 175;
   --color-gray-bg: 64 64 64; /* dark gray for AI settings dropdowns */
   --color-gray-bg-settings: 23 23 23; /* darker gray for settings dropdown */
   --color-gray-border: 64 64 64; /* border for dropdowns */
+  --color-contribution-bg: 5, 46, 22;
 }
 
 html {
