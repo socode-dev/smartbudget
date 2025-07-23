@@ -1,18 +1,74 @@
-import React from "react";
+import { useCallback, useEffect, useState } from "react";
 import { HiOutlinePlus, HiOutlinePencil, HiOutlineTrash } from "react-icons/hi";
 import CircularProgress from "../components/ui/CircularProgress";
 import { useModalContext } from "../context/ModalContext";
+import useTransactionStore from "../store/useTransactionStore";
+import { useFormContext } from "../context/FormContext";
 
 const Goals = () => {
-  const { onOpenModal } = useModalContext();
+  const { onOpenModal, modalState } = useModalContext();
+  const contributionModalState = modalState.contributions;
+  const { goals, contributions, deleteTransaction, setEditTransaction } =
+    useTransactionStore();
+  const [searchName, setSearchName] = useState("");
 
-  const handleAddGoal = () => {
-    onOpenModal("goal");
+  // Goal form
+  const goalForm = useFormContext("goals");
+  const { setValue: setGoalValue } = goalForm;
+  // Contribution form
+  const contributionForm = useFormContext("contributions");
+  const { setValue: setContributionValue, reset, getValues } = contributionForm;
+
+  // Set the value of contribution name to the clicked goal name
+  useEffect(() => {
+    if (contributionModalState.open && contributionModalState.meta?.goalName) {
+      setContributionValue("name", contributionModalState.meta.goalName);
+    }
+
+    // Cleanup to prevent memory leak
+    return () => {
+      reset();
+    };
+  }, [contributionModalState.open, contributionModalState.meta?.name]);
+
+  // Open contribution modal
+  const handleAddContribution = (id, label, name) => {
+    onOpenModal(label, "add", { goalId: id, goalName: name });
   };
 
-  const handleAddContribution = () => {
-    onOpenModal("contribution");
+  // Handler for goal editing
+  const handleEditGoal = (id, label) => {
+    const goal = goals.find((tx) => tx.id === id);
+    if (!goal && !label) return;
+
+    setGoalValue("name", goal.name);
+    setGoalValue("type", goal.type);
+    setGoalValue("amount", goal.amount.toFixed(2));
+    setGoalValue("date", goal.date);
+    setGoalValue("description", goal.description);
+
+    onOpenModal(label, "edit");
+    setEditTransaction(goal);
   };
+
+  const getAmountSaved = useCallback(
+    (key) => {
+      const amountSaved = contributions.filter(
+        (contribution) => contribution.categoryKey === key
+      );
+      return amountSaved.reduce((acc, tx) => acc + tx.amount, 0);
+    },
+    [contributions]
+  );
+
+  const filteredGoals = goals.filter((goal) => {
+    const matchesName =
+      searchName === ""
+        ? true
+        : goal?.name?.toLowerCase().includes(searchName?.toLowerCase());
+
+    return matchesName;
+  });
 
   return (
     <main className="p-4">
@@ -21,110 +77,108 @@ const Goals = () => {
         Stay focused on what you are saving for.
       </p>
 
+      {/* Search bar to search goal by name */}
+      <input
+        type="text"
+        placeholder="Search by name..."
+        className="w-full mx-auto mb-10 rounded border border-[rgb(var(--color-gray-border))] bg-[rgb(var(--color-bg-card))] outline-none focus:border-[rgb(var(--color-brand))] transition text-xs p-2"
+        value={searchName}
+        onChange={(e) => setSearchName(e.target.value)}
+      />
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {/* Emergency Fund */}
-        <div className="bg-[rgb(var(--color-bg-card))] p-4 rounded-lg flex flex-col gap-6">
-          {/* Goal details */}
-          <div className="grow shrink-0 flex justify-between items-start gap-4">
-            <div className="flex flex-col gap-4">
-              <div className="flex flex-col gap-2 grow">
-                <h3 className="text-lg font-semibold">Emergency Fund</h3>
-                <p className="text-sm text-[rgb(var(--color-muted))]">
-                  Target: <strong>$3,000.00</strong>
-                </p>
-                <p className="text-sm text-[rgb(var(--color-muted))]">
-                  Saved: <strong>$1,000.00</strong>
-                </p>
-              </div>
-              {/* Progress bar */}
-              <div className="flex items-center ">
-                <CircularProgress progress={13.65} />
-              </div>
+        {filteredGoals.map((goal) => {
+          const goalTargetAmount = goal.amount.toFixed(2);
+          const amountSaved = getAmountSaved(goal.categoryKey);
+          const contributionProgress = (amountSaved / goalTargetAmount) * 100;
 
-              {/* Due date */}
-              <p className="text-sm text-[rgb(var(--color-muted))]">
-                Due date: <strong>July 31, 2025</strong>
-              </p>
-            </div>
+          return (
+            <div
+              key={goal.id}
+              className="bg-[rgb(var(--color-bg-card))] p-4 rounded-lg flex flex-col gap-6"
+            >
+              {/* Goal details */}
+              <div className="grow shrink-0 flex justify-between items-start gap-4">
+                <div className="flex flex-col gap-4">
+                  <div className="flex flex-col gap-2 grow">
+                    <h3 className="text-lg font-semibold">{goal.name}</h3>
+                    <p className="text-sm text-[rgb(var(--color-muted))]">
+                      Target:{" "}
+                      <strong>
+                        {goal.currencySymbol}
+                        {goalTargetAmount}
+                      </strong>
+                    </p>
+                    <p className="text-sm text-[rgb(var(--color-muted))]">
+                      Saved:{" "}
+                      <strong>
+                        {goal.currencySymbol}
+                        {amountSaved.toFixed(2)}
+                      </strong>
+                    </p>
+                  </div>
+                  {/* Progress bar */}
+                  <div className="flex items-center ">
+                    <CircularProgress progress={contributionProgress} />
+                  </div>
 
-            {/* Edit and delete buttons */}
-            <div className="flex justify-end gap-4">
-              <button className="text-lg text-blue-500 hover:text-blue-600 transition cursor-pointer">
-                <HiOutlinePencil />
-              </button>
-              <button className="text-lg text-red-500 hover:text-red-600 transition cursor-pointer">
-                <HiOutlineTrash />
-              </button>
-            </div>
-          </div>
+                  {/* Due date */}
+                  <p className="text-sm text-[rgb(var(--color-muted))]">
+                    Due date: <strong>{goal.date}</strong>
+                  </p>
+                </div>
 
-          {/* Add contribution button */}
-          <button
-            onClick={handleAddContribution}
-            className="border-green-500 border bg-green-50 text-sm font-medium text-[rgb(var(--color-text))] px-4 py-1.5 md:py-2 rounded-md cursor-pointer hover:bg-green-500 hover:text-white transition flex justify-center items-center gap-2"
-          >
-            <HiOutlinePlus />
-            Add Contribution
-          </button>
-        </div>
-
-        {/* Vacation */}
-        <div className="bg-[rgb(var(--color-bg-card))] p-4 rounded-lg flex flex-col gap-6">
-          <div className="flex justify-between items-start gap-4">
-            {/* Goal details */}
-            <div className="flex flex-col gap-4">
-              <div className="flex flex-col gap-2 grow">
-                <h3 className="text-lg font-semibold">Vacation</h3>
-                <p className="text-sm text-[rgb(var(--color-muted))]">
-                  Target: <strong>$2,500.00</strong>
-                </p>
-                <p className="text-sm text-[rgb(var(--color-muted))]">
-                  Saved: <strong>$1,950.00</strong>
-                </p>
+                {/* Edit and delete buttons */}
+                <div className="flex justify-end gap-4">
+                  <button
+                    onClick={() => handleEditGoal(goal.id, "goals")}
+                    className="text-lg text-blue-500 hover:text-blue-600 transition cursor-pointer"
+                  >
+                    <HiOutlinePencil />
+                  </button>
+                  <button
+                    onClick={() => deleteTransaction(goal.id, "goals")}
+                    className="text-lg text-red-500 hover:text-red-600 transition cursor-pointer"
+                  >
+                    <HiOutlineTrash />
+                  </button>
+                </div>
               </div>
 
-              {/* Progress bar */}
-              <div className="flex items-center">
-                <CircularProgress progress={68} />
-              </div>
-
-              {/* Due date */}
-              <p className="text-sm text-[rgb(var(--color-muted))]">
-                Due date: <strong>August 31, 2025</strong>
-              </p>
-            </div>
-
-            {/* Edit and delete buttons */}
-            <div className="flex justify-end gap-4">
-              <button className="text-lg text-blue-500 hover:text-blue-600 transition cursor-pointer">
-                <HiOutlinePencil />
-              </button>
-              <button className="text-lg text-red-500 hover:text-red-600 transition cursor-pointer">
-                <HiOutlineTrash />
+              {/* Add contribution button */}
+              <button
+                onClick={() =>
+                  handleAddContribution(goal.id, "contributions", goal.name)
+                }
+                className="border-green-500 border bg-[rgb(var(--color-contribution-bg))] text-sm font-medium text-[rgb(var(--color-text))] px-4 py-1.5 md:py-2 rounded-md cursor-pointer hover:bg-green-500 hover:text-white transition flex justify-center items-center gap-2"
+              >
+                <HiOutlinePlus />
+                Add Contribution
               </button>
             </div>
-          </div>
-
-          {/* Add contribution button */}
-          <button className="border-green-500 border bg-green-50 text-sm font-medium text-[rgb(var(--color-text))] px-4 py-1.5 md:py-2 rounded-md cursor-pointer hover:bg-green-500 hover:text-white transition flex justify-center items-center gap-2">
-            <HiOutlinePlus />
-            Add Contribution
-          </button>
-        </div>
+          );
+        })}
       </div>
 
-      <div className="mt-6 flex flex-col items-center">
-        <p className="text-base text-[rgb(var(--color-muted))] mb-6">
-          You have not added any goals yet.
-        </p>
-        <button
-          onClick={handleAddGoal}
-          className="bg-blue-500 text-sm font-medium text-white px-4 py-1.5 md:py-2 rounded-md cursor-pointer hover:bg-blue-600 transition flex items-center gap-2"
-        >
-          <HiOutlinePlus />
-          Add Your First Goal
-        </button>
-      </div>
+      {/* Empty State */}
+      {goals.length === 0 && (
+        <div className="mt-6 flex flex-col items-center w-full">
+          <p className="text-base text-[rgb(var(--color-muted))] mb-6">
+            You have not set any financial goals yet. Start saving
+            intentionally.
+          </p>
+        </div>
+      )}
+      <button
+        onClick={() => onOpenModal("goals", "add")}
+        className={`mt-10 ${
+          !goals?.length && "mx-auto"
+        } bg-blue-500 hover:bg-blue-600 transition cursor-pointer text-white px-4 py-2 rounded-md text-sm font-medium flex items-center gap-2`}
+      >
+        <HiOutlinePlus />
+        <span>{goals.length === 0 ? "Add Your First Goal" : "Add Goal"}</span>
+      </button>
     </main>
   );
 };

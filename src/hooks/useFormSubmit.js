@@ -21,7 +21,7 @@ const useFormSubmit = (label, mode) => {
   const transactions = label === "transactions";
   const budgets = label === "budgets";
   const goals = label === "goals";
-  // const contributions = label === "contributions";
+  const contributions = label === "contributions";
 
   //Generate unique category key
   const getUniqueCategoryKey = (prefix, name) => {
@@ -29,7 +29,7 @@ const useFormSubmit = (label, mode) => {
       console.log(`$prefix}:${name}`);
 
       return generateCategoryKey(prefix, name);
-    } else if (goals) {
+    } else if (goals || contributions) {
       console.log("goal:", name);
 
       return generateCategoryKey("goal", name);
@@ -45,7 +45,7 @@ const useFormSubmit = (label, mode) => {
     const isCategoryOther = categoryType?.toLowerCase() === "other";
     if ((transactions || budgets) && isCategoryOther) {
       return type;
-    } else if (goals) {
+    } else if (goals || contributions) {
       return null;
     } else {
       return categoryType;
@@ -56,7 +56,7 @@ const useFormSubmit = (label, mode) => {
   const getName = (categoryType, category, name) => {
     if ((transactions || budgets) && categoryType !== "other") {
       return category;
-    } else if (goals) {
+    } else if (goals || contributions) {
       return name;
     } else {
       return name;
@@ -69,11 +69,12 @@ const useFormSubmit = (label, mode) => {
     )?.type;
 
     try {
-      if (!transactions && !budgets && !goals) return;
+      if (!transactions && !budgets && !goals && !contributions) return;
 
+      // Create transaction object
       const transaction = {
         name: getName(categoryType, data.category, data.name),
-        category: goals ? null : data.category,
+        category: goals || contributions ? null : data.category,
         categoryKey: getUniqueCategoryKey(data.category, data.name),
         currencySymbol,
         currency: selectedCurrency,
@@ -89,10 +90,8 @@ const useFormSubmit = (label, mode) => {
 
       if (mode === "add") {
         await addTransactionToStore(transaction, label);
-        console.log("added");
       } else if (mode === "edit") {
         await updateTransaction(transaction, label);
-        console.log("updated");
       }
 
       reset();

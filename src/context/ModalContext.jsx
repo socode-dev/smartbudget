@@ -15,12 +15,16 @@ const modalReducer = (state, action) => {
     case "OPEN":
       return {
         ...state,
-        [action.label]: { open: true, mode: action.mode || "add" },
+        [action.label]: {
+          open: true,
+          mode: action.mode || "add",
+          meta: action.meta || {},
+        },
       };
     case "CLOSE":
       return {
         ...state,
-        [action.label]: { ...state[action.label], open: false },
+        [action.label]: { ...state[action.label], open: false, meta: {} },
       };
     default:
       return state;
@@ -35,8 +39,8 @@ export const ModalProvider = ({ children }) => {
   const forms = useFormContext("budgets");
   const { reset } = forms;
 
-  const onOpenModal = (modal, mode = "add") => {
-    modalDispatch({ type: "OPEN", label: modal, mode });
+  const onOpenModal = (modal, mode = "add", meta = {}) => {
+    modalDispatch({ type: "OPEN", label: modal, mode, meta });
   };
 
   const onCloseModal = (modal) => {

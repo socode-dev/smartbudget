@@ -1,12 +1,15 @@
 import React from "react";
 
-const size = 66; // px
-const strokeWidth = 6;
+const size = 70; // px
+const strokeWidth = 8;
 const radius = (size - strokeWidth) / 2;
 const circumference = 2 * Math.PI * radius;
 
 const CircularProgress = ({ progress = 0, color = "#22c55e" }) => {
-  const offset = circumference - (progress / 100) * circumference;
+  const offset = Math.max(
+    circumference - (Math.min(progress, 100) / 100) * circumference,
+    0
+  );
   return (
     <svg width={size} height={size} className="block">
       <circle

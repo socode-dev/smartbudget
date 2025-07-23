@@ -10,6 +10,7 @@ const ModalForm = ({ label, mode }) => {
   const {
     register,
     watch,
+    setValue,
     formState: { errors },
   } = forms;
 
@@ -24,11 +25,10 @@ const ModalForm = ({ label, mode }) => {
 
   // Get current date
   const getTodayDate = () => new Date().toISOString().split("T")[0];
+  setValue("date", getTodayDate());
 
   return (
     <form onSubmit={onSubmit} className="space-y-4">
-      {/* Goal name for goal */}
-
       {/* Category Dropdown */}
       {(transactionLabel || budgetLabel) && (
         <div>
@@ -64,7 +64,7 @@ const ModalForm = ({ label, mode }) => {
               ? "Budget Name"
               : transactionLabel
               ? "Transaction Name"
-              : "Goal Name"}
+              : "Name"}
           </label>
           <input
             {...register("name")}
@@ -73,7 +73,7 @@ const ModalForm = ({ label, mode }) => {
             placeholder={`Input ${
               transactionLabel ? "transaction" : budgetLabel ? "budget" : "goal"
             } name`}
-            readOnly={label === "contributions"}
+            readOnly={contributionLabel}
             className="rounded border border-[rgb(var(--color-gray-border))] bg-[rgb(var(--color-bg-card))] outline-none focus:border-[rgb(var(--color-brand))] text-xs w-full p-2"
           />
           {errors.name && (
@@ -133,13 +133,7 @@ const ModalForm = ({ label, mode }) => {
         {/* Amount Input */}
         <div>
           <label className="block text-sm font-medium mb-1">
-            {transactionLabel
-              ? "Amount"
-              : budgetLabel
-              ? "Limit"
-              : goalLabel
-              ? "Target"
-              : "Contribution"}
+            {budgetLabel ? "Limit" : goalLabel ? "Target" : "Amount"}
           </label>
           <div className="flex items-center">
             <span className="text-[rgb(var(--color-muted))] mr-2">
