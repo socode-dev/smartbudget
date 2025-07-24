@@ -55,13 +55,15 @@ const Budgets = () => {
         Monitor and manage your category limits
       </p>
 
-      <input
-        type="text"
-        placeholder="Search by name..."
-        className="w-full mx-auto mb-6 rounded border border-[rgb(var(--color-gray-border))] bg-[rgb(var(--color-bg-card))] outline-none focus:border-[rgb(var(--color-brand))] transition text-xs p-2"
-        value={searchName}
-        onChange={(e) => setSearchName(e.target.value)}
-      />
+      {budgets.length > 0 && (
+        <input
+          type="text"
+          placeholder="Search by name..."
+          className="w-full mx-auto mb-6 rounded border border-[rgb(var(--color-gray-border))] bg-[rgb(var(--color-bg-card))] outline-none focus:border-[rgb(var(--color-brand))] transition text-xs p-2"
+          value={searchName}
+          onChange={(e) => setSearchName(e.target.value)}
+        />
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {/* Groceries Category */}
@@ -143,18 +145,24 @@ const Budgets = () => {
         {/* End of Budgets */}
       </div>
 
+      {/* Empty state if budget searched does not exist */}
+      {filteredBudgets?.length === 0 && budgets.length > 0 && (
+        <p className="text-center text-base text-[rgb(var(--color-muted))] mb-6">
+          The budget you are looking for does not exist.
+        </p>
+      )}
+
       {/* Empty State */}
       {budgets.length === 0 && (
-        <div className="mt-6 flex flex-col items-center w-full">
-          <p className="text-base text-[rgb(var(--color-muted))] mb-6">
-            You have not added any budgets yet.
-          </p>
-        </div>
+        <p className="mt-6 text-base text-[rgb(var(--color-muted))] mb-6">
+          You have not added any budgets yet.
+        </p>
       )}
+
       <button
         onClick={() => onOpenModal("budgets", "add")}
         className={`mt-10 ${
-          !budgets?.length && "mx-auto"
+          !filteredBudgets?.length && "mx-auto"
         } bg-blue-500 hover:bg-blue-600 transition cursor-pointer text-white px-4 py-2 rounded-md text-sm font-medium flex items-center gap-2`}
       >
         <HiOutlinePlus />

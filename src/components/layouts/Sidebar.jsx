@@ -32,7 +32,7 @@ const Sidebar = ({ isOpen, onClose }) => {
       {/* Overlay for mobile */}
       {isOpen && (
         <div
-          className={`fixed inset-0 bg-black/20 z-20 lg:hidden transition-opacity duration-200 ${
+          className={`fixed inset-0 bg-black/20 z-60 lg:hidden transition-opacity duration-200 ${
             isOpen ? "block" : "hidden"
           }`}
           onClick={onClose}
@@ -40,7 +40,7 @@ const Sidebar = ({ isOpen, onClose }) => {
         />
       )}
       <section
-        className={`fixed left-0 top-0 h-screen bg-[rgb(var(--color-bg))] text-[rgb(var(--color-text))] flex flex-col shadow-lg transition-all duration-200 z-60 
+        className={`fixed left-0 top-0 h-screen bg-[rgb(var(--color-bg))] text-[rgb(var(--color-text))] flex flex-col shadow-lg transition-all duration-200 z-70 
           ${expanded ? "lg:w-48 w-56" : "lg:w-20 w-16"}
           lg:translate-x-0 lg:static
           ${isOpen ? "translate-x-0" : "-translate-x-100 lg:translate-x-0"}`}
