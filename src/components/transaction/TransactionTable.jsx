@@ -2,6 +2,7 @@ import useTransactionStore from "../../store/useTransactionStore";
 import { HiOutlineTrash, HiOutlinePencil } from "react-icons/hi";
 import { useModalContext } from "../../context/ModalContext";
 import { useFormContext } from "../../context/FormContext";
+import { useMemo } from "react";
 
 const TransactionTable = ({ transactions }) => {
   const { deleteTransaction, setEditTransaction, editTransaction } =
@@ -12,8 +13,9 @@ const TransactionTable = ({ transactions }) => {
   const { setValue } = forms;
 
   // Sort transactions by date (latest first)
-  const sortedTransactions = [...transactions].sort(
-    (a, b) => new Date(b.date) - new Date(a.date)
+  const sortedTransactions = useMemo(
+    () => [...transactions].sort((a, b) => new Date(b.date) - new Date(a.date)),
+    [transactions]
   );
 
   const handleEditTransaction = (id, label) => {
@@ -36,11 +38,6 @@ const TransactionTable = ({ transactions }) => {
     deleteTransaction(id, "transactions");
   };
 
-  // Helper to format amount with .00 if integer
-  const formatAmount = (amount) => {
-    const num = Number(amount);
-    return Number.isInteger(num) ? num.toFixed(2) : amount;
-  };
   return (
     <div className="">
       <h3 className="text-lg text-[rgb(var(--color-muted))] font-semibold mb-4">
@@ -72,7 +69,7 @@ const TransactionTable = ({ transactions }) => {
               <tr key={transaction.id}>
                 <td className="p-2 text-[12px]">{transaction.date}</td>
                 <td className="p-2 text-[12px]">
-                  {transaction.description || "-"}
+                  {transaction.description || "No description"}
                 </td>
                 <td className="p-2 text-[12px]">{transaction.category}</td>
                 <td
@@ -83,8 +80,8 @@ const TransactionTable = ({ transactions }) => {
                   }`}
                 >
                   {transaction.type === "income" ? "+" : "-"}
-                  {`${transaction.currencySymbol}${formatAmount(
-                    transaction.amount
+                  {`${transaction.currencySymbol}${transaction.amount?.toFixed(
+                    2
                   )}`}
                 </td>
                 <td className="p-2">
@@ -137,8 +134,8 @@ const TransactionTable = ({ transactions }) => {
                     }`}
                   >
                     {transaction.type === "income" ? "+" : "-"}
-                    {`${transaction.currencySymbol}${formatAmount(
-                      transaction.amount
+                    {`${transaction.currencySymbol}${transaction.amount.toFixed(
+                      2
                     )}`}
                   </span>
                 </p>
