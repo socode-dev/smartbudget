@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 // import { clearTransactions } from "../data/idbTransactions";
 import TransactionTable from "../components/transaction/TransactionTable";
 import { FaPlus } from "react-icons/fa";
@@ -14,7 +14,6 @@ const Transactions = () => {
   const [dateTo, setDateTo] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [typeFilter, setTypeFilter] = useState("all");
-  console.log(transactions);
 
   const filteredTransactions = transactions?.filter((tx) => {
     const matchesDescription =
@@ -46,28 +45,34 @@ const Transactions = () => {
 
     // return matchesDescription && matchesCategory && matchesType;
   });
-  console.log(filteredTransactions);
 
-  const totalIncome = filteredTransactions?.reduce((acc, tx) => {
-    if (tx.type === "income") {
-      return acc + Number(tx.amount);
-    }
-    return acc;
-  }, 0);
+  // Get total income, expenses, and balance
+  const total = useCallback(() => {
+    const totalIncome = filteredTransactions?.reduce(
+      (acc, tx) => (tx.type === "income" ? acc + Number(tx.amount) : acc),
+      0
+    );
+    const totalExpenses = filteredTransactions?.reduce(
+      (acc, tx) => (tx.type === "expense" ? acc + Number(tx.amount) : acc),
+      0
+    );
+    const totalBalance = filteredTransactions?.reduce(
+      (acc, tx) => acc + Number(tx.amount),
+      0
+    );
 
-  const totalExpenses = filteredTransactions?.reduce((acc, tx) => {
-    if (tx.type === "expense") {
-      return acc + Number(tx.amount);
-    }
-    return acc;
-  }, 0);
+    return { totalIncome, totalExpenses, totalBalance };
+  }, [filteredTransactions]);
 
-  const totalBalance = filteredTransactions?.reduce(
-    (acc, tx) => acc + Number(tx.amount),
-    0
+  const { totalBalance, totalExpenses, totalIncome } = useMemo(
+    () => total(),
+    [total]
   );
 
-  const netBalance = totalBalance - totalExpenses;
+  const netBalance = useMemo(
+    () => totalBalance - totalExpenses,
+    [totalBalance, totalExpenses]
+  );
 
   return (
     <main className="my-8">
@@ -76,21 +81,24 @@ const Transactions = () => {
         Track all your expenses and income in one place.
       </p>
 
+      {/* Filter Row (Search by note, date range and category) */}
+      {transactions.length > 0 && (
+        <Filter
+          searchDescription={searchDescription}
+          setSearchDescription={setSearchDescription}
+          dateFrom={dateFrom}
+          setDateFrom={setDateFrom}
+          dateTo={dateTo}
+          setDateTo={setDateTo}
+          categoryFilter={categoryFilter}
+          setCategoryFilter={setCategoryFilter}
+          typeFilter={typeFilter}
+          setTypeFilter={setTypeFilter}
+        />
+      )}
+
       {filteredTransactions?.length > 0 && (
         <>
-          {/* Filter Row (Search by note, date range and category) */}
-          <Filter
-            searchDescription={searchDescription}
-            setSearchDescription={setSearchDescription}
-            dateFrom={dateFrom}
-            setDateFrom={setDateFrom}
-            dateTo={dateTo}
-            setDateTo={setDateTo}
-            categoryFilter={categoryFilter}
-            setCategoryFilter={setCategoryFilter}
-            typeFilter={typeFilter}
-            setTypeFilter={setTypeFilter}
-          />
           {/* Transaction Table */}
           <TransactionTable transactions={filteredTransactions} />
 
@@ -100,43 +108,43 @@ const Transactions = () => {
               Total Income:{" "}
               <span className="font-semibold text-green-500 text-sm">
                 +{currencySymbol}
-                {totalIncome.toFixed(2)}
+                {totalIncome?.toFixed(2)}
               </span>
             </p>
             <p className="text-[rgb(var(--color-muted))]">
               Total Expenses:{" "}
               <span className="font-semibold text-red-500 text-sm">
                 -{currencySymbol}
-                {totalExpenses.toFixed(2)}
+                {totalExpenses?.toFixed(2)}
               </span>
             </p>
             <p className="text-[rgb(var(--color-muted))]">
               Total Balance:{" "}
               <span className="font-semibold text-blue-500 text-sm">
                 {currencySymbol}
-                {totalBalance.toFixed(2)}
+                {totalBalance?.toFixed(2)}
               </span>
             </p>
             <p className="text-[rgb(var(--color-muted))]">
               Net Balance:{" "}
               <span className="font-semibold text-yellow-500 text-sm">
                 {currencySymbol}
-                {netBalance.toFixed(2)}
+                {netBalance?.toFixed(2)}
               </span>
             </p>
           </div>
         </>
       )}
 
-      {/* <button
-        onClick={() => clearTransactions("transactions")}
-        className="bg-red-500 hover:bg-red-600 transition cursor-pointer text-white px-4 py-2 rounded-md text-sm font-medium my-4"
-      >
-        Clear Transactions
-      </button> */}
+      {/* Show if filtered transaction is empty */}
+      {filteredTransactions?.length === 0 && transactions.length > 0 && (
+        <p className="text-center text-sm text-[rgb(var(--color-muted))]">
+          Transaction does not exist.
+        </p>
+      )}
 
       {/* Empty transaction state */}
-      {filteredTransactions?.length === 0 && (
+      {transactions?.length === 0 && (
         <div className="text-center text-sm text-[rgb(var(--color-muted))] flex flex-col items-center gap-4">
           <h3 className="text-xl text-[rgb(var(--color-muted))] font-semibold mb-2">
             No transactions yet.
