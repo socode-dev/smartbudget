@@ -139,7 +139,7 @@ const Transactions = () => {
       {/* Show if filtered transaction is empty */}
       {filteredTransactions?.length === 0 && transactions.length > 0 && (
         <p className="text-center text-sm text-[rgb(var(--color-muted))]">
-          Transaction does not exist.
+          The transaction you are looking for does not exist.
         </p>
       )}
 
@@ -162,7 +162,7 @@ const Transactions = () => {
       >
         <FaPlus />
         <span>
-          {filteredTransactions?.length > 0
+          {transactions?.length > 0
             ? "Add Transaction"
             : "Add First Transaction"}
         </span>

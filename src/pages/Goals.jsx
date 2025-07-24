@@ -161,6 +161,13 @@ const Goals = () => {
         })}
       </div>
 
+      {/* Empty state if goal searched does not exist */}
+      {filteredGoals?.length === 0 && goals.length > 0 && (
+        <p className="text-center text-base text-[rgb(var(--color-muted))] mb-6">
+          The goal you are looking for does not exist.
+        </p>
+      )}
+
       {/* Empty State */}
       {goals.length === 0 && (
         <div className="mt-6 flex flex-col items-center w-full">
@@ -173,7 +180,7 @@ const Goals = () => {
       <button
         onClick={() => onOpenModal("goals", "add")}
         className={`mt-10 ${
-          !goals?.length && "mx-auto"
+          !filteredGoals?.length && "mx-auto"
         } bg-blue-500 hover:bg-blue-600 transition cursor-pointer text-white px-4 py-2 rounded-md text-sm font-medium flex items-center gap-2`}
       >
         <HiOutlinePlus />
