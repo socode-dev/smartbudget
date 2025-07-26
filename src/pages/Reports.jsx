@@ -1,7 +1,7 @@
 import React from "react";
-import PieChart from "../components/reports/PieChart";
 import { FaFileCsv, FaFilePdf } from "react-icons/fa";
 import BarChart from "../components/charts/BarChart";
+import DoughnutChart from "../components/charts/DoughnutChart";
 
 const Reports = () => {
   return (
@@ -24,12 +24,12 @@ const Reports = () => {
         </div>
 
         {/* Category Breakdown */}
-        <div className="flex flex-col bg-[rgb(var(--color-bg-card))] p-4 rounded-lg shadow-md">
+        <div className="flex flex-col gap-4 bg-[rgb(var(--color-bg-card))] p-4 rounded-lg shadow-md">
           <h3 className="text-lg font-semibold">Category Breakdown</h3>
 
           {/* Pie Chart */}
           <div className="grow w-full h-68">
-            <PieChart />
+            <DoughnutChart />
           </div>
         </div>
       </div>
