@@ -89,7 +89,7 @@ const Sidebar = ({ isOpen, onClose }) => {
         <div className="flex flex-col mt-8">
           <div className="px-2 mb-4">
             <button
-              className={`w-full flex items-center gap-2 py-2 rounded-lg bg-[rgb(var(--color-brand))] hover:bg-[rgb(var(--color-brand-hover))] text-[rgb(var(--color-muted))] font-semibold transition cursor-pointer ${
+              className={`w-full flex items-center gap-2 py-2 rounded-lg bg-[rgb(var(--color-brand))] hover:bg-[rgb(var(--color-brand-hover))] text-gray-100 font-semibold transition cursor-pointer ${
                 expanded ? "justify-start pl-2" : "justify-center"
               }`}
               aria-label="Record Sale"
