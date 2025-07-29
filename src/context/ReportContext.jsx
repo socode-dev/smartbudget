@@ -216,7 +216,7 @@ export const ReportProvider = ({ children }) => {
 
     const doc = new jsPDF();
 
-    // Add title
+    // Add PDF heading and style
     doc.setFontSize(23);
     doc.text("SmartBudget Expenses Report by Category", 25, 15);
 
@@ -253,6 +253,7 @@ export const ReportProvider = ({ children }) => {
   return (
     <ReportContext.Provider
       value={{
+        expenses,
         barChartData,
         barChartOptions,
         doughnutChartData,
