@@ -63,17 +63,17 @@ const TransactionTable = ({ transactions }) => {
             <th className="text-left text-[rgb(var(--color-muted))] p-2"></th>
           </tr>
         </thead>
-        <tbody className="bg-[rgb(var(--color-bg-card))] divide-y divide-[rgb(var(--color-gray-border))]">
+        <tbody className="bg-[rgb(var(--color-bg-card))] divide-y divide-[rgb(var(--color-gray-border))] text-[12px]">
           {sortedTransactions.map((transaction) => (
             <>
               <tr key={transaction.id}>
-                <td className="p-2 text-[12px]">{transaction.date}</td>
-                <td className="p-2 text-[12px]">
+                <td className="p-2">{transaction.date}</td>
+                <td className="p-2">
                   {transaction.description || "No description"}
                 </td>
-                <td className="p-2 text-[12px]">{transaction.category}</td>
+                <td className="p-2">{transaction.category}</td>
                 <td
-                  className={`p-2 text-[12px] ${
+                  className={`p-2 ${
                     transaction.type === "income"
                       ? "text-green-500"
                       : "text-red-500"

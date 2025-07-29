@@ -4,6 +4,8 @@ import MainLayout from "./layout/MainLayout";
 import { ModalProvider } from "./context/ModalContext";
 import { FormProvider } from "./context/FormContext";
 import useTransactionStore from "./store/useTransactionStore";
+import { ReportProvider } from "./context/ReportContext";
+import { useThemeEffect } from "./hooks/useThemeEffect";
 
 const Overview = lazy(() => import("./pages/Overview"));
 const Transactions = lazy(() => import("./pages/Transactions"));
@@ -14,6 +16,9 @@ const Insights = lazy(() => import("./pages/Insights"));
 
 function App() {
   const { loadTransactions } = useTransactionStore();
+
+  // Initialize and handle theme changes
+  useThemeEffect();
 
   useEffect(() => {
     let isMounted = true;
@@ -41,7 +46,14 @@ function App() {
                 <Route index element={<Overview />} />
                 <Route path="transactions" element={<Transactions />} />
                 <Route path="budgets" element={<Budgets />} />
-                <Route path="reports" element={<Reports />} />
+                <Route
+                  path="reports"
+                  element={
+                    <ReportProvider>
+                      <Reports />
+                    </ReportProvider>
+                  }
+                />
                 <Route path="goals" element={<Goals />} />
                 <Route path="insights" element={<Insights />} />
               </Route>

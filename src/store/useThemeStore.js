@@ -5,18 +5,26 @@ const useThemeStore = create(
   persist(
     (set, get) => ({
       theme: "light",
-      // toggleTheme: () =>
-      //   set((state) => ({ theme: state.theme === "light" ? "dark" : "light" })),
-      // setTheme: (theme) => set({ theme }),
+
       toggleTheme: () => {
         set((state) => {
           const newTheme = state.theme === "light" ? "dark" : "light";
-          document.documentElement.classList.toggle(
-            "dark",
-            newTheme === "dark"
-          );
           return { theme: newTheme };
         });
+      },
+
+      setTheme: (theme) => {
+        set({ theme });
+      },
+
+      // Initialize theme on app load
+      initializeTheme: () => {
+        const { theme } = get();
+        if (theme === "dark") {
+          document.documentElement.classList.add("dark");
+        } else {
+          document.documentElement.classList.remove("dark");
+        }
       },
     }),
     {

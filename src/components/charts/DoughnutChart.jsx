@@ -1,14 +1,10 @@
-import { useEffect, useMemo, useRef } from "react";
-import useTransactionStore from "../../store/useTransactionStore";
+import { useEffect, useRef } from "react";
 import { Doughnut } from "react-chartjs-2";
-import {
-  getDoughnutChartData,
-  doughnutChartOptions,
-} from "./chartConfig/doughnutChart";
+import { useReportContext } from "../../context/ReportContext";
 
 const DoughnutChart = () => {
   const chartRef = useRef(null);
-  const { transactions, currencySymbol } = useTransactionStore();
+  const { doughnutChartData, doughnutChartOptions } = useReportContext();
 
   // Cleanup chart on unmount
   useEffect(() => {
@@ -19,17 +15,13 @@ const DoughnutChart = () => {
     };
   }, []);
 
-  // Data for the chart
-  const doughnutData = useMemo(
-    () => getDoughnutChartData(transactions),
-    [transactions]
+  return (
+    <Doughnut
+      ref={chartRef}
+      data={doughnutChartData}
+      options={doughnutChartOptions}
+    />
   );
-  const options = useMemo(
-    () => doughnutChartOptions(currencySymbol),
-    [currencySymbol]
-  );
-
-  return <Doughnut ref={chartRef} data={doughnutData} options={options} />;
 };
 
 export default DoughnutChart;

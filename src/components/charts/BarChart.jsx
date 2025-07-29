@@ -1,11 +1,12 @@
 import { Bar } from "react-chartjs-2";
-import { getBarChartData, barChartOptions } from "./chartConfig/barChart";
-import useTransactionStore from "../../store/useTransactionStore";
-import { useEffect, useMemo, useRef } from "react";
+// import { getBarChartData, barChartOptions } from "./chartConfig/barChart";
+// import useTransactionStore from "../../store/useTransactionStore";
+import { useEffect, useRef } from "react";
+import { useReportContext } from "../../context/ReportContext";
 
 const BarChart = () => {
   const chartRef = useRef(null);
-  const { transactions, currencySymbol } = useTransactionStore();
+  const { barChartOptions, barChartData } = useReportContext();
 
   // Cleanup chart on unmount
   useEffect(() => {
@@ -16,14 +17,14 @@ const BarChart = () => {
     };
   }, []);
 
-  // Data for the chart
-  const data = useMemo(() => getBarChartData(transactions), [transactions]);
-  const options = useMemo(
-    () => barChartOptions(currencySymbol),
-    [currencySymbol]
+  return (
+    <Bar
+      ref={chartRef}
+      data={barChartData}
+      options={barChartOptions}
+      height={700}
+    />
   );
-
-  return <Bar ref={chartRef} data={data} options={options} height={700} />;
 };
 
 export default BarChart;
