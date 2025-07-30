@@ -3,10 +3,10 @@ import { HiOutlineTrash, HiOutlinePencil } from "react-icons/hi";
 import { useModalContext } from "../../context/ModalContext";
 import { useFormContext } from "../../context/FormContext";
 import { useMemo } from "react";
+import { handleEdit } from "../../utils/handleEdit";
 
 const TransactionTable = ({ transactions }) => {
-  const { deleteTransaction, setEditTransaction, editTransaction } =
-    useTransactionStore();
+  const { deleteTransaction, setEditTransaction } = useTransactionStore();
   const { onOpenModal } = useModalContext();
 
   const forms = useFormContext("transactions");
@@ -18,21 +18,17 @@ const TransactionTable = ({ transactions }) => {
     [transactions]
   );
 
-  const handleEditTransaction = (id, label) => {
-    const transaction = transactions.find((tx) => tx.id === id);
-    if (!transaction && !label) return;
-
-    setValue("name", transaction.name);
-    setValue("category", transaction.category);
-    setValue("type", transaction.type);
-    setValue("amount", transaction.amount.toFixed(2));
-    setValue("date", transaction.date);
-    setValue("description", transaction.description);
-
-    onOpenModal(label, "edit");
-    setEditTransaction(transaction);
+  const handleEditTransaction = (id) => {
+    handleEdit(
+      id,
+      "transactions",
+      "edit",
+      transactions,
+      setValue,
+      onOpenModal,
+      setEditTransaction
+    );
   };
-  console.log(editTransaction);
 
   const handleDeleteTransaction = (id) => {
     deleteTransaction(id, "transactions");
@@ -65,43 +61,39 @@ const TransactionTable = ({ transactions }) => {
         </thead>
         <tbody className="bg-[rgb(var(--color-bg-card))] divide-y divide-[rgb(var(--color-gray-border))] text-[12px]">
           {sortedTransactions.map((transaction) => (
-            <>
-              <tr key={transaction.id}>
-                <td className="p-2">{transaction.date}</td>
-                <td className="p-2">
-                  {transaction.description || "No description"}
-                </td>
-                <td className="p-2">{transaction.category}</td>
-                <td
-                  className={`p-2 ${
-                    transaction.type === "income"
-                      ? "text-green-500"
-                      : "text-red-500"
-                  }`}
+            <tr key={transaction.id}>
+              <td className="p-2">{transaction.date}</td>
+              <td className="p-2">
+                {transaction.description || "No description"}
+              </td>
+              <td className="p-2">{transaction.category}</td>
+              <td
+                className={`p-2 ${
+                  transaction.type === "income"
+                    ? "text-green-500"
+                    : "text-red-500"
+                }`}
+              >
+                {transaction.type === "income" ? "+" : "-"}
+                {`${transaction.currencySymbol}${transaction.amount?.toFixed(
+                  2
+                )}`}
+              </td>
+              <td className="p-2">
+                <button
+                  onClick={() => handleEditTransaction(transaction.id)}
+                  className="cursor-pointer text-blue-500 hover:text-blue-600 transition mr-2"
                 >
-                  {transaction.type === "income" ? "+" : "-"}
-                  {`${transaction.currencySymbol}${transaction.amount?.toFixed(
-                    2
-                  )}`}
-                </td>
-                <td className="p-2">
-                  <button
-                    onClick={() =>
-                      handleEditTransaction(transaction.id, "transactions")
-                    }
-                    className="cursor-pointer text-blue-500 hover:text-blue-600 transition mr-2"
-                  >
-                    <HiOutlinePencil className="text-sm " />
-                  </button>
-                  <button
-                    onClick={() => handleDeleteTransaction(transaction.id)}
-                    className="cursor-pointer text-red-500 hover:text-red-600 transition"
-                  >
-                    <HiOutlineTrash className="text-sm " />
-                  </button>
-                </td>
-              </tr>
-            </>
+                  <HiOutlinePencil className="text-sm " />
+                </button>
+                <button
+                  onClick={() => handleDeleteTransaction(transaction.id)}
+                  className="cursor-pointer text-red-500 hover:text-red-600 transition"
+                >
+                  <HiOutlineTrash className="text-sm " />
+                </button>
+              </td>
+            </tr>
           ))}
         </tbody>
       </table>
@@ -141,9 +133,7 @@ const TransactionTable = ({ transactions }) => {
                 </p>
               </div>
               <button
-                onClick={() =>
-                  handleEditTransaction(transaction.id, "transactions")
-                }
+                onClick={() => handleEditTransaction(transaction.id)}
                 className="cursor-pointer text-blue-500 hover:text-blue-600 transition mr-2"
               >
                 <HiOutlinePencil className="text-sm " />

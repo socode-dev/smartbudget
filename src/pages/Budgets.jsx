@@ -3,6 +3,8 @@ import { HiOutlineTrash, HiOutlinePencil, HiOutlinePlus } from "react-icons/hi";
 import { useModalContext } from "../context/ModalContext";
 import useTransactionStore from "../store/useTransactionStore";
 import { useFormContext } from "../context/FormContext";
+import { handleEdit } from "../utils/handleEdit";
+import { format } from "date-fns";
 
 const Budgets = () => {
   const [searchName, setSearchName] = useState("");
@@ -21,29 +23,23 @@ const Budgets = () => {
     return matchesName;
   });
 
-  const handleEditTransaction = (id, label) => {
-    const budget = budgets.find((tx) => tx.id === id);
-    if (!budget && !label) return;
-
-    setValue("name", budget.name);
-    setValue("category", budget.category);
-    setValue("type", budget.type);
-    setValue("amount", budget.amount.toFixed(2));
-    setValue("date", budget.date);
-    setValue("description", budget.description);
-
-    onOpenModal(label, "edit");
-    setEditTransaction(budget);
-  };
-
   const handleDeleteTransaction = (id) => {
     deleteTransaction(id, "budgets");
   };
 
   const getAmountSpent = useCallback(
-    (key) => {
-      const amountSpent = transactions.filter((tx) => tx.categoryKey === key);
-      return amountSpent.reduce((acc, tx) => acc + tx.amount, 0);
+    (key, date) => {
+      const budgetDate = new Date(date);
+      const spendingRecords = transactions.filter(
+        (tx) =>
+          tx.categoryKey === key &&
+          new Date(tx.date).getMonth() === budgetDate.getMonth() &&
+          new Date(tx.date).getFullYear() === budgetDate.getFullYear()
+      );
+      // let budgetSpending = spendingRecords.map(record => new Date(record.date).getMonth() == new Date())
+      console.log(spendingRecords);
+
+      return spendingRecords.reduce((acc, tx) => acc + tx.amount, 0);
     },
     [transactions]
   );
@@ -69,8 +65,12 @@ const Budgets = () => {
         {/* Groceries Category */}
 
         {filteredBudgets.map((budget) => {
+          const monthLabel = format(new Date(budget.date), "MMMM yyyy");
           const budgetLimit = budget.amount.toFixed(2);
-          const amountSpent = getAmountSpent(budget.categoryKey).toFixed(2);
+          const amountSpent = getAmountSpent(
+            budget.categoryKey,
+            budget.date
+          ).toFixed(2);
           const remainingBalance = (budgetLimit - amountSpent).toFixed(2);
           const progressBarPercentage = (amountSpent / budgetLimit) * 100;
           const progressBarBackground =
@@ -85,12 +85,17 @@ const Budgets = () => {
               key={budget.id}
               className="bg-[rgb(var(--color-bg-card))] p-4 rounded-lg flex justify-between items-start gap-4"
             >
-              <div className="flex flex-col gap-2 grow">
-                <h3 className="text-lg font-semibold">
-                  {budget.category.toLowerCase() === "other"
-                    ? budget.name
-                    : budget.category}
-                </h3>
+              <div className="grow space-y-1">
+                <div className="mb-4">
+                  <h3 className="text-lg font-semibold">
+                    {budget.category.toLowerCase() === "other"
+                      ? budget.name
+                      : budget.category}
+                  </h3>
+                  <p className="text-gray-500 bg-[rgb(var(--color-bg))] text-xs font-medium w-fit py-0.5 px-2 rounded mt-1">
+                    {monthLabel}
+                  </p>
+                </div>
                 <p className="text-sm text-[rgb(var(--color-muted))]">
                   Limit:{" "}
                   <strong>
@@ -127,7 +132,17 @@ const Budgets = () => {
               <div className="flex gap-2">
                 <button
                   className="text-sm text-blue-500 hover:text-blue-600 transition cursor-pointer"
-                  onClick={() => handleEditTransaction(budget.id, "budgets")}
+                  onClick={() =>
+                    handleEdit(
+                      budget.id,
+                      "budgets",
+                      "edit",
+                      budgets,
+                      setValue,
+                      onOpenModal,
+                      setEditTransaction
+                    )
+                  }
                 >
                   <HiOutlinePencil className="text-lg" />
                 </button>
