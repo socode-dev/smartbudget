@@ -4,6 +4,7 @@ import CircularProgress from "../components/ui/CircularProgress";
 import { useModalContext } from "../context/ModalContext";
 import useTransactionStore from "../store/useTransactionStore";
 import { useFormContext } from "../context/FormContext";
+import toast from "react-hot-toast";
 
 const Goals = () => {
   const { onOpenModal, modalState } = useModalContext();
@@ -69,6 +70,30 @@ const Goals = () => {
 
     return matchesName;
   });
+
+  // Handler to delete goal and its contributions(if any)
+  const deleteGoalAndContribution = useCallback(
+    (id, key) => {
+      const goalContributions = contributions.filter(
+        (contribution) => contribution.categoryKey === key
+      );
+      if (goalContributions.length > 0) {
+        for (let i = 0; i < goalContributions?.length; i++) {
+          for (const contribution of goalContributions) {
+            deleteTransaction(contribution.id, "contributions");
+          }
+        }
+        deleteTransaction(id, "goals");
+      } else {
+        deleteTransaction(id, "goals");
+      }
+
+      setTimeout(() => {
+        toast.success("Goal deleted successfuly", { duration: 3000 });
+      }, 50);
+    },
+    [contributions]
+  );
 
   return (
     <main className="p-4">
@@ -138,7 +163,9 @@ const Goals = () => {
                     <HiOutlinePencil />
                   </button>
                   <button
-                    onClick={() => deleteTransaction(goal.id, "goals")}
+                    onClick={() =>
+                      deleteGoalAndContribution(goal.id, goal.categoryKey)
+                    }
                     className="text-lg text-red-500 hover:text-red-600 transition cursor-pointer"
                   >
                     <HiOutlineTrash />
