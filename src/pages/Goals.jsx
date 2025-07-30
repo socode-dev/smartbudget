@@ -5,6 +5,7 @@ import { useModalContext } from "../context/ModalContext";
 import useTransactionStore from "../store/useTransactionStore";
 import { useFormContext } from "../context/FormContext";
 import toast from "react-hot-toast";
+import { handleEdit } from "../utils/handleEdit";
 
 const Goals = () => {
   const { onOpenModal, modalState } = useModalContext();
@@ -38,18 +39,16 @@ const Goals = () => {
   };
 
   // Handler for goal editing
-  const handleEditGoal = (id, label) => {
-    const goal = goals.find((tx) => tx.id === id);
-    if (!goal && !label) return;
-
-    setGoalValue("name", goal.name);
-    setGoalValue("type", goal.type);
-    setGoalValue("amount", goal.amount.toFixed(2));
-    setGoalValue("date", goal.date);
-    setGoalValue("description", goal.description);
-
-    onOpenModal(label, "edit");
-    setEditTransaction(goal);
+  const handleEditGoal = (id) => {
+    handleEdit(
+      id,
+      "goals",
+      "edit",
+      goals,
+      setGoalValue,
+      onOpenModal,
+      setEditTransaction
+    );
   };
 
   const getAmountSaved = useCallback(
@@ -157,7 +156,7 @@ const Goals = () => {
                 {/* Edit and delete buttons */}
                 <div className="flex justify-end gap-4">
                   <button
-                    onClick={() => handleEditGoal(goal.id, "goals")}
+                    onClick={() => handleEditGoal(goal.id)}
                     className="text-lg text-blue-500 hover:text-blue-600 transition cursor-pointer"
                   >
                     <HiOutlinePencil />
