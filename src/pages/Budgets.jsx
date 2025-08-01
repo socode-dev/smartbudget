@@ -36,8 +36,6 @@ const Budgets = () => {
           new Date(tx.date).getMonth() === budgetDate.getMonth() &&
           new Date(tx.date).getFullYear() === budgetDate.getFullYear()
       );
-      // let budgetSpending = spendingRecords.map(record => new Date(record.date).getMonth() == new Date())
-      console.log(spendingRecords);
 
       return spendingRecords.reduce((acc, tx) => acc + tx.amount, 0);
     },

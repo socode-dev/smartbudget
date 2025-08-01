@@ -1,10 +1,10 @@
 import { useCallback, useMemo, useState } from "react";
-// import { clearTransactions } from "../data/idbTransactions";
 import TransactionTable from "../components/transaction/TransactionTable";
 import { FaPlus } from "react-icons/fa";
 import Filter from "../components/transaction/Filter";
 import useTransactionStore from "../store/useTransactionStore";
 import { useModalContext } from "../context/ModalContext";
+import { transactionTotal } from "../utils/transactionTotal";
 
 const Transactions = () => {
   const { onOpenModal } = useModalContext();
@@ -47,31 +47,14 @@ const Transactions = () => {
   });
 
   // Get total income, expenses, and balance
-  const total = useCallback(() => {
-    const totalIncome = filteredTransactions?.reduce(
-      (acc, tx) => (tx.type === "income" ? acc + Number(tx.amount) : acc),
-      0
-    );
-    const totalExpenses = filteredTransactions?.reduce(
-      (acc, tx) => (tx.type === "expense" ? acc + Number(tx.amount) : acc),
-      0
-    );
-    const totalBalance = filteredTransactions?.reduce(
-      (acc, tx) => acc + Number(tx.amount),
-      0
-    );
-
-    return { totalIncome, totalExpenses, totalBalance };
-  }, [filteredTransactions]);
-
   const { totalBalance, totalExpenses, totalIncome } = useMemo(
-    () => total(),
-    [total]
+    () => transactionTotal(filteredTransactions),
+    [filteredTransactions]
   );
 
   const netBalance = useMemo(
-    () => totalBalance - totalExpenses,
-    [totalBalance, totalExpenses]
+    () => totalIncome - totalExpenses,
+    [totalIncome, totalExpenses]
   );
 
   return (
