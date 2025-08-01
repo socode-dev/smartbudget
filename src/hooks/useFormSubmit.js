@@ -26,16 +26,10 @@ const useFormSubmit = (label, mode) => {
   //Generate unique category key
   const getUniqueCategoryKey = (prefix, name) => {
     if ((transactions || budgets) && prefix?.toLowerCase() === "other") {
-      console.log(`$prefix}:${name}`);
-
       return generateCategoryKey(prefix, name);
     } else if (goals || contributions) {
-      console.log("goal:", name);
-
       return generateCategoryKey("goal", name);
     } else {
-      console.log("txn:", prefix);
-
       return generateCategoryKey("txn", prefix);
     }
   };
@@ -94,7 +88,6 @@ const useFormSubmit = (label, mode) => {
         await updateTransaction(transaction, label);
       }
 
-      reset();
       onCloseModal(label);
       toast.success(
         `${(label.charAt(0).toUpperCase() + label.slice(1)).slice(0, -1)} ${
@@ -105,6 +98,7 @@ const useFormSubmit = (label, mode) => {
           position: "top-center",
         }
       );
+      reset();
     } catch (err) {
       console.error("Error adding transaction:", err);
     } finally {

@@ -6,6 +6,7 @@ import { FormProvider } from "./context/FormContext";
 import useTransactionStore from "./store/useTransactionStore";
 import { ReportProvider } from "./context/ReportContext";
 import { useThemeEffect } from "./hooks/useThemeEffect";
+import { OverviewProvider } from "./context/OverviewContext";
 
 const Overview = lazy(() => import("./pages/Overview"));
 const Transactions = lazy(() => import("./pages/Transactions"));
@@ -43,7 +44,14 @@ function App() {
           <ModalProvider>
             <Routes>
               <Route path="/" element={<MainLayout />}>
-                <Route index element={<Overview />} />
+                <Route
+                  index
+                  element={
+                    <OverviewProvider>
+                      <Overview />
+                    </OverviewProvider>
+                  }
+                />
                 <Route path="transactions" element={<Transactions />} />
                 <Route path="budgets" element={<Budgets />} />
                 <Route
