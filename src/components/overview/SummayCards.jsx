@@ -5,7 +5,6 @@ import {
   FaChartPie,
 } from "react-icons/fa";
 import { useOverviewContext } from "../../context/OverviewContext";
-import clsx from "clsx";
 import { useCallback, useMemo } from "react";
 
 const SummaryCards = () => {
@@ -50,20 +49,20 @@ const SummaryCards = () => {
   );
 
   const cardContainerStyle =
-    "md:relative flex md:flex-col justify-center items-center text-center gap-4 p-4 rounded-lg bg-[rgb(var(--color-bg-card))] shadow z-0";
+    "sm:relative flex sm:flex-col justify-evenly items-center text-center gap-4 p-4 rounded-lg bg-[rgb(var(--color-bg-card))] shadow z-0";
 
   const cardIconStyle =
-    "md:absolute md:-top-5 md:left-1/2 md:-translate-x-1/2 bg-[rgb(var(--color-bg-card))] p-2 rounded-full md:shadow z-10";
+    "sm:absolute sm:-top-5 sm:left-1/2 sm:-translate-x-1/2 bg-[rgb(var(--color-bg-card))] p-2 rounded-full sm:shadow z-10";
 
   const cardContentStyle =
-    "flex flex-col items-center text-center gap-2 md:gap-3 lg:gap-4 md:mt-5";
+    "flex flex-col items-center text-center gap-2 sm:gap-3 lg:gap-4 sm:mt-5";
 
   return (
     <>
       {/* Total Income */}
       <div className={cardContainerStyle}>
         <div className={cardIconStyle}>
-          <FaMoneyBillWave size={32} className="text-green-600" />
+          <FaMoneyBillWave size={24} className="text-green-400" />
         </div>
 
         <div className={cardContentStyle}>
@@ -81,7 +80,7 @@ const SummaryCards = () => {
       {/* Total Expenses */}
       <div className={cardContainerStyle}>
         <div className={cardIconStyle}>
-          <FaCreditCard size={32} className="text-red-600" />
+          <FaCreditCard size={24} className="text-red-400" />
         </div>
 
         <div className={cardContentStyle}>
@@ -99,7 +98,7 @@ const SummaryCards = () => {
       {/* Net Balance */}
       <div className={cardContainerStyle}>
         <div className={cardIconStyle}>
-          <FaChartLine size={32} className="text-blue-600" />
+          <FaChartLine size={24} className="text-blue-400" />
         </div>
 
         <div className={cardContentStyle}>
@@ -117,7 +116,7 @@ const SummaryCards = () => {
       {/* Budget Usage */}
       <div className={cardContainerStyle}>
         <div className={cardIconStyle}>
-          <FaChartPie size={24} className="text-yellow-600" />
+          <FaChartPie size={24} className="text-yellow-400" />
         </div>
 
         <div className={cardContentStyle}>

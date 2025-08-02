@@ -12,18 +12,18 @@ const QuickActions = () => {
       </p>
 
       {/* Action Buttons */}
-      <div className="flex flex-wrap justify-between gap-4 mt-10">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 justify-between gap-4 mt-10">
         <button
           onClick={() => onOpenModal("transactions", "add")}
-          className="bg-green-600 hover:bg-green-700 text-white text-sm font-medium px-4 py-2 rounded-lg shadow-md transition cursor-pointer flex items-center gap-2"
+          className="bg-green-600 hover:bg-green-700  text-white text-xs font-medium px-4 py-2 rounded-lg shadow-md transition cursor-pointer flex justify-center items-center gap-2"
         >
           <FiPlus className="w-4 h-4" />
-          <span>Add Expense</span>
+          <span>Add Transaction</span>
         </button>
 
         <button
           onClick={() => onOpenModal("budgets")}
-          className="bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium px-4 py-2 rounded-lg shadow-md transition cursor-pointer flex items-center gap-2"
+          className="bg-indigo-600 hover:bg-indigo-700  text-white text-xs font-medium px-4 py-2 rounded-lg shadow-md transition cursor-pointer flex justify-center items-center gap-2"
         >
           <FiTarget className="w-4 h-4" />
           <span>Set Budget</span>
@@ -31,13 +31,13 @@ const QuickActions = () => {
 
         <button
           onClick={() => onOpenModal("goals")}
-          className="bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium px-4 py-2 rounded-lg shadow-md transition cursor-pointer flex items-center gap-2"
+          className="bg-indigo-600 hover:bg-indigo-700  text-white text-xs font-medium px-4 py-2 rounded-lg shadow-md transition cursor-pointer flex justify-center items-center gap-2"
         >
           <FiTarget className="w-4 h-4" />
           <span>Set Goal</span>
         </button>
 
-        <button className="bg-gray-700 hover:bg-gray-800 text-white text-sm font-medium px-4 py-2 rounded-lg shadow-md transition cursor-pointer flex items-center gap-2">
+        <button className="bg-gray-700 hover:bg-gray-800  text-white text-xs font-medium px-4 py-2 rounded-lg shadow-md transition cursor-pointer flex justify-center items-center gap-2">
           <FiDownload className="w-4 h-4" />
           <span>Export Report</span>
         </button>

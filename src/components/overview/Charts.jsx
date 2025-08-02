@@ -1,5 +1,6 @@
-import LineChart from "./LineChart";
-import PieChart from "./PieChart";
+// import PieChart from "./PieChart";
+import LineChart from "../charts/LineChart";
+import DoughnutChart from "../charts/DoughnutChart";
 
 const Charts = () => {
   return (
@@ -9,22 +10,21 @@ const Charts = () => {
         Track your spending and category distribution
       </p>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <div>
-          <div className="flex flex-col mb-4">
-            <h3 className="text-lg font-medium">Income vs Expenses</h3>
-          </div>
+      <section className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <figure className="space-y-4 bg-[rgb(var(--color-bg-card))] rounded-lg p-4 shadow">
+          <h3 className="text-lg font-medium">Income vs Expenses</h3>
 
+          {/* Line chart for income vs expenses */}
           <LineChart />
-        </div>
+        </figure>
 
-        <div>
-          <div className="flex flex-col mb-4">
-            <h3 className="text-lg font-medium">Spending Breakdown</h3>
-          </div>
-          <PieChart />
-        </div>
-      </div>
+        <figure className="space-y-4 bg-[rgb(var(--color-bg-card))] rounded-lg p-4 shadow">
+          <h3 className="text-lg font-medium">Budget Overview</h3>
+
+          {/* Doughnut chart for budget overview */}
+          <DoughnutChart page="overview" />
+        </figure>
+      </section>
     </>
   );
 };
