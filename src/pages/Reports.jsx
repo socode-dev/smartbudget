@@ -18,25 +18,21 @@ const Reports = () => {
       {/* Charts */}
       {expenses.length > 0 ? (
         <>
-          <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <section className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Spending over time */}
             <figure className="flex flex-col gap-4 bg-[rgb(var(--color-bg-card))] p-4 rounded-lg shadow-md">
               <h3 className="text-lg font-semibold">Spending Over Time</h3>
 
               {/* Bar Chart */}
-              <div className="grow w-full h-96 overflow-y-auto">
-                <BarChart />
-              </div>
+              <BarChart />
             </figure>
 
             {/* Category Breakdown */}
             <figure className="flex flex-col gap-4 bg-[rgb(var(--color-bg-card))] p-4 rounded-lg shadow-md">
               <h3 className="text-lg font-semibold">Category Breakdown</h3>
 
-              {/* Pie Chart */}
-              <div className="grow w-full h-80 flex flex-col items-center">
-                <DoughnutChart />
-              </div>
+              {/* Doughnut Chart */}
+              <DoughnutChart page="reports" />
             </figure>
           </section>
 

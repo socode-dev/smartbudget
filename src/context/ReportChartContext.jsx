@@ -1,0 +1,185 @@
+import { useContext, createContext, useMemo } from "react";
+import useTransactionStore from "../store/useTransactionStore";
+
+const ReportChartContext = createContext();
+
+const categoryColor = {
+  Freelance: "#38BDF8",
+  Salary: "#10B981",
+  Investments: "#6366F1",
+  Gifts: "#D946EF",
+  Loan: "#EF4444",
+  Groceries: "#84CC16",
+  Transport: "#F59E0B",
+  Dining: "#F43F5E",
+  Shopping: "#A855F7",
+  Utilities: "#14B8A6",
+  Health: "#06B6D4",
+  Entertainment: "#FB923C",
+  Other: "#9CA3AF",
+};
+
+export const ReportChartProvider = ({ children }) => {
+  const { transactions, currencySymbol } = useTransactionStore();
+
+  const expenses = useMemo(
+    () => transactions.filter((tx) => tx.type === "expense"),
+    [transactions]
+  );
+
+  const categoryTotals = useMemo(
+    () =>
+      expenses.reduce((acc, tx) => {
+        const cat = tx.category;
+        acc[cat] = (acc[cat] || 0) + tx.amount;
+        return acc;
+      }, {}),
+    [expenses]
+  );
+
+  const labels = Object.keys(categoryTotals);
+  const amounts = Object.values(categoryTotals);
+  const totalAmount = useMemo(
+    () => expenses.reduce((acc, tx) => acc + tx.amount, 0),
+    [expenses]
+  );
+
+  const backgroundColor = useMemo(
+    () => labels.map((label) => categoryColor[label] || "#9CA3AF"),
+    [labels, categoryColor]
+  );
+
+  const formattedLabels = useMemo(
+    () =>
+      labels.map((label) => {
+        const percentage = totalAmount
+          ? ((categoryTotals[label] / totalAmount) * 100)?.toFixed(1)
+          : 0;
+        return `${label} (${percentage}%)`;
+      }),
+    [labels, totalAmount, categoryTotals]
+  );
+
+  // Data for doughnut chart
+  const doughnutChartData = {
+    labels: formattedLabels,
+    datasets: [
+      {
+        label: "Expenses by Category",
+        data: amounts,
+        backgroundColor,
+        borderWidth: 1,
+      },
+    ],
+  };
+
+  // Options for doughnut chart
+
+  const doughnutChartOptions = {
+    responsive: true,
+    cutout: "40%",
+    plugins: {
+      legend: {
+        display: true,
+        position: "bottom",
+        labels: {
+          color: "#6B7280",
+          font: {
+            size: 13,
+            weight: "400",
+          },
+          padding: 12,
+        },
+      },
+      tooltip: {
+        callbacks: {
+          label: (context) => {
+            const label = context.label || "";
+            const amount = context.raw || "";
+            return `${label} ${currencySymbol}${amount?.toFixed(2)}`;
+          },
+        },
+      },
+    },
+    maintainAspectRatio: false,
+  };
+
+  // Data for bar chart
+  const barChartData = {
+    labels,
+    datasets: [
+      {
+        label: "Expenses by Category",
+        data: amounts,
+        backgroundColor,
+        borderWidth: 1,
+        borderRadius: 50,
+      },
+    ],
+  };
+
+  // Options for bar chart
+  const barChartOptions = {
+    responsive: true,
+    plugins: {
+      legend: {
+        display: true,
+        position: "bottom",
+        padding: 10,
+        labels: {
+          generateLabels: (chart) => {
+            const dataset = chart.data.datasets[0];
+            const total = dataset.data.reduce((acc, val) => acc + val, 0);
+
+            return chart.data.labels.map((label, i) => {
+              const value = dataset.data[i];
+              const percentage = total ? ((value / total) * 100).toFixed(1) : 0;
+
+              return {
+                text: `${label} (${percentage}%)`,
+                fillStyle: dataset.backgroundColor[i],
+                strokeStyle: dataset.backgroundColor[i],
+                lineWidth: 0.5,
+                hidden: false,
+                index: i,
+                color: "#6B7280",
+              };
+            });
+          },
+          color: "#6B7280",
+          font: {
+            size: 13,
+            weight: "400",
+          },
+          padding: 12,
+        },
+      },
+      tooltip: {
+        callbacks: {
+          label: (context) => {
+            const label = context.label || "";
+            const value = context.raw || "";
+
+            return `${label} ${currencySymbol}${value?.toFixed(2)}`;
+          },
+        },
+      },
+    },
+    maintainAspectRatio: false,
+  };
+
+  return (
+    <ReportChartContext.Provider
+      value={{
+        doughnutChartData,
+        doughnutChartOptions,
+        barChartData,
+        barChartOptions,
+      }}
+    >
+      {children}
+    </ReportChartContext.Provider>
+  );
+};
+
+export const useReportChartContext = () => useContext(ReportChartContext);

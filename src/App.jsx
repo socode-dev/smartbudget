@@ -7,6 +7,8 @@ import useTransactionStore from "./store/useTransactionStore";
 import { ReportProvider } from "./context/ReportContext";
 import { useThemeEffect } from "./hooks/useThemeEffect";
 import { OverviewProvider } from "./context/OverviewContext";
+import { ReportChartProvider } from "./context/ReportChartContext";
+import { OverviewChartProvider } from "./context/OverviewChartContext";
 
 const Overview = lazy(() => import("./pages/Overview"));
 const Transactions = lazy(() => import("./pages/Transactions"));
@@ -37,35 +39,41 @@ function App() {
     };
   }, []);
 
+  const routes = (
+    <Route path="/" element={<MainLayout />}>
+      <Route
+        index
+        element={
+          <OverviewProvider>
+            <OverviewChartProvider>
+              <Overview />
+            </OverviewChartProvider>
+          </OverviewProvider>
+        }
+      />
+      <Route path="transactions" element={<Transactions />} />
+      <Route path="budgets" element={<Budgets />} />
+      <Route
+        path="reports"
+        element={
+          <ReportProvider>
+            <ReportChartProvider>
+              <Reports />
+            </ReportChartProvider>
+          </ReportProvider>
+        }
+      />
+      <Route path="goals" element={<Goals />} />
+      <Route path="insights" element={<Insights />} />
+    </Route>
+  );
+
   return (
     <BrowserRouter>
       <Suspense fallback={<div className="p-8">Loading...</div>}>
         <FormProvider>
           <ModalProvider>
-            <Routes>
-              <Route path="/" element={<MainLayout />}>
-                <Route
-                  index
-                  element={
-                    <OverviewProvider>
-                      <Overview />
-                    </OverviewProvider>
-                  }
-                />
-                <Route path="transactions" element={<Transactions />} />
-                <Route path="budgets" element={<Budgets />} />
-                <Route
-                  path="reports"
-                  element={
-                    <ReportProvider>
-                      <Reports />
-                    </ReportProvider>
-                  }
-                />
-                <Route path="goals" element={<Goals />} />
-                <Route path="insights" element={<Insights />} />
-              </Route>
-            </Routes>
+            <Routes>{routes}</Routes>
           </ModalProvider>
         </FormProvider>
       </Suspense>

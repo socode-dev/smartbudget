@@ -7,7 +7,7 @@ const BudgetOverview = () => {
       </p>
 
       {/* Budget Overview Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
         {/* Income Budget */}
         <div>
           <h3 className="text-lg font-medium mb-2">Income Budget</h3>

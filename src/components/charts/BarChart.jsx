@@ -1,12 +1,10 @@
 import { Bar } from "react-chartjs-2";
-// import { getBarChartData, barChartOptions } from "./chartConfig/barChart";
-// import useTransactionStore from "../../store/useTransactionStore";
 import { useEffect, useRef } from "react";
-import { useReportContext } from "../../context/ReportContext";
+import { useReportChartContext } from "../../context/ReportChartContext";
 
 const BarChart = () => {
   const chartRef = useRef(null);
-  const { barChartOptions, barChartData } = useReportContext();
+  const { barChartOptions, barChartData } = useReportChartContext();
 
   // Cleanup chart on unmount
   useEffect(() => {
@@ -18,12 +16,14 @@ const BarChart = () => {
   }, []);
 
   return (
-    <Bar
-      ref={chartRef}
-      data={barChartData}
-      options={barChartOptions}
-      height={700}
-    />
+    <div className="w-full h-80">
+      <Bar
+        ref={chartRef}
+        data={barChartData}
+        options={barChartOptions}
+        // height={700}
+      />
+    </div>
   );
 };
 

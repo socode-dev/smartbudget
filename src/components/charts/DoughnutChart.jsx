@@ -1,10 +1,13 @@
 import { useEffect, useRef } from "react";
 import { Doughnut } from "react-chartjs-2";
-import { useReportContext } from "../../context/ReportContext";
+import { useReportChartContext } from "../../context/ReportChartContext";
+import { useOverviewChartContext } from "../../context/OverviewChartContext";
+import clsx from "clsx";
 
-const DoughnutChart = () => {
+const DoughnutChart = ({ page }) => {
   const chartRef = useRef(null);
-  const { doughnutChartData, doughnutChartOptions } = useReportContext();
+  const reportContext = useReportChartContext();
+  const overviewContext = useOverviewChartContext();
 
   // Cleanup chart on unmount
   useEffect(() => {
@@ -15,12 +18,33 @@ const DoughnutChart = () => {
     };
   }, []);
 
+  let data;
+  let options;
+
+  switch (true) {
+    case page === "overview":
+      data = overviewContext.budgetOverviewData;
+      options = overviewContext.budgetOverviewOptions;
+      break;
+    case page === "reports":
+      data = reportContext.doughnutChartData;
+      options = reportContext.doughnutChartOptions;
+      break;
+    default:
+      data = overviewContext.budgetOverviewData;
+      options = overviewContext.budgetOverviewOptions;
+      break;
+  }
+
   return (
-    <Doughnut
-      ref={chartRef}
-      data={doughnutChartData}
-      options={doughnutChartOptions}
-    />
+    <div
+      className={clsx(
+        "grow w-full flex flex-col items-center",
+        page === "overview" ? "h-68" : "h-80"
+      )}
+    >
+      <Doughnut ref={chartRef} data={data} options={options} />
+    </div>
   );
 };
 
