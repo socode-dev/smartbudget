@@ -6,6 +6,7 @@ import useTransactionStore from "../store/useTransactionStore";
 import { useFormContext } from "../context/FormContext";
 import toast from "react-hot-toast";
 import { handleEdit } from "../utils/handleEdit";
+import ScrollToTop from "../layout/ScrollToTop";
 
 const Goals = () => {
   const { onOpenModal, modalState } = useModalContext();
@@ -96,6 +97,7 @@ const Goals = () => {
 
   return (
     <main className="p-4">
+      <ScrollToTop />
       <h2 className="text-2xl font-semibold mb-2">Goals</h2>
       <p className="text-base text-[rgb(var(--color-muted))] mb-6">
         Stay focused on what you are saving for.

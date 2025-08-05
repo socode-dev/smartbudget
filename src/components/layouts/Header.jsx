@@ -134,11 +134,8 @@ const Header = ({ onSidebarToggle }) => {
               onClose={() => setDropdownOpen(false)}
             />
           </div>
-          <button className="gap-2 flex items-center text-gray-600 hover:text-blue-600 transition-colors cursor-pointer">
+          <button className="text-[rgb(var(--color-muted))] hover:text-blue-600 transition-colors cursor-pointer">
             <FaUserCircle size={28} />
-            <span className="text-gray-700 text-sm font-medium hidden lg:inline">
-              Guest
-            </span>
           </button>
         </div>
       </header>

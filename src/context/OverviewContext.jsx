@@ -1,6 +1,7 @@
 import { createContext, useContext, useCallback, useMemo } from "react";
 import useTransactionStore from "../store/useTransactionStore";
 import { transactionTotal } from "../utils/transactionTotal";
+import { getTotalBudgetSpent } from "../utils/getTotalBudgetSpent";
 
 const OverviewContext = createContext();
 
@@ -8,7 +9,7 @@ export const OverviewProvider = ({ children }) => {
   const { transactions, budgets, currencySymbol } = useTransactionStore();
 
   // Get last month and this month total income and expenses
-  const incomes = useMemo(
+  const income = useMemo(
     () => transactions.filter((tx) => tx.type === "income"),
     [transactions]
   );
@@ -35,19 +36,19 @@ export const OverviewProvider = ({ children }) => {
 
   const lastMonthIncome = useMemo(
     () =>
-      getTxTypeByMonth(incomes, "last").reduce(
-        (total, income) => total + income.amount,
+      getTxTypeByMonth(income, "last").reduce(
+        (total, tx) => total + tx.amount,
         0
       ),
-    [incomes, getTxTypeByMonth]
+    [income, getTxTypeByMonth]
   );
   const thisMonthIncome = useMemo(
     () =>
-      getTxTypeByMonth(incomes, "this").reduce(
-        (total, income) => total + income.amount,
+      getTxTypeByMonth(income, "this").reduce(
+        (total, tx) => total + tx.amount,
         0
       ),
-    [incomes, getTxTypeByMonth]
+    [income, getTxTypeByMonth]
   );
 
   const incomePercentage = useMemo(
@@ -128,45 +129,42 @@ export const OverviewProvider = ({ children }) => {
     [budgets]
   );
 
-  // Get budget total spent
-  const getTotalBudgetSpent = useCallback(() => {
-    // Filter transactions that belong to budget categories AND same month as budgets
-    const budgetTransactions = transactions.filter((tx) => {
-      // Check if transaction category matches any budget category
-      const matchingBudget = budgets.find(
-        (budget) => budget.categoryKey === tx.categoryKey
-      );
-
-      if (!matchingBudget) return false;
-
-      // Check if transaction date is in the same month as budget date
-      const txDate = new Date(tx.date);
-      const budgetDate = new Date(matchingBudget.date);
-
-      return (
-        txDate.getMonth() === budgetDate.getMonth() &&
-        txDate.getFullYear() === budgetDate.getFullYear()
-      );
-    });
-
-    // Calculate total spent on budget categories
-    const totalBudgetSpent = budgetTransactions.reduce(
-      (total, tx) => total + tx.amount,
-      0
-    );
-
-    return totalBudgetSpent;
-  }, [transactions, budgets]);
-
   // get total budget used
   const totalBudgetUsed = useMemo(
-    () => getTotalBudgetSpent(),
+    () => getTotalBudgetSpent(transactions, budgets, "all"),
     [getTotalBudgetSpent]
   );
 
   const budgetUsagePercentage = Math.ceil(
     (totalBudgetUsed / totalBudget) * 100
   );
+
+  const incomeBudget = budgets.filter((tx) => tx.type === "income");
+  const expensesBudget = budgets.filter((tx) => tx.type === "expense");
+
+  const totalIncomeBudget = incomeBudget.reduce(
+    (sum, budget) => sum + budget.amount,
+    0
+  );
+  const totalExpensesBudget = expensesBudget.reduce(
+    (sum, expense) => sum + expense.amount,
+    0
+  );
+
+  const incomeBudgetAchieved = useMemo(
+    () => getTotalBudgetSpent(transactions, budgets, "income"),
+    [getTotalBudgetSpent]
+  );
+  const expensesBudgetSpent = useMemo(
+    () => getTotalBudgetSpent(transactions, budgets, "expense"),
+    [getTotalBudgetSpent]
+  );
+
+  const incomeBudgetPercent = (incomeBudgetAchieved / totalIncomeBudget) * 100;
+  const remainingIncome = totalIncomeBudget - incomeBudgetAchieved;
+  const expensesBudgetPercent =
+    (expensesBudgetSpent / totalExpensesBudget) * 100;
+  const remainingExpenses = totalExpensesBudget - expensesBudgetSpent;
 
   return (
     <OverviewContext.Provider
@@ -180,6 +178,12 @@ export const OverviewProvider = ({ children }) => {
         currencySymbol,
         incomeLabel,
         expensesLabel,
+        totalIncomeBudget,
+        totalExpensesBudget,
+        incomeBudgetPercent,
+        remainingIncome,
+        expensesBudgetPercent,
+        remainingExpenses,
       }}
     >
       {children}

@@ -5,7 +5,7 @@
   --breakpoint-sm: 650px;
   --breakpoint-md: 768px;
   --breakpoint-lg: 992px;
-  --breakpoint-xl: 1280px;
+  --breakpoint-xl: 1180px;
 }
 
 :root {
@@ -47,10 +47,6 @@ body {
   width: 60px;
   height: 60px;
   border-radius: 50%;
-  background: conic-gradient(
-    rgb(37 99 235) 0deg 259.2deg,
-    rgb(229 231 235) 259.2deg 360deg
-  );
   display: inline-block;
   position: relative;
 }
@@ -71,10 +67,6 @@ body {
   width: 60px;
   height: 60px;
   border-radius: 50%;
-  background: conic-gradient(
-    rgb(245 158 11) 0deg 298.8deg,
-    rgb(229 231 235) 298.8deg 360deg
-  );
   display: inline-block;
   position: relative;
 }

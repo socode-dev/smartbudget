@@ -4,12 +4,14 @@ import BarChart from "../components/charts/BarChart";
 import DoughnutChart from "../components/charts/DoughnutChart";
 import Table from "../components/reports/Table";
 import { useReportContext } from "../context/ReportContext";
+import ScrollToTop from "../layout/ScrollToTop";
 
 const Reports = () => {
   const { expenses, handleCSVExport, handlePDFExport } = useReportContext();
 
   return (
     <main className="py-10">
+      <ScrollToTop />
       <h2 className="text-2xl font-semibold mb-2">Reports</h2>
       <p className="text-sm text-[rgb(var(--color-muted))] mb-10">
         Review, analyze, and export your financial history.

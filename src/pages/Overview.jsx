@@ -3,16 +3,18 @@ import Charts from "../components/overview/Charts";
 import SmartInsight from "../components/overview/SmartInsight";
 import BudgetOverview from "../components/overview/BudgetOverview";
 import QuickActions from "../components/overview/QuickActions";
+import ScrollToTop from "../layout/ScrollToTop";
 
 const Overview = () => {
   return (
-    <main className="flex flex-col gap-16 pb-8">
+    <main className="flex flex-col gap-16 pt-2 pb-8">
+      <ScrollToTop />
       <div className="flex flex-col gap-2 md:gap-3 lg:gap-4 mt-4">
         <h2
           className="text-2xl md:text-3xl lg:text-4xl font-semibold text-[rgb(var(--color-<h2>Welcome back, Guest</h2>
       text))]"
         >
-          Welcome back, Guest
+          Welcome back, User
         </h2>
         <p className="text-sm text-[rgb(var(--color-muted))]">
           Here is a quick summary of your financial activity this month. You

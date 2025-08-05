@@ -5,6 +5,7 @@ import useTransactionStore from "../store/useTransactionStore";
 import { useFormContext } from "../context/FormContext";
 import { handleEdit } from "../utils/handleEdit";
 import { format } from "date-fns";
+import ScrollToTop from "../layout/ScrollToTop";
 
 const Budgets = () => {
   const [searchName, setSearchName] = useState("");
@@ -44,6 +45,7 @@ const Budgets = () => {
 
   return (
     <main className="p-8">
+      <ScrollToTop />
       <h2 className="text-2xl font-semibold mb-2">Budgets</h2>
       <p className="text-sm text-[rgb(var(--color-muted))] mb-3">
         Monitor and manage your category limits
@@ -72,18 +74,20 @@ const Budgets = () => {
           const remainingBalance = (budgetLimit - amountSpent).toFixed(2);
           const progressBarPercentage = (amountSpent / budgetLimit) * 100;
           const progressBarBackground =
-            progressBarPercentage < 100 && progressBarPercentage >= 70
+            progressBarPercentage < 90
               ? "bg-amber-500"
-              : progressBarPercentage < 70
+              : progressBarPercentage < 50
               ? "bg-[rgb(var(--color-brand))]"
-              : "bg-red-500";
+              : progressBarPercentage > 90 && budget.type === "income"
+              ? "bg-green-500"
+              : "bg-red-600";
 
           return (
             <div
               key={budget.id}
               className="bg-[rgb(var(--color-bg-card))] p-4 rounded-lg flex justify-between items-start gap-4"
             >
-              <div className="grow space-y-1">
+              <div className="grow space-y-1.5">
                 <div className="mb-4">
                   <h3 className="text-lg font-semibold">
                     {budget.category.toLowerCase() === "other"
@@ -94,26 +98,36 @@ const Budgets = () => {
                     {monthLabel}
                   </p>
                 </div>
-                <p className="text-sm text-[rgb(var(--color-muted))]">
-                  Limit:{" "}
-                  <strong>
-                    {budget.currencySymbol}
-                    {budgetLimit}
-                  </strong>
+
+                <p className="text-sm font-medium">
+                  <strong className="text-[rgb(var(--color-muted))]">
+                    Limit:
+                  </strong>{" "}
+                  {budget.currencySymbol}
+                  {budgetLimit}
                 </p>
-                <p className="text-sm text-[rgb(var(--color-muted))]">
-                  Spent:{" "}
-                  <strong>
+                {budget.type === "expense" && (
+                  <p className="text-sm font-medium">
+                    <strong className="text-[rgb(var(--color-muted))]">
+                      Spent:
+                    </strong>{" "}
                     {budget.currencySymbol}
                     {amountSpent}
-                  </strong>
-                </p>
-                <p className="text-sm text-[rgb(var(--color-muted))]">
-                  Remaining:{" "}
-                  <strong>
-                    {budget.currencySymbol}
-                    {remainingBalance}
-                  </strong>
+                  </p>
+                )}
+                <p className="text-sm font-medium">
+                  <strong className="text-[rgb(var(--color-muted))]">
+                    {progressBarPercentage > 100 && budget.type === "expense"
+                      ? "Overspent"
+                      : progressBarPercentage > 100 && budget.type === "income"
+                      ? "Extra"
+                      : "Remaining"}
+                    :
+                  </strong>{" "}
+                  {budget.currencySymbol}
+                  {progressBarPercentage > 100
+                    ? Math.abs(remainingBalance).toFixed(2)
+                    : remainingBalance}
                 </p>
 
                 {/* Progress Bar */}
