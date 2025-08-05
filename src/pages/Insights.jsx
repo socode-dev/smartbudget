@@ -1,9 +1,11 @@
 import React from "react";
 import { FaArrowRight, FaBell } from "react-icons/fa";
+import ScrollToTop from "../layout/ScrollToTop";
 
 const Insights = () => {
   return (
     <main className="py-10">
+      <ScrollToTop />
       <h2 className="text-2xl font-semibold mb-2">Smart Insights</h2>
       <p className="text-sm text-[rgb(var(--color-muted))] mb-10">
         Personalized suggestions, forecasts and savings tips.

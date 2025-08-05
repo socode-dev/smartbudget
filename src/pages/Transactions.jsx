@@ -5,6 +5,7 @@ import Filter from "../components/transaction/Filter";
 import useTransactionStore from "../store/useTransactionStore";
 import { useModalContext } from "../context/ModalContext";
 import { transactionTotal } from "../utils/transactionTotal";
+import ScrollToTop from "../layout/ScrollToTop";
 
 const Transactions = () => {
   const { onOpenModal } = useModalContext();
@@ -59,6 +60,7 @@ const Transactions = () => {
 
   return (
     <main className="my-8">
+      <ScrollToTop />
       <h2 className="text-2xl font-semibold">Transactions</h2>
       <p className="text-sm text-[rgb(var(--color-muted))] mt-2 mb-6">
         Track all your expenses and income in one place.

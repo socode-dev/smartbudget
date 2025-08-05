@@ -7,8 +7,7 @@ const OverviewChartContext = createContext();
 
 export const OverviewChartProvider = ({ children }) => {
   const { transactions, currencySymbol } = useTransactionStore();
-  const { totalBudget, totalBudgetUsed, budgetUsagePercentage } =
-    useOverviewContext();
+  const { totalBudget, totalBudgetUsed } = useOverviewContext();
 
   const budgetRemaining =
     totalBudget - totalBudgetUsed > 0 ? totalBudget - totalBudgetUsed : 0;
@@ -83,13 +82,13 @@ export const OverviewChartProvider = ({ children }) => {
         label: "Income",
         data: monthlyIncome,
         borderColor: "#10B981",
-        tension: 0.5,
+        tension: 0.3,
       },
       {
         label: "Expenses",
         data: monthlyExpenses,
         borderColor: "#EF4444",
-        tension: 0.5,
+        tension: 0.3,
       },
     ],
   };
@@ -106,7 +105,7 @@ export const OverviewChartProvider = ({ children }) => {
         position: "bottom",
         labels: {
           color: "#475569",
-          font: { size: 15 },
+          font: { size: 13, weight: 400 },
         },
       },
       tooltip: {
@@ -157,32 +156,41 @@ export const OverviewChartProvider = ({ children }) => {
   };
 
   // Budget overview doughnut chart options
+
   const budgetOverviewOptions = {
     responsive: true,
-    cutout: "40%",
+    cutout: "70%",
     plugins: {
       legend: {
+        display: true,
         position: "bottom",
         labels: {
-          color: "#334155",
-          font: { size: 14 },
+          color: "#6B7280",
+          font: {
+            size: 13,
+            weight: "400",
+          },
+          padding: 12,
+        },
+      },
+      tooltip: {
+        callbacks: {
+          label: (context) => {
+            const label = context.label || "";
+            const amount = context.raw || "";
+            return `${label} ${currencySymbol}${amount?.toFixed(2)}`;
+          },
         },
       },
     },
-    tooltip: {
-      callbacks: {
-        label: (context) => {
-          const label = context.label || "";
-          const amount = context.raw || "";
-          return `${label} ${currencySymbol}${amount?.toFixed(2)}`;
-        },
-      },
-    },
+    maintainAspectRatio: false,
   };
 
   return (
     <OverviewChartContext.Provider
       value={{
+        monthlyIncome,
+        monthlyExpenses,
         incomeVsExpensesData,
         incomeVsExpensesOptions,
         budgetOverviewData,
