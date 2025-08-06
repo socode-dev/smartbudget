@@ -2,23 +2,38 @@ import useTransactionStore from "../../store/useTransactionStore";
 import { HiOutlineTrash, HiOutlinePencil } from "react-icons/hi";
 import { useModalContext } from "../../context/ModalContext";
 import { useFormContext } from "../../context/FormContext";
-import { useMemo } from "react";
+import { useCallback, useMemo, useEffect, useRef } from "react";
 import { handleEdit } from "../../utils/handleEdit";
+import { useTransactionsContext } from "../../context/TransactionsContext";
+// import ScrollToTop from "../../layout/ScrollToTop";
 
-const TransactionTable = ({ transactions }) => {
-  const { deleteTransaction, setEditTransaction } = useTransactionStore();
+const TransactionTable = () => {
+  const tableContainerRef = useRef(null);
   const { onOpenModal } = useModalContext();
+  const { deleteTransaction, setEditTransaction } = useTransactionStore();
+  const {
+    sortedTransactions,
+    currentTransactions,
+    handlePrev,
+    handleNext,
+    currentPage,
+    totalPages,
+    indexOfFirstTransaction,
+    indexOfLastTransaction,
+  } = useTransactionsContext();
 
   const forms = useFormContext("transactions");
   const { setValue } = forms;
 
-  // Sort transactions by date (latest first)
-  const sortedTransactions = useMemo(
-    () => [...transactions].sort((a, b) => new Date(b.date) - new Date(a.date)),
-    [transactions]
-  );
+  // Scroll to top when page changes
+  useEffect(() => {
+    const mainElement = document.querySelector("main");
+    if (mainElement) {
+      mainElement.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  }, [currentPage]);
 
-  const handleEditTransaction = (id) => {
+  const handleEditTransaction = useCallback((id) => {
     handleEdit(
       id,
       "transactions",
@@ -28,16 +43,19 @@ const TransactionTable = ({ transactions }) => {
       onOpenModal,
       setEditTransaction
     );
-  };
+  }, []);
 
-  const handleDeleteTransaction = (id) => {
+  const handleDeleteTransaction = useCallback((id) => {
     deleteTransaction(id, "transactions");
-  };
+  }, []);
 
   return (
-    <div className="">
-      <h3 className="text-lg text-[rgb(var(--color-muted))] font-semibold mb-4">
-        History ({sortedTransactions.length})
+    <div>
+      {/* <ScrollToTop /> */}
+      <h3 className="text-base md:text-lg mb-6 text-[rgb(var(--color-muted))] font-semibold">
+        Showing {indexOfFirstTransaction + 1}-
+        {Math.min(indexOfLastTransaction, sortedTransactions.length)} of{" "}
+        {sortedTransactions.length} transactions
       </h3>
 
       {/* Tablet & Desktop View */}
@@ -60,7 +78,7 @@ const TransactionTable = ({ transactions }) => {
           </tr>
         </thead>
         <tbody className="bg-[rgb(var(--color-bg-card))] divide-y divide-[rgb(var(--color-gray-border))] text-[12px]">
-          {sortedTransactions.map((transaction) => (
+          {currentTransactions.map((transaction) => (
             <tr key={transaction.id}>
               <td className="p-2">{transaction.date}</td>
               <td className="p-2">
@@ -100,7 +118,7 @@ const TransactionTable = ({ transactions }) => {
 
       {/* Mobile View */}
       <div className="flex flex-col md:hidden gap-5">
-        {sortedTransactions.map((transaction) => (
+        {currentTransactions.map((transaction) => (
           <div key={transaction.id} className="flex flex-col gap-2">
             <h4 className="text-[14px] font-semibold">
               {transaction.description || "No description"}
@@ -126,9 +144,9 @@ const TransactionTable = ({ transactions }) => {
                     }`}
                   >
                     {transaction.type === "income" ? "+" : "-"}
-                    {`${transaction.currencySymbol}${transaction.amount.toFixed(
-                      2
-                    )}`}
+                    {`${
+                      transaction.currencySymbol
+                    }${transaction.amount?.toFixed(2)}`}
                   </span>
                 </p>
               </div>
@@ -147,6 +165,29 @@ const TransactionTable = ({ transactions }) => {
             </div>
           </div>
         ))}
+      </div>
+
+      {/* Pagination Controls */}
+      <div className="flex items-center justify-between mt-10">
+        <button
+          onClick={handlePrev}
+          disabled={currentPage === 1}
+          className="px-4 py-1 rounded bg-[rgb(var(--color-))] hover:scale-y-105 transition shadow text-[rgb(var(--color-muted))] disabled:opacity-50 font-medium text-xs cursor-pointer"
+        >
+          <span>&larr;</span> Prev
+        </button>
+
+        <span className="text-sm text-[rgb(var(--color-muted))] font-medium">
+          Page {currentPage} out of {totalPages}
+        </span>
+
+        <button
+          onClick={handleNext}
+          disabled={currentPage === totalPages}
+          className="px-4 py-1 rounded bg-[rgb(var(--color-))] hover:scale-y-105 transition shadow text-[rgb(var(--color-muted))] disabled:opacity-50 font-medium text-xs cursor-pointer"
+        >
+          Next <span>&rarr;</span>
+        </button>
       </div>
     </div>
   );

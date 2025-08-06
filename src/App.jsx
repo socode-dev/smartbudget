@@ -9,6 +9,7 @@ import { useThemeEffect } from "./hooks/useThemeEffect";
 import { OverviewProvider } from "./context/OverviewContext";
 import { ReportChartProvider } from "./context/ReportChartContext";
 import { OverviewChartProvider } from "./context/OverviewChartContext";
+import { TransactionsProvider } from "./context/TransactionsContext";
 
 const Overview = lazy(() => import("./pages/Overview"));
 const Transactions = lazy(() => import("./pages/Transactions"));
@@ -51,7 +52,14 @@ function App() {
           </OverviewProvider>
         }
       />
-      <Route path="transactions" element={<Transactions />} />
+      <Route
+        path="transactions"
+        element={
+          <TransactionsProvider>
+            <Transactions />
+          </TransactionsProvider>
+        }
+      />
       <Route path="budgets" element={<Budgets />} />
       <Route
         path="reports"

@@ -1,18 +1,20 @@
 import useTransactionStore from "../../store/useTransactionStore";
+import { useTransactionsContext } from "../../context/TransactionsContext";
 
-const Filter = ({
-  searchDescription,
-  setSearchDescription,
-  dateFrom,
-  setDateFrom,
-  dateTo,
-  setDateTo,
-  categoryFilter,
-  setCategoryFilter,
-  typeFilter,
-  setTypeFilter,
-}) => {
+const Filter = () => {
   const { CATEGORY_OPTIONS } = useTransactionStore();
+  const {
+    searchDescription,
+    setSearchDescription,
+    dateFrom,
+    setDateFrom,
+    dateTo,
+    setDateTo,
+    categoryFilter,
+    setCategoryFilter,
+    typeFilter,
+    setTypeFilter,
+  } = useTransactionsContext();
 
   return (
     <div className="grid grid-cols-2 items-center gap-3 md:gap-5 mb-6">
