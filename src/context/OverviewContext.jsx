@@ -2,6 +2,10 @@ import { createContext, useContext, useCallback, useMemo } from "react";
 import useTransactionStore from "../store/useTransactionStore";
 import { transactionTotal } from "../utils/transactionTotal";
 import { getTotalBudgetSpent } from "../utils/getTotalBudgetSpent";
+import Papa from "papaparse";
+import { jsPDF } from "jspdf";
+import { autoTable } from "jspdf-autotable";
+import { format } from "date-fns";
 
 const OverviewContext = createContext();
 
@@ -166,6 +170,87 @@ export const OverviewProvider = ({ children }) => {
     (expensesBudgetSpent / totalExpensesBudget) * 100;
   const remainingExpenses = totalExpensesBudget - expensesBudgetSpent;
 
+  // Sort transaction by date for exporting
+  const sortedTransactions = useMemo(
+    () =>
+      transactions.sort(
+        (a, b) => new Date(b.date).getMonth() - new Date(a.date).getMonth()
+      ),
+    [transactions]
+  );
+
+  // Return needed key-value pairs needed for pdf and csv format
+  const modifiedTransactions = useMemo(
+    () =>
+      sortedTransactions.map((transaction) => {
+        return {
+          Date: format(new Date(transaction.date), "MMM yyyy"),
+          Name: transaction.name,
+          Type: transaction.type,
+          Note: transaction.description || "-",
+          Amount: `${transaction.type === "income" ? "+" : "-"}${
+            transaction.currencySymbol
+          }${transaction.amount.toFixed(2)}`,
+        };
+      }),
+    [sortedTransactions]
+  );
+
+  // Handler for exporting via CSV
+  const handleCSVExport = useCallback(() => {
+    // Convert sorted transaction to CSV
+    const csvData = Papa.unparse(modifiedTransactions);
+    // Create a Blob and trigger download
+    const blob = new Blob([csvData], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const temporaryLink = document.createElement("a");
+    temporaryLink.setAttribute("href", url);
+    temporaryLink.setAttribute("download", "transactions-overview.csv");
+    temporaryLink.style.visibility = "hidden";
+    document.body.appendChild(temporaryLink);
+    temporaryLink.click();
+    document.body.removeChild(temporaryLink);
+  }, [modifiedTransactions]);
+
+  // Handler for exporting via PDF
+  const handlePDFExport = useCallback(() => {
+    const doc = new jsPDF();
+
+    // Add PDF heading and style
+    doc.setFontSize(23);
+    doc.text("Full Transaction Activities", 25, 15);
+
+    // Set table columns and and rows value for PDF
+    const tableColumn = Object.keys(modifiedTransactions.at(0));
+    const tableRows = modifiedTransactions.map((transaction) => {
+      return Object.values(transaction);
+    });
+
+    // Define the table structure and style
+    autoTable(doc, {
+      head: [tableColumn],
+      body: tableRows,
+      startY: 30,
+      theme: "grid",
+      styles: {
+        fontSize: 10,
+        cellPadding: 4,
+      },
+      showHead: "firstPage",
+      headStyles: {
+        fillColor: [37, 99, 235],
+        textColor: 255,
+        halign: "center",
+      },
+      bodyStyles: {
+        halign: "center",
+      },
+    });
+
+    // Save the PDF
+    doc.save("transactions-overview.pdf");
+  }, [modifiedTransactions]);
+
   return (
     <OverviewContext.Provider
       value={{
@@ -184,6 +269,8 @@ export const OverviewProvider = ({ children }) => {
         remainingIncome,
         expensesBudgetPercent,
         remainingExpenses,
+        handleCSVExport,
+        handlePDFExport,
       }}
     >
       {children}

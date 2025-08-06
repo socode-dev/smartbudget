@@ -48,6 +48,7 @@ export const ReportProvider = ({ children }) => {
     // Sort by amount descending
     return tableData.sort((a, b) => b.amount - a.amount);
   }, [expenses]);
+  console.log(reportTableData());
 
   // Handler for exporting via CSV
   const handleCSVExport = useCallback(() => {

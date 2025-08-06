@@ -8,10 +8,14 @@ const SmartInsight = () => {
         Get personalized tips, forecast, and savings suggestions.
       </p>
 
+      <p className="h-36 flex items-center justify-center text-3xl text-[rgb(var(--color-muted))]">
+        Coming soon!
+      </p>
+
       {/* Insight Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <InsightCards />
-      </div>
+      </div> */}
     </>
   );
 };
