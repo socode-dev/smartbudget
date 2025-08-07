@@ -10,6 +10,11 @@ import { OverviewProvider } from "./context/OverviewContext";
 import { ReportChartProvider } from "./context/ReportChartContext";
 import { OverviewChartProvider } from "./context/OverviewChartContext";
 import { TransactionsProvider } from "./context/TransactionsContext";
+import { AuthProvider } from "./context/AuthContext";
+import AuthLayout from "./layout/AuthLayouts";
+import Login from "./components/auth/Login";
+import Signup from "./components/auth/Signup";
+import ProtectedRoute from "./components/routes/ProtectedRoute";
 
 const Overview = lazy(() => import("./pages/Overview"));
 const Transactions = lazy(() => import("./pages/Transactions"));
@@ -41,49 +46,67 @@ function App() {
   }, []);
 
   const routes = (
-    <Route path="/" element={<MainLayout />}>
+    <>
+      {/* Authentication routes */}
+      <Route element={<AuthLayout />}>
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
+      </Route>
+
+      {/* Main routes */}
       <Route
-        index
+        path="/"
         element={
-          <OverviewProvider>
-            <OverviewChartProvider>
-              <Overview />
-            </OverviewChartProvider>
-          </OverviewProvider>
+          <ProtectedRoute>
+            <MainLayout />
+          </ProtectedRoute>
         }
-      />
-      <Route
-        path="transactions"
-        element={
-          <TransactionsProvider>
-            <Transactions />
-          </TransactionsProvider>
-        }
-      />
-      <Route path="budgets" element={<Budgets />} />
-      <Route
-        path="reports"
-        element={
-          <ReportProvider>
-            <ReportChartProvider>
-              <Reports />
-            </ReportChartProvider>
-          </ReportProvider>
-        }
-      />
-      <Route path="goals" element={<Goals />} />
-      <Route path="insights" element={<Insights />} />
-    </Route>
+      >
+        <Route
+          index
+          element={
+            <OverviewProvider>
+              <OverviewChartProvider>
+                <Overview />
+              </OverviewChartProvider>
+            </OverviewProvider>
+          }
+        />
+        <Route
+          path="transactions"
+          element={
+            <TransactionsProvider>
+              <Transactions />
+            </TransactionsProvider>
+          }
+        />
+        <Route path="budgets" element={<Budgets />} />
+        <Route
+          path="reports"
+          element={
+            <ReportProvider>
+              <ReportChartProvider>
+                <Reports />
+              </ReportChartProvider>
+            </ReportProvider>
+          }
+        />
+        <Route path="goals" element={<Goals />} />
+        <Route path="insights" element={<Insights />} />
+      </Route>
+    </>
   );
 
   return (
     <BrowserRouter>
       <Suspense fallback={<div className="p-8">Loading...</div>}>
-        <FormProvider>
-          <ModalProvider>
-            <Routes>{routes}</Routes>
-          </ModalProvider>
-        </FormProvider>
+        <AuthProvider>
+          <FormProvider>
+            <ModalProvider>
+              <Routes>{routes}</Routes>
+            </ModalProvider>
+          </FormProvider>
+        </AuthProvider>
       </Suspense>
     </BrowserRouter>
   );
