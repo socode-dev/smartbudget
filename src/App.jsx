@@ -12,8 +12,8 @@ import { OverviewChartProvider } from "./context/OverviewChartContext";
 import { TransactionsProvider } from "./context/TransactionsContext";
 import { AuthProvider } from "./context/AuthContext";
 import AuthLayout from "./layout/AuthLayouts";
-import Login from "./components/auth/Login";
-import Signup from "./components/auth/Signup";
+import Login from "./pages/Login";
+import Signup from "./pages/Signup";
 import ProtectedRoute from "./components/routes/ProtectedRoute";
 
 const Overview = lazy(() => import("./pages/Overview"));

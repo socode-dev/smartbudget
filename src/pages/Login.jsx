@@ -1,11 +1,15 @@
 import { useState } from "react";
 import { FaEye, FaEyeSlash, FaGoogle, FaApple } from "react-icons/fa6";
 import { Link } from "react-router-dom";
-import { useAuthContext } from "../../context/AuthContext";
-import ScrollToTop from "../../layout/ScrollToTop";
+import { useAuthContext } from "../context/AuthContext";
+import ScrollToTop from "../layout/ScrollToTop";
 
 const Login = () => {
-  const { handleLogin } = useAuthContext();
+  const {
+    onLogin,
+    loginRegister: register,
+    loginErrors: errors,
+  } = useAuthContext();
   const [revealPassword, setRevealPassword] = useState(false);
 
   const togglePasswordReveal = () => setRevealPassword((prev) => !prev);
@@ -15,54 +19,70 @@ const Login = () => {
   return (
     <main className="w-full max-w-[500px] h-auto p-5 flex flex-col items-center mx-auto">
       <ScrollToTop />
-      <h2 className="text-2xl bg-gradient-to-r from-blue-500 to-purple-500 bg-clip-text text-transparent text-center inline-block font-medium tracking-wide">
+      <h2 className="text-2xl text-[rgb(var(--color-brand))] text-center font-medium tracking-wide">
         Welcome Back
       </h2>
       <p className="text-sm text-[rgb(var(--color-muted))] text-center mt-2 mb-6">
         Please log in to access your SmartBudget
       </p>
 
-      <form onSubmit={handleLogin} className="w-11/12">
-        <fieldset className="flex flex-col gap-1 w-full mb-3">
-          <label
-            htmlFor="email"
-            className="text-base text-[rgb(var(--color-muted))] font-medium"
-          >
-            Email
-          </label>
-          <input
-            type="email"
-            id="email"
-            placeholder="Enter your email"
-            className="w-full text-xs text-[rgb(var(--color-muted))] px-4 py-1 rounded-lg border-2 border-[rgb(var(--color-gray-border))] outline-none focus:border-[rgb(var(--color-brand))] transition"
-          />
-        </fieldset>
-        <fieldset className="flex flex-col gap-1 w-full mb-2">
-          <label
-            htmlFor="password"
-            className="text-base text-[rgb(var(--color-muted))] font-medium"
-          >
-            Password
-          </label>
-          <div className="relative">
+      <form onSubmit={onLogin} className="w-11/12">
+        <fieldset className=" w-full mb-3">
+          <div className="flex flex-col gap-1">
+            <label
+              htmlFor="email"
+              className="text-base text-[rgb(var(--color-muted))] font-medium"
+            >
+              Email
+            </label>
             <input
-              type={revealPassword ? "text" : "password"}
-              id="password"
-              placeholder="Enter your password"
+              {...register("email")}
+              type="email"
+              id="email"
+              placeholder="Enter your email"
               className="w-full text-xs text-[rgb(var(--color-muted))] px-4 py-1 rounded-lg border-2 border-[rgb(var(--color-gray-border))] outline-none focus:border-[rgb(var(--color-brand))] transition"
             />
-            <Icon
-              onClick={togglePasswordReveal}
-              className="text-xs text-gray-400 absolute top-[50%] -translate-y-[50%] right-2 cursor-pointer"
-            />
           </div>
+          {errors.email && (
+            <p className="text-[12px] text-red-600 mt-1">
+              {errors.email.message}
+            </p>
+          )}
+        </fieldset>
+        <fieldset className="w-full mb-2">
+          <div className="flex flex-col gap-1">
+            <label
+              htmlFor="loginPassword"
+              className="text-base text-[rgb(var(--color-muted))] font-medium"
+            >
+              Password
+            </label>
+            <div className="relative">
+              <input
+                {...register("password")}
+                type={revealPassword ? "text" : "password"}
+                id="password"
+                placeholder="Enter your password"
+                className="w-full text-xs text-[rgb(var(--color-muted))] px-4 py-1 rounded-lg border-2 border-[rgb(var(--color-gray-border))] outline-none focus:border-[rgb(var(--color-brand))] transition"
+              />
+              <Icon
+                onClick={togglePasswordReveal}
+                className="text-xs text-gray-400 absolute top-[50%] -translate-y-[50%] right-2 cursor-pointer"
+              />
+            </div>
+          </div>
+          {errors.password && (
+            <p className="text-[12px] text-red-600 mt-1">
+              {errors.password.message}
+            </p>
+          )}
         </fieldset>
 
         <div className="flex justify-between items-center mb-3">
           <fieldset className="w-fit flex items-center gap-1 text-xs">
             <input
+              {...register("remember")}
               type="checkbox"
-              name="remember-me"
               id="remember-me"
               className="cursor-pointer"
             />
@@ -78,7 +98,7 @@ const Login = () => {
 
         <button
           type="submit"
-          className="w-full text-sm font-medium text-center py-1 rounded-lg shadow bg-gradient-to-r from-blue-500 to-purple-500 text-white hover:scale-97 active:scale-103 transition cursor-pointer"
+          className="w-full text-sm font-medium text-center py-1 rounded-lg shadow bg-[rgb(var(--color-brand))] text-white hover:scale-97 active:scale-103 transition cursor-pointer"
         >
           Sign In
         </button>
