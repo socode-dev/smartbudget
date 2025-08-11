@@ -1,20 +1,24 @@
 import { useState } from "react";
 import { FaEye, FaEyeSlash, FaGoogle, FaApple } from "react-icons/fa6";
 import { Link } from "react-router-dom";
+import { useAuthFormContext } from "../context/AuthFormContext.jsx";
 import { useAuthContext } from "../context/AuthContext";
 import ScrollToTop from "../layout/ScrollToTop";
+import LoadingSpinner from "../components/ui/LoadingSpinner.jsx";
 
 const Login = () => {
   const {
-    onLogin,
     loginRegister: register,
     loginErrors: errors,
-  } = useAuthContext();
+    loginIsSubmitting: isSubmitting,
+  } = useAuthFormContext();
+  const { onLogin, onLoginErr } = useAuthContext();
+
   const [revealPassword, setRevealPassword] = useState(false);
 
   const togglePasswordReveal = () => setRevealPassword((prev) => !prev);
 
-  const Icon = revealPassword ? FaEyeSlash : FaEye;
+  const Icon = revealPassword ? FaEye : FaEyeSlash;
 
   return (
     <main className="w-full max-w-[500px] h-auto p-5 flex flex-col items-center mx-auto">
@@ -91,16 +95,24 @@ const Login = () => {
             </label>
           </fieldset>
 
-          <a href="#" className="text-xs text-[rgb(var(--color-brand))]">
+          <Link
+            to="/forgot-password"
+            className="text-xs text-[rgb(var(--color-brand))]"
+          >
             Forget password?
-          </a>
+          </Link>
         </div>
+
+        {onLoginErr && (
+          <p className="text-red-600 text-[14px] mb-2">{onLoginErr}</p>
+        )}
 
         <button
           type="submit"
-          className="w-full text-sm font-medium text-center py-1 rounded-lg shadow bg-[rgb(var(--color-brand))] text-white hover:scale-97 active:scale-103 transition cursor-pointer"
+          disabled={isSubmitting}
+          className="w-full text-sm text-center font-medium py-1 rounded-lg shadow bg-[rgb(var(--color-brand))] text-white hover:scale-97 active:scale-103 transition cursor-pointer disabled:opacity-50"
         >
-          Sign In
+          {isSubmitting ? <LoadingSpinner size={25} /> : "Sign In"}
         </button>
       </form>
 

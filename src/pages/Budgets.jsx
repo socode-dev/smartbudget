@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { HiOutlineTrash, HiOutlinePencil, HiOutlinePlus } from "react-icons/hi";
 import { useModalContext } from "../context/ModalContext";
 import useTransactionStore from "../store/useTransactionStore";
@@ -15,14 +15,18 @@ const Budgets = () => {
   const forms = useFormContext("budgets");
   const { setValue } = forms;
 
-  const filteredBudgets = budgets.filter((budget) => {
-    const matchesName =
-      searchName === ""
-        ? true
-        : budget?.name?.toLowerCase().includes(searchName?.toLowerCase());
+  const filteredBudgets = useMemo(
+    () =>
+      budgets.filter((budget) => {
+        const matchesName =
+          searchName === ""
+            ? true
+            : budget?.name?.toLowerCase().includes(searchName?.toLowerCase());
 
-    return matchesName;
-  });
+        return matchesName;
+      }),
+    [budgets]
+  );
 
   const handleDeleteTransaction = (id) => {
     deleteTransaction(id, "budgets");

@@ -1,21 +1,24 @@
 import { useState, useRef, useEffect } from "react";
-import { FaUserCircle, FaBars, FaSearch, FaCog } from "react-icons/fa";
+import { FaBars, FaSearch, FaCog } from "react-icons/fa";
 import { FaRegBell } from "react-icons/fa6";
 import SettingsDropdown from "./SettingsDropdown";
 import NotificationDropdown from "./NotificationDropdown";
+import ProfileDropdown from "./ProfileDropdown";
 import Input from "../ui/Input";
+import { useAuthContext } from "../../context/AuthContext";
+import clsx from "clsx";
 
 const Header = ({ onSidebarToggle }) => {
+  const { userInitials } = useAuthContext();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [notificationOpen, setNotificationOpen] = useState(false);
   const [hasNewNotification, setHasNewNotification] = useState(false);
   const [showMobileSearch, setShowMobileSearch] = useState(false);
+  const [openProfileDropdown, setOpenProfileDropdown] = useState(false);
   const [searchValue, setSearchValue] = useState("");
   const settingsRef = useRef(null);
   const notificationRef = useRef(null);
   const searchInputRef = useRef(null);
-
-  // For demonstration, replace with your real notification logic
 
   // Focus searchbar when shown on mobile
   useEffect(() => {
@@ -90,7 +93,7 @@ const Header = ({ onSidebarToggle }) => {
         <div className="flex items-center gap-6">
           {/* Mobile: show search icon */}
           <button
-            className="flex items-center text-gray-600 hover:text-blue-600 transition-colors cursor-pointer relative lg:hidden"
+            className="flex items-center text-gray-600 hover:text-blue-600 transition cursor-pointer relative lg:hidden"
             aria-label="Search"
             onClick={() => setShowMobileSearch((show) => !show)}
           >
@@ -100,19 +103,14 @@ const Header = ({ onSidebarToggle }) => {
           {/* Notification Icon with Dot */}
           <div className="relative" ref={notificationRef}>
             <button
-              className="flex text-gray-600 hover:text-blue-600 transition-colors cursor-pointer"
+              className={clsx(
+                "flex text-gray-600 hover:text-[rgb(var(--color-brand))] transition cursor-pointer"
+              )}
               aria-label="Notifications"
               onClick={() => setNotificationOpen((open) => !open)}
               type="button"
             >
-              <span className="relative inline-block">
-                <FaRegBell size={20} />
-                <span
-                  className={`absolute -top-1 right-0 w-2 h-2 rounded-full border-2 border-[rgb(var(--color-bg))] ${
-                    hasNewNotification ? "bg-green-500" : "bg-gray-400"
-                  }`}
-                ></span>
-              </span>
+              <FaRegBell size={20} />
             </button>
             <NotificationDropdown
               open={notificationOpen}
@@ -122,7 +120,7 @@ const Header = ({ onSidebarToggle }) => {
           {/* Settings Icon with Dropdown */}
           <div className="relative" ref={settingsRef}>
             <button
-              className="flex items-center text-gray-600 hover:text-blue-600 transition-colors cursor-pointer"
+              className="flex items-center text-gray-600 hover:text-blue-600 transition cursor-pointer"
               aria-label="Settings"
               onClick={() => setDropdownOpen((open) => !open)}
               type="button"
@@ -134,9 +132,19 @@ const Header = ({ onSidebarToggle }) => {
               onClose={() => setDropdownOpen(false)}
             />
           </div>
-          <button className="text-[rgb(var(--color-muted))] hover:text-blue-600 transition-colors cursor-pointer">
-            <FaUserCircle size={28} />
-          </button>
+          <div className="relative">
+            <button
+              onClick={() => setOpenProfileDropdown((prev) => !prev)}
+              className="text-base text-white font-bold bg-blue-600 border-[rgb(var(--color-border))] px-2 py-1 rounded-full transition cursor-pointer"
+            >
+              {userInitials}
+            </button>
+
+            <ProfileDropdown
+              open={openProfileDropdown}
+              onClose={() => setOpenProfileDropdown(false)}
+            />
+          </div>
         </div>
       </header>
       {/* Mobile searchbar below header */}

@@ -2,9 +2,16 @@ import { useState, useRef, useEffect } from "react";
 import AiSettingsDropdown from "./AiSettingsDropdown";
 import useThemeStore from "../../store/useThemeStore";
 import useCurrencyStore from "../../store/useCurrencyStore";
-import { FaSun, FaMoon, FaChevronDown, FaChevronUp } from "react-icons/fa";
+import {
+  FaSun,
+  FaMoon,
+  FaChevronDown,
+  FaChevronUp,
+  FaSignOutAlt,
+} from "react-icons/fa";
 import CurrencyFlag from "react-currency-flags";
 import currencyCodes from "currency-codes/data";
+import { useAuthContext } from "../../context/AuthContext";
 
 const getCurrencyName = (code) => {
   const entry = currencyCodes.find((c) => c.code === code);
@@ -48,26 +55,26 @@ const SettingsDropdown = ({ open, onClose }) => {
 
   if (!open) return null;
   return (
-    <div className="absolute right-0 mt-2 w-56 bg-[rgb(var(--color-gray-bg-settings))] border border-[rgb(var(--color-gray-border))] rounded-lg shadow-lg z-60 text-xs font-medium">
+    <div className="absolute right-0 mt-2 w-56 bg-[rgb(var(--color-gray-bg-settings))] border border-[rgb(var(--color-gray-border))] rounded-lg shadow-lg z-60 text-xs font-medium overflow-y-auto">
       <ul className="py-2">
         <li className="px-4 py-2 cursor-pointer flex items-center justify-between hover:bg-[rgb(var(--color-gray-bg))] transition-colors">
           <span>Theme</span>
           {/* Sun/Moon sliding switch */}
           <button
-            className={`ml-2 w-12 h-6 rounded-full relative focus:outline-none cursor-pointer transition-colors flex items-center ${
+            className={`ml-2 w-10 h-4 rounded-full relative focus:outline-none cursor-pointer transition-colors flex items-center ${
               theme === "dark" ? "bg-blue-600" : "bg-gray-200"
             }`}
             onClick={toggleTheme}
             aria-label="Toggle theme"
           >
             <span
-              className={`absolute top-1 left-1 w-4 h-4 flex items-center justify-center rounded-full shadow transition-all duration-300 ${
+              className={`absolute top-0.5 mx-1 w-3 h-3 flex items-center justify-center rounded-full shadow transition-all duration-300 ${
                 theme === "dark"
                   ? "translate-x-6 bg-gray-900 text-yellow-300"
                   : "translate-x-0 bg-yellow-400 text-white"
               }`}
             >
-              {theme === "dark" ? <FaMoon size={14} /> : <FaSun size={14} />}
+              {theme === "dark" ? <FaMoon size={11} /> : <FaSun size={11} />}
             </span>
           </button>
         </li>
@@ -139,9 +146,6 @@ const SettingsDropdown = ({ open, onClose }) => {
         </li>
         <li className="px-4 py-2 cursor-pointer hover:bg-[rgb(var(--color-gray-bg))] transition-colors">
           Help
-        </li>
-        <li className="px-4 py-2 cursor-pointer text-blue-600 font-semibold hover:bg-[rgb(var(--color-gray-bg))] transition-colors">
-          Sign in
         </li>
       </ul>
     </div>

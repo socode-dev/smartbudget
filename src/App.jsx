@@ -11,10 +11,14 @@ import { ReportChartProvider } from "./context/ReportChartContext";
 import { OverviewChartProvider } from "./context/OverviewChartContext";
 import { TransactionsProvider } from "./context/TransactionsContext";
 import { AuthProvider } from "./context/AuthContext";
+import { AuthFormProvider } from "./context/AuthFormContext";
 import AuthLayout from "./layout/AuthLayouts";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 import ProtectedRoute from "./components/routes/ProtectedRoute";
+import PublicRoute from "./components/routes/PublicRoute";
 
 const Overview = lazy(() => import("./pages/Overview"));
 const Transactions = lazy(() => import("./pages/Transactions"));
@@ -49,8 +53,24 @@ function App() {
     <>
       {/* Authentication routes */}
       <Route element={<AuthLayout />}>
-        <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
+        <Route
+          path="login"
+          element={
+            <PublicRoute>
+              <Login />
+            </PublicRoute>
+          }
+        />
+        <Route path="forgot-password" element={<ForgotPassword />} />
+        <Route path="forgot-password/reset" element={<ResetPassword />} />
+        <Route
+          path="signup"
+          element={
+            <PublicRoute>
+              <Signup />
+            </PublicRoute>
+          }
+        />
       </Route>
 
       {/* Main routes */}
@@ -100,13 +120,15 @@ function App() {
   return (
     <BrowserRouter>
       <Suspense fallback={<div className="p-8">Loading...</div>}>
-        <AuthProvider>
-          <FormProvider>
-            <ModalProvider>
-              <Routes>{routes}</Routes>
-            </ModalProvider>
-          </FormProvider>
-        </AuthProvider>
+        <AuthFormProvider>
+          <AuthProvider>
+            <FormProvider>
+              <ModalProvider>
+                <Routes>{routes}</Routes>
+              </ModalProvider>
+            </FormProvider>
+          </AuthProvider>
+        </AuthFormProvider>
       </Suspense>
     </BrowserRouter>
   );
