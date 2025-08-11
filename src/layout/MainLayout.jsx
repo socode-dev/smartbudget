@@ -4,11 +4,14 @@ import Header from "../components/layouts/Header";
 import Sidebar from "../components/layouts/Sidebar";
 import { useModalContext } from "../context/ModalContext";
 import Modal from "../components/modals/Modal";
+import SignoutPrompt from "../components/modals/SignoutPrompt";
 import { Toaster } from "react-hot-toast";
+import { useAuthContext } from "../context/AuthContext";
 
 const MainLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { modalState } = useModalContext();
+  const { isSignoutPromptOpen } = useAuthContext();
 
   const handleSidebarToggle = () => setSidebarOpen((open) => !open);
   const handleSidebarClose = () => setSidebarOpen(false);
@@ -44,6 +47,10 @@ const MainLayout = () => {
   return (
     <div className="relative flex h-svh bg-[rgb(var(--color-bg))]">
       <Toaster />
+
+      {/* Sign out confirmation */}
+      {isSignoutPromptOpen && <SignoutPrompt />}
+
       {/* Modals */}
       {modalState.transactions.open && (
         <Modal

@@ -10,6 +10,7 @@ import {
   FaUserCircle,
   FaRegCreditCard,
 } from "react-icons/fa";
+import { useAuthContext } from "../../context/AuthContext";
 
 const navLinks = [
   { to: "/", icon: <FaTachometerAlt size={20} />, label: "Overview" },
@@ -22,6 +23,7 @@ const navLinks = [
 
 const Sidebar = ({ isOpen, onClose }) => {
   const location = useLocation();
+  const { userInitials, userFirstName, userLastName } = useAuthContext();
   const [hovered, setHovered] = useState(false);
 
   // Sidebar expanded if hovered (desktop) or open (mobile)
@@ -104,6 +106,7 @@ const Sidebar = ({ isOpen, onClose }) => {
               </span>
             </button>
           </div>
+
           {/* User Info */}
           <div
             className={`flex items-center text-[rgb(var(--color-muted))] gap-2 mb-6 px-2 ${
@@ -112,11 +115,11 @@ const Sidebar = ({ isOpen, onClose }) => {
           >
             <FaUserCircle size={28} />
             <span
-              className={` font-normal text-xs transition-all duration-200 ${
+              className={` font-medium text-sm transition-all duration-200 ${
                 expanded ? "inline" : "hidden"
               } custom980:inline`}
             >
-              New User
+              {`${userFirstName} ${userLastName}`}
             </span>
           </div>
         </div>

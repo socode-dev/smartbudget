@@ -15,7 +15,14 @@ const useAuthForm = (type) => {
     mode: "all",
   });
 
-  return form;
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors, isSubmitting },
+  } = form;
+
+  return { register, handleSubmit, reset, errors, isSubmitting };
 };
 
 export default useAuthForm;

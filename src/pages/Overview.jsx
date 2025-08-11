@@ -4,8 +4,11 @@ import SmartInsight from "../components/overview/SmartInsight";
 import BudgetOverview from "../components/overview/BudgetOverview";
 import QuickActions from "../components/overview/QuickActions";
 import ScrollToTop from "../layout/ScrollToTop";
+import { useAuthContext } from "../context/AuthContext";
 
 const Overview = () => {
+  const { userFirstName, userLastName } = useAuthContext();
+
   return (
     <main className="flex flex-col gap-16 pt-2 pb-8">
       <ScrollToTop />
@@ -14,7 +17,7 @@ const Overview = () => {
           className="text-2xl md:text-3xl lg:text-4xl font-semibold text-[rgb(var(--color-<h2>Welcome back, Guest</h2>
       text))]"
         >
-          Welcome back, User
+          Welcome back, {`${userFirstName} ${userLastName}`}
         </h2>
         <p className="text-sm text-[rgb(var(--color-muted))]">
           Here is a quick summary of your financial activity this month. You

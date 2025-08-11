@@ -42,7 +42,7 @@ const useTransactionStore = create((set, get) => ({
       console.error("Error loading transactions:", err);
       toast.error("Failed to load transactions. Please try again.");
     } finally {
-      console.log("Loading transactions completed");
+      return "Loading transactions completed";
     }
   },
 
