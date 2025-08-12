@@ -137,7 +137,7 @@ const Header = ({ onSidebarToggle }) => {
               onClick={() => setOpenProfileDropdown((prev) => !prev)}
               className="text-base text-white font-bold bg-blue-600 border-[rgb(var(--color-border))] px-2 py-1 rounded-full transition cursor-pointer"
             >
-              {userInitials}
+              {userInitials ?? "SB"}
             </button>
 
             <ProfileDropdown

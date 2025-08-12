@@ -21,7 +21,7 @@ const Transactions = () => {
   return (
     <main className="my-8">
       <ScrollToTop />
-      <section className="flex items-start justify-between gap-4 mb-6">
+      <section className="flex items-center justify-between gap-4 mb-6">
         <div>
           <h2 className="text-2xl font-semibold">Transactions</h2>
           <p className="text-sm text-[rgb(var(--color-muted))] mt-2 ">

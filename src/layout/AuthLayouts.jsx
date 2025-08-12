@@ -6,7 +6,7 @@ import ResetSuccessful from "../components/modals/ResetSuccessful";
 
 const AuthLayout = () => {
   return (
-    <div className="relative p-5 bg-[rgb(var(--color-bg-card))] flex flex-col gap-7 h-screen w-full">
+    <div className="relative p-5 bg-[rgb(var(--color-bg-card))] flex flex-col gap-7 min-h-screen w-full">
       <Toaster />
 
       {/* Modals */}

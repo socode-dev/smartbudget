@@ -12,9 +12,11 @@ import {
   doSignInWithGoogle,
   doSignUserWithEmailAndPassword,
   doSignOut,
+  doSignInWithMicrosoft,
 } from "../firebase/auth";
 import { doc, setDoc, getDoc, serverTimestamp } from "firebase/firestore";
 import { useAuthFormContext } from "./AuthFormContext";
+import { getAuthErrorMessage } from "../utils/authErrorrs";
 
 const AuthContext = createContext();
 
@@ -25,6 +27,8 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [onLoginErr, setOnLoginErr] = useState(null);
   const [onSignupErr, setOnSignupErr] = useState(null);
+  const [googleErr, setGoogleErr] = useState(null);
+  const [microsoftErr, setMicrosoftErr] = useState(null);
   const [isSignoutPromptOpen, setIsSignoutPromptOpen] = useState(false);
   const [resetLinkModalOpen, setResetLinkModalOpen] = useState(false);
   const [openResetSuccessModal, setOpenResetSuccessModal] = useState(false);
@@ -104,19 +108,24 @@ export const AuthProvider = ({ children }) => {
           ...userDocSnap.data(),
         });
       } else {
-        console.warn("No profile found for this user");
+        throw new Error("No profile found for this user");
       }
     } catch (err) {
-      switch (err.code) {
-        case "auth/invalid-credential":
-          setOnLoginErr("Invalid email or password");
-          break;
-        case "auth/user-disabled":
-          setOnLoginErr("This account has been disabled");
-          break;
-        default:
-          setOnLoginErr("Something went wrong. Please try again");
-      }
+      console.log(err);
+
+      setOnLoginErr(getAuthErrorMessage(err));
+      // switch (err.code) {
+      //   case "auth/invalid-credential":
+      //     setOnLoginErr("Invalid email or password");
+      //     break;
+      //   case "auth/user-disabled":
+      //     setOnLoginErr("This account has been disabled");
+      //     break;
+      //   default:
+      //     setOnLoginErr("Something went wrong. Please try again");
+      // }
+
+      setTimeout(() => setOnLoginErr(null), 10000);
     } finally {
       setTimeout(() => loginFormReset(), 10);
     }
@@ -145,31 +154,164 @@ export const AuthProvider = ({ children }) => {
 
       setCurrentUser({ uid: user.uid, ...userDocData });
     } catch (err) {
-      switch (err.code) {
-        case "auth/email-already-in-use":
-          setOnSignupErr("This email is already registered to an account");
-          break;
-        case "auth/weak-password":
-          setOnSignupErr("Password must be at least 6 characters");
-          break;
-        default:
-          setOnSignupErr("Something went wrong. Please try again");
-      }
+      setOnSignupErr(getAuthErrorMessage(err));
+      // switch (err.code) {
+      //   case "auth/email-already-in-use":
+      //     setOnSignupErr("This email is already registered to an account");
+      //     break;
+      //   case "auth/weak-password":
+      //     setOnSignupErr("Password must be at least 6 characters");
+      //     break;
+      //   default:
+      //     setOnSignupErr("Something went wrong. Please try again");
+      // }
+
+      setTimeout(() => setOnSignupErr(null), 10000);
     } finally {
       setTimeout(() => signupFormReset(), 10);
     }
   });
 
-  const onGoogleSignIn = (e) => {
-    e.preventDefault();
-    doSignInWithGoogle().catch((err) => {
-      setErr(err);
-      setIsSigningIn(false);
-    });
+  const onGoogleSignIn = async () => {
+    try {
+      const result = await doSignInWithGoogle();
+      const user = result.user;
+
+      const splitName = user.displayName.split(" ");
+      const firstName = splitName?.at(0);
+      const lastName = splitName?.at(1);
+
+      const userDocData = {
+        firstName: firstName
+          ? firstName.slice(0, 1).toUpperCase() + firstName.slice(1)
+          : "",
+        lastName: lastName
+          ? lastName.slice(0, 1).toUpperCase() + lastName.slice(1)
+          : "",
+        email: user.email,
+        createdAt: serverTimestamp(),
+      };
+
+      // Create user document in Firestore
+      await setDoc(doc(db, "users", user.uid), userDocData);
+
+      setCurrentUser({ uid: user.uid, ...userDocData });
+    } catch (err) {
+      setGoogleErr(getAuthErrorMessage(err, "google"));
+      // switch (err.code) {
+      //   case "auth/account-exists-with-different-credential":
+      //     setGoogleErr(
+      //       "This email is already linked to another sign-in method"
+      //     );
+      //     break;
+      //   case "auth/invalid-credential":
+      //     setGoogleErr(
+      //       "You Microsoft login link expired or is invalid. Please try again"
+      //     );
+      //     break;
+      //   case "auth/operation-not-allowed":
+      //     setGoogleErr(
+      //       "Microsoft sign-in is currently disabled. Please use anotehr method"
+      //     );
+      //     break;
+      //   case "auth/network-request-failed":
+      //     setGoogleErr(
+      //       "Network error. Please check your internet connection"
+      //     );
+      //     break;
+      //   case "auth/popup-closed-by-user":
+      //     setGoogleErr(
+      //       "Sign-in was canceled. Please complete the sign-in process"
+      //     );
+      //     break;
+      //   case "auth/cancelled-popup-request":
+      //     setGoogleErr(
+      //       "Another sign-inn attempt is already in progress. Please wait."
+      //     );
+      //     break;
+      //   case err.code?.startsWith("AADSTS"):
+      //     setGoogleErr("Microsoft authentication failed. Please try again");
+      //     break;
+      //   default:
+      //     setGoogleErr("An unexpected error occured. Please try again");
+      // }
+
+      setTimeout(() => setGoogleErr(null), 10000);
+    }
+  };
+
+  const onMicrosoftSignIn = async () => {
+    try {
+      const result = await doSignInWithMicrosoft();
+      const user = result.user;
+      console.log(user);
+
+      const splitName = user.displayName.split(" ");
+      const firstName = splitName?.at(0);
+      const lastName = splitName?.at(1);
+
+      const userDocData = {
+        firstName: firstName
+          ? firstName.slice(0, 1).toUpperCase() + firstName.slice(1)
+          : "",
+        lastName: lastName
+          ? lastName.slice(0, 1).toUpperCase() + lastName.slice(1)
+          : "",
+        email: user.email,
+        createdAt: serverTimestamp(),
+      };
+
+      // Create user document in Firestore
+      await setDoc(doc(db, "users", user.uid), userDocData);
+
+      setCurrentUser({ uid: user.uid, ...userDocData });
+    } catch (err) {
+      setMicrosoftErr(getAuthErrorMessage(err, "microsoft"));
+      // switch (err.code) {
+      //   case "auth/account-exists-with-different-credential":
+      //     setMicrosoftErr(
+      //       "This email is already linked to another sign-in method"
+      //     );
+      //     break;
+      //   case "auth/invalid-credential":
+      //     setMicrosoftErr(
+      //       "You Microsoft login link expired or is invalid. Please try again"
+      //     );
+      //     break;
+      //   case "auth/operation-not-allowed":
+      //     setMicrosoftErr(
+      //       "Microsoft sign-in is currently disabled. Please use anotehr method"
+      //     );
+      //     break;
+      //   case "auth/network-request-failed":
+      //     setMicrosoftErr(
+      //       "Network error. Please check your internet connection"
+      //     );
+      //     break;
+      //   case "auth/popup-closed-by-user":
+      //     setMicrosoftErr(
+      //       "Sign-in was canceled. Please complete the sign-in process"
+      //     );
+      //     break;
+      //   case "auth/cancelled-popup-request":
+      //     setMicrosoftErr(
+      //       "Another sign-inn attempt is already in progress. Please wait."
+      //     );
+      //     break;
+      //   case err.code?.startsWith("AADSTS"):
+      //     setMicrosoftErr("Microsoft authentication failed. Please try again");
+      //     break;
+      //   default:
+      //     setMicrosoftErr("An unexpected error occured. Please try again");
+      // }
+    }
+
+    setTimeout(() => setMicrosoftErr(null), 10000);
   };
 
   const onSignOut = () => {
     doSignOut();
+    setCurrentUser(null);
     setIsSignoutPromptOpen(false);
   };
 
@@ -216,10 +358,13 @@ export const AuthProvider = ({ children }) => {
         loading,
         onLoginErr,
         onSignupErr,
+        microsoftErr,
+        googleErr,
         onLogin,
         onSignup,
-        onSignOut,
         onGoogleSignIn,
+        onMicrosoftSignIn,
+        onSignOut,
         onPasswordReset,
         isSignoutPromptOpen,
         setIsSignoutPromptOpen,

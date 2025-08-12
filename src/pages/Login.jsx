@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { FaEye, FaEyeSlash, FaGoogle, FaApple } from "react-icons/fa6";
+import { FaEye, FaEyeSlash, FaGoogle, FaMicrosoft } from "react-icons/fa6";
 import { Link } from "react-router-dom";
 import { useAuthFormContext } from "../context/AuthFormContext.jsx";
 import { useAuthContext } from "../context/AuthContext";
@@ -12,7 +12,14 @@ const Login = () => {
     loginErrors: errors,
     loginIsSubmitting: isSubmitting,
   } = useAuthFormContext();
-  const { onLogin, onLoginErr } = useAuthContext();
+  const {
+    onLogin,
+    onLoginErr,
+    onGoogleSignIn,
+    onMicrosoftSignIn,
+    microsoftErr,
+    googleErr,
+  } = useAuthContext();
 
   const [revealPassword, setRevealPassword] = useState(false);
 
@@ -29,6 +36,25 @@ const Login = () => {
       <p className="text-sm text-[rgb(var(--color-muted))] text-center mt-2 mb-6">
         Please log in to access your SmartBudget
       </p>
+
+      {/* Display authentication error if there is any */}
+      {microsoftErr && (
+        <p className="max-w-11/12 bg-red-50 px-4 py-1.5 rounded text-red-600 text-[14px] mb-2">
+          {microsoftErr}
+        </p>
+      )}
+
+      {googleErr && (
+        <p className="max-w-11/12 bg-red-50 px-4 py-1.5 rounded text-red-600 text-[14px] mb-2">
+          {googleErr}
+        </p>
+      )}
+
+      {onLoginErr && (
+        <p className="bg-red-50 px-4 py-1.5 rounded text-red-600 text-[14px] mb-2">
+          {onLoginErr}
+        </p>
+      )}
 
       <form onSubmit={onLogin} className="w-11/12">
         <fieldset className=" w-full mb-3">
@@ -103,14 +129,10 @@ const Login = () => {
           </Link>
         </div>
 
-        {onLoginErr && (
-          <p className="text-red-600 text-[14px] mb-2">{onLoginErr}</p>
-        )}
-
         <button
           type="submit"
           disabled={isSubmitting}
-          className="w-full text-sm text-center font-medium py-1 rounded-lg shadow bg-[rgb(var(--color-brand))] text-white hover:scale-97 active:scale-103 transition cursor-pointer disabled:opacity-50"
+          className="w-full text-sm text-center font-medium py-1 rounded-lg shadow bg-[rgb(var(--color-brand))] text-white hover:scale-97 active:scale-103 transition cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isSubmitting ? <LoadingSpinner size={25} /> : "Sign In"}
         </button>
@@ -121,15 +143,21 @@ const Login = () => {
 
         <fieldset className="w-full flex gap-4">
           {/* Google login */}
-          <button className="w-1/2 px-4 py-1 flex items-center justify-center gap-3 border-2 border-[rgb(var(--color-gray-border))] hover:bg-[rgb(var(--color-gray-bg))] transition rounded-lg text-sm text-[rgb(var(--color-muted))] font-medium cursor-pointer">
+          <button
+            onClick={onGoogleSignIn}
+            className="w-1/2 px-4 py-1 flex items-center justify-center gap-3 border-2 border-[rgb(var(--color-gray-border))] hover:bg-[rgb(var(--color-gray-bg))] transition rounded-lg text-sm text-[rgb(var(--color-muted))] font-medium cursor-pointer"
+          >
             <FaGoogle />
             <span>Google</span>
           </button>
 
           {/* Apple login */}
-          <button className="w-1/2 px-4 py-1 flex items-center justify-center gap-3 border-2 border-[rgb(var(--color-gray-border))] hover:bg-[rgb(var(--color-gray-bg))] transition rounded-lg text-sm text-[rgb(var(--color-muted))] font-medium cursor-pointer">
-            <FaApple />
-            <span>Apple</span>
+          <button
+            onClick={onMicrosoftSignIn}
+            className="w-1/2 px-4 py-1 flex items-center justify-center gap-3 border-2 border-[rgb(var(--color-gray-border))] hover:bg-[rgb(var(--color-gray-bg))] transition rounded-lg text-sm text-[rgb(var(--color-muted))] font-medium cursor-pointer"
+          >
+            <FaMicrosoft />
+            <span>Microsoft</span>
           </button>
         </fieldset>
       </section>
