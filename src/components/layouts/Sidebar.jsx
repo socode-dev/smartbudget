@@ -11,19 +11,20 @@ import {
   FaRegCreditCard,
 } from "react-icons/fa";
 import { useAuthContext } from "../../context/AuthContext";
+import clsx from "clsx";
 
 const navLinks = [
-  { to: "/", icon: <FaTachometerAlt size={20} />, label: "Overview" },
-  { to: "/transactions", icon: <FaListAlt size={20} />, label: "Transactions" },
-  { to: "/budgets", icon: <FaWallet size={20} />, label: "Budgets" },
-  { to: "/goals", icon: <FaBullseye size={20} />, label: "Goals" },
-  { to: "/insights", icon: <FaLightbulb size={20} />, label: "Insights" },
-  { to: "/reports", icon: <FaChartPie size={20} />, label: "Reports" },
+  { to: "/", icon: FaTachometerAlt, label: "Overview" },
+  { to: "/transactions", icon: FaListAlt, label: "Transactions" },
+  { to: "/budgets", icon: FaWallet, label: "Budgets" },
+  { to: "/goals", icon: FaBullseye, label: "Goals" },
+  { to: "/insights", icon: FaLightbulb, label: "Insights" },
+  { to: "/reports", icon: FaChartPie, label: "Reports" },
 ];
 
 const Sidebar = ({ isOpen, onClose }) => {
   const location = useLocation();
-  const { userInitials, userFirstName, userLastName } = useAuthContext();
+  const { userName } = useAuthContext();
   const [hovered, setHovered] = useState(false);
 
   // Sidebar expanded if hovered (desktop) or open (mobile)
@@ -52,77 +53,55 @@ const Sidebar = ({ isOpen, onClose }) => {
         aria-label="Sidebar navigation"
       >
         {/* Logo */}
-        {/* <div
-          className={`h-16 flex items-center ${
-            expanded ? "justify-start pl-4" : "justify-center"
-          } transition-all duration-200`}
-        >
-        </div> */}
-        <div className="w-14 h-8 ml-3 mt-3.5 bg-blue-700 rounded-lg flex items-center justify-center text-white font-bold text-xl">
+        <h1 className="mx-3 mt-3.5 bg-blue-700 rounded-lg flex items-center justify-center text-white font-bold text-2xl py-1.5">
           SB
-        </div>
+        </h1>
         {/* Navigation */}
-        <nav className="flex flex-col gap-1 mt-12 px-2 overflow-y-auto">
+        <nav className="flex flex-col grow gap-2 mt-12 px-2 overflow-y-auto">
           {navLinks.map((link) => (
             <Link
               key={link.to}
               to={link.to}
               onClick={onClose}
               aria-label={link.label}
-              className={`relative group flex items-center gap-3 px-2 py-2 rounded-lg hover:bg-blue-700 hover:text-white transition-colors text-[rgb(var(--color-muted))] ${
-                expanded ? "justify-start pl-2" : "justify-center"
-              }  ${
+              className={clsx(
+                "relative group flex items-center gap-3 px-2 py-2 rounded-lg hover:bg-blue-700 hover:text-white transition-colors text-[rgb(var(--color-muted))]",
+                expanded ? "justify-start pl-3" : "justify-center",
                 location.pathname === link.to ? "bg-blue-100 text-blue-700" : ""
-              }`}
+              )}
             >
-              {link.icon}
+              <link.icon className="text-xl" />
               {/* Label: show if expanded (sidebar open or hovered) */}
               <span
-                className={`font-medium text-xs transition-all duration-200 ${
+                className={clsx(
+                  "font-medium text-base transition-all duration-200",
                   expanded ? "inline" : "hidden"
-                } custom980:inline`}
+                )}
               >
                 {link.label}
               </span>
             </Link>
           ))}
         </nav>
-        {/* Record Sale Button (vertically between nav and user) */}
-        <div className="flex flex-col mt-8">
-          <div className="px-2 mb-4">
-            <button
-              className={`w-full flex items-center gap-2 py-2 rounded-lg bg-[rgb(var(--color-brand))] hover:bg-[rgb(var(--color-brand-hover))] text-gray-100 font-semibold transition cursor-pointer ${
-                expanded ? "justify-start pl-2" : "justify-center"
-              }`}
-              aria-label="Record Sale"
-            >
-              <FaRegCreditCard size={20} />
-              <span
-                className={`font-medium text-xs transition-all duration-200 ${
-                  expanded ? "inline" : "hidden"
-                } custom980:inline`}
-              >
-                Record Sale
-              </span>
-            </button>
-          </div>
 
-          {/* User Info */}
-          <div
-            className={`flex items-center text-[rgb(var(--color-muted))] gap-2 mb-6 px-2 ${
-              expanded ? "justify-start" : "justify-center"
-            }`}
+        {/* User Info */}
+        <div
+          className={clsx(
+            "flex items-center bg-[rgb(var(--color-brand))] text-white gap-2 px-4 mx-3 mb-6 rounded-lg py-2",
+            expanded ? "justify-start" : "justify-center"
+          )}
+        >
+          <FaUserCircle className="text-3xl" />
+          <span
+            className={clsx(
+              "font-semibold text-base transition-all duration-200",
+              expanded ? "inline" : "hidden"
+            )}
           >
-            <FaUserCircle size={28} />
-            <span
-              className={` font-medium text-sm transition-all duration-200 ${
-                expanded ? "inline" : "hidden"
-              } custom980:inline`}
-            >
-              {`${userFirstName} ${userLastName}`}
-            </span>
-          </div>
+            {userName.fullName.toUpperCase()}
+          </span>
         </div>
+        {/* </div> */}
       </section>
     </aside>
   );

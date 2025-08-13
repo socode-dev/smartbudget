@@ -6,14 +6,24 @@ import { useFormContext } from "../context/FormContext";
 import { handleEdit } from "../utils/handleEdit";
 import { format } from "date-fns";
 import ScrollToTop from "../layout/ScrollToTop";
+import useCurrencyStore from "../store/useCurrencyStore";
+import { formatAmount } from "../utils/formatAmount";
 
 const Budgets = () => {
   const [searchName, setSearchName] = useState("");
-  const { onOpenModal } = useModalContext();
+  const { onOpenModal, setTransactionID } = useModalContext();
   const { budgets, transactions, deleteTransaction, setEditTransaction } =
     useTransactionStore();
   const forms = useFormContext("budgets");
   const { setValue } = forms;
+  const { selectedCurrency } = useCurrencyStore();
+
+  const formattedAmount = useCallback((amount) => {
+    const formatCurrency = formatAmount(selectedCurrency);
+    const amountFormat = formatCurrency.format(amount);
+
+    return amountFormat;
+  });
 
   const filteredBudgets = useMemo(
     () =>
@@ -25,8 +35,21 @@ const Budgets = () => {
 
         return matchesName;
       }),
-    [budgets]
+    [budgets, searchName]
   );
+
+  const handleEditBudget = (id) => {
+    handleEdit(
+      id,
+      "budgets",
+      "edit",
+      budgets,
+      setValue,
+      onOpenModal,
+      setEditTransaction
+    );
+    setTransactionID(id);
+  };
 
   const handleDeleteTransaction = (id) => {
     deleteTransaction(id, "budgets");
@@ -47,92 +70,110 @@ const Budgets = () => {
     [transactions]
   );
 
+  const getProgressBackground = (percentage, type) => {
+    if (percentage > 90 && type === "expense") {
+      return "bg-red-500";
+    } else if (percentage > 90 && type === "income") {
+      return "bg-green-500";
+    } else if (percentage > 50 && type !== "income") {
+      return "bg-amber-500";
+    } else {
+      return "bg-[rgb(var(--color-brand))]";
+    }
+  };
+
   return (
-    <main className="p-8">
+    <main className="p-6">
       <ScrollToTop />
-      <h2 className="text-2xl font-semibold mb-2">Budgets</h2>
-      <p className="text-sm text-[rgb(var(--color-muted))] mb-3">
-        Monitor and manage your category limits
-      </p>
+      <section className="w-full flex justify-center items-center">
+        <div className="w-full">
+          <h2 className="text-4xl md:text-5xl font-semibold mb-2">Budgets</h2>
+          <p className="text-base text-[rgb(var(--color-muted))] mb-4">
+            Monitor and manage your category limits
+          </p>
+        </div>
+
+        {filteredBudgets.length > 0 && (
+          <button
+            onClick={() => onOpenModal("budgets", "add")}
+            className="bg-blue-500 hover:bg-blue-600 transition cursor-pointer text-white px-4 py-2 rounded-md text-xl font-semibold flex items-center mx-auto gap-2"
+          >
+            <HiOutlinePlus />
+          </button>
+        )}
+      </section>
 
       {budgets.length > 0 && (
         <input
           type="text"
           placeholder="Search by name..."
-          className="w-full mx-auto mb-6 rounded border border-[rgb(var(--color-gray-border))] bg-[rgb(var(--color-bg-card))] outline-none focus:border-[rgb(var(--color-brand))] transition text-xs p-2"
+          className="w-full mx-auto mb-6 rounded border border-[rgb(var(--color-gray-border))] bg-[rgb(var(--color-bg-card))] outline-none focus:border-[rgb(var(--color-brand))] transition text-sm p-2"
           value={searchName}
           onChange={(e) => setSearchName(e.target.value)}
         />
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {/* Groceries Category */}
 
         {filteredBudgets.map((budget) => {
           const monthLabel = format(new Date(budget.date), "MMMM yyyy");
-          const budgetLimit = budget.amount.toFixed(2);
-          const amountSpent = getAmountSpent(
-            budget.categoryKey,
-            budget.date
-          ).toFixed(2);
-          const remainingBalance = (budgetLimit - amountSpent).toFixed(2);
+          const budgetLimit = budget.amount;
+          const amountSpent = getAmountSpent(budget.categoryKey, budget.date);
+          const remainingBalance = budgetLimit - amountSpent;
           const progressBarPercentage = (amountSpent / budgetLimit) * 100;
-          const progressBarBackground =
-            progressBarPercentage < 90
-              ? "bg-amber-500"
-              : progressBarPercentage < 50
-              ? "bg-[rgb(var(--color-brand))]"
-              : progressBarPercentage > 90 && budget.type === "income"
-              ? "bg-green-500"
-              : "bg-red-600";
+          const progressBarBackground = getProgressBackground(
+            progressBarPercentage,
+            budget.type
+          );
 
           return (
             <div
               key={budget.id}
-              className="bg-[rgb(var(--color-bg-card))] p-4 rounded-lg flex justify-between items-start gap-4"
+              className="bg-[rgb(var(--color-bg-card))] h-50 p-4 rounded-lg flex justify-between items-start gap-4"
             >
-              <div className="grow space-y-1.5">
+              <div className="flex flex-col grow h-full space-y-1.5">
                 <div className="mb-4">
-                  <h3 className="text-lg font-semibold">
+                  <h3 className="text-xl font-semibold">
                     {budget.category.toLowerCase() === "other"
                       ? budget.name
                       : budget.category}
                   </h3>
-                  <p className="text-gray-500 bg-[rgb(var(--color-bg))] text-xs font-medium w-fit py-0.5 px-2 rounded mt-1">
+                  <p className="text-gray-500 bg-[rgb(var(--color-bg))] text-sm font-medium w-fit py-0.5 px-2 rounded mt-1">
                     {monthLabel}
                   </p>
                 </div>
 
-                <p className="text-sm font-medium">
-                  <strong className="text-[rgb(var(--color-muted))]">
-                    Limit:
-                  </strong>{" "}
-                  {budget.currencySymbol}
-                  {budgetLimit}
-                </p>
-                {budget.type === "expense" && (
-                  <p className="text-sm font-medium">
+                {/* Budget summary */}
+                <div className="grow w-full">
+                  <p className="text-base font-medium">
+                    Limit:{" "}
                     <strong className="text-[rgb(var(--color-muted))]">
-                      Spent:
-                    </strong>{" "}
-                    {budget.currencySymbol}
-                    {amountSpent}
+                      {formattedAmount(budgetLimit)}
+                    </strong>
                   </p>
-                )}
-                <p className="text-sm font-medium">
-                  <strong className="text-[rgb(var(--color-muted))]">
+                  {budget.type === "expense" && (
+                    <p className="text-base font-medium">
+                      Spent:{" "}
+                      <strong className="text-[rgb(var(--color-muted))]">
+                        {formattedAmount(amountSpent)}
+                      </strong>
+                    </p>
+                  )}
+                  <p className="text-base font-medium">
                     {progressBarPercentage > 100 && budget.type === "expense"
                       ? "Overspent"
                       : progressBarPercentage > 100 && budget.type === "income"
                       ? "Extra"
                       : "Remaining"}
-                    :
-                  </strong>{" "}
-                  {budget.currencySymbol}
-                  {progressBarPercentage > 100
-                    ? Math.abs(remainingBalance).toFixed(2)
-                    : remainingBalance}
-                </p>
+                    :{" "}
+                    <strong className="text-[rgb(var(--color-muted))]">
+                      {progressBarPercentage > 100
+                        ? Math.abs(formattedAmount(remainingBalance))
+                        : formattedAmount(remainingBalance)}
+                    </strong>
+                  </p>
+                </div>
 
                 {/* Progress Bar */}
                 <div className="w-full h-3 bg-[rgb(var(--color-gray-border))] rounded-full overflow-hidden">
@@ -148,17 +189,7 @@ const Budgets = () => {
               <div className="flex gap-2">
                 <button
                   className="text-sm text-blue-500 hover:text-blue-600 transition cursor-pointer"
-                  onClick={() =>
-                    handleEdit(
-                      budget.id,
-                      "budgets",
-                      "edit",
-                      budgets,
-                      setValue,
-                      onOpenModal,
-                      setEditTransaction
-                    )
-                  }
+                  onClick={() => handleEditBudget(budget.id)}
                 >
                   <HiOutlinePencil className="text-lg" />
                 </button>
@@ -185,22 +216,22 @@ const Budgets = () => {
 
       {/* Empty State */}
       {budgets.length === 0 && (
-        <p className="mt-6 text-base text-[rgb(var(--color-muted))] mb-6">
-          You have not added any budgets yet.
-        </p>
-      )}
+        <>
+          <p className="mt-6 text-base text-center text-[rgb(var(--color-muted))] mb-6">
+            You have not added any budgets yet.
+          </p>
 
-      <button
-        onClick={() => onOpenModal("budgets", "add")}
-        className={`mt-10 ${
-          !filteredBudgets?.length && "mx-auto"
-        } bg-blue-500 hover:bg-blue-600 transition cursor-pointer text-white px-4 py-2 rounded-md text-sm font-medium flex items-center gap-2`}
-      >
-        <HiOutlinePlus />
-        <span>
-          {budgets.length === 0 ? "Add Your First Budget" : "Add Budget"}
-        </span>
-      </button>
+          <button
+            onClick={() => onOpenModal("budgets", "add")}
+            className="bg-blue-500 hover:bg-blue-600 transition cursor-pointer text-white px-4 py-2 rounded-md text-base font-semibold flex items-center mx-auto gap-2"
+          >
+            <HiOutlinePlus />
+            <span>
+              {budgets.length === 0 ? "Add Your First Budget" : "Add Budget"}
+            </span>
+          </button>
+        </>
+      )}
     </main>
   );
 };

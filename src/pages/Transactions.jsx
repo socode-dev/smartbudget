@@ -9,33 +9,36 @@ import { useTransactionsContext } from "../context/TransactionsContext";
 
 const Transactions = () => {
   const { onOpenModal } = useModalContext();
+  const { transactions } = useTransactionStore();
   const {
     sortedTransactions,
     totalBalance,
     totalExpenses,
     totalIncome,
     netBalance,
+    formattedAmount,
   } = useTransactionsContext();
-  const { currencySymbol, transactions } = useTransactionStore();
 
   return (
-    <main className="my-8">
+    <main className="p-6">
       <ScrollToTop />
       <section className="flex items-center justify-between gap-4 mb-6">
         <div>
-          <h2 className="text-2xl font-semibold">Transactions</h2>
-          <p className="text-sm text-[rgb(var(--color-muted))] mt-2 ">
+          <h2 className="text-3xl md:text-4xl font-semibold">Transactions</h2>
+          <p className="text-base text-[rgb(var(--color-muted))] mt-2 ">
             Track all your expenses and income in one place.
           </p>
         </div>
 
-        <button
-          onClick={() => onOpenModal("transactions", "add")}
-          title="Add transaction"
-          className="bg-green-500 hover:bg-green-600 transition cursor-pointer text-white px-4 py-2 rounded-md text-sm font-medium"
-        >
-          <FaPlus />
-        </button>
+        {transactions.length > 0 && (
+          <button
+            onClick={() => onOpenModal("transactions", "add")}
+            title="Add transaction"
+            className="bg-green-500 hover:bg-green-600 transition cursor-pointer text-white px-4 py-2 rounded-md text-xl"
+          >
+            <FaPlus />
+          </button>
+        )}
       </section>
 
       {/* Filter Row (Search by note, date range and category) */}
@@ -48,32 +51,28 @@ const Transactions = () => {
 
           {/* Amount Summary */}
           <div className="grid grid-cols-2 md:grid-cols-4 items-center text-[12px] mt-8 gap-4">
-            <p className="text-[rgb(var(--color-muted))]">
+            <p className="text-[rgb(var(--color-muted))] text-sm font-medium">
               Total Income:{" "}
-              <span className="font-semibold text-green-500 text-xs">
-                +{currencySymbol}
-                {totalIncome?.toFixed(2)}
+              <span className="font-semibold text-green-500 text-base">
+                +{formattedAmount(totalIncome)}
               </span>
             </p>
-            <p className="text-[rgb(var(--color-muted))]">
+            <p className="text-[rgb(var(--color-muted))] text-sm font-medium">
               Total Expenses:{" "}
-              <span className="font-semibold text-red-500 text-xs">
-                -{currencySymbol}
-                {totalExpenses?.toFixed(2)}
+              <span className="font-semibold text-red-500 text-base">
+                -{formattedAmount(totalExpenses)}
               </span>
             </p>
-            <p className="text-[rgb(var(--color-muted))]">
+            <p className="text-[rgb(var(--color-muted))] text-sm font-medium">
               Total Balance:{" "}
-              <span className="font-semibold text-blue-500 text-xs">
-                {currencySymbol}
-                {totalBalance?.toFixed(2)}
+              <span className="font-semibold text-blue-500 text-base">
+                {formattedAmount(totalBalance)}
               </span>
             </p>
-            <p className="text-[rgb(var(--color-muted))]">
+            <p className="text-[rgb(var(--color-muted))] text-sm font-medium">
               Net Balance:{" "}
-              <span className="font-semibold text-yellow-500 text-xs">
-                {currencySymbol}
-                {netBalance?.toFixed(2)}
+              <span className="font-semibold text-yellow-500 text-base">
+                {formattedAmount(netBalance)}
               </span>
             </p>
           </div>
@@ -94,16 +93,16 @@ const Transactions = () => {
             <h3 className="text-xl text-[rgb(var(--color-muted))] font-semibold mb-2">
               No transactions yet.
             </h3>
-            <p className="text-sm text-[rgb(var(--color-muted))]">
+            <p className="text-base text-[rgb(var(--color-muted))]">
               Start by adding your first expense.
             </p>
           </div>
 
           <button
             onClick={() => onOpenModal("transactions", "add")}
-            className="mt-8 mx-auto bg-green-500 hover:bg-green-600 transition cursor-pointer text-white px-4 py-2 rounded-md text-sm font-medium flex items-center gap-2"
+            className="mt-8 mx-auto bg-green-500 hover:bg-green-600 transition cursor-pointer text-white px-4 py-2 rounded-md text-base font-medium flex items-center gap-2"
           >
-            <FaPlus />
+            <FaPlus className="text-lg" />
             <span>
               {transactions?.length > 0
                 ? "Add Transaction"

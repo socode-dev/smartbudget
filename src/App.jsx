@@ -1,9 +1,8 @@
-import { Suspense, lazy, useEffect } from "react";
+import { Suspense, lazy } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import MainLayout from "./layout/MainLayout";
 import { ModalProvider } from "./context/ModalContext";
 import { FormProvider } from "./context/FormContext";
-import useTransactionStore from "./store/useTransactionStore";
 import { ReportProvider } from "./context/ReportContext";
 import { useThemeEffect } from "./hooks/useThemeEffect";
 import { OverviewProvider } from "./context/OverviewContext";
@@ -28,26 +27,8 @@ const Goals = lazy(() => import("./pages/Goals"));
 const Insights = lazy(() => import("./pages/Insights"));
 
 function App() {
-  const { loadTransactions } = useTransactionStore();
-
   // Initialize and handle theme changes
   useThemeEffect();
-
-  useEffect(() => {
-    let isMounted = true;
-    const load = () => {
-      const labels = ["transactions", "budgets", "goals", "contributions"];
-      labels.forEach(async (label) => {
-        await loadTransactions(label);
-      });
-    };
-    load();
-
-    // Cleanup to avoid memory leaks
-    return () => {
-      isMounted = false;
-    };
-  }, []);
 
   const routes = (
     <>

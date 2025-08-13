@@ -1,5 +1,6 @@
 import { useContext, createContext, useMemo } from "react";
 import useTransactionStore from "../store/useTransactionStore";
+import { useReportContext } from "./ReportContext";
 
 const ReportChartContext = createContext();
 
@@ -20,7 +21,8 @@ const categoryColor = {
 };
 
 export const ReportChartProvider = ({ children }) => {
-  const { transactions, currencySymbol } = useTransactionStore();
+  const { transactions } = useTransactionStore();
+  const { formattedAmount } = useReportContext();
 
   const expenses = useMemo(
     () => transactions.filter((tx) => tx.type === "expense"),
@@ -85,7 +87,7 @@ export const ReportChartProvider = ({ children }) => {
         labels: {
           color: "#6B7280",
           font: {
-            size: 13,
+            size: 14,
             weight: "400",
           },
           padding: 12,
@@ -96,7 +98,7 @@ export const ReportChartProvider = ({ children }) => {
           label: (context) => {
             const label = context.label || "";
             const amount = context.raw || "";
-            return `${label} ${currencySymbol}${amount?.toFixed(2)}`;
+            return `${label} ${formattedAmount(amount)}`;
           },
         },
       },
@@ -148,7 +150,7 @@ export const ReportChartProvider = ({ children }) => {
           },
           color: "#6B7280",
           font: {
-            size: 13,
+            size: 14,
             weight: "400",
           },
           padding: 12,
@@ -160,7 +162,7 @@ export const ReportChartProvider = ({ children }) => {
             const label = context.label || "";
             const value = context.raw || "";
 
-            return `${label} ${currencySymbol}${value?.toFixed(2)}`;
+            return `${label} ${formattedAmount(value)}`;
           },
         },
       },

@@ -17,18 +17,18 @@ const Filter = () => {
   } = useTransactionsContext();
 
   return (
-    <div className="grid grid-cols-2 items-center gap-3 md:gap-5 mb-6">
+    <div className="grid grid-cols-8 items-center gap-3 md:gap-5 mb-6">
       {/* Search by Note */}
       <input
         type="text"
         placeholder="Search by description..."
-        className="col-span-full md:col-span-1 rounded border border-[rgb(var(--color-gray-border))] bg-[rgb(var(--color-bg-card))] outline-none focus:border-[rgb(var(--color-brand))] transition text-xs p-2"
+        className="col-span-3 sm:col-span-4 md:col-span-full xl:col-span-3 rounded border border-[rgb(var(--color-gray-border))] bg-[rgb(var(--color-bg-card))] outline-none focus:border-[rgb(var(--color-brand))] transition text-xs p-2"
         value={searchDescription}
         onChange={(e) => setSearchDescription(e.target.value)}
       />
 
       {/* Date Range */}
-      <div className="flex gap-2 col-span-full md:col-span-1">
+      <div className="w-fit col-span-5 sm:col-span-4 md:col-span-4 xl:col-span-3 flex gap-2">
         {/* From Date */}
         <div className="flex items-center gap-2">
           <label className="text-xs text-[rgb(var(--color-muted))]">From</label>
@@ -53,7 +53,7 @@ const Filter = () => {
       </div>
       {/* Category Filter */}
       <select
-        className="col-span-full md:col-span-1 rounded border border-[rgb(var(--color-gray-border))] bg-[rgb(var(--color-bg-card))] outline-none focus:border-[rgb(var(--color-brand))] transition text-xs p-2 cursor-pointer"
+        className="col-span-4 md:col-span-2 xl:col-span-1 rounded border border-[rgb(var(--color-gray-border))] bg-[rgb(var(--color-bg-card))] outline-none focus:border-[rgb(var(--color-brand))] transition text-xs p-2 cursor-pointer"
         value={categoryFilter}
         onChange={(e) => setCategoryFilter(e.target.value)}
       >
@@ -67,7 +67,7 @@ const Filter = () => {
 
       {/* Type Filter */}
       <select
-        className="col-span-full md:col-span-1 rounded border border-[rgb(var(--color-gray-border))] bg-[rgb(var(--color-bg-card))] outline-none focus:border-[rgb(var(--color-brand))] transition text-xs p-2 cursor-pointer"
+        className="col-span-4 md:col-span-2 xl:col-span-1 rounded border border-[rgb(var(--color-gray-border))] bg-[rgb(var(--color-bg-card))] outline-none focus:border-[rgb(var(--color-brand))] transition text-xs p-2 cursor-pointer"
         value={typeFilter}
         onChange={(e) => setTypeFilter(e.target.value)}
       >

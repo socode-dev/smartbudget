@@ -2,10 +2,12 @@ import useTransactionStore from "../../store/useTransactionStore";
 import { useModalContext } from "../../context/ModalContext";
 import useFormSubmit from "../../hooks/useFormSubmit";
 import { useFormContext } from "../../context/FormContext";
+import { useAuthContext } from "../../context/AuthContext";
 
 const ModalForm = ({ label, mode }) => {
-  const { onCloseModal } = useModalContext();
-  const { onSubmit } = useFormSubmit(label, mode);
+  const { currentUser } = useAuthContext();
+  const { onCloseModal, transactionID } = useModalContext();
+  const { onSubmit, handleSubmit } = useFormSubmit(label, mode);
   const forms = useFormContext(label);
   const {
     register,
@@ -27,8 +29,13 @@ const ModalForm = ({ label, mode }) => {
   const getTodayDate = () => new Date().toISOString().split("T")[0];
   setValue("date", getTodayDate());
 
+  const txID = mode === "edit" ? transactionID : null;
+
   return (
-    <form onSubmit={onSubmit} className="space-y-4">
+    <form
+      onSubmit={handleSubmit((data) => onSubmit(data, currentUser.uid, txID))}
+      className="space-y-4"
+    >
       {/* Category Dropdown */}
       {(transactionLabel || budgetLabel) && (
         <div>

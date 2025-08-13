@@ -3,11 +3,25 @@ import useTransactionStore from "../store/useTransactionStore";
 import Papa from "papaparse";
 import { jsPDF } from "jspdf";
 import { autoTable } from "jspdf-autotable";
+import { formatAmount } from "../utils/formatAmount";
+import useCurrencyStore from "../store/useCurrencyStore";
 
 const ReportContext = createContext();
 
 export const ReportProvider = ({ children }) => {
-  const { transactions, currencySymbol } = useTransactionStore();
+  const { transactions } = useTransactionStore();
+  const { selectedCurrency } = useCurrencyStore();
+
+  // Helper to format amount to currency amount
+  const formattedAmount = useCallback(
+    (amount) => {
+      const formatCurrency = formatAmount(selectedCurrency);
+      const amountFormat = formatCurrency.format(amount);
+
+      return amountFormat;
+    },
+    [selectedCurrency]
+  );
 
   const expenses = useMemo(
     () => transactions.filter((tx) => tx.type === "expense"),
@@ -39,7 +53,7 @@ export const ReportProvider = ({ children }) => {
 
       return {
         category,
-        amount: `${currencySymbol}${totalCategoryAmount.toFixed(2)}`,
+        amount: formattedAmount(totalCategoryAmount),
         percentage: `${parseFloat(percentage)}%`,
         count: reportItems.length,
       };
@@ -48,7 +62,6 @@ export const ReportProvider = ({ children }) => {
     // Sort by amount descending
     return tableData.sort((a, b) => b.amount - a.amount);
   }, [expenses]);
-  console.log(reportTableData());
 
   // Handler for exporting via CSV
   const handleCSVExport = useCallback(() => {
@@ -114,6 +127,7 @@ export const ReportProvider = ({ children }) => {
         reportTableData,
         handleCSVExport,
         handlePDFExport,
+        formattedAmount,
       }}
     >
       {children}

@@ -4,8 +4,8 @@ import IncomeBudgetOverview from "./IncomeBudgetOveview";
 const BudgetOverview = () => {
   return (
     <>
-      <h2 className="text-xl font-medium mb-2">Budget Overview</h2>
-      <p className="text-sm text-[rgb(var(--color-muted))] mb-6">
+      <h2 className="text-3xl font-medium mb-2">Budget Overview</h2>
+      <p className="text-base text-[rgb(var(--color-muted))] mb-8">
         Track how close you are meeting your goals.
       </p>
 

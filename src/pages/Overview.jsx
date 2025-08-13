@@ -7,19 +7,22 @@ import ScrollToTop from "../layout/ScrollToTop";
 import { useAuthContext } from "../context/AuthContext";
 
 const Overview = () => {
-  const { userFirstName, userLastName } = useAuthContext();
+  const { userName } = useAuthContext();
 
   return (
-    <main className="flex flex-col gap-16 pt-2 pb-8">
+    <main className="flex flex-col gap-16 p-6">
       <ScrollToTop />
-      <div className="flex flex-col gap-2 md:gap-3 lg:gap-4 mt-4">
+      <div className="flex flex-col gap-4">
         <h2
-          className="text-2xl md:text-3xl lg:text-4xl font-semibold text-[rgb(var(--color-<h2>Welcome back, Guest</h2>
+          className="text-4xl md:text-5xl font-semibold text-[rgb(var(--color-<h2>Welcome back, Guest</h2>
       text))]"
         >
-          Welcome back, {`${userFirstName} ${userLastName}`}
+          Welcome back,{" "}
+          <span className="text-[rgb(var(--color-brand))]">
+            {userName.fullName}
+          </span>
         </h2>
-        <p className="text-sm text-[rgb(var(--color-muted))]">
+        <p className="text-base text-[rgb(var(--color-muted))]">
           Here is a quick summary of your financial activity this month. You
           have spent less than usual and your savings are ahead of schedule.
         </p>

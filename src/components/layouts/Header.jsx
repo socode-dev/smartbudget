@@ -9,7 +9,7 @@ import { useAuthContext } from "../../context/AuthContext";
 import clsx from "clsx";
 
 const Header = ({ onSidebarToggle }) => {
-  const { userInitials } = useAuthContext();
+  const { userName } = useAuthContext();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [notificationOpen, setNotificationOpen] = useState(false);
   const [hasNewNotification, setHasNewNotification] = useState(false);
@@ -64,20 +64,20 @@ const Header = ({ onSidebarToggle }) => {
 
   return (
     <>
-      <header className="lg:h-14 h-14 lg:relative fixed top-0 left-0 w-full bg-[rgb(var(--color-bg))] text-[rgb(var(--color-text))] shadow flex items-center py-3 px-4 lg:px-6 justify-between z-50">
+      <header className="h-16 lg:relative fixed top-0 left-0 w-full bg-[rgb(var(--color-bg))] text-[rgb(var(--color-text))] shadow flex items-center py-3 px-4 lg:px-6 justify-between z-50">
         {/* Left: Hamburger for mobile */}
         <div className="flex items-center gap-2">
           <button
-            className="lg:hidden mr-2 p-2 cursor-pointer"
+            className="lg:hidden mr-2 p-2 cursor-pointer hover:text-[rgb(var(--color-brand))]"
             onClick={onSidebarToggle}
             aria-label="Open sidebar"
           >
-            <FaBars size={22} />
+            <FaBars className="text-2xl transition" />
           </button>
         </div>
 
         {/* Center: Searchbar on desktop */}
-        <div className="hidden lg:flex items-center justify-center flex-1">
+        {/* <div className="hidden lg:flex items-center justify-center flex-1">
           <div className="w-96">
             <Input
               type="text"
@@ -87,18 +87,21 @@ const Header = ({ onSidebarToggle }) => {
               ref={searchInputRef}
             />
           </div>
-        </div>
+        </div> */}
+        <h2 className="text-xl md:text-2xl font-semibold text-[rgb(var(--color-muted))]">
+          Financial Dashboard
+        </h2>
 
         {/* Right: Icons and User Avatar */}
         <div className="flex items-center gap-6">
           {/* Mobile: show search icon */}
-          <button
+          {/* <button
             className="flex items-center text-gray-600 hover:text-blue-600 transition cursor-pointer relative lg:hidden"
             aria-label="Search"
             onClick={() => setShowMobileSearch((show) => !show)}
           >
             <FaSearch size={20} />
-          </button>
+          </button> */}
 
           {/* Notification Icon with Dot */}
           <div className="relative" ref={notificationRef}>
@@ -110,7 +113,7 @@ const Header = ({ onSidebarToggle }) => {
               onClick={() => setNotificationOpen((open) => !open)}
               type="button"
             >
-              <FaRegBell size={20} />
+              <FaRegBell className="text-2xl" />
             </button>
             <NotificationDropdown
               open={notificationOpen}
@@ -125,7 +128,7 @@ const Header = ({ onSidebarToggle }) => {
               onClick={() => setDropdownOpen((open) => !open)}
               type="button"
             >
-              <FaCog size={20} />
+              <FaCog className="text-2xl" />
             </button>
             <SettingsDropdown
               open={dropdownOpen}
@@ -135,9 +138,9 @@ const Header = ({ onSidebarToggle }) => {
           <div className="relative">
             <button
               onClick={() => setOpenProfileDropdown((prev) => !prev)}
-              className="text-base text-white font-bold bg-blue-600 border-[rgb(var(--color-border))] px-2 py-1 rounded-full transition cursor-pointer"
+              className="text-lg text-white font-bold bg-[rgb(var(--color-brand))] hover:bg-[rgb(var(--color-brand-hover))] px-2.5 py-1.5 rounded-full transition cursor-pointer"
             >
-              {userInitials ?? "SB"}
+              {userName.initials ?? "SB"}
             </button>
 
             <ProfileDropdown
