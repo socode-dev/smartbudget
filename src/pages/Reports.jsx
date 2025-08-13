@@ -10,10 +10,10 @@ const Reports = () => {
   const { expenses, handleCSVExport, handlePDFExport } = useReportContext();
 
   return (
-    <main className="py-10">
+    <main className="p-6">
       <ScrollToTop />
-      <h2 className="text-2xl font-semibold mb-2">Reports</h2>
-      <p className="text-sm text-[rgb(var(--color-muted))] mb-10">
+      <h2 className="text-4xl md:text-5xl font-semibold mb-2">Reports</h2>
+      <p className="text-base text-[rgb(var(--color-muted))] mb-10">
         Review, analyze, and export your financial history.
       </p>
 
@@ -23,7 +23,7 @@ const Reports = () => {
           <section className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Spending over time */}
             <figure className="flex flex-col gap-4 bg-[rgb(var(--color-bg-card))] p-4 rounded-lg shadow-md">
-              <h3 className="text-lg font-semibold">Spending Over Time</h3>
+              <h3 className="text-xl font-semibold">Spending Over Time</h3>
 
               {/* Bar Chart */}
               <BarChart />
@@ -31,7 +31,7 @@ const Reports = () => {
 
             {/* Category Breakdown */}
             <figure className="flex flex-col gap-4 bg-[rgb(var(--color-bg-card))] p-4 rounded-lg shadow-md">
-              <h3 className="text-lg font-semibold">Category Breakdown</h3>
+              <h3 className="text-xl font-semibold">Category Breakdown</h3>
 
               {/* Doughnut Chart */}
               <DoughnutChart page="reports" />
@@ -47,17 +47,17 @@ const Reports = () => {
             <button
               onClick={handleCSVExport}
               type="button"
-              className="flex items-center gap-2 px-3 py-1.5 rounded-full shadow-md border border-green-200 bg-green-50 hover:bg-green-100 transition text-green-800 font-semibold text-sm focus:outline-none focus:ring-2 focus:ring-green-300 cursor-pointer"
+              className="flex items-center gap-2 px-3 py-1.5 rounded-lg shadow-md border border-green-200 bg-green-50 hover:bg-green-100 transition text-green-800 font-semibold text-base focus:outline-none focus:ring-2 focus:ring-green-300 cursor-pointer"
             >
-              <FaFileCsv className="w-5 h-5" />
+              <FaFileCsv className="text-2xl" />
               <span>CSV</span>
             </button>
             <button
               onClick={handlePDFExport}
               type="button"
-              className="flex items-center gap-2 px-3 py-1.5 rounded-full shadow-md border border-red-200 bg-red-50 hover:bg-red-100 transition text-red-800 font-semibold text-sm focus:outline-none focus:ring-2 focus:ring-red-300 cursor-pointer"
+              className="flex items-center gap-2 px-3 py-1.5 rounded-lg shadow-md border border-red-200 bg-red-50 hover:bg-red-100 transition text-red-800 font-semibold text-base focus:outline-none focus:ring-2 focus:ring-red-300 cursor-pointer"
             >
-              <FaFilePdf className="w-5 h-5" />
+              <FaFilePdf className="text-2xl" />
               <span>PDF</span>
             </button>
           </section>

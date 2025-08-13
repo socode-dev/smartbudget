@@ -10,13 +10,9 @@ import {
   FaSignOutAlt,
 } from "react-icons/fa";
 import CurrencyFlag from "react-currency-flags";
-import currencyCodes from "currency-codes/data";
 import { useAuthContext } from "../../context/AuthContext";
-
-const getCurrencyName = (code) => {
-  const entry = currencyCodes.find((c) => c.code === code);
-  return entry ? entry.currency : code;
-};
+import { getCurrencyName } from "../../utils/getCurrencyCode";
+import CURRENCY_SYMBOLS from "../../data/currencySymbols";
 
 const SettingsDropdown = ({ open, onClose }) => {
   const [aiDropdownOpen, setAiDropdownOpen] = useState(false);
@@ -24,15 +20,30 @@ const SettingsDropdown = ({ open, onClose }) => {
   const aiSettingsRef = useRef(null);
   const currencyRef = useRef(null);
   const { theme, toggleTheme } = useThemeStore();
-  const { currencies, selectedCurrency, setSelectedCurrency, fetchCurrencies } =
-    useCurrencyStore();
+  const {
+    currencies,
+    selectedCurrency,
+    setSelectedCurrency,
+    getCurrencySymbol,
+    fetchCurrencies,
+  } = useCurrencyStore();
 
   // Fetch currencies on open
   useEffect(() => {
+    let isMounted = true;
     if (open && currencies.length === 0) {
       fetchCurrencies();
     }
-  }, [open, currencies.length, fetchCurrencies]);
+    getCurrencySymbol(selectedCurrency);
+
+    return () => (isMounted = false);
+  }, [open, currencies.length, fetchCurrencies, selectedCurrency]);
+
+  // useEffect(() => {
+  //   let isMounted = true;
+
+  //   return
+  // }, []);
 
   // Close AI / Currency dropdown if clicked outside
   useEffect(() => {
@@ -55,7 +66,7 @@ const SettingsDropdown = ({ open, onClose }) => {
 
   if (!open) return null;
   return (
-    <div className="absolute right-0 mt-2 w-56 bg-[rgb(var(--color-gray-bg-settings))] border border-[rgb(var(--color-gray-border))] rounded-lg shadow-lg z-60 text-xs font-medium overflow-y-auto">
+    <div className="absolute right-0 mt-2 w-56 bg-[rgb(var(--color-gray-bg-settings))] border border-[rgb(var(--color-gray-border))] rounded-lg shadow-lg z-60 text-xs font-medium overflow-y-visible">
       <ul className="py-2">
         <li className="px-4 py-2 cursor-pointer flex items-center justify-between hover:bg-[rgb(var(--color-gray-bg))] transition-colors">
           <span>Theme</span>

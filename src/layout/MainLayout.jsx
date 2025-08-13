@@ -7,14 +7,33 @@ import Modal from "../components/modals/Modal";
 import SignoutPrompt from "../components/modals/SignoutPrompt";
 import { Toaster } from "react-hot-toast";
 import { useAuthContext } from "../context/AuthContext";
+import useTransactionStore from "../store/useTransactionStore";
 
 const MainLayout = () => {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const { loadTransactions } = useTransactionStore();
   const { modalState } = useModalContext();
-  const { isSignoutPromptOpen } = useAuthContext();
+  const { currentUser, isSignoutPromptOpen } = useAuthContext();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const handleSidebarToggle = () => setSidebarOpen((open) => !open);
   const handleSidebarClose = () => setSidebarOpen(false);
+
+  // Load all transactions, budgets, goals on mount
+  useEffect(() => {
+    let isMounted = true;
+    const load = () => {
+      const labels = ["transactions", "budgets", "goals", "contributions"];
+      labels.forEach(async (label) => {
+        await loadTransactions(currentUser.uid, label);
+      });
+    };
+    load();
+
+    // Cleanup to avoid memory leaks
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   // Disable window scroll when modal is open
   useEffect(() => {

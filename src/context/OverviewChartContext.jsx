@@ -6,8 +6,9 @@ import { useOverviewContext } from "./OverviewContext";
 const OverviewChartContext = createContext();
 
 export const OverviewChartProvider = ({ children }) => {
-  const { transactions, currencySymbol } = useTransactionStore();
-  const { totalBudget, totalBudgetUsed } = useOverviewContext();
+  const { transactions } = useTransactionStore();
+  const { totalBudget, totalBudgetUsed, formattedAmount } =
+    useOverviewContext();
 
   const budgetRemaining =
     totalBudget - totalBudgetUsed > 0 ? totalBudget - totalBudgetUsed : 0;
@@ -47,6 +48,7 @@ export const OverviewChartProvider = ({ children }) => {
     );
     return totalMonthlyExpenses;
   });
+  console.log(monthlyIncome);
 
   // Combine all values into one array to get max
   const allValues = [...monthlyIncome, ...monthlyExpenses];
@@ -105,7 +107,7 @@ export const OverviewChartProvider = ({ children }) => {
         position: "bottom",
         labels: {
           color: "#475569",
-          font: { size: 13, weight: 400 },
+          font: { size: 14, weight: 400 },
         },
       },
       tooltip: {
@@ -114,7 +116,7 @@ export const OverviewChartProvider = ({ children }) => {
             const label = context.label || "";
             const value = context.raw || "";
 
-            return `${label} ${currencySymbol}${value?.toFixed(2)}`;
+            return `${label} ${formattedAmount(value)}`;
           },
         },
       },
@@ -125,9 +127,9 @@ export const OverviewChartProvider = ({ children }) => {
         suggestedMax: maxValue,
         ticks: {
           stepSize,
-          callback: (value) => `${currencySymbol}${value.toLocaleString()}`,
+          callback: (value) => formattedAmount(value),
           color: "#64748B",
-          font: { size: 12 },
+          font: { size: 14 },
         },
         grid: {
           color: "#E2E8F0",
@@ -136,7 +138,7 @@ export const OverviewChartProvider = ({ children }) => {
       x: {
         ticks: {
           color: "#64748B",
-          font: { size: 12 },
+          font: { size: 14 },
         },
       },
     },
@@ -167,7 +169,7 @@ export const OverviewChartProvider = ({ children }) => {
         labels: {
           color: "#6B7280",
           font: {
-            size: 13,
+            size: 14,
             weight: "400",
           },
           padding: 12,
@@ -178,7 +180,7 @@ export const OverviewChartProvider = ({ children }) => {
           label: (context) => {
             const label = context.label || "";
             const amount = context.raw || "";
-            return `${label} ${currencySymbol}${amount?.toFixed(2)}`;
+            return `${label} ${formattedAmount(amount)}`;
           },
         },
       },

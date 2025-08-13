@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { HiOutlinePlus, HiOutlinePencil, HiOutlineTrash } from "react-icons/hi";
 import CircularProgress from "../components/ui/CircularProgress";
 import { useModalContext } from "../context/ModalContext";
@@ -7,13 +7,29 @@ import { useFormContext } from "../context/FormContext";
 import toast from "react-hot-toast";
 import { handleEdit } from "../utils/handleEdit";
 import ScrollToTop from "../layout/ScrollToTop";
+import { formatAmount } from "../utils/formatAmount";
+import useCurrencyStore from "../store/useCurrencyStore";
+import { useAuthContext } from "../context/AuthContext";
 
 const Goals = () => {
-  const { onOpenModal, modalState } = useModalContext();
+  const { currentUser } = useAuthContext();
+  const { onOpenModal, modalState, setTransactionID, transactionID } =
+    useModalContext();
   const contributionModalState = modalState.contributions;
+  const { selectedCurrency } = useCurrencyStore();
   const { goals, contributions, deleteTransaction, setEditTransaction } =
     useTransactionStore();
   const [searchName, setSearchName] = useState("");
+
+  const formattedAmount = useCallback(
+    (amount) => {
+      const formatCurrency = formatAmount(selectedCurrency);
+      const amountFormat = formatCurrency.format(amount);
+
+      return amountFormat;
+    },
+    [selectedCurrency]
+  );
 
   // Goal form
   const goalForm = useFormContext("goals");
@@ -50,6 +66,7 @@ const Goals = () => {
       onOpenModal,
       setEditTransaction
     );
+    setTransactionID(id);
   };
 
   const getAmountSaved = useCallback(
@@ -62,14 +79,18 @@ const Goals = () => {
     [contributions]
   );
 
-  const filteredGoals = goals.filter((goal) => {
-    const matchesName =
-      searchName === ""
-        ? true
-        : goal?.name?.toLowerCase().includes(searchName?.toLowerCase());
+  const filteredGoals = useMemo(
+    () =>
+      goals.filter((goal) => {
+        const matchesName =
+          searchName === ""
+            ? true
+            : goal?.name?.toLowerCase().includes(searchName?.toLowerCase());
 
-    return matchesName;
-  });
+        return matchesName;
+      }),
+    [goals, searchName]
+  );
 
   // Handler to delete goal and its contributions(if any)
   const deleteGoalAndContribution = useCallback(
@@ -77,37 +98,55 @@ const Goals = () => {
       const goalContributions = contributions.filter(
         (contribution) => contribution.categoryKey === key
       );
+
       if (goalContributions.length > 0) {
         for (let i = 0; i < goalContributions?.length; i++) {
           for (const contribution of goalContributions) {
-            deleteTransaction(contribution.id, "contributions");
+            deleteTransaction(
+              currentUser.uid,
+              "contributions",
+              contribution.id
+            );
           }
         }
-        deleteTransaction(id, "goals");
+        deleteTransaction(currentUser.uid, "goals", id);
       } else {
-        deleteTransaction(id, "goals");
+        deleteTransaction(currentUser.uid, "goals", id);
       }
 
       setTimeout(() => {
         toast.success("Goal deleted successfuly", { duration: 3000 });
-      }, 50);
+      }, 500);
     },
     [contributions]
   );
 
   return (
-    <main className="p-4">
+    <main className="p-6">
       <ScrollToTop />
-      <h2 className="text-2xl font-semibold mb-2">Goals</h2>
-      <p className="text-base text-[rgb(var(--color-muted))] mb-6">
-        Stay focused on what you are saving for.
-      </p>
+      <div className="flex justify-between items-center">
+        <div>
+          <h2 className="text-4xl md:text-5xl font-semibold mb-2">Goals</h2>
+          <p className="text-base text-[rgb(var(--color-muted))] mb-6">
+            Stay focused on what you are saving for.
+          </p>
+        </div>
+
+        {filteredGoals.length > 0 && (
+          <button
+            onClick={() => onOpenModal("goals", "add")}
+            className="bg-blue-500 hover:bg-blue-600 transition cursor-pointer text-white px-4 py-2 rounded-md text-xl font-medium flex items-center gap-2"
+          >
+            <HiOutlinePlus />
+          </button>
+        )}
+      </div>
 
       {/* Search bar to search goal by name */}
       <input
         type="text"
         placeholder="Search by name..."
-        className="w-full mx-auto mb-10 rounded border border-[rgb(var(--color-gray-border))] bg-[rgb(var(--color-bg-card))] outline-none focus:border-[rgb(var(--color-brand))] transition text-xs p-2"
+        className="w-full mx-auto mb-10 rounded border border-[rgb(var(--color-gray-border))] bg-[rgb(var(--color-bg-card))] outline-none focus:border-[rgb(var(--color-brand))] transition text-sm p-2"
         value={searchName}
         onChange={(e) => setSearchName(e.target.value)}
       />
@@ -115,7 +154,7 @@ const Goals = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {/* Emergency Fund */}
         {filteredGoals.map((goal) => {
-          const goalTargetAmount = goal.amount.toFixed(2);
+          const goalTargetAmount = goal.amount;
           const amountSaved = getAmountSaved(goal.categoryKey);
           const contributionProgress = (amountSaved / goalTargetAmount) * 100;
 
@@ -128,19 +167,17 @@ const Goals = () => {
               <div className="grow shrink-0 flex justify-between items-start gap-4">
                 <div className="flex flex-col gap-4">
                   <div className="flex flex-col gap-2 grow">
-                    <h3 className="text-lg font-semibold">{goal.name}</h3>
-                    <p className="text-sm text-[rgb(var(--color-muted))]">
+                    <h3 className="text-xl font-semibold">{goal.name}</h3>
+                    <p className="text-base font-medium">
                       Target:{" "}
-                      <strong>
-                        {goal.currencySymbol}
-                        {goalTargetAmount}
+                      <strong className="text-[rgb(var(--color-muted))]">
+                        {formattedAmount(goalTargetAmount)}
                       </strong>
                     </p>
-                    <p className="text-sm text-[rgb(var(--color-muted))]">
+                    <p className="text-base font-medium">
                       Saved:{" "}
-                      <strong>
-                        {goal.currencySymbol}
-                        {amountSaved.toFixed(2)}
+                      <strong className="text-[rgb(var(--color-muted))]">
+                        {formattedAmount(amountSaved)}
                       </strong>
                     </p>
                   </div>
@@ -150,8 +187,11 @@ const Goals = () => {
                   </div>
 
                   {/* Due date */}
-                  <p className="text-sm text-[rgb(var(--color-muted))]">
-                    Due date: <strong>{goal.date}</strong>
+                  <p className="text-base font-medium">
+                    Due date:{" "}
+                    <strong className="text-[rgb(var(--color-muted))]">
+                      {goal.date}
+                    </strong>
                   </p>
                 </div>
 
@@ -179,9 +219,9 @@ const Goals = () => {
                 onClick={() =>
                   handleAddContribution(goal.id, "contributions", goal.name)
                 }
-                className="border-green-500 border bg-[rgb(var(--color-contribution-bg))] text-sm font-medium text-[rgb(var(--color-text))] px-4 py-1.5 md:py-2 rounded-md cursor-pointer hover:bg-green-500 hover:text-white transition flex justify-center items-center gap-2"
+                className="border-green-500 border bg-[rgb(var(--color-contribution-bg))] text-base font-semibold text-[rgb(var(--color-text))] px-4 py-1.5 md:py-2 rounded-md cursor-pointer hover:bg-green-500 hover:text-white transition flex justify-center items-center gap-2"
               >
-                <HiOutlinePlus />
+                <HiOutlinePlus className="text-lg" />
                 Add Contribution
               </button>
             </div>
@@ -198,22 +238,23 @@ const Goals = () => {
 
       {/* Empty State */}
       {goals.length === 0 && (
-        <div className="mt-6 flex flex-col items-center w-full">
-          <p className="text-base text-[rgb(var(--color-muted))] mb-6">
-            You have not set any financial goals yet. Start saving
-            intentionally.
-          </p>
-        </div>
+        <>
+          <div className="mt-4 flex flex-col items-center w-full">
+            <p className="text-base text-[rgb(var(--color-muted))] mb-6">
+              You have not set any financial goals yet. Start saving
+              intentionally.
+            </p>
+          </div>
+
+          <button
+            onClick={() => onOpenModal("goals", "add")}
+            className="mx-auto bg-blue-500 hover:bg-blue-600 transition cursor-pointer text-white px-4 py-2 rounded-md text-base font-semibold flex items-center gap-2"
+          >
+            <HiOutlinePlus className="text-lg" />
+            <span>Add Your First Goal</span>
+          </button>
+        </>
       )}
-      <button
-        onClick={() => onOpenModal("goals", "add")}
-        className={`mt-10 ${
-          !filteredGoals?.length && "mx-auto"
-        } bg-blue-500 hover:bg-blue-600 transition cursor-pointer text-white px-4 py-2 rounded-md text-sm font-medium flex items-center gap-2`}
-      >
-        <HiOutlinePlus />
-        <span>{goals.length === 0 ? "Add Your First Goal" : "Add Goal"}</span>
-      </button>
     </main>
   );
 };

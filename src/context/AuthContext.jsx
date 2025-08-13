@@ -17,12 +17,14 @@ import {
 import { doc, setDoc, getDoc, serverTimestamp } from "firebase/firestore";
 import { useAuthFormContext } from "./AuthFormContext";
 import { getAuthErrorMessage } from "../utils/authErrorrs";
+import { getUserName } from "../utils/getUserName";
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [searchParams] = useSearchParams();
   const [currentUser, setCurrentUser] = useState(null);
+  const [userName, setUserName] = useState({ initials: "", fullName: "" });
   const [userLoggedIn, setUserLoggedIn] = useState(false);
   const [loading, setLoading] = useState(true);
   const [onLoginErr, setOnLoginErr] = useState(null);
@@ -46,6 +48,8 @@ export const AuthProvider = ({ children }) => {
     resetFormReset,
   } = useAuthFormContext();
 
+  console.log(userName);
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
@@ -54,6 +58,14 @@ export const AuthProvider = ({ children }) => {
 
         if (userDocSnap.exists()) {
           setCurrentUser({ uid: user.uid, ...userDocSnap.data() });
+          const { userInitials, userFirstName, userLastName } = getUserName(
+            userDocSnap.data()
+          );
+          setUserName((prev) => ({
+            ...prev,
+            initials: userInitials,
+            fullName: `${userFirstName} ${userLastName}`,
+          }));
         } else {
           setCurrentUser({ uid: user.uid });
         }
@@ -103,10 +115,19 @@ export const AuthProvider = ({ children }) => {
       const userDocSnap = await getDoc(userDocRef);
 
       if (userDocSnap.exists()) {
+        const { userInitials, userFirstName, userLastName } = getUserName(
+          userDocSnap.data()
+        );
+
         setCurrentUser({
           uid: user.uid,
           ...userDocSnap.data(),
         });
+        setUserName((prev) => ({
+          ...prev,
+          initials: userInitials,
+          fullName: `${userFirstName} ${userLastName}`,
+        }));
       } else {
         throw new Error("No profile found for this user");
       }
@@ -114,16 +135,6 @@ export const AuthProvider = ({ children }) => {
       console.log(err);
 
       setOnLoginErr(getAuthErrorMessage(err));
-      // switch (err.code) {
-      //   case "auth/invalid-credential":
-      //     setOnLoginErr("Invalid email or password");
-      //     break;
-      //   case "auth/user-disabled":
-      //     setOnLoginErr("This account has been disabled");
-      //     break;
-      //   default:
-      //     setOnLoginErr("Something went wrong. Please try again");
-      // }
 
       setTimeout(() => setOnLoginErr(null), 10000);
     } finally {
@@ -150,21 +161,20 @@ export const AuthProvider = ({ children }) => {
       };
 
       // Create user document in Firestore
-      await setDoc(doc(db, "users", user.uid), userDocData);
+      await setDoc(doc(db, "users", user.uid), { profile: userDocData });
 
+      // Set current user
       setCurrentUser({ uid: user.uid, ...userDocData });
+
+      // Set current userName
+      setUserName((prev) => ({
+        ...prev,
+        initials:
+          userDocData.firstName.slice(0, 1) + userDocData.lastName.slice(0, 1),
+        fullName: `${userDocData.firstName} ${userDocData.lastName}`,
+      }));
     } catch (err) {
       setOnSignupErr(getAuthErrorMessage(err));
-      // switch (err.code) {
-      //   case "auth/email-already-in-use":
-      //     setOnSignupErr("This email is already registered to an account");
-      //     break;
-      //   case "auth/weak-password":
-      //     setOnSignupErr("Password must be at least 6 characters");
-      //     break;
-      //   default:
-      //     setOnSignupErr("Something went wrong. Please try again");
-      // }
 
       setTimeout(() => setOnSignupErr(null), 10000);
     } finally {
@@ -193,48 +203,19 @@ export const AuthProvider = ({ children }) => {
       };
 
       // Create user document in Firestore
-      await setDoc(doc(db, "users", user.uid), userDocData);
+      await setDoc(doc(db, "users", user.uid), { profile: userDocData });
 
       setCurrentUser({ uid: user.uid, ...userDocData });
+
+      setUserName((prev) => ({
+        ...prev,
+        initials:
+          userDocData?.firstName?.slice(0, 1) +
+          userDocData?.lastName?.slice(0, 1),
+        fullName: `${userDocData?.firstName} ${userDocData?.lastName}`,
+      }));
     } catch (err) {
       setGoogleErr(getAuthErrorMessage(err, "google"));
-      // switch (err.code) {
-      //   case "auth/account-exists-with-different-credential":
-      //     setGoogleErr(
-      //       "This email is already linked to another sign-in method"
-      //     );
-      //     break;
-      //   case "auth/invalid-credential":
-      //     setGoogleErr(
-      //       "You Microsoft login link expired or is invalid. Please try again"
-      //     );
-      //     break;
-      //   case "auth/operation-not-allowed":
-      //     setGoogleErr(
-      //       "Microsoft sign-in is currently disabled. Please use anotehr method"
-      //     );
-      //     break;
-      //   case "auth/network-request-failed":
-      //     setGoogleErr(
-      //       "Network error. Please check your internet connection"
-      //     );
-      //     break;
-      //   case "auth/popup-closed-by-user":
-      //     setGoogleErr(
-      //       "Sign-in was canceled. Please complete the sign-in process"
-      //     );
-      //     break;
-      //   case "auth/cancelled-popup-request":
-      //     setGoogleErr(
-      //       "Another sign-inn attempt is already in progress. Please wait."
-      //     );
-      //     break;
-      //   case err.code?.startsWith("AADSTS"):
-      //     setGoogleErr("Microsoft authentication failed. Please try again");
-      //     break;
-      //   default:
-      //     setGoogleErr("An unexpected error occured. Please try again");
-      // }
 
       setTimeout(() => setGoogleErr(null), 10000);
     }
@@ -262,57 +243,29 @@ export const AuthProvider = ({ children }) => {
       };
 
       // Create user document in Firestore
-      await setDoc(doc(db, "users", user.uid), userDocData);
+      await setDoc(doc(db, "users", user.uid), { profile: userDocData });
 
       setCurrentUser({ uid: user.uid, ...userDocData });
+
+      setUserName((prev) => ({
+        ...prev,
+        initials:
+          userDocData?.firstName?.slice(0, 1) +
+          userDocData?.lastName?.slice(0, 1),
+        fullName: `${userDocData?.firstName} ${userDocData?.lastName}`,
+      }));
     } catch (err) {
       setMicrosoftErr(getAuthErrorMessage(err, "microsoft"));
-      // switch (err.code) {
-      //   case "auth/account-exists-with-different-credential":
-      //     setMicrosoftErr(
-      //       "This email is already linked to another sign-in method"
-      //     );
-      //     break;
-      //   case "auth/invalid-credential":
-      //     setMicrosoftErr(
-      //       "You Microsoft login link expired or is invalid. Please try again"
-      //     );
-      //     break;
-      //   case "auth/operation-not-allowed":
-      //     setMicrosoftErr(
-      //       "Microsoft sign-in is currently disabled. Please use anotehr method"
-      //     );
-      //     break;
-      //   case "auth/network-request-failed":
-      //     setMicrosoftErr(
-      //       "Network error. Please check your internet connection"
-      //     );
-      //     break;
-      //   case "auth/popup-closed-by-user":
-      //     setMicrosoftErr(
-      //       "Sign-in was canceled. Please complete the sign-in process"
-      //     );
-      //     break;
-      //   case "auth/cancelled-popup-request":
-      //     setMicrosoftErr(
-      //       "Another sign-inn attempt is already in progress. Please wait."
-      //     );
-      //     break;
-      //   case err.code?.startsWith("AADSTS"):
-      //     setMicrosoftErr("Microsoft authentication failed. Please try again");
-      //     break;
-      //   default:
-      //     setMicrosoftErr("An unexpected error occured. Please try again");
-      // }
-    }
 
-    setTimeout(() => setMicrosoftErr(null), 10000);
+      setTimeout(() => setMicrosoftErr(null), 10000);
+    }
   };
 
   const onSignOut = () => {
+    setIsSignoutPromptOpen(false);
     doSignOut();
     setCurrentUser(null);
-    setIsSignoutPromptOpen(false);
+    setUserName((prev) => ({ ...prev, initials: "", fullName: "" }));
   };
 
   const sendResetEmail = forgotHandleSubmit(async (data) => {
@@ -343,17 +296,11 @@ export const AuthProvider = ({ children }) => {
     }
   });
 
-  const userFirstName = currentUser?.firstName;
-  const userLastName = currentUser?.lastName;
-  const userInitials = userFirstName?.slice(0, 1) + userLastName?.slice(0, 1);
-
   return (
     <AuthContext.Provider
       value={{
         currentUser,
-        userFirstName,
-        userLastName,
-        userInitials,
+        userName,
         userLoggedIn,
         loading,
         onLoginErr,

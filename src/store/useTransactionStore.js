@@ -1,8 +1,13 @@
 import { create } from "zustand";
 import useCurrencyStore from "./useCurrencyStore";
-import CURRENCY_SYMBOLS from "../data/currencySymbols";
-import idbTransactions from "../store/idbTransactions";
+// import idbTransactions from "../store/idbTransactions";
 import { toast } from "react-hot-toast";
+import {
+  addTransaction,
+  getAllTransactions,
+  updateTransaction,
+  deleteTransaction,
+} from "../firebase/firestore.js";
 
 const CATEGORY_OPTIONS = [
   { name: "Freelance", type: "income" },
@@ -31,13 +36,11 @@ const useTransactionStore = create((set, get) => ({
   setGoals: (goals) => set({ goals }),
   setContributions: (contributions) => set({ contributions }),
   setEditTransaction: (editTransaction) => set({ editTransaction }),
-
-  // Load transactions from idb
-  loadTransactions: async (label) => {
+  // Load transactions from firestore
+  loadTransactions: async (userID, type) => {
     try {
-      const { getAllTransactions } = idbTransactions(label);
-      const txs = await getAllTransactions(label);
-      set({ [label]: txs });
+      const txs = await getAllTransactions(userID, type);
+      set({ [type]: txs });
     } catch (err) {
       console.error("Error loading transactions:", err);
       toast.error("Failed to load transactions. Please try again.");
@@ -46,51 +49,30 @@ const useTransactionStore = create((set, get) => ({
     }
   },
 
-  // Delete transaction from idb
-  deleteTransaction: async (id, label) => {
-    const { deleteTransaction, getAllTransactions } = idbTransactions(label);
-    await deleteTransaction(id, label);
-    const txs = await getAllTransactions(label);
-    set({ [label]: txs });
+  // Delete transaction from firestore
+  deleteTransaction: async (userID, type, transactionID) => {
+    await deleteTransaction(userID, type, transactionID);
+    const txs = await getAllTransactions(userID, type);
+    set({ [type]: txs });
   },
 
-  // Clear transactions from idb
-  clearTransactions: async (label) => {
-    const { clearTransactions, getAllTransactions } = idbTransactions(label);
-    await clearTransactions(label);
-    const txs = await getAllTransactions(label);
-    set({ [label]: txs });
+  // Add transaction to firestore
+  addTransactionToStore: async (userID, type, transaction) => {
+    await addTransaction(userID, type, transaction);
+    // Reload transactions from firestore to ensure sync
+    const txs = await getAllTransactions(userID, type);
+    set({ [type]: txs });
   },
 
-  // Add transaction to idb
-  addTransactionToStore: async (transaction, label) => {
-    const { addTransaction, getAllTransactions } = idbTransactions(label);
-    await addTransaction(transaction, label);
-    // Reload from idb to ensure sync
-    const txs = await getAllTransactions(label);
-    set({ [label]: txs });
-  },
-
-  // Update transaction in idb
-  updateTransaction: async (transaction, label) => {
-    const { updateTransaction, getAllTransactions } = idbTransactions(label);
-    await updateTransaction(transaction, label);
-    // Reload from idb to ensure sync
-    const txs = await getAllTransactions(label);
-    set({ [label]: txs });
+  // Update transaction in firestore
+  updateTransaction: async (userID, type, transactionID, transaction) => {
+    await updateTransaction(userID, type, transactionID, transaction);
+    // Reload transaction from firestore to ensure sync
+    const txs = await getAllTransactions(userID, type);
+    set({ [type]: txs });
   },
 
   CATEGORY_OPTIONS,
-
-  // Get the user's selected currency
-  get selectedCurrency() {
-    return useCurrencyStore.getState().selectedCurrency;
-  },
-  // Get currency symbol
-  get currencySymbol() {
-    const selectedCurrency = useCurrencyStore.getState().selectedCurrency;
-    return CURRENCY_SYMBOLS[selectedCurrency] || selectedCurrency;
-  },
 }));
 
 export default useTransactionStore;

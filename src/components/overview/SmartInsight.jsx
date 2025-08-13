@@ -3,12 +3,12 @@ import InsightCards from "./InsightCards";
 const SmartInsight = () => {
   return (
     <>
-      <h2 className="text-xl font-medium mb-2">Smart Insights</h2>
-      <p className="text-sm text-[rgb(var(--color-muted))] font-medium mb-6">
+      <h2 className="text-3xl font-medium mb-2">Smart Insights</h2>
+      <p className="text-base text-[rgb(var(--color-muted))] font-medium mb-6">
         Get personalized tips, forecast, and savings suggestions.
       </p>
 
-      <p className="h-36 flex items-center justify-center text-3xl text-[rgb(var(--color-muted))]">
+      <p className="h-36 flex items-center justify-center text-4xl text-[rgb(var(--color-muted))]">
         Coming soon!
       </p>
 

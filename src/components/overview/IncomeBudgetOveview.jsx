@@ -6,7 +6,7 @@ const IncomeBudgetOverview = () => {
     totalIncomeBudget,
     incomeBudgetPercent,
     remainingIncome,
-    currencySymbol,
+    formattedAmount,
   } = useOverviewContext();
 
   const budgetPercent = incomeBudgetPercent || 0;
@@ -48,50 +48,47 @@ const IncomeBudgetOverview = () => {
 
   return (
     <div>
-      <h3 className="text-lg font-medium mb-2">Income Budget</h3>
+      <h3 className="text-2xl font-medium mb-2">Income Budget</h3>
       <div className="bg-[rgb(var(--color-bg-card))] rounded-lg shadow p-4 flex flex-col gap-4">
-        <div className="relative group flex items-center gap-4 cursor-default">
+        <div className="relative group flex items-center gap-4 cursor-default w-fit overflow-x-visible">
           <span
             style={dynamicIncomeRingBG}
             className="budget-ring-income"
           ></span>
           <span
             className={clsx(
-              "text-3xl font-bold text-[rgb(var(--color-text))]",
+              "text-4xl font-bold text-[rgb(var(--color-text))]",
               budgetPercent > 100 && "text-green-500"
             )}
           >
             {Math.ceil(budgetPercent)}%
           </span>
-          <span className="absolute bottom-full bg-gray-700 mb-2 w-max whitespace-nowrap rounded px-3 py-1.5 text-xs text-white hidden group-hover:block z-10">
+          <span className="absolute bottom-full bg-gray-700 mb-2 w-max whitespace-nowrap rounded px-3 py-2 text-sm text-white hidden group-hover:block z-10">
             {incomeTooltip}
           </span>
         </div>
-        <p className="text-sm text-[rgb(var(--color-muted))]">
-          {`${Math.ceil(
-            budgetPercent
-          )}% of ${currencySymbol}${totalIncomeBudget.toFixed(2)} goal reached`}
+        <p className="text-base text-[rgb(var(--color-muted))]">
+          <strong>{Math.ceil(budgetPercent)}%</strong> of{" "}
+          <strong>{formattedAmount(totalIncomeBudget)}</strong> goal reached
         </p>
-        <p className="text-sm font-medium">
+        <p className="text-base font-medium">
+          {budgetPercent > 100 ? "Extra" : "Remaining"}:{" "}
           <strong className="text-[rgb(var(--color-muted))]">
-            {budgetPercent > 100 ? "Extra" : "Remaining"}:
-          </strong>{" "}
-          {`${currencySymbol}${
-            remainingIncome < 0
-              ? Math.abs(remainingIncome).toFixed(2)
-              : remainingIncome.toFixed(2)
-          }`}
+            {remainingIncome < 0
+              ? Math.abs(formattedAmount(remainingIncome))
+              : formattedAmount(remainingIncome)}
+          </strong>
         </p>
-        <p className="text-sm text-[rgb(var(--color-muted))]">
-          <b>Status:</b>{" "}
-          <span
+        <p className="font-medium text-base">
+          Status:{" "}
+          <strong
             className={clsx(
               "text-[rgb(var(--color-brand))]",
               budgetPercent >= 100 && "text-green-500"
             )}
           >
             {incomeStatus}
-          </span>
+          </strong>
         </p>
       </div>
     </div>

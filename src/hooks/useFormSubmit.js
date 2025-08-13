@@ -12,7 +12,6 @@ const useFormSubmit = (label, mode) => {
     editTransaction,
     addTransactionToStore,
     updateTransaction,
-    currencySymbol,
     selectedCurrency,
     CATEGORY_OPTIONS,
   } = useTransactionStore();
@@ -57,7 +56,7 @@ const useFormSubmit = (label, mode) => {
     }
   };
 
-  const onSubmit = handleSubmit(async (data) => {
+  const onSubmit = async (data, userID, transactionID) => {
     const categoryType = CATEGORY_OPTIONS.find(
       (opt) => opt.name === data.category
     )?.type;
@@ -70,8 +69,6 @@ const useFormSubmit = (label, mode) => {
         name: getName(categoryType, data.category, data.name),
         category: goals || contributions ? null : data.category,
         categoryKey: getUniqueCategoryKey(data.category, data.name),
-        currencySymbol,
-        currency: selectedCurrency,
         amount: data.amount,
         type: getTransactionType(categoryType, data.type),
         date: data.date,
@@ -83,9 +80,11 @@ const useFormSubmit = (label, mode) => {
       }
 
       if (mode === "add") {
-        await addTransactionToStore(transaction, label);
+        // await addTransactionToStore(transaction, label);
+        await addTransactionToStore(userID, label, transaction);
+        console.log(`${label} added successfully`);
       } else if (mode === "edit") {
-        await updateTransaction(transaction, label);
+        await updateTransaction(userID, label, transactionID, transaction);
       }
 
       onCloseModal(label);
@@ -102,11 +101,12 @@ const useFormSubmit = (label, mode) => {
     } catch (err) {
       console.error("Error adding transaction:", err);
     } finally {
-      console.log("Transaction concluded");
+      return "Transaction concluded";
     }
-  });
+  };
 
   return {
+    handleSubmit,
     onSubmit,
   };
 };

@@ -1,23 +1,26 @@
-import {
-  useContext,
-  createContext,
-  useMemo,
-  useState,
-  useEffect,
-  useCallback,
-} from "react";
+import { useContext, createContext, useMemo, useState } from "react";
 import useTransactionStore from "../store/useTransactionStore";
 import { transactionTotal } from "../utils/transactionTotal";
+import useCurrencyStore from "../store/useCurrencyStore";
+import { formatAmount } from "../utils/formatAmount";
 
 const TransactionsContext = createContext();
 
 export const TransactionsProvider = ({ children }) => {
   const { transactions } = useTransactionStore();
+  const { selectedCurrency } = useCurrencyStore();
   const [searchDescription, setSearchDescription] = useState("");
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [typeFilter, setTypeFilter] = useState("all");
+
+  // Format currency amount
+  const formattedAmount = (amount) => {
+    const formatCurrency = formatAmount(selectedCurrency);
+    const amountFormat = formatCurrency.format(amount);
+    return amountFormat;
+  };
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
@@ -118,6 +121,7 @@ export const TransactionsProvider = ({ children }) => {
     totalExpenses,
     totalIncome,
     netBalance,
+    formattedAmount,
     searchDescription,
     setSearchDescription,
     dateFrom,

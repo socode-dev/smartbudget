@@ -15,9 +15,9 @@ const SummaryCards = () => {
     totalBudget,
     budgetUsagePercentage,
     totalBudgetUsed,
-    currencySymbol,
     incomeLabel,
     expensesLabel,
+    formattedAmount,
   } = useOverviewContext();
 
   // Display net budget label
@@ -29,17 +29,17 @@ const SummaryCards = () => {
         </p>
       );
     } else if (netBalance > 0) {
-      return <p className="text-xs text-green-500">You are in the green</p>;
+      return <p className="text-sm text-green-500">You are in the green</p>;
     } else if (totalIncome === 0) {
       return (
-        <p className="text-xs text-[rgb(var(--color-brand))]">
+        <p className="text-sm text-[rgb(var(--color-brand))]">
           No income recorded
         </p>
       );
     } else if (totalIncome > 0 && totalExpenses === 0) {
-      return <p className="text-xs text-indigo-500">No spending yet</p>;
+      return <p className="text-sm text-indigo-500">No spending yet</p>;
     } else {
-      return <p className="text-xs text-red-500">You are in the red</p>;
+      return <p className="text-sm text-red-500">You are in the red</p>;
     }
   }, [netBalance, totalIncome, totalExpenses]);
 
@@ -66,14 +66,13 @@ const SummaryCards = () => {
         </div>
 
         <div className={cardContentStyle}>
-          <h3 className="text-sm text-[rgb(var(--color-muted))]">
+          <h3 className="text-lg text-[rgb(var(--color-muted))] font-medium">
             Total Income
           </h3>
-          <p className="text-2xl font-bold text-green-600">
-            {currencySymbol}
-            {totalIncome?.toFixed(2)}
+          <p className="text-3xl font-bold text-green-600">
+            {formattedAmount(totalIncome)}
           </p>
-          <p className="text-xs text-green-500">{incomeLabel}</p>
+          <p className="text-sm text-green-500">{incomeLabel}</p>
         </div>
       </div>
 
@@ -84,14 +83,13 @@ const SummaryCards = () => {
         </div>
 
         <div className={cardContentStyle}>
-          <h3 className="text-sm text-[rgb(var(--color-muted))]">
+          <h3 className="text-lg text-[rgb(var(--color-muted))] font-medium">
             Total Expenses
           </h3>
-          <p className="text-2xl font-bold text-red-600">
-            {currencySymbol}
-            {totalExpenses?.toFixed(2)}
+          <p className="text-3xl font-bold text-red-600">
+            {formattedAmount(totalExpenses)}
           </p>
-          <p className="text-xs text-red-500">{expensesLabel}</p>
+          <p className="text-sm text-red-500">{expensesLabel}</p>
         </div>
       </div>
 
@@ -102,12 +100,11 @@ const SummaryCards = () => {
         </div>
 
         <div className={cardContentStyle}>
-          <h3 className="text-sm text-[rgb(var(--color-muted))]">
+          <h3 className="text-lg text-[rgb(var(--color-muted))] font-medium">
             Net Balance
           </h3>
-          <p className="text-2xl font-bold text-blue-600">
-            {currencySymbol}
-            {netBalance?.toFixed(2)}
+          <p className="text-3xl font-bold text-blue-600">
+            {formattedAmount(netBalance)}
           </p>
           {netBalanceLabel}
         </div>
@@ -120,16 +117,14 @@ const SummaryCards = () => {
         </div>
 
         <div className={cardContentStyle}>
-          <h3 className="text-sm text-[rgb(var(--color-muted))]">
+          <h3 className="text-lg text-[rgb(var(--color-muted))] font-medium">
             Budget Usage
           </h3>
-          <p className="text-2xl font-bold text-yellow-600">
+          <p className="text-3xl font-bold text-yellow-600">
             {budgetUsagePercentage > 0 ? budgetUsagePercentage : "0"}% used
           </p>
-          <p className="text-xs text-[rgb(var(--color-muted))]">
-            {`${currencySymbol}${totalBudgetUsed.toFixed(
-              2
-            )} of ${currencySymbol}${totalBudget.toFixed(2)}`}
+          <p className="text-sm text-[rgb(var(--color-muted))]">
+            {formattedAmount(totalBudgetUsed)} of {formattedAmount(totalBudget)}
           </p>
         </div>
       </div>

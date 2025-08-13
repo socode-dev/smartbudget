@@ -2,14 +2,15 @@ import useTransactionStore from "../../store/useTransactionStore";
 import { HiOutlineTrash, HiOutlinePencil } from "react-icons/hi";
 import { useModalContext } from "../../context/ModalContext";
 import { useFormContext } from "../../context/FormContext";
-import { useCallback, useMemo, useEffect, useRef } from "react";
+import { useCallback, useEffect } from "react";
 import { handleEdit } from "../../utils/handleEdit";
 import { useTransactionsContext } from "../../context/TransactionsContext";
-// import ScrollToTop from "../../layout/ScrollToTop";
+import { useAuthContext } from "../../context/AuthContext";
+import clsx from "clsx";
 
 const TransactionTable = () => {
-  const tableContainerRef = useRef(null);
-  const { onOpenModal } = useModalContext();
+  const { currentUser } = useAuthContext();
+  const { onOpenModal, setTransactionID } = useModalContext();
   const { deleteTransaction, setEditTransaction } = useTransactionStore();
   const {
     sortedTransactions,
@@ -20,6 +21,7 @@ const TransactionTable = () => {
     totalPages,
     indexOfFirstTransaction,
     indexOfLastTransaction,
+    formattedAmount,
   } = useTransactionsContext();
 
   const forms = useFormContext("transactions");
@@ -38,21 +40,22 @@ const TransactionTable = () => {
       id,
       "transactions",
       "edit",
-      transactions,
+      sortedTransactions,
       setValue,
       onOpenModal,
       setEditTransaction
     );
+    setTransactionID(id);
   }, []);
 
   const handleDeleteTransaction = useCallback((id) => {
-    deleteTransaction(id, "transactions");
+    deleteTransaction(currentUser.uid, "transactions", id);
   }, []);
 
   return (
     <div>
       {/* <ScrollToTop /> */}
-      <h3 className="text-base md:text-lg mb-6 text-[rgb(var(--color-muted))] font-semibold">
+      <h3 className="text-lg md:text-xl mb-6 text-[rgb(var(--color-muted))] font-semibold">
         Showing {indexOfFirstTransaction + 1}-
         {Math.min(indexOfLastTransaction, sortedTransactions.length)} of{" "}
         {sortedTransactions.length} transactions
@@ -77,7 +80,7 @@ const TransactionTable = () => {
             <th className="text-left text-[rgb(var(--color-muted))] p-2"></th>
           </tr>
         </thead>
-        <tbody className="bg-[rgb(var(--color-bg-card))] divide-y divide-[rgb(var(--color-gray-border))] text-[12px]">
+        <tbody className="bg-[rgb(var(--color-bg-card))] divide-y divide-[rgb(var(--color-gray-border))] text-[13px]">
           {currentTransactions.map((transaction) => (
             <tr key={transaction.id}>
               <td className="p-2">{transaction.date}</td>
@@ -86,29 +89,28 @@ const TransactionTable = () => {
               </td>
               <td className="p-2">{transaction.category}</td>
               <td
-                className={`p-2 ${
+                className={clsx(
+                  "p-2 font-medium",
                   transaction.type === "income"
                     ? "text-green-500"
                     : "text-red-500"
-                }`}
+                )}
               >
                 {transaction.type === "income" ? "+" : "-"}
-                {`${transaction.currencySymbol}${transaction.amount?.toFixed(
-                  2
-                )}`}
+                {formattedAmount(transaction.amount)}
               </td>
               <td className="p-2">
                 <button
                   onClick={() => handleEditTransaction(transaction.id)}
-                  className="cursor-pointer text-blue-500 hover:text-blue-600 transition mr-2"
+                  className="cursor-pointer text-blue-500 hover:text-blue-600 transition mr-4"
                 >
-                  <HiOutlinePencil className="text-sm " />
+                  <HiOutlinePencil className="text-base" />
                 </button>
                 <button
                   onClick={() => handleDeleteTransaction(transaction.id)}
                   className="cursor-pointer text-red-500 hover:text-red-600 transition"
                 >
-                  <HiOutlineTrash className="text-sm " />
+                  <HiOutlineTrash className="text-base" />
                 </button>
               </td>
             </tr>
@@ -120,47 +122,46 @@ const TransactionTable = () => {
       <div className="flex flex-col md:hidden gap-5">
         {currentTransactions.map((transaction) => (
           <div key={transaction.id} className="flex flex-col gap-2">
-            <h4 className="text-[14px] font-semibold">
+            <h4 className="text-base font-semibold">
               {transaction.description || "No description"}
             </h4>
 
             <div className="flex items-center gap-2">
-              <div className="grow grid grid-cols-3 gap-2">
+              <div className="grow grid grid-cols-3 gap-2 text-[13px]">
                 <p className="flex items-center gap-2">
                   <span className="w-1.5 h-1.5 bg-[rgb(var(--color-muted))] rounded-full"></span>
-                  <span className="text-[12px]">{transaction.date}</span>
+                  <span>{transaction.date}</span>
                 </p>
                 <p className="flex items-center gap-2">
                   <span className="w-1.5 h-1.5 bg-[rgb(var(--color-muted))] rounded-full"></span>
-                  <span className="text-[12px]">{transaction.category}</span>
+                  <span>{transaction.category}</span>
                 </p>
                 <p className="flex items-center gap-2">
                   <span className="w-1.5 h-1.5 bg-[rgb(var(--color-muted))] rounded-full"></span>
                   <span
-                    className={`text-[12px] ${
+                    className={clsx(
+                      "font-medium",
                       transaction.type === "income"
                         ? "text-green-500"
                         : "text-red-500"
-                    }`}
+                    )}
                   >
                     {transaction.type === "income" ? "+" : "-"}
-                    {`${
-                      transaction.currencySymbol
-                    }${transaction.amount?.toFixed(2)}`}
+                    {formattedAmount(transaction.amount)}
                   </span>
                 </p>
               </div>
               <button
                 onClick={() => handleEditTransaction(transaction.id)}
-                className="cursor-pointer text-blue-500 hover:text-blue-600 transition mr-2"
+                className="cursor-pointer text-blue-500 hover:text-blue-600 transition mr-4"
               >
-                <HiOutlinePencil className="text-sm " />
+                <HiOutlinePencil className="text-base" />
               </button>
               <button
                 onClick={() => handleDeleteTransaction(transaction.id)}
                 className="cursor-pointer text-red-500 hover:text-red-600 transition"
               >
-                <HiOutlineTrash className="text-sm " />
+                <HiOutlineTrash className="text-base" />
               </button>
             </div>
           </div>
@@ -168,27 +169,29 @@ const TransactionTable = () => {
       </div>
 
       {/* Pagination Controls */}
-      <div className="flex items-center justify-between mt-10">
-        <button
-          onClick={handlePrev}
-          disabled={currentPage === 1}
-          className="px-4 py-1 rounded bg-[rgb(var(--color-))] hover:scale-y-105 transition shadow text-[rgb(var(--color-muted))] disabled:opacity-50 font-medium text-xs cursor-pointer"
-        >
-          <span>&larr;</span> Prev
-        </button>
+      {sortedTransactions > 10 && (
+        <div className="flex items-center justify-between mt-10">
+          <button
+            onClick={handlePrev}
+            disabled={currentPage === 1}
+            className="px-4 py-1 rounded bg-[rgb(var(--color-))] hover:scale-y-105 transition shadow text-[rgb(var(--color-muted))] disabled:opacity-50 font-medium text-xs cursor-pointer"
+          >
+            <span>&larr;</span> Prev
+          </button>
 
-        <span className="text-sm text-[rgb(var(--color-muted))] font-medium">
-          Page {currentPage} out of {totalPages}
-        </span>
+          <span className="text-sm text-[rgb(var(--color-muted))] font-medium">
+            Page {currentPage} out of {totalPages}
+          </span>
 
-        <button
-          onClick={handleNext}
-          disabled={currentPage === totalPages}
-          className="px-4 py-1 rounded bg-[rgb(var(--color-))] hover:scale-y-105 transition shadow text-[rgb(var(--color-muted))] disabled:opacity-50 font-medium text-xs cursor-pointer"
-        >
-          Next <span>&rarr;</span>
-        </button>
-      </div>
+          <button
+            onClick={handleNext}
+            disabled={currentPage === totalPages}
+            className="px-4 py-1 rounded bg-[rgb(var(--color-))] hover:scale-y-105 transition shadow text-[rgb(var(--color-muted))] disabled:opacity-50 font-medium text-xs cursor-pointer"
+          >
+            Next <span>&rarr;</span>
+          </button>
+        </div>
+      )}
     </div>
   );
 };
