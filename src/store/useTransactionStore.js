@@ -31,6 +31,8 @@ const useTransactionStore = create((set, get) => ({
   goals: [],
   contributions: [],
   editTransaction: null,
+  loading: true,
+  setLoading: (value) => set({ loading: value }),
   setTransactions: (transactions) => set({ transactions }),
   setBudgets: (budgets) => set({ budgets }),
   setGoals: (goals) => set({ goals }),

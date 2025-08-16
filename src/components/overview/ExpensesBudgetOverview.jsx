@@ -13,16 +13,16 @@ const ExpensesBudgetOverview = () => {
 
   let dynamicColor = "rgb(37, 99, 235)";
 
-  if (budgetPercent > 50) {
-    dynamicColor = "rgb(245, 158, 11)";
-  } else if (budgetPercent > 90) {
+  if (budgetPercent > 90) {
     dynamicColor = "rgb(220, 38, 38)";
+  } else if (budgetPercent > 50) {
+    dynamicColor = "rgb(245, 158, 11)";
   }
 
   const dynamicExpenseRingBG = {
     background: `conic-gradient(${dynamicColor} 0% ${Math.ceil(
       budgetPercent
-    )}%, rgb(229 231 235) ${Math.ceil(budgetPercent)}% 100%)`,
+    )}%, rgb(107, 114, 128) ${Math.ceil(budgetPercent)}% 100%)`,
   };
 
   let expensesStatus = "";
@@ -55,7 +55,7 @@ const ExpensesBudgetOverview = () => {
 
   return (
     <div>
-      <h3 className="text-2xl font-medium mb-2">Expense Budget</h3>
+      <h3 className="text-xl md:text-2xl font-semibold mb-2">Expense Budget</h3>
       <div className="bg-[rgb(var(--color-bg-card))] rounded-lg shadow p-4 flex flex-col gap-4">
         <div className="relative w-fit group flex items-center gap-4 cursor-default overflow-x-visible">
           <span
@@ -79,23 +79,29 @@ const ExpensesBudgetOverview = () => {
           <strong>{Math.ceil(budgetPercent)}%</strong> of{" "}
           <strong>{formattedAmount(totalExpensesBudget)}</strong> limit used
         </p>
-        <p className="text-base font-medium">
+        <p className="text-base text-[rgb(var(--color-muted))] font-medium">
           {budgetPercent > 100 ? "Overspent" : "Remaining"}:{" "}
-          <strong className="text-[rgb(var(--color-muted))]">
+          <strong
+            className={clsx(
+              "text-[rgb(var(--color-muted))]",
+              budgetPercent > 100 && "text-red-600"
+            )}
+          >
             {budgetPercent > 100
-              ? Math.abs(formattedAmount(remainingExpenses))
+              ? `-${formattedAmount(Math.abs(remainingExpenses))}`
               : formattedAmount(remainingExpenses)}
           </strong>
         </p>
-        <p className="text-base font-medium">
+        <p className="text-base text-[rgb(var(--color-muted))] font-medium">
           Status:{" "}
           <strong
             className={clsx(
+              "px-2 py-1 rounded",
               budgetPercent < 50
-                ? "text-[rgb(var(--color-brand))]"
+                ? "text-[rgb(var(--color-brand))] bg-[rgb(var(--color-status-bg-blue))]"
                 : budgetPercent < 100
-                ? "text-amber-500"
-                : "text-red-600"
+                ? "text-amber-500 bg-[rgb(var(--color-status-bg-amber))]"
+                : "text-red-600 bg-[rgb(var(--color-status-bg-red))]"
             )}
           >
             {expensesStatus}

@@ -122,11 +122,11 @@ const Goals = () => {
   );
 
   return (
-    <main className="p-6">
+    <main className="px-2 py-8">
       <ScrollToTop />
-      <div className="flex justify-between items-center">
+      <div className="flex justify-between items-center gap-8">
         <div>
-          <h2 className="text-4xl md:text-5xl font-semibold mb-2">Goals</h2>
+          <h2 className="text-3xl md:text-4xl font-semibold mb-2">Goals</h2>
           <p className="text-base text-[rgb(var(--color-muted))] mb-6">
             Stay focused on what you are saving for.
           </p>
@@ -167,18 +167,15 @@ const Goals = () => {
               <div className="grow shrink-0 flex justify-between items-start gap-4">
                 <div className="flex flex-col gap-4">
                   <div className="flex flex-col gap-2 grow">
-                    <h3 className="text-xl font-semibold">{goal.name}</h3>
-                    <p className="text-base font-medium">
+                    <h3 className="text-xl md:text-2xl font-semibold">
+                      {goal.name}
+                    </h3>
+                    <p className="mt-4 text-base text-[rgb(var(--color-muted))] font-medium">
                       Target:{" "}
-                      <strong className="text-[rgb(var(--color-muted))]">
-                        {formattedAmount(goalTargetAmount)}
-                      </strong>
+                      <strong>{formattedAmount(goalTargetAmount)}</strong>
                     </p>
-                    <p className="text-base font-medium">
-                      Saved:{" "}
-                      <strong className="text-[rgb(var(--color-muted))]">
-                        {formattedAmount(amountSaved)}
-                      </strong>
+                    <p className="text-base text-[rgb(var(--color-muted))] font-medium">
+                      Saved: <strong>{formattedAmount(amountSaved)}</strong>
                     </p>
                   </div>
                   {/* Progress bar */}
@@ -187,11 +184,8 @@ const Goals = () => {
                   </div>
 
                   {/* Due date */}
-                  <p className="text-base font-medium">
-                    Due date:{" "}
-                    <strong className="text-[rgb(var(--color-muted))]">
-                      {goal.date}
-                    </strong>
+                  <p className="text-base text-[rgb(var(--color-muted))] font-medium">
+                    Due date: <strong>{goal.date}</strong>
                   </p>
                 </div>
 

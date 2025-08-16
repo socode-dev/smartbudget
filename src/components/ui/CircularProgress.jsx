@@ -5,7 +5,7 @@ const strokeWidth = 8;
 const radius = (size - strokeWidth) / 2;
 const circumference = 2 * Math.PI * radius;
 
-const CircularProgress = ({ progress = 0, color = "#22c55e" }) => {
+const CircularProgress = ({ progress = 0, color = "#16a34a" }) => {
   const offset = Math.max(
     circumference - (Math.min(progress, 100) / 100) * circumference,
     0
@@ -17,7 +17,7 @@ const CircularProgress = ({ progress = 0, color = "#22c55e" }) => {
         cy={size / 2}
         r={radius}
         fill="none"
-        stroke="#e5e7eb" // Tailwind gray-200
+        stroke="#6b7280" // Tailwind gray-500
         strokeWidth={strokeWidth}
       />
       <circle

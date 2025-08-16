@@ -6,8 +6,8 @@ import { useFormContext } from "../context/FormContext";
 import { handleEdit } from "../utils/handleEdit";
 import { format } from "date-fns";
 import ScrollToTop from "../layout/ScrollToTop";
-import useCurrencyStore from "../store/useCurrencyStore";
-import { formatAmount } from "../utils/formatAmount";
+import { useTransactionsContext } from "../context/TransactionsContext";
+import clsx from "clsx";
 
 const Budgets = () => {
   const [searchName, setSearchName] = useState("");
@@ -16,14 +16,7 @@ const Budgets = () => {
     useTransactionStore();
   const forms = useFormContext("budgets");
   const { setValue } = forms;
-  const { selectedCurrency } = useCurrencyStore();
-
-  const formattedAmount = useCallback((amount) => {
-    const formatCurrency = formatAmount(selectedCurrency);
-    const amountFormat = formatCurrency.format(amount);
-
-    return amountFormat;
-  });
+  const { formattedAmount } = useTransactionsContext();
 
   const filteredBudgets = useMemo(
     () =>
@@ -83,11 +76,11 @@ const Budgets = () => {
   };
 
   return (
-    <main className="p-6">
+    <main className="px-2 py-8">
       <ScrollToTop />
       <section className="w-full flex justify-center items-center">
         <div className="w-full">
-          <h2 className="text-4xl md:text-5xl font-semibold mb-2">Budgets</h2>
+          <h2 className="text-3xl md:text-4xl font-semibold mb-2">Budgets</h2>
           <p className="text-base text-[rgb(var(--color-muted))] mb-4">
             Monitor and manage your category limits
           </p>
@@ -146,30 +139,42 @@ const Budgets = () => {
 
                 {/* Budget summary */}
                 <div className="grow w-full">
-                  <p className="text-base font-medium">
+                  <p className="text-[rgb(var(--color-muted))] text-base font-medium">
                     Limit:{" "}
                     <strong className="text-[rgb(var(--color-muted))]">
                       {formattedAmount(budgetLimit)}
                     </strong>
                   </p>
                   {budget.type === "expense" && (
-                    <p className="text-base font-medium">
+                    <p className="text-[rgb(var(--color-muted))] text-base font-medium">
                       Spent:{" "}
                       <strong className="text-[rgb(var(--color-muted))]">
                         {formattedAmount(amountSpent)}
                       </strong>
                     </p>
                   )}
-                  <p className="text-base font-medium">
+                  <p className="text-[rgb(var(--color-muted))] text-base font-medium">
                     {progressBarPercentage > 100 && budget.type === "expense"
                       ? "Overspent"
                       : progressBarPercentage > 100 && budget.type === "income"
                       ? "Extra"
                       : "Remaining"}
                     :{" "}
-                    <strong className="text-[rgb(var(--color-muted))]">
+                    <strong
+                      className={clsx(
+                        "text-[rgb(var(--color-muted))]",
+                        progressBarPercentage > 100 &&
+                          budget.type === "income" &&
+                          "text-green-600",
+                        progressBarPercentage > 100 &&
+                          budget.type === "expense" &&
+                          "text-red-600"
+                      )}
+                    >
                       {progressBarPercentage > 100
-                        ? Math.abs(formattedAmount(remainingBalance))
+                        ? `${
+                            budget.type === "income" ? "+" : "-"
+                          }${formattedAmount(Math.abs(remainingBalance))}`
                         : formattedAmount(remainingBalance)}
                     </strong>
                   </p>

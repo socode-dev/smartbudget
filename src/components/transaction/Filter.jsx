@@ -3,18 +3,7 @@ import { useTransactionsContext } from "../../context/TransactionsContext";
 
 const Filter = () => {
   const { CATEGORY_OPTIONS } = useTransactionStore();
-  const {
-    searchDescription,
-    setSearchDescription,
-    dateFrom,
-    setDateFrom,
-    dateTo,
-    setDateTo,
-    categoryFilter,
-    setCategoryFilter,
-    typeFilter,
-    setTypeFilter,
-  } = useTransactionsContext();
+  const { filters, setFilters } = useTransactionsContext();
 
   return (
     <div className="grid grid-cols-8 items-center gap-3 md:gap-5 mb-6">
@@ -22,40 +11,48 @@ const Filter = () => {
       <input
         type="text"
         placeholder="Search by description..."
-        className="col-span-3 sm:col-span-4 md:col-span-full xl:col-span-3 rounded border border-[rgb(var(--color-gray-border))] bg-[rgb(var(--color-bg-card))] outline-none focus:border-[rgb(var(--color-brand))] transition text-xs p-2"
-        value={searchDescription}
-        onChange={(e) => setSearchDescription(e.target.value)}
+        className="col-span-full sm:col-span-4 md:col-span-full xl:col-span-3 rounded border border-[rgb(var(--color-gray-border))] bg-[rgb(var(--color-bg-card))] outline-none focus:border-[rgb(var(--color-brand))] transition text-sm p-2"
+        value={filters.search}
+        onChange={(e) =>
+          setFilters((prev) => ({ ...prev, search: e.target.value }))
+        }
       />
 
       {/* Date Range */}
-      <div className="w-fit col-span-5 sm:col-span-4 md:col-span-4 xl:col-span-3 flex gap-2">
+      <div className="w-full col-span-full sm:col-span-4 md:col-span-4 xl:col-span-3 flex gap-2">
         {/* From Date */}
-        <div className="flex items-center gap-2">
-          <label className="text-xs text-[rgb(var(--color-muted))]">From</label>
+        <div className="w-1/2 flex items-center gap-2">
+          <label className="text-sm text-[rgb(var(--color-muted))]">From</label>
           <input
             type="date"
-            className="rounded border border-[rgb(var(--color-gray-border))] bg-[rgb(var(--color-bg-card))] text-[rgb(var(--color-text))] outline-none focus:border-[rgb(var(--color-brand))] transition text-xs p-2"
-            value={dateFrom}
-            onChange={(e) => setDateFrom(e.target.value)}
+            className="w-full rounded border border-[rgb(var(--color-gray-border))] bg-[rgb(var(--color-bg-card))] text-[rgb(var(--color-text))] outline-none focus:border-[rgb(var(--color-brand))] transition text-xs p-2"
+            value={filters.fromDate}
+            onChange={(e) =>
+              setFilters((prev) => ({ ...prev, fromDate: e.target.value }))
+            }
           />
         </div>
 
         {/* To Date */}
-        <div className="flex items-center gap-2">
-          <label className="text-xs text-[rgb(var(--color-muted))]">To</label>
+        <div className="w-1/2 flex items-center gap-2">
+          <label className="text-sm text-[rgb(var(--color-muted))]">To</label>
           <input
             type="date"
-            className="rounded border border-[rgb(var(--color-gray-border))] bg-[rgb(var(--color-bg-card))] outline-none focus:border-[rgb(var(--color-brand))] transition text-xs p-2"
-            value={dateTo}
-            onChange={(e) => setDateTo(e.target.value)}
+            className="w-full rounded border border-[rgb(var(--color-gray-border))] bg-[rgb(var(--color-bg-card))] outline-none focus:border-[rgb(var(--color-brand))] transition text-xs p-2"
+            value={filters.toDate}
+            onChange={(e) =>
+              setFilters((prev) => ({ ...prev, toDate: e.target.value }))
+            }
           />
         </div>
       </div>
       {/* Category Filter */}
       <select
-        className="col-span-4 md:col-span-2 xl:col-span-1 rounded border border-[rgb(var(--color-gray-border))] bg-[rgb(var(--color-bg-card))] outline-none focus:border-[rgb(var(--color-brand))] transition text-xs p-2 cursor-pointer"
-        value={categoryFilter}
-        onChange={(e) => setCategoryFilter(e.target.value)}
+        className="col-span-4 md:col-span-2 xl:col-span-1 rounded border border-[rgb(var(--color-gray-border))] bg-[rgb(var(--color-bg-card))] outline-none focus:border-[rgb(var(--color-brand))] transition text-sm p-2 cursor-pointer"
+        value={filters.category}
+        onChange={(e) =>
+          setFilters((prev) => ({ ...prev, category: e.target.value }))
+        }
       >
         <option value="all">All Categories</option>
         {CATEGORY_OPTIONS.map((opt, i) => (
@@ -67,9 +64,11 @@ const Filter = () => {
 
       {/* Type Filter */}
       <select
-        className="col-span-4 md:col-span-2 xl:col-span-1 rounded border border-[rgb(var(--color-gray-border))] bg-[rgb(var(--color-bg-card))] outline-none focus:border-[rgb(var(--color-brand))] transition text-xs p-2 cursor-pointer"
-        value={typeFilter}
-        onChange={(e) => setTypeFilter(e.target.value)}
+        className="col-span-4 md:col-span-2 xl:col-span-1 rounded border border-[rgb(var(--color-gray-border))] bg-[rgb(var(--color-bg-card))] outline-none focus:border-[rgb(var(--color-brand))] transition text-sm p-2 cursor-pointer"
+        value={filters.type}
+        onChange={(e) =>
+          setFilters((prev) => ({ ...prev, type: e.target.value }))
+        }
       >
         <option value="all">All Types</option>
         <option value="income">Income</option>

@@ -3,8 +3,10 @@ import { useModalContext } from "../../context/ModalContext";
 import useFormSubmit from "../../hooks/useFormSubmit";
 import { useFormContext } from "../../context/FormContext";
 import { useAuthContext } from "../../context/AuthContext";
+import { useRef } from "react";
 
 const ModalForm = ({ label, mode }) => {
+  const formRef = useRef(null);
   const { currentUser } = useAuthContext();
   const { onCloseModal, transactionID } = useModalContext();
   const { onSubmit, handleSubmit } = useFormSubmit(label, mode);
@@ -39,10 +41,11 @@ const ModalForm = ({ label, mode }) => {
       {/* Category Dropdown */}
       {(transactionLabel || budgetLabel) && (
         <div>
-          <label className="block text-sm font-medium mb-1">Category</label>
+          <label className="block text-base font-medium mb-2">Category</label>
           <select
+            ref={formRef}
             {...register("category")}
-            className="rounded border border-[rgb(var(--color-gray-border))] bg-[rgb(var(--color-bg-card))] outline-none focus:border-[rgb(var(--color-brand))] text-xs w-full p-2 cursor-pointer"
+            className="rounded border border-[rgb(var(--color-gray-border))] bg-[rgb(var(--color-bg-card))] outline-none focus:border-[rgb(var(--color-brand))] text-sm w-full p-2 cursor-pointer"
           >
             <option value="" disabled>
               Select category
@@ -66,7 +69,7 @@ const ModalForm = ({ label, mode }) => {
         goalLabel ||
         contributionLabel) && (
         <div>
-          <label htmlFor="name" className="block text-sm font-medium mb-1">
+          <label htmlFor="name" className="block text-base font-medium mb-2">
             {budgetLabel
               ? "Budget Name"
               : transactionLabel
@@ -81,7 +84,7 @@ const ModalForm = ({ label, mode }) => {
               transactionLabel ? "transaction" : budgetLabel ? "budget" : "goal"
             } name`}
             readOnly={contributionLabel}
-            className="rounded border border-[rgb(var(--color-gray-border))] bg-[rgb(var(--color-bg-card))] outline-none focus:border-[rgb(var(--color-brand))] text-xs w-full p-2"
+            className="rounded border border-[rgb(var(--color-gray-border))] bg-[rgb(var(--color-bg-card))] outline-none focus:border-[rgb(var(--color-brand))] text-sm w-full p-2"
           />
           {errors.name && (
             <p className="text-[13px] text-red-500 mt-1">
@@ -94,7 +97,7 @@ const ModalForm = ({ label, mode }) => {
       {/* Show type radio buttons if category is other */}
       {categoryValue?.toLowerCase() === "other" && transactionLabel && (
         <div className="flex flex-col">
-          <h3 className="text-sm font-medium mb-1">Type</h3>
+          <h3 className="text-base font-medium mb-2">Type</h3>
           <div className="flex items-center gap-2">
             {/* Income Radio Button */}
             <div className="flex items-center gap-2">
@@ -108,7 +111,7 @@ const ModalForm = ({ label, mode }) => {
               />
               <label
                 htmlFor="income"
-                className="text-xs border-2 rounded-lg border-[rgb(var(--color-gray-border))] px-4 py-1 peer-checked:border-[rgb(var(--color-brand))] transition cursor-pointer"
+                className="text-sm border-2 rounded-lg border-[rgb(var(--color-gray-border))] px-4 py-2 peer-checked:border-[rgb(var(--color-brand))] transition cursor-pointer"
               >
                 Income
               </label>
@@ -126,7 +129,7 @@ const ModalForm = ({ label, mode }) => {
               />
               <label
                 htmlFor="expense"
-                className="text-xs border-2 rounded-lg border-[rgb(var(--color-gray-border))] px-4 py-1 peer-checked:border-[rgb(var(--color-brand))] transition cursor-pointer"
+                className="text-sm border-2 rounded-lg border-[rgb(var(--color-gray-border))] px-4 py-2 peer-checked:border-[rgb(var(--color-brand))] transition cursor-pointer"
               >
                 Expense
               </label>
@@ -139,17 +142,14 @@ const ModalForm = ({ label, mode }) => {
       <div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Amount Input */}
         <div>
-          <label className="block text-sm font-medium mb-1">
+          <label className="block text-base font-medium mb-2">
             {budgetLabel ? "Limit" : goalLabel ? "Target" : "Amount"}
           </label>
           <div className="flex items-center">
-            <span className="text-[rgb(var(--color-muted))] mr-2">
-              {currencySymbol}
-            </span>
             <input
               {...register("amount")}
               type="number"
-              className="rounded border border-[rgb(var(--color-gray-border))] bg-[rgb(var(--color-bg-card))] outline-none focus:border-[rgb(var(--color-brand))] text-xs w-full p-2 cursor-pointer"
+              className="rounded border border-[rgb(var(--color-gray-border))] bg-[rgb(var(--color-bg-card))] outline-none focus:border-[rgb(var(--color-brand))] text-sm w-full p-2 cursor-pointer"
               placeholder="0.00"
               step="0.01"
             />
@@ -163,7 +163,7 @@ const ModalForm = ({ label, mode }) => {
 
         {/* Date Picker */}
         <div>
-          <label className="block text-sm font-medium mb-1">
+          <label className="block text-base font-medium mb-2">
             {transactionLabel
               ? "Date"
               : budgetLabel
@@ -175,7 +175,7 @@ const ModalForm = ({ label, mode }) => {
           <input
             {...register("date")}
             type="date"
-            className="rounded border border-[rgb(var(--color-gray-border))] bg-[rgb(var(--color-bg-card))] outline-none focus:border-[rgb(var(--color-brand))] text-xs w-full p-2 cursor-pointer"
+            className="rounded border border-[rgb(var(--color-gray-border))] bg-[rgb(var(--color-bg-card))] outline-none focus:border-[rgb(var(--color-brand))] text-sm w-full p-2 cursor-pointer"
           />
           {errors.date && (
             <p className="text-[13px] text-red-500 mt-1">
@@ -187,12 +187,12 @@ const ModalForm = ({ label, mode }) => {
 
       {/* Description || Notes Textarea */}
       <div>
-        <label className="block text-sm font-medium mb-1">
+        <label className="block text-base font-medium mb-2">
           {transactionLabel ? "Description" : "Notes"}{" "}
           <span className="text-[rgb(var(--color-muted))]">(optional)</span>
         </label>
         <textarea
-          className="rounded border border-[rgb(var(--color-gray-border))] bg-[rgb(var(--color-bg-card))] outline-none focus:border-[rgb(var(--color-brand))] text-xs w-full p-2 resize-none"
+          className="rounded border border-[rgb(var(--color-gray-border))] bg-[rgb(var(--color-bg-card))] outline-none focus:border-[rgb(var(--color-brand))] textsm w-full p-2 resize-none"
           rows={3}
           placeholder={transactionLabel ? "Short description" : "Short notes"}
           {...register("description")}
@@ -207,14 +207,14 @@ const ModalForm = ({ label, mode }) => {
       <footer className="flex justify-end gap-2">
         <button
           type="button"
-          className="text-[rgb(var(--color-text))] bg-[rgb(var(--color-gray-bg))] hover:bg-[rgb(var(--color-gray-bg-settings))] cursor-pointer px-4 py-2 rounded-md text-xs font-medium transition"
+          className="text-[rgb(var(--color-text))] bg-[rgb(var(--color-gray-bg))] hover:bg-[rgb(var(--color-gray-bg-settings))] cursor-pointer px-4 py-2 rounded-md text-sm font-medium transition"
           onClick={() => onCloseModal(label)}
         >
           Cancel
         </button>
         <button
           type="submit"
-          className="bg-[rgb(var(--color-brand))] text-white hover:bg-[rgb(var(--color-brand-hover))] transition cursor-pointer px-4 py-2 rounded-md text-xs font-medium"
+          className="bg-[rgb(var(--color-brand))] text-white hover:bg-[rgb(var(--color-brand-hover))] transition cursor-pointer px-4 py-2 rounded-md text-sm font-medium"
         >
           {mode === "add" ? "Save" : "Edit"}{" "}
           {transactionLabel

@@ -14,7 +14,7 @@ const IncomeBudgetOverview = () => {
   const dynamicIncomeRingBG = {
     background: `conic-gradient(${
       budgetPercent >= 100 ? "rgb(34, 197, 94)" : "rgb(37 99 235)"
-    } 0% ${Math.ceil(budgetPercent)}%, rgb(229 231 235) ${Math.ceil(
+    } 0% ${Math.ceil(budgetPercent)}%, rgb(107, 114, 128) ${Math.ceil(
       budgetPercent
     )}% 100%)`,
   };
@@ -48,7 +48,7 @@ const IncomeBudgetOverview = () => {
 
   return (
     <div>
-      <h3 className="text-2xl font-medium mb-2">Income Budget</h3>
+      <h3 className="text-xl md:text-2xl font-semibold mb-2">Income Budget</h3>
       <div className="bg-[rgb(var(--color-bg-card))] rounded-lg shadow p-4 flex flex-col gap-4">
         <div className="relative group flex items-center gap-4 cursor-default w-fit overflow-x-visible">
           <span
@@ -71,20 +71,26 @@ const IncomeBudgetOverview = () => {
           <strong>{Math.ceil(budgetPercent)}%</strong> of{" "}
           <strong>{formattedAmount(totalIncomeBudget)}</strong> goal reached
         </p>
-        <p className="text-base font-medium">
+        <p className="text-base text-[rgb(var(--color-muted))] font-medium">
           {budgetPercent > 100 ? "Extra" : "Remaining"}:{" "}
-          <strong className="text-[rgb(var(--color-muted))]">
+          <strong
+            className={clsx(
+              "text-[rgb(var(--color-muted))]",
+              budgetPercent > 100 && "text-green-600"
+            )}
+          >
             {remainingIncome < 0
-              ? Math.abs(formattedAmount(remainingIncome))
+              ? `+${formattedAmount(Math.abs(remainingIncome))}`
               : formattedAmount(remainingIncome)}
           </strong>
         </p>
-        <p className="font-medium text-base">
+        <p className="font-medium text-base text-[rgb(var(--color-muted))]">
           Status:{" "}
           <strong
             className={clsx(
-              "text-[rgb(var(--color-brand))]",
-              budgetPercent >= 100 && "text-green-500"
+              "text-[rgb(var(--color-brand))] bg-[rgb(var(--color-status-bg-blue))] px-2 py-1 rounded",
+              budgetPercent >= 100 &&
+                "text-green-500 bg-[rgb(var(--color-status-bg-green))]"
             )}
           >
             {incomeStatus}

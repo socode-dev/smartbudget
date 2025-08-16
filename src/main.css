@@ -19,6 +19,10 @@
   --color-gray-bg-settings: 245 245 245; /* darker gray for settings dropdown */
   --color-gray-border: 229 229 229; /* border for dropdowns */
   --color-contribution-bg: 240, 253, 244;
+  --color-status-bg-blue: 239, 246, 255;
+  --color-status-bg-green: 240, 253, 244;
+  --color-status-bg-amber: 255, 251, 235;
+  --color-status-bg-red: 254, 242, 242;
 }
 
 .dark {
@@ -32,6 +36,10 @@
   --color-gray-bg-settings: 23 23 23; /* darker gray for settings dropdown */
   --color-gray-border: 64 64 64; /* border for dropdowns */
   --color-contribution-bg: 5, 46, 22;
+  --color-status-bg-blue: 23, 37, 84;
+  --color-status-bg-green: 5, 46, 22;
+  --color-status-bg-amber: 69, 26, 3;
+  --color-status-bg-red: 69, 10, 10;
 }
 
 html {

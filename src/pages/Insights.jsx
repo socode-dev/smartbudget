@@ -4,9 +4,9 @@ import ScrollToTop from "../layout/ScrollToTop";
 
 const Insights = () => {
   return (
-    <main className="p-6">
+    <main className="px-2 py-8">
       <ScrollToTop />
-      <h2 className="text-4xl md:text-5xl font-semibold mb-2">
+      <h2 className="text-3xl md:text-4xl font-semibold mb-2">
         Smart Insights
       </h2>
       <p className="text-base text-[rgb(var(--color-muted))] mb-10">
@@ -72,7 +72,7 @@ const Insights = () => {
         </p>
       </div> */}
 
-      <p className="text-4xl text[rgb(var(--color-muted))] text-center">
+      <p className="text-4xl text-[rgb(var(--color-muted))] text-center">
         Coming Soon!
       </p>
     </main>

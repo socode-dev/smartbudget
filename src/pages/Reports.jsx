@@ -1,4 +1,3 @@
-import React from "react";
 import { FaFileCsv, FaFilePdf } from "react-icons/fa";
 import BarChart from "../components/charts/BarChart";
 import DoughnutChart from "../components/charts/DoughnutChart";
@@ -10,9 +9,9 @@ const Reports = () => {
   const { expenses, handleCSVExport, handlePDFExport } = useReportContext();
 
   return (
-    <main className="p-6">
+    <main className="px-2 py-8">
       <ScrollToTop />
-      <h2 className="text-4xl md:text-5xl font-semibold mb-2">Reports</h2>
+      <h2 className="text-3xl md:text-4xl font-semibold mb-2">Reports</h2>
       <p className="text-base text-[rgb(var(--color-muted))] mb-10">
         Review, analyze, and export your financial history.
       </p>

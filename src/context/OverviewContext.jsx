@@ -148,15 +148,21 @@ export const OverviewProvider = ({ children }) => {
   // get total budget used
   const totalBudgetUsed = useMemo(
     () => getTotalBudgetSpent(transactions, budgets, "all"),
-    [getTotalBudgetSpent]
+    [getTotalBudgetSpent, transactions, budgets]
   );
 
   const budgetUsagePercentage = Math.ceil(
     (totalBudgetUsed / totalBudget) * 100
   );
 
-  const incomeBudget = budgets.filter((tx) => tx.type === "income");
-  const expensesBudget = budgets.filter((tx) => tx.type === "expense");
+  const incomeBudget = useMemo(
+    () => budgets.filter((tx) => tx.type === "income"),
+    [budgets]
+  );
+  const expensesBudget = useMemo(
+    () => budgets.filter((tx) => tx.type === "expense"),
+    [budgets]
+  );
 
   const totalIncomeBudget = incomeBudget.reduce(
     (sum, budget) => sum + budget.amount,
@@ -169,15 +175,18 @@ export const OverviewProvider = ({ children }) => {
 
   const incomeBudgetAchieved = useMemo(
     () => getTotalBudgetSpent(transactions, budgets, "income"),
-    [getTotalBudgetSpent]
+    [getTotalBudgetSpent, transactions, budgets]
   );
   const expensesBudgetSpent = useMemo(
     () => getTotalBudgetSpent(transactions, budgets, "expense"),
-    [getTotalBudgetSpent]
+    [getTotalBudgetSpent, transactions, budgets]
   );
 
+  // Calculate total income budget percentage and the remaining/extra budget balance
   const incomeBudgetPercent = (incomeBudgetAchieved / totalIncomeBudget) * 100;
   const remainingIncome = totalIncomeBudget - incomeBudgetAchieved;
+
+  // Calculate total expenses budget percentage and the remaining/extra budget balance
   const expensesBudgetPercent =
     (expensesBudgetSpent / totalExpensesBudget) * 100;
   const remainingExpenses = totalExpensesBudget - expensesBudgetSpent;

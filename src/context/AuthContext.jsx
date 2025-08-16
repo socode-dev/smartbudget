@@ -48,8 +48,6 @@ export const AuthProvider = ({ children }) => {
     resetFormReset,
   } = useAuthFormContext();
 
-  console.log(userName);
-
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
