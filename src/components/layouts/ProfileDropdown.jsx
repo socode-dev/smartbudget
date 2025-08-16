@@ -14,7 +14,7 @@ const ProfileDropdown = ({ open, onClose }) => {
   return (
     <div
       role="dialog"
-      className="absolute right-0 mt-2 w-25 bg-[rgb(var(--color-gray-bg-settings))] border border-[rgb(var(--color-gray-border))] rounded-lg shadow-lg z-60 text-xs font-medium"
+      className="absolute right-4 top-13 w-max bg-[rgb(var(--color-gray-bg-settings))] border border-[rgb(var(--color-gray-border))] rounded-lg shadow-lg z-60 text-xs font-medium"
     >
       <button
         onClick={openSignoutPropmt}

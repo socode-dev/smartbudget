@@ -1,7 +1,6 @@
 import { Line } from "react-chartjs-2";
 import { useEffect, useRef } from "react";
 import { useOverviewChartContext } from "../../context/OverviewChartContext";
-import useTransactionStore from "../../store/useTransactionStore";
 
 const LineChart = () => {
   const chartRef = useRef(null);
@@ -23,7 +22,7 @@ const LineChart = () => {
 
   return (
     <div className="w-full h-68 flex flex-col items-center justify-center">
-      {monthlyIncome.length === 0 && monthlyExpenses.length === 0 ? (
+      {monthlyIncome?.length === 0 && monthlyExpenses?.length === 0 ? (
         <div className="text-[rgb(var(--color-muted))] text-center">
           <p className="text-lg font-medium mb-3">
             No income or expenses data available.

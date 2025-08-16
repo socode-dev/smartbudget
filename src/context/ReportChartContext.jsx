@@ -85,10 +85,10 @@ export const ReportChartProvider = ({ children }) => {
         display: true,
         position: "bottom",
         labels: {
-          color: "#6B7280",
+          color: "#6b7280",
           font: {
             size: 14,
-            weight: "400",
+            weight: "600",
           },
           padding: 12,
         },
@@ -116,6 +116,8 @@ export const ReportChartProvider = ({ children }) => {
         backgroundColor,
         borderWidth: 1,
         borderRadius: 50,
+        color: "#6b7280",
+        font: { weight: 600, size: 14 },
       },
     ],
   };
@@ -129,6 +131,22 @@ export const ReportChartProvider = ({ children }) => {
         position: "bottom",
         padding: 10,
         labels: {
+          font: {
+            size: 14,
+            weight: "600",
+          },
+          scales: {
+            x: {
+              ticks: {
+                color: "#6b7280",
+              },
+            },
+            y: {
+              ticks: {
+                color: "#6b7280",
+              },
+            },
+          },
           generateLabels: (chart) => {
             const dataset = chart.data.datasets[0];
             const total = dataset.data.reduce((acc, val) => acc + val, 0);
@@ -144,14 +162,9 @@ export const ReportChartProvider = ({ children }) => {
                 lineWidth: 0.5,
                 hidden: false,
                 index: i,
-                color: "#6B7280",
+                fontColor: "#6b7280",
               };
             });
-          },
-          color: "#6B7280",
-          font: {
-            size: 14,
-            weight: "400",
           },
           padding: 12,
         },

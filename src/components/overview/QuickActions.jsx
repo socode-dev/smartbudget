@@ -1,13 +1,17 @@
 import { FiPlus, FiTarget, FiDownload } from "react-icons/fi";
 import { useModalContext } from "../../context/ModalContext";
 import { useOverviewContext } from "../../context/OverviewContext";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import clsx from "clsx";
+import { useDropdownClose } from "../../hooks/useDropdownClose";
 
 const QuickActions = () => {
+  const exportRef = useRef(null);
   const { handleCSVExport, handlePDFExport } = useOverviewContext();
   const { onOpenModal } = useModalContext();
   const [openExport, setOpenExport] = useState(false);
+
+  useDropdownClose(openExport, exportRef, setOpenExport);
 
   const exportCSV = () => {
     handleCSVExport();
@@ -30,15 +34,15 @@ const QuickActions = () => {
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 justify-between gap-4 mt-10">
         <button
           onClick={() => onOpenModal("transactions", "add")}
-          className="bg-green-600 hover:bg-green-700  text-white text-base font-semibold px-4 py-2 rounded-lg shadow-md transition cursor-pointer flex justify-center items-center gap-2"
+          className="bg-green-600 hover:bg-green-700  text-white text-sm font-semibold px-4 py-2 rounded-lg shadow-md transition cursor-pointer flex justify-center items-center gap-2"
         >
           <FiPlus className="text-lg" />
-          <span>Add Transaction</span>
+          <span>Add Entry</span>
         </button>
 
         <button
           onClick={() => onOpenModal("budgets")}
-          className="bg-indigo-600 hover:bg-indigo-700  text-white text-base font-medium px-4 py-2 rounded-lg shadow-md transition cursor-pointer flex justify-center items-center gap-2"
+          className="bg-indigo-600 hover:bg-indigo-700  text-white text-sm font-medium px-4 py-2 rounded-lg shadow-md transition cursor-pointer flex justify-center items-center gap-2"
         >
           <FiTarget className="text-lg" />
           <span>Set Budget</span>
@@ -46,7 +50,7 @@ const QuickActions = () => {
 
         <button
           onClick={() => onOpenModal("goals")}
-          className="bg-indigo-600 hover:bg-indigo-700  text-white text-base font-medium px-4 py-2 rounded-lg shadow-md transition cursor-pointer flex justify-center items-center gap-2"
+          className="bg-indigo-600 hover:bg-indigo-700  text-white text-sm font-medium px-4 py-2 rounded-lg shadow-md transition cursor-pointer flex justify-center items-center gap-2"
         >
           <FiTarget className="text-lg" />
           <span>Set Goal</span>
@@ -54,22 +58,24 @@ const QuickActions = () => {
 
         <div className="relative">
           <div
+            ref={exportRef}
+            role="button"
             className={clsx(
-              "absolute bottom-12 left-2/5 bg-[rgb(var(--color-gray-bg-settings))] text-sm text-[rgb(var(--color-muted))] font-medium rounded overflow-hidden shadow-2xl z-60 flex-col w-2/4 border-2 border-[rgb(var(--color-gray-border))]",
+              "absolute bottom-12 left-0 bg-[rgb(var(--color-gray-bg-settings))] text-sm text-[rgb(var(--color-muted))] font-medium rounded overflow-hidden shadow-2xl z-60 flex-col items-center w-full border-2 border-[rgb(var(--color-gray-border))]",
               openExport ? "flex" : "hidden"
             )}
           >
             <button
               onClick={exportCSV}
               type="button"
-              className="px-5 py-2.5 cursor-pointer hover:bg-[rgb(var(--color-muted))] hover:text-white transition"
+              className="w-full px-5 py-2.5 cursor-pointer hover:bg-[rgb(var(--color-muted))] hover:text-white transition"
             >
               As CSV
             </button>
             <button
               onClick={exportPDF}
               type="button"
-              className="px-5 py-2.5 cursor-pointer hover:bg-[rgb(var(--color-muted))] hover:text-white transition"
+              className="w-full px-5 py-2.5 cursor-pointer hover:bg-[rgb(var(--color-muted))] hover:text-white transition"
             >
               As PDF
             </button>
@@ -79,7 +85,7 @@ const QuickActions = () => {
             className="w-full bg-gray-700 hover:bg-gray-800  text-white text-base font-medium px-4 py-2 rounded-lg shadow-md transition cursor-pointer flex justify-center items-center gap-2"
           >
             <FiDownload className="text-lg" />
-            <span>Export Financial Log</span>
+            <span>Export Log</span>
           </button>
         </div>
       </div>

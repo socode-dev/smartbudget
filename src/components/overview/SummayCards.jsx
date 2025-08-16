@@ -55,7 +55,7 @@ const SummaryCards = () => {
     "sm:absolute sm:-top-5 sm:left-1/2 sm:-translate-x-1/2 bg-[rgb(var(--color-bg-card))] p-2 rounded-full sm:shadow z-10";
 
   const cardContentStyle =
-    "flex flex-col items-center text-center gap-2 sm:gap-3 lg:gap-4 sm:mt-5";
+    "flex flex-col items-center text-center gap-3 lg:gap-4 sm:mt-5";
 
   return (
     <>
@@ -66,7 +66,7 @@ const SummaryCards = () => {
         </div>
 
         <div className={cardContentStyle}>
-          <h3 className="text-lg text-[rgb(var(--color-muted))] font-medium">
+          <h3 className="text-base md:text-lg text-[rgb(var(--color-muted))] font-medium">
             Total Income
           </h3>
           <p className="text-3xl font-bold text-green-600">
@@ -83,7 +83,7 @@ const SummaryCards = () => {
         </div>
 
         <div className={cardContentStyle}>
-          <h3 className="text-lg text-[rgb(var(--color-muted))] font-medium">
+          <h3 className="text-base text-[rgb(var(--color-muted))] font-medium">
             Total Expenses
           </h3>
           <p className="text-3xl font-bold text-red-600">
@@ -100,7 +100,7 @@ const SummaryCards = () => {
         </div>
 
         <div className={cardContentStyle}>
-          <h3 className="text-lg text-[rgb(var(--color-muted))] font-medium">
+          <h3 className="text-base text-[rgb(var(--color-muted))] font-medium">
             Net Balance
           </h3>
           <p className="text-3xl font-bold text-blue-600">
@@ -117,7 +117,7 @@ const SummaryCards = () => {
         </div>
 
         <div className={cardContentStyle}>
-          <h3 className="text-lg text-[rgb(var(--color-muted))] font-medium">
+          <h3 className="text-base text-[rgb(var(--color-muted))] font-medium">
             Budget Usage
           </h3>
           <p className="text-3xl font-bold text-yellow-600">

@@ -55,7 +55,7 @@ const TransactionTable = () => {
   return (
     <div>
       {/* <ScrollToTop /> */}
-      <h3 className="text-lg md:text-xl mb-6 text-[rgb(var(--color-muted))] font-semibold">
+      <h3 className="text-lg md:text-xl mb-8 text-[rgb(var(--color-muted))] font-semibold">
         Showing {indexOfFirstTransaction + 1}-
         {Math.min(indexOfLastTransaction, sortedTransactions.length)} of{" "}
         {sortedTransactions.length} transactions
@@ -119,25 +119,25 @@ const TransactionTable = () => {
       </table>
 
       {/* Mobile View */}
-      <div className="flex flex-col md:hidden gap-5">
+      <div className="flex flex-col md:hidden gap-8">
         {currentTransactions.map((transaction) => (
-          <div key={transaction.id} className="flex flex-col gap-2">
+          <div key={transaction.id} className="flex flex-col gap-4">
             <h4 className="text-base font-semibold">
               {transaction.description || "No description"}
             </h4>
 
-            <div className="flex items-center gap-2">
-              <div className="grow grid grid-cols-3 gap-2 text-[13px]">
-                <p className="flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 bg-[rgb(var(--color-muted))] rounded-full"></span>
+            <div className="flex items-center gap-1">
+              <div className="grow grid grid-cols-3 gap-1 text-[13px]">
+                <p className="flex items-center gap-1">
+                  <span className="w-2 h-2 bg-[rgb(var(--color-muted))] rounded-full"></span>
                   <span>{transaction.date}</span>
                 </p>
-                <p className="flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 bg-[rgb(var(--color-muted))] rounded-full"></span>
+                <p className="flex items-center gap-1">
+                  <span className="w-2 h-2 bg-[rgb(var(--color-muted))] rounded-full"></span>
                   <span>{transaction.category}</span>
                 </p>
-                <p className="flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 bg-[rgb(var(--color-muted))] rounded-full"></span>
+                <p className="flex items-center gap-1">
+                  <span className="w-2 h-2 bg-[rgb(var(--color-muted))] rounded-full"></span>
                   <span
                     className={clsx(
                       "font-medium",
@@ -153,7 +153,7 @@ const TransactionTable = () => {
               </div>
               <button
                 onClick={() => handleEditTransaction(transaction.id)}
-                className="cursor-pointer text-blue-500 hover:text-blue-600 transition mr-4"
+                className="cursor-pointer text-blue-500 hover:text-blue-600 transition mr-3"
               >
                 <HiOutlinePencil className="text-base" />
               </button>
@@ -169,12 +169,12 @@ const TransactionTable = () => {
       </div>
 
       {/* Pagination Controls */}
-      {sortedTransactions > 10 && (
+      {sortedTransactions?.length > 10 && (
         <div className="flex items-center justify-between mt-10">
           <button
             onClick={handlePrev}
             disabled={currentPage === 1}
-            className="px-4 py-1 rounded bg-[rgb(var(--color-))] hover:scale-y-105 transition shadow text-[rgb(var(--color-muted))] disabled:opacity-50 font-medium text-xs cursor-pointer"
+            className="px-4 py-1 rounded bg-[rgb(var(--color-))] hover:scale-y-105 transition shadow text-[rgb(var(--color-muted))] disabled:opacity-50 font-medium text-sm cursor-pointer"
           >
             <span>&larr;</span> Prev
           </button>
@@ -186,7 +186,7 @@ const TransactionTable = () => {
           <button
             onClick={handleNext}
             disabled={currentPage === totalPages}
-            className="px-4 py-1 rounded bg-[rgb(var(--color-))] hover:scale-y-105 transition shadow text-[rgb(var(--color-muted))] disabled:opacity-50 font-medium text-xs cursor-pointer"
+            className="px-4 py-1 rounded bg-[rgb(var(--color-))] hover:scale-y-105 transition shadow text-[rgb(var(--color-muted))] disabled:opacity-50 font-medium text-sm cursor-pointer"
           >
             Next <span>&rarr;</span>
           </button>

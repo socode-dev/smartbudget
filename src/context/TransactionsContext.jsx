@@ -9,11 +9,13 @@ const TransactionsContext = createContext();
 export const TransactionsProvider = ({ children }) => {
   const { transactions } = useTransactionStore();
   const { selectedCurrency } = useCurrencyStore();
-  const [searchDescription, setSearchDescription] = useState("");
-  const [dateFrom, setDateFrom] = useState("");
-  const [dateTo, setDateTo] = useState("");
-  const [categoryFilter, setCategoryFilter] = useState("all");
-  const [typeFilter, setTypeFilter] = useState("all");
+  const [filters, setFilters] = useState({
+    search: "",
+    fromDate: "",
+    toDate: "",
+    category: "all",
+    type: "all",
+  });
 
   // Format currency amount
   const formattedAmount = (amount) => {
@@ -31,24 +33,24 @@ export const TransactionsProvider = ({ children }) => {
     () =>
       transactions?.filter((tx) => {
         const matchesDescription =
-          searchDescription === ""
+          filters.search === ""
             ? true
             : tx?.description
                 ?.toLowerCase()
-                .includes(searchDescription?.toLowerCase());
+                .includes(filters.search?.toLowerCase());
         const matchesCategory =
-          categoryFilter === "all"
+          filters.category === "all"
             ? true
             : tx?.category
                 ?.toLowerCase()
-                .includes(categoryFilter?.toLowerCase());
+                .includes(filters.category?.toLowerCase());
         const matchesType =
-          typeFilter === "all" ? true : tx?.type === typeFilter;
+          filters.type === "all" ? true : tx?.type === filters.type;
 
         // Date filtering
         const txDate = tx?.date ? new Date(tx.date) : null;
-        const fromDate = dateFrom ? new Date(dateFrom) : null;
-        const toDate = dateTo ? new Date(dateTo) : null;
+        const fromDate = filters.fromDate ? new Date(filters.fromDate) : null;
+        const toDate = filters.toDate ? new Date(filters.toDate) : null;
         const matchesFrom = fromDate
           ? txDate
             ? txDate >= fromDate
@@ -66,11 +68,11 @@ export const TransactionsProvider = ({ children }) => {
       }),
     [
       transactions,
-      searchDescription,
-      dateFrom,
-      dateTo,
-      typeFilter,
-      categoryFilter,
+      filters.search,
+      filters.fromDate,
+      filters.toDate,
+      filters.type,
+      filters.category,
     ]
   );
 
@@ -122,16 +124,8 @@ export const TransactionsProvider = ({ children }) => {
     totalIncome,
     netBalance,
     formattedAmount,
-    searchDescription,
-    setSearchDescription,
-    dateFrom,
-    setDateFrom,
-    dateTo,
-    setDateTo,
-    categoryFilter,
-    setCategoryFilter,
-    typeFilter,
-    setTypeFilter,
+    filters,
+    setFilters,
   };
 
   return (

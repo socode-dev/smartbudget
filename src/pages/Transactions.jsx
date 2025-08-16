@@ -20,12 +20,12 @@ const Transactions = () => {
   } = useTransactionsContext();
 
   return (
-    <main className="p-6">
+    <main className="px-2 py-8">
       <ScrollToTop />
-      <section className="flex items-center justify-between gap-4 mb-6">
-        <div>
+      <section className="flex items-center justify-between gap-8 mb-6">
+        <div className="flex flex-col gap-5">
           <h2 className="text-3xl md:text-4xl font-semibold">Transactions</h2>
-          <p className="text-base text-[rgb(var(--color-muted))] mt-2 ">
+          <p className="text-base text-[rgb(var(--color-muted))]">
             Track all your expenses and income in one place.
           </p>
         </div>
@@ -50,7 +50,7 @@ const Transactions = () => {
           <TransactionTable />
 
           {/* Amount Summary */}
-          <div className="grid grid-cols-2 md:grid-cols-4 items-center text-[12px] mt-8 gap-4">
+          <div className="w-fit grid grid-cols-2 md:grid-cols-4 items-center text-[12px] mt-8 gap-x-8 gap-y-4">
             <p className="text-[rgb(var(--color-muted))] text-sm font-medium">
               Total Income:{" "}
               <span className="font-semibold text-green-500 text-base">

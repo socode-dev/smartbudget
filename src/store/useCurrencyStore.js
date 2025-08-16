@@ -26,12 +26,6 @@ const useCurrencyStore = create(
           set({ currencies: ["USD", "EUR", "NGN"] }); // fallback
         }
       },
-
-      // Set currency symbol
-      getCurrencySymbol: (currency) => {
-        const symbol = CURRENCY_SYMBOLS[currency] ?? currency;
-        set({ currencySymbol: symbol });
-      },
     }),
     {
       name: "currency-storage",

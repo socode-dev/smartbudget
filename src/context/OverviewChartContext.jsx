@@ -23,32 +23,39 @@ export const OverviewChartProvider = ({ children }) => {
     end: new Date(lastDate.getFullYear(), lastDate.getMonth()),
   }).map((date) => format(date, "MMM"));
 
-  const monthlyIncome = months.map((month) => {
-    const sameMonthTransactions = transactions.filter(
-      (transaction) =>
-        transaction.type === "income" &&
-        format(new Date(transaction.date), "MMM") === month
-    );
-    const totalMonthlyIncome = sameMonthTransactions.reduce(
-      (sum, tx) => sum + tx.amount,
-      0
-    );
-    return totalMonthlyIncome;
-  });
+  const monthlyIncome = useMemo(
+    () =>
+      months.map((month) => {
+        const sameMonthTransactions = transactions.filter(
+          (transaction) =>
+            transaction.type === "income" &&
+            format(new Date(transaction.date), "MMM") === month
+        );
+        const totalMonthlyIncome = sameMonthTransactions.reduce(
+          (sum, tx) => sum + tx.amount,
+          0
+        );
+        return totalMonthlyIncome;
+      }),
+    [transactions]
+  );
 
-  const monthlyExpenses = months.map((month) => {
-    const sameMonthTransactions = transactions.filter(
-      (transaction) =>
-        transaction.type === "expense" &&
-        format(new Date(transaction.date), "MMM") === month
-    );
-    const totalMonthlyExpenses = sameMonthTransactions.reduce(
-      (sum, tx) => sum + tx.amount,
-      0
-    );
-    return totalMonthlyExpenses;
-  });
-  console.log(monthlyIncome);
+  const monthlyExpenses = useMemo(
+    () =>
+      months.map((month) => {
+        const sameMonthTransactions = transactions.filter(
+          (transaction) =>
+            transaction.type === "expense" &&
+            format(new Date(transaction.date), "MMM") === month
+        );
+        const totalMonthlyExpenses = sameMonthTransactions.reduce(
+          (sum, tx) => sum + tx.amount,
+          0
+        );
+        return totalMonthlyExpenses;
+      }),
+    [transactions]
+  );
 
   // Combine all values into one array to get max
   const allValues = [...monthlyIncome, ...monthlyExpenses];
@@ -106,8 +113,8 @@ export const OverviewChartProvider = ({ children }) => {
       legend: {
         position: "bottom",
         labels: {
-          color: "#475569",
-          font: { size: 14, weight: 400 },
+          color: "#9ca3af",
+          font: { size: 14, weight: 600 },
         },
       },
       tooltip: {
@@ -128,16 +135,16 @@ export const OverviewChartProvider = ({ children }) => {
         ticks: {
           stepSize,
           callback: (value) => formattedAmount(value),
-          color: "#64748B",
+          color: "#9ca3af",
           font: { size: 14 },
         },
         grid: {
-          color: "#E2E8F0",
+          color: "#9ca3af",
         },
       },
       x: {
         ticks: {
-          color: "#64748B",
+          color: "#9ca3af",
           font: { size: 14 },
         },
       },
@@ -167,10 +174,10 @@ export const OverviewChartProvider = ({ children }) => {
         display: true,
         position: "bottom",
         labels: {
-          color: "#6B7280",
+          color: "#9ca3af",
           font: {
             size: 14,
-            weight: "400",
+            weight: "600",
           },
           padding: 12,
         },
