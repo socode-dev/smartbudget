@@ -34,41 +34,41 @@ const Signup = () => {
     setRevealPassword((prev) => ({ ...prev, [type]: !prev[type] }));
 
   return (
-    <main className="w-full max-w-[650px] h-auto py-4 flex flex-col items-center mx-auto">
+    <main className="w-full max-w-[650px] h-auto px-2 py-8 flex flex-col items-center mx-auto">
       <ScrollToTop />
-      <h2 className="text-2xl text-[rgb(var(--color-brand))] text-center font-medium tracking-wide">
+      <h2 className="text-3xl md:text-4xl text-[rgb(var(--color-brand))] text-center font-medium tracking-wide">
         Create an Account
       </h2>
-      <p className="text-sm text-[rgb(var(--color-muted))] text-center mt-2 mb-6">
+      <p className="text-base text-[rgb(var(--color-muted))] text-center mt-4 mb-6">
         Let's get you set up with SmartBudget
       </p>
 
       {/* Display authentication error if there is any */}
       {onSignupErr && (
-        <p className="max-w-11/12 bg-red-50 px-4 py-1.5 rounded text-red-600 text-[14px] mb-2">
+        <p className="max-w-11/12 bg-red-50 px-4 py-2 rounded text-red-600 text-sm mb-2">
           {onSignupErr}
         </p>
       )}
 
       {microsoftErr && (
-        <p className="max-w-11/12 bg-red-50 px-4 py-1.5 rounded text-red-600 text-[14px] mb-2">
+        <p className="max-w-11/12 bg-red-50 px-4 py-2 rounded text-red-600 text-sm mb-2">
           {microsoftErr}
         </p>
       )}
 
       {googleErr && (
-        <p className="max-w-11/12 bg-red-50 px-4 py-1.5 rounded text-red-600 text-[14px] mb-2">
+        <p className="max-w-11/12 bg-red-50 px-4 py-2 rounded text-red-600 text-sm mb-2">
           {googleErr}
         </p>
       )}
 
-      <form onSubmit={onSignup} className="w-11/12 grid grid-cols-2 gap-2">
+      <form onSubmit={onSignup} className="w-full grid grid-cols-2 gap-2">
         {/* First Name field */}
         <fieldset>
           <div className="flex flex-col gap-1">
             <label
               htmlFor="firstName"
-              className="text-sm text-[rgb(var(--color-muted))] font-medium"
+              className="text-base text-[rgb(var(--color-muted))] font-medium"
             >
               First Name
             </label>
@@ -77,11 +77,11 @@ const Signup = () => {
               type="firstName"
               id="firstName"
               placeholder="Enter your first name"
-              className="w-full text-xs text-[rgb(var(--color-muted))] px-4 py-1 rounded-lg border-2 border-[rgb(var(--color-gray-border))] outline-none focus:border-[rgb(var(--color-brand))] transition"
+              className="w-full text-sm text-[rgb(var(--color-muted))] px-4 py-2 rounded-lg border-2 border-[rgb(var(--color-gray-border))] outline-none focus:border-[rgb(var(--color-brand))] transition"
             />
           </div>
           {errors.firstName && (
-            <p className="text-[12px] text-red-600 mt-1">
+            <p className="text-sm text-red-600 mt-1">
               {errors.firstName.message}
             </p>
           )}
@@ -92,7 +92,7 @@ const Signup = () => {
           <div className="flex flex-col gap-1">
             <label
               htmlFor="lastName"
-              className="text-sm text-[rgb(var(--color-muted))] font-medium"
+              className="text-base text-[rgb(var(--color-muted))] font-medium"
             >
               Last Name
             </label>
@@ -101,11 +101,11 @@ const Signup = () => {
               type="lastName"
               id="lastName"
               placeholder="Enter your last name"
-              className="w-full text-xs text-[rgb(var(--color-muted))] px-4 py-1 rounded-lg border-2 border-[rgb(var(--color-gray-border))] outline-none focus:border-[rgb(var(--color-brand))] transition"
+              className="w-full text-sm text-[rgb(var(--color-muted))] px-4 py-2 rounded-lg border-2 border-[rgb(var(--color-gray-border))] outline-none focus:border-[rgb(var(--color-brand))] transition"
             />
           </div>
           {errors.lastName && (
-            <p className="text-[12px] text-red-600 mt-1">
+            <p className="text-sm text-red-600 mt-1">
               {errors.lastName.message}
             </p>
           )}
@@ -116,7 +116,7 @@ const Signup = () => {
           <div className="flex flex-col gap-1">
             <label
               htmlFor="email"
-              className="text-sm text-[rgb(var(--color-muted))] font-medium"
+              className="text-base text-[rgb(var(--color-muted))] font-medium"
             >
               Email
             </label>
@@ -125,13 +125,11 @@ const Signup = () => {
               type="email"
               id="email"
               placeholder="Enter your email"
-              className="w-full text-xs text-[rgb(var(--color-muted))] px-4 py-1 rounded-lg border-2 border-[rgb(var(--color-gray-border))] outline-none focus:border-[rgb(var(--color-brand))] transition"
+              className="w-full text-sm text-[rgb(var(--color-muted))] px-4 py-2 rounded-lg border-2 border-[rgb(var(--color-gray-border))] outline-none focus:border-[rgb(var(--color-brand))] transition"
             />
           </div>
           {errors.email && (
-            <p className="text-[12px] text-red-600 mt-1">
-              {errors.email.message}
-            </p>
+            <p className="text-sm text-red-600 mt-1">{errors.email.message}</p>
           )}
         </fieldset>
 
@@ -140,7 +138,7 @@ const Signup = () => {
           <div className="flex flex-col gap-1">
             <label
               htmlFor="password"
-              className="text-sm text-[rgb(var(--color-muted))] font-medium"
+              className="text-base text-[rgb(var(--color-muted))] font-medium"
             >
               Password
             </label>
@@ -150,16 +148,16 @@ const Signup = () => {
                 type={revealPassword.password ? "text" : "password"}
                 id="password"
                 placeholder="Enter password"
-                className="w-full text-xs text-[rgb(var(--color-muted))] px-4 py-1 rounded-lg border-2 border-[rgb(var(--color-gray-border))] outline-none focus:border-[rgb(var(--color-brand))] transition"
+                className="w-full text-sm text-[rgb(var(--color-muted))] px-4 py-2 rounded-lg border-2 border-[rgb(var(--color-gray-border))] outline-none focus:border-[rgb(var(--color-brand))] transition"
               />
               <Icon.password
                 onClick={() => togglePasswordReveal("password")}
-                className="text-xs text-gray-400 absolute top-[50%] -translate-y-[50%] right-2 cursor-pointer"
+                className="text-lg text-gray-400 absolute top-[50%] -translate-y-[50%] right-2 cursor-pointer"
               />
             </div>
           </div>
           {errors.password && (
-            <p className="text-[12px] text-red-600 mt-1">
+            <p className="text-sm text-red-600 mt-1">
               {errors.password.message}
             </p>
           )}
@@ -170,7 +168,7 @@ const Signup = () => {
           <div className="flex flex-col gap-1">
             <label
               htmlFor="confirm-password"
-              className="text-sm text-[rgb(var(--color-muted))] font-medium"
+              className="text-base text-[rgb(var(--color-muted))] font-medium"
             >
               Confirm Password
             </label>
@@ -180,16 +178,16 @@ const Signup = () => {
                 type={revealPassword.confirmPassword ? "text" : "password"}
                 id="confirm-password"
                 placeholder="Confirm password"
-                className="w-full text-xs text-[rgb(var(--color-muted))] px-4 py-1 rounded-lg border-2 border-[rgb(var(--color-gray-border))] outline-none focus:border-[rgb(var(--color-brand))] transition"
+                className="w-full text-sm text-[rgb(var(--color-muted))] px-4 py-2 rounded-lg border-2 border-[rgb(var(--color-gray-border))] outline-none focus:border-[rgb(var(--color-brand))] transition"
               />
               <Icon.confirmPassword
                 onClick={() => togglePasswordReveal("confirmPassword")}
-                className="text-xs text-gray-400 absolute top-[50%] -translate-y-[50%] right-2 cursor-pointer"
+                className="text-lg text-gray-400 absolute top-[50%] -translate-y-[50%] right-2 cursor-pointer"
               />
             </div>
           </div>
           {errors.confirmPassword && (
-            <p className="text-[12px] text-red-600">
+            <p className="text-sm text-red-600">
               {errors.confirmPassword.message}
             </p>
           )}
@@ -199,21 +197,21 @@ const Signup = () => {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="col-span-full mt-3 text-sm font-medium text-center py-1 rounded-lg shadow bg-[rgb(var(--color-brand))] text-white hover:scale-97
+          className="col-span-full mt-6 text-base font-medium text-center py-2 rounded-lg shadow bg-[rgb(var(--color-brand))] text-white hover:scale-97
           active:scale-103 disabled:opacity-50 disabled:cursor-not-allowed transition cursor-pointer"
         >
           {isSubmitting ? <LoadingSpinner size={25} /> : "Create Account"}
         </button>
       </form>
 
-      <section className="w-11/12 flex flex-col gap-3 mt-4">
-        <p className="text-xs text-center">OR SIGN UP WITH:</p>
+      <section className="w-11/12 flex flex-col gap-3 mt-6">
+        <p className="text-base text-center">OR SIGN UP WITH:</p>
 
         <fieldset className="w-full flex gap-4">
           {/* Google sign up */}
           <button
             onClick={onGoogleSignIn}
-            className="w-1/2 px-4 py-1 flex items-center justify-center gap-3 border-2 border-[rgb(var(--color-gray-border))] hover:bg-[rgb(var(--color-gray-bg))] transition rounded-lg text-sm text-[rgb(var(--color-muted))] font-medium cursor-pointer"
+            className="w-1/2 px-4 py-2 flex items-center justify-center gap-4 border-2 border-[rgb(var(--color-gray-border))] hover:bg-[rgb(var(--color-gray-bg))] transition rounded-lg text-base text-[rgb(var(--color-muted))] font-medium cursor-pointer"
           >
             <FaGoogle />
             <span>Google</span>
@@ -222,7 +220,7 @@ const Signup = () => {
           {/* Microsoft sign up */}
           <button
             onClick={onMicrosoftSignIn}
-            className="w-1/2 px-4 py-1 flex items-center justify-center gap-3 border-2 border-[rgb(var(--color-gray-border))] rounded-lg text-sm text-[rgb(var(--color-muted))] hover:bg-[rgb(var(--color-gray-bg))] transition font-medium cursor-pointer"
+            className="w-1/2 px-4 py-2 flex items-center justify-center gap-4 border-2 border-[rgb(var(--color-gray-border))] rounded-lg text-base text-[rgb(var(--color-muted))] hover:bg-[rgb(var(--color-gray-bg))] transition font-medium cursor-pointer"
           >
             <FaMicrosoft />
             <span>Microsoft</span>
@@ -230,7 +228,7 @@ const Signup = () => {
         </fieldset>
       </section>
 
-      <p className="text-xs text-center text-[rgb(var(--color-muted))] mt-4">
+      <p className="text-base text-center text-[rgb(var(--color-muted))] mt-6">
         Already have an account?{" "}
         <Link
           to="/login"

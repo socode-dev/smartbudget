@@ -27,27 +27,27 @@ const ResetPassword = () => {
 
   return (
     <main className="w-full max-w-[500px] h-auto p-5 flex flex-col items-center mx-auto">
-      <h2 className="text-2xl text-[rgb(var(--color-brand))] text-center font-medium tracking-wide">
+      <h2 className="text-3xl md:text-4xl text-[rgb(var(--color-brand))] text-center font-medium tracking-wide">
         Reset Password
       </h2>
-      <p className="text-xs text-[rgb(var(--color-muted))] text-center mt-2 mb-6">
+      <p className="text-base text-[rgb(var(--color-muted))] text-center mt-4 mb-6">
         Please set a new password for{" "}
         <strong>{userEmail ?? "your SmartBudget account"}</strong>
       </p>
 
       {resetLinkErr && (
-        <p className="w-full bg-red-50 px-3 py-1 rounded text-center text-red-500 text-xs ">
+        <p className="w-11/12 bg-red-50 px-3 py-2 rounded text-center text-red-500 text-sm ">
           {resetLinkErr}
         </p>
       )}
 
-      <form className="w-11/12 flex flex-col">
+      <form className="w-full flex flex-col">
         {/* Password fields */}
         <fieldset className="mt-1">
           <div className="flex flex-col gap-1">
             <label
               htmlFor="password"
-              className="text-sm text-[rgb(var(--color-muted))] font-medium"
+              className="text-base text-[rgb(var(--color-muted))] font-medium"
             >
               Password
             </label>
@@ -57,11 +57,11 @@ const ResetPassword = () => {
                 type={revealPassword.password ? "text" : "password"}
                 id="password"
                 placeholder="Enter New password"
-                className="w-full text-xs text-[rgb(var(--color-muted))] px-4 py-1 rounded-lg border-2 border-[rgb(var(--color-gray-border))] outline-none focus:border-[rgb(var(--color-brand))] transition"
+                className="w-full text-sm text-[rgb(var(--color-muted))] px-4 py-2 rounded-lg border-2 border-[rgb(var(--color-gray-border))] outline-none focus:border-[rgb(var(--color-brand))] transition"
               />
               <Icon.password
                 onClick={() => togglePasswordReveal("password")}
-                className="text-xs text-gray-400 absolute top-[50%] -translate-y-[50%] right-2 cursor-pointer"
+                className="text-lg text-gray-400 absolute top-[50%] -translate-y-[50%] right-2 cursor-pointer"
               />
             </div>
           </div>
@@ -73,11 +73,11 @@ const ResetPassword = () => {
         </fieldset>
 
         {/* Confirm Password field */}
-        <fieldset className="mt-3">
+        <fieldset className="mt-4">
           <div className="flex flex-col gap-1">
             <label
               htmlFor="confirm-password"
-              className="text-sm text-[rgb(var(--color-muted))] font-medium"
+              className="text-base text-[rgb(var(--color-muted))] font-medium"
             >
               Re-type New Password
             </label>
@@ -87,11 +87,11 @@ const ResetPassword = () => {
                 type={revealPassword.confirmPassword ? "text" : "password"}
                 id="confirm-password"
                 placeholder="Confirm New password"
-                className="w-full text-xs text-[rgb(var(--color-muted))] px-4 py-1 rounded-lg border-2 border-[rgb(var(--color-gray-border))] outline-none focus:border-[rgb(var(--color-brand))] transition"
+                className="w-full text-sm text-[rgb(var(--color-muted))] px-4 py-2 rounded-lg border-2 border-[rgb(var(--color-gray-border))] outline-none focus:border-[rgb(var(--color-brand))] transition"
               />
               <Icon.confirmPassword
                 onClick={() => togglePasswordReveal("confirmPassword")}
-                className="text-xs text-gray-400 absolute top-[50%] -translate-y-[50%] right-2 cursor-pointer"
+                className="text-lg text-gray-400 absolute top-[50%] -translate-y-[50%] right-2 cursor-pointer"
               />
             </div>
           </div>
@@ -105,7 +105,7 @@ const ResetPassword = () => {
         <button
           onClick={onPasswordReset}
           disabled={isSubmitting}
-          className="w-1/2 self-start text-sm text-center font-medium px-3 py-1 mt-6 rounded-lg shadow bg-[rgb(var(--color-brand))] text-white hover:scale-97 active:scale-103 transition cursor-pointer disabled:opacity-50"
+          className="w-1/2 self-start text-base text-center font-medium px-4 py-2 mt-6 rounded-lg shadow bg-[rgb(var(--color-brand))] text-white hover:scale-97 active:scale-103 transition cursor-pointer disabled:opacity-50"
         >
           {isSubmitting ? <LoadingSpinner size={25} /> : "Reset Password"}
         </button>

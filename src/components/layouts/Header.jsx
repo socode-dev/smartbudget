@@ -1,5 +1,6 @@
 import { useState, useRef } from "react";
-import { FaBars, FaCog } from "react-icons/fa";
+import { FaBars } from "react-icons/fa";
+import { HiOutlineCog8Tooth } from "react-icons/hi2";
 import { FaRegBell } from "react-icons/fa6";
 import SettingsDropdown from "./SettingsDropdown";
 import NotificationDropdown from "./NotificationDropdown";
@@ -7,20 +8,24 @@ import ProfileDropdown from "./ProfileDropdown";
 import { useAuthContext } from "../../context/AuthContext";
 import clsx from "clsx";
 import { useDropdownClose } from "../../hooks/useDropdownClose";
+import useNotificationStore from "../../store/useNotificationStore";
+import { useNotificationContext } from "../../context/NotificationContext";
 
 const Header = ({ onSidebarToggle }) => {
   const { userName } = useAuthContext();
+  const { notifications } = useNotificationStore();
+  const { notificationRef, onOpenDropdown } = useNotificationContext();
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [notificationOpen, setNotificationOpen] = useState(false);
-  const [hasNewNotification, setHasNewNotification] = useState(false);
   const [openProfileDropdown, setOpenProfileDropdown] = useState(false);
   const settingsRef = useRef(null);
-  const notificationRef = useRef(null);
   const profileRef = useRef(null);
 
   useDropdownClose(dropdownOpen, settingsRef, setDropdownOpen);
-  useDropdownClose(notificationOpen, notificationRef, setNotificationOpen);
   useDropdownClose(openProfileDropdown, profileRef, setOpenProfileDropdown);
+
+  // Get unread notifications
+  const newNotifications = notifications?.filter((notif) => !notif?.read);
+  // console.log(newNotifications);
 
   return (
     <header className="h-16 lg:relative fixed top-0 left-0 w-full bg-[rgb(var(--color-bg))] text-[rgb(var(--color-text))] shadow flex items-center py-3 px-4 lg:px-6 z-50">
@@ -42,35 +47,32 @@ const Header = ({ onSidebarToggle }) => {
       {/* Right: Icons and User Avatar */}
       <div className="flex items-center gap-6">
         {/* Notification Icon with Dot */}
-        <div className="relative" ref={notificationRef}>
+        <div ref={notificationRef} className="relative">
           <button
-            className={clsx(
-              "relative flex text-gray-600 hover:text-[rgb(var(--color-brand))] transition cursor-pointer"
-            )}
+            className="flex p-2 bg-[rgb(var(--color-bg))] border border-[rgb(var(--color-status-bg-blue))] rounded-lg shadow text-[rgb(var(--color-brand))] hover:text-[rgb(var(--color-brand-hover)] transition cursor-pointer"
             aria-label="Notifications"
-            onClick={() => setNotificationOpen((open) => !open)}
+            onClick={onOpenDropdown}
             type="button"
           >
-            <FaRegBell className="text-xl" />
+            <FaRegBell className="text-lg" />
 
-            <span className="py-0.5 px-1 bg-red-600 text-white text-[10px] absolute -top-3 -right-2 rounded-lg">
-              6
-            </span>
+            {newNotifications?.length > 0 && (
+              <span className="py-1 px-2 bg-red-600 text-white text-[12px] absolute -top-3 -right-2 rounded-lg">
+                {newNotifications?.length}
+              </span>
+            )}
           </button>
-          <NotificationDropdown
-            open={notificationOpen}
-            onClose={() => setNotificationOpen(false)}
-          />
+          <NotificationDropdown />
         </div>
         {/* Settings Icon with Dropdown */}
         <div className="relative" ref={settingsRef}>
           <button
-            className="flex items-center text-gray-600 hover:text-blue-600 transition cursor-pointer"
+            className="flex items-center p-2 bg-[rgb(var(--color-bg))] border border-[rgb(var(--color-status-bg-blue))] rounded-lg shadow text-[rgb(var(--color-brand))] hover:text-[rgb(var(--color-brand-hover)] transition cursor-pointer"
             aria-label="Settings"
             onClick={() => setDropdownOpen((open) => !open)}
             type="button"
           >
-            <FaCog className="text-xl" />
+            <HiOutlineCog8Tooth className="text-xl" />
           </button>
           <SettingsDropdown
             open={dropdownOpen}

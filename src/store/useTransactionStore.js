@@ -3,10 +3,10 @@ import useCurrencyStore from "./useCurrencyStore";
 // import idbTransactions from "../store/idbTransactions";
 import { toast } from "react-hot-toast";
 import {
-  addTransaction,
-  getAllTransactions,
-  updateTransaction,
-  deleteTransaction,
+  addDocument,
+  getAllDocuments,
+  updateDocument,
+  deleteDocument,
 } from "../firebase/firestore.js";
 
 const CATEGORY_OPTIONS = [
@@ -25,7 +25,7 @@ const CATEGORY_OPTIONS = [
   { name: "Other", type: "other" },
 ];
 
-const useTransactionStore = create((set, get) => ({
+const useTransactionStore = create((set) => ({
   transactions: [],
   budgets: [],
   goals: [],
@@ -39,9 +39,9 @@ const useTransactionStore = create((set, get) => ({
   setContributions: (contributions) => set({ contributions }),
   setEditTransaction: (editTransaction) => set({ editTransaction }),
   // Load transactions from firestore
-  loadTransactions: async (userID, type) => {
+  loadTransactions: async (userUID, type) => {
     try {
-      const txs = await getAllTransactions(userID, type);
+      const txs = await getAllDocuments(userUID, type);
       set({ [type]: txs });
     } catch (err) {
       console.error("Error loading transactions:", err);
@@ -52,25 +52,25 @@ const useTransactionStore = create((set, get) => ({
   },
 
   // Delete transaction from firestore
-  deleteTransaction: async (userID, type, transactionID) => {
-    await deleteTransaction(userID, type, transactionID);
-    const txs = await getAllTransactions(userID, type);
+  deleteTransaction: async (userUID, type, transactionID) => {
+    await deleteDocument(userUID, type, transactionID);
+    const txs = await getAllDocuments(userUID, type);
     set({ [type]: txs });
   },
 
   // Add transaction to firestore
-  addTransactionToStore: async (userID, type, transaction) => {
-    await addTransaction(userID, type, transaction);
+  addTransactionToStore: async (userUID, type, transaction) => {
+    await addDocument(userUID, type, transaction);
     // Reload transactions from firestore to ensure sync
-    const txs = await getAllTransactions(userID, type);
+    const txs = await getAllDocuments(userUID, type);
     set({ [type]: txs });
   },
 
   // Update transaction in firestore
-  updateTransaction: async (userID, type, transactionID, transaction) => {
-    await updateTransaction(userID, type, transactionID, transaction);
+  updateTransaction: async (userUID, type, transactionID, transaction) => {
+    await updateDocument(userUID, type, transactionID, transaction);
     // Reload transaction from firestore to ensure sync
-    const txs = await getAllTransactions(userID, type);
+    const txs = await getAllDocuments(userUID, type);
     set({ [type]: txs });
   },
 

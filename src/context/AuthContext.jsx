@@ -18,6 +18,7 @@ import { doc, setDoc, getDoc, serverTimestamp } from "firebase/firestore";
 import { useAuthFormContext } from "./AuthFormContext";
 import { getAuthErrorMessage } from "../utils/authErrorrs";
 import { getUserName } from "../utils/getUserName";
+import { createWelcomeNotification } from "../firebase/firestore";
 
 const AuthContext = createContext();
 
@@ -47,6 +48,7 @@ export const AuthProvider = ({ children }) => {
     resetHandleSubmit,
     resetFormReset,
   } = useAuthFormContext();
+  // const {setNotifications}
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -171,6 +173,8 @@ export const AuthProvider = ({ children }) => {
           userDocData.firstName.slice(0, 1) + userDocData.lastName.slice(0, 1),
         fullName: `${userDocData.firstName} ${userDocData.lastName}`,
       }));
+
+      createWelcomeNotification(user.uid);
     } catch (err) {
       setOnSignupErr(getAuthErrorMessage(err));
 
