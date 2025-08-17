@@ -1,6 +1,7 @@
 import { collection, onSnapshot } from "firebase/firestore";
 import { db } from "./firebase";
 import useTransactionStore from "../store/useTransactionStore";
+import useNotificationStore from "../store/useNotificationStore";
 
 // attach a realtime listenerfor a given subcollection
 export const subcollectionListener = (uid, subcollection, setter) => {
@@ -16,6 +17,7 @@ export const subcollectionListener = (uid, subcollection, setter) => {
 export const initUserListener = (uid) => {
   const { setTransactions, setBudgets, setGoals, setContributions } =
     useTransactionStore.getState();
+  const { setNotifications } = useNotificationStore.getState();
 
   const unsubscribeTransactions = subcollectionListener(
     uid,
@@ -23,7 +25,7 @@ export const initUserListener = (uid) => {
     setTransactions
   );
 
-  const unsubscribeBudgtes = subcollectionListener(uid, "budgets", setBudgets);
+  const unsubscribeBudgets = subcollectionListener(uid, "budgets", setBudgets);
 
   const unsubscribeGoals = subcollectionListener(uid, "goals", setGoals);
 
@@ -33,11 +35,18 @@ export const initUserListener = (uid) => {
     setContributions
   );
 
+  const unsubscribeNotif = subcollectionListener(
+    uid,
+    "notifications",
+    setNotifications
+  );
+
   // Return unsubscribe cleanup for when user logs out
   return () => {
     unsubscribeTransactions();
-    unsubscribeBudgtes();
+    unsubscribeBudgets();
     unsubscribeGoals();
     unsubscribeContributions();
+    unsubscribeNotif();
   };
 };

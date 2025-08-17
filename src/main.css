@@ -15,9 +15,9 @@
   --color-bg-card: 255 255 255;
   --color-text: 15 23 42;
   --color-muted: 55, 65, 81;
-  --color-gray-bg: 243 244 246; /* light gray for AI settings dropdowns */
-  --color-gray-bg-settings: 245 245 245; /* darker gray for settings dropdown */
-  --color-gray-border: 229 229 229; /* border for dropdowns */
+  --color-gray-bg: 229, 231, 235; /* light gray for AI settings dropdowns */
+  --color-gray-bg-settings: 245, 245, 245; /* darker gray for settings dropdown */
+  --color-gray-border: 229, 229, 229; /* border for dropdowns */
   --color-contribution-bg: 240, 253, 244;
   --color-status-bg-blue: 239, 246, 255;
   --color-status-bg-green: 240, 253, 244;

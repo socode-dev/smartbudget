@@ -1,8 +1,8 @@
 import { Routes, Route } from "react-router-dom";
 import AuthLayout from "../layout/AuthLayouts";
 import MainLayout from "../layout/MainLayout";
-import PublicRoute from "../components/routes/PublicRoute";
-import ProtectedRoute from "../components/routes/ProtectedRoute";
+import PublicRoute from "./PublicRoute";
+import ProtectedRoute from "./ProtectedRoute";
 import Login from "../pages/Login";
 import Signup from "../pages/Signup";
 import ForgotPassword from "../pages/ForgotPassword";

@@ -38,14 +38,14 @@ const ResetLink = () => {
         <h4 className="text-xl font-semibold text-[rgb(var(--color-text))]">
           Email is sent
         </h4>
-        <p className="text-sm text-[rgb(var(--color-muted))] font-medium">
+        <p className="text-base text-[rgb(var(--color-muted))] font-medium">
           A message has been sent to your e-mail address for confirmation of
           password reset
         </p>
 
         <button
           onClick={onClose}
-          className="text-sm font-medium px-4 py-1.5 bg-[rgb(var(--color-brand))] hover:bg-[rgb(var(--color-brand-hover))] text-white rounded transition cursor-pointer"
+          className="text-base font-medium px-4 py-2 bg-[rgb(var(--color-brand))] hover:bg-[rgb(var(--color-brand-hover))] text-white rounded transition cursor-pointer"
         >
           OK
         </button>

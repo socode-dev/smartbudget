@@ -8,6 +8,7 @@ import { OverviewChartProvider } from "../context/OverviewChartContext";
 import { TransactionsProvider } from "../context/TransactionsContext";
 import { ReportProvider } from "../context/ReportContext";
 import { ReportChartProvider } from "../context/ReportChartContext";
+import { NotificationProvider } from "../context/NotificationContext";
 
 const AppWrapper = ({ children }) => {
   return (
@@ -15,17 +16,19 @@ const AppWrapper = ({ children }) => {
       <AuthProvider>
         <AppInitializer />
         <FormProvider>
-          <ModalProvider>
-            <OverviewProvider>
-              <OverviewChartProvider>
-                <TransactionsProvider>
-                  <ReportProvider>
-                    <ReportChartProvider>{children}</ReportChartProvider>
-                  </ReportProvider>
-                </TransactionsProvider>
-              </OverviewChartProvider>
-            </OverviewProvider>
-          </ModalProvider>
+          <NotificationProvider>
+            <ModalProvider>
+              <OverviewProvider>
+                <OverviewChartProvider>
+                  <TransactionsProvider>
+                    <ReportProvider>
+                      <ReportChartProvider>{children}</ReportChartProvider>
+                    </ReportProvider>
+                  </TransactionsProvider>
+                </OverviewChartProvider>
+              </OverviewProvider>
+            </ModalProvider>
+          </NotificationProvider>
         </FormProvider>
       </AuthProvider>
     </AuthFormProvider>
