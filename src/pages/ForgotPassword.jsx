@@ -48,7 +48,7 @@ const ForgotPassword = () => {
         <button
           onClick={sendResetEmail}
           disabled={isSubmitting}
-          className="self-start text-base text-center font-medium w-1/2 py-1 mt-6 rounded-lg shadow bg-[rgb(var(--color-brand))] text-white hover:scale-97 active:scale-103 disabled:opacity-50 transition cursor-pointer"
+          className="self-end text-base text-center font-medium w-1/2 py-1 mt-6 rounded-lg shadow bg-[rgb(var(--color-brand))] text-white hover:scale-97 active:scale-103 disabled:opacity-50 transition cursor-pointer"
         >
           {isSubmitting ? <LoadingSpinner size={25} /> : "Continue"}
         </button>

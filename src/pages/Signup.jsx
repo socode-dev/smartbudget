@@ -45,19 +45,19 @@ const Signup = () => {
 
       {/* Display authentication error if there is any */}
       {onSignupErr && (
-        <p className="max-w-11/12 bg-red-50 px-4 py-2 rounded text-red-600 text-sm mb-2">
+        <p className="max-w-11/12 bg-[rgb(var(--color-status-bg-red))] px-4 py-2 rounded text-red-600 text-sm mb-2">
           {onSignupErr}
         </p>
       )}
 
       {microsoftErr && (
-        <p className="max-w-11/12 bg-red-50 px-4 py-2 rounded text-red-600 text-sm mb-2">
+        <p className="max-w-11/12 bg-[rgb(var(--color-status-bg-red))] px-4 py-2 rounded text-red-600 text-sm mb-2">
           {microsoftErr}
         </p>
       )}
 
       {googleErr && (
-        <p className="max-w-11/12 bg-red-50 px-4 py-2 rounded text-red-600 text-sm mb-2">
+        <p className="max-w-11/12 bg-[rgb(var(--color-status-bg-red))] px-4 py-2 rounded text-red-600 text-sm mb-2">
           {googleErr}
         </p>
       )}
