@@ -28,14 +28,6 @@ export const AuthFormProvider = ({ children }) => {
     isSubmitting: forgotIsSubmitting,
   } = useAuthForm("forgot");
 
-  const {
-    register: resetRegister,
-    handleSubmit: resetHandleSubmit,
-    reset: resetFormReset,
-    errors: resetErrors,
-    isSubmitting: resetIsSubmitting,
-  } = useAuthForm("reset");
-
   return (
     <AuthFormContext.Provider
       value={{
@@ -54,11 +46,6 @@ export const AuthFormProvider = ({ children }) => {
         forgotErrors,
         forgotIsSubmitting,
         forgotHandleSubmit,
-        resetRegister,
-        resetFormReset,
-        resetErrors,
-        resetIsSubmitting,
-        resetHandleSubmit,
       }}
     >
       {children}

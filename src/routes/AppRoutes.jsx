@@ -6,8 +6,8 @@ import ProtectedRoute from "./ProtectedRoute";
 import Login from "../pages/Login";
 import Signup from "../pages/Signup";
 import ForgotPassword from "../pages/ForgotPassword";
-import ResetPassword from "../pages/ResetPassword";
 import { lazy } from "react";
+import EmailVerified from "../pages/EmailVerified";
 
 const Overview = lazy(() => import("../pages/Overview"));
 const Transactions = lazy(() => import("../pages/Transactions"));
@@ -30,7 +30,6 @@ const AppRoutes = () => {
           }
         />
         <Route path="forgot-password" element={<ForgotPassword />} />
-        <Route path="forgot-password/reset" element={<ResetPassword />} />
         <Route
           path="signup"
           element={
@@ -56,6 +55,7 @@ const AppRoutes = () => {
         <Route path="reports" element={<Reports />} />
         <Route path="goals" element={<Goals />} />
         <Route path="insights" element={<Insights />} />
+        <Route path="email-verified" element={<EmailVerified />} />
       </Route>
     </Routes>
   );

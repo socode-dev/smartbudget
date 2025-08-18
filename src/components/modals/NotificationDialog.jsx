@@ -23,7 +23,7 @@ const NotificationDialog = () => {
       >
         <section className="bg-[rgb(var(--color-bg-card))] w-full sm:w-5/6 md:w-4/6 lg:w-3/6 xl:w-2/6 h-2/3 max-w-md overflow-y-auto p-6 rounded-lg shadow-xl flex flex-col">
           <div className="flex justify-between items-start gap-10">
-            <h3 className="text-xl font-medium">{notification.title}</h3>
+            <h3 className="text-xl font-medium">{notification?.subject}</h3>
 
             <button
               onClick={onCloseDialog}
@@ -33,7 +33,7 @@ const NotificationDialog = () => {
             </button>
           </div>
           <div className="mt-10 w-full grow">
-            <p className="text-base text-gray-600">{notification.message}</p>
+            <p className="text-base text-gray-600">{notification?.message}</p>
           </div>
 
           <button

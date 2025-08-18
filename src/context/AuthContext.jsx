@@ -1,11 +1,9 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import { useSearchParams } from "react-router-dom";
 import { auth, db } from "../firebase/firebase";
 import {
   onAuthStateChanged,
   sendPasswordResetEmail,
-  verifyPasswordResetCode,
-  confirmPasswordReset,
+  sendEmailVerification,
 } from "firebase/auth";
 import {
   doCreateUserWithEmailAndPassword,
@@ -23,8 +21,9 @@ import { createWelcomeNotification } from "../firebase/firestore";
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [searchParams] = useSearchParams();
+  // const [searchParams] = useSearchParams();
   const [currentUser, setCurrentUser] = useState(null);
+  const [isUserEmailVerified, setIsUserEmailVerified] = useState(false);
   const [userName, setUserName] = useState({ initials: "", fullName: "" });
   const [userLoggedIn, setUserLoggedIn] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -34,10 +33,6 @@ export const AuthProvider = ({ children }) => {
   const [microsoftErr, setMicrosoftErr] = useState(null);
   const [isSignoutPromptOpen, setIsSignoutPromptOpen] = useState(false);
   const [resetLinkModalOpen, setResetLinkModalOpen] = useState(false);
-  const [openResetSuccessModal, setOpenResetSuccessModal] = useState(false);
-  const [userEmail, setUserEmail] = useState("");
-  const [oobCode, setOobCode] = useState("");
-  const [resetLinkErr, setResetLinkErr] = useState(null);
   const {
     loginHandleSubmit,
     loginFormReset,
@@ -45,10 +40,7 @@ export const AuthProvider = ({ children }) => {
     signupFormReset,
     forgotHandleSubmit,
     forgotFormReset,
-    resetHandleSubmit,
-    resetFormReset,
   } = useAuthFormContext();
-  // const {setNotifications}
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -71,6 +63,7 @@ export const AuthProvider = ({ children }) => {
         }
 
         setUserLoggedIn(true);
+        setIsUserEmailVerified(user.emailVerified);
       } else {
         setCurrentUser(null);
         setUserLoggedIn(false);
@@ -82,25 +75,7 @@ export const AuthProvider = ({ children }) => {
     return unsubscribe;
   }, []);
 
-  useEffect(() => {
-    const code = searchParams.get("oobCode");
-    setOobCode(code);
-
-    if (code) {
-      verifyPasswordResetCode(auth, code)
-        .then((email) => setUserEmail(email))
-        .catch((err) => {
-          setResetLinkErr(err ?? "Invalid or expired reset link");
-
-          setTimeout(() => {
-            setResetLinkErr("");
-          }, 5000);
-        });
-    }
-
-    return () => setOobCode("");
-  }, []);
-
+  // Handle login with email and password
   const onLogin = loginHandleSubmit(async (data) => {
     try {
       const userCredential = await doSignUserWithEmailAndPassword(
@@ -142,6 +117,7 @@ export const AuthProvider = ({ children }) => {
     }
   });
 
+  // Handle signup with email and password
   const onSignup = signupHandleSubmit(async (data) => {
     try {
       const userCredential = await doCreateUserWithEmailAndPassword(
@@ -175,6 +151,12 @@ export const AuthProvider = ({ children }) => {
       }));
 
       createWelcomeNotification(user.uid);
+
+      // Send email verification
+      await sendEmailVerification(user, {
+        url: "http://localhost:5173/email-verified",
+        handleCodeInApp: true,
+      });
     } catch (err) {
       setOnSignupErr(getAuthErrorMessage(err));
 
@@ -184,6 +166,7 @@ export const AuthProvider = ({ children }) => {
     }
   });
 
+  // Handle google sign in
   const onGoogleSignIn = async () => {
     try {
       const result = await doSignInWithGoogle();
@@ -223,6 +206,7 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  // Handle microsoft sign in
   const onMicrosoftSignIn = async () => {
     try {
       const result = await doSignInWithMicrosoft();
@@ -263,6 +247,7 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  // Handle sign out
   const onSignOut = () => {
     setIsSignoutPromptOpen(false);
     doSignOut();
@@ -274,27 +259,16 @@ export const AuthProvider = ({ children }) => {
     if (!data) return;
 
     try {
-      await sendPasswordResetEmail(auth, data.email);
+      await sendPasswordResetEmail(auth, data.email, {
+        url: "http://localhost:5173/login",
+        handleCodeInApp: true,
+      });
       console.log(data.email);
       setResetLinkModalOpen(true);
     } catch (err) {
       console.log(err);
     } finally {
       setTimeout(() => forgotFormReset(), 10);
-    }
-  });
-
-  const onPasswordReset = resetHandleSubmit(async (data) => {
-    try {
-      await confirmPasswordReset(auth, oobCode, data.password);
-
-      setOpenResetSuccessModal(true);
-    } catch (err) {
-      setResetLinkErr(err.message);
-
-      setTimeout(() => setResetLinkErr(""), 5000);
-    } finally {
-      setTimeout(() => resetFormReset(), 10);
     }
   });
 
@@ -314,16 +288,12 @@ export const AuthProvider = ({ children }) => {
         onGoogleSignIn,
         onMicrosoftSignIn,
         onSignOut,
-        onPasswordReset,
         isSignoutPromptOpen,
         setIsSignoutPromptOpen,
         sendResetEmail,
-        userEmail,
-        resetLinkErr,
         resetLinkModalOpen,
         setResetLinkModalOpen,
-        openResetSuccessModal,
-        setOpenResetSuccessModal,
+        isUserEmailVerified,
       }}
     >
       {!loading && children}

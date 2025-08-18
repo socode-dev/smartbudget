@@ -7,7 +7,6 @@ const NotificationDropdown = () => {
   const { notifications } = useNotificationStore();
   const { onOpenDialog, openNotificationDropdown, handleDelete } =
     useNotificationContext();
-  console.log(notifications);
 
   if (!openNotificationDropdown) return null;
 
@@ -20,14 +19,14 @@ const NotificationDropdown = () => {
               key={notification.id}
               className={clsx(
                 "flex justify-between items-center gap-5 p-4 bg-[rgb(var(--color-gray-bg))] rounded w-full",
-                !notification?.read && "bg-[rgb(var(--color-status-bg-green))]"
+                !notification.read && "bg-[rgb(var(--color-status-bg-green))]"
               )}
             >
               <button
                 onClick={() =>
                   onOpenDialog(
                     notification.id,
-                    notification.title,
+                    notification.subject,
                     notification.message,
                     notification.type
                   )
@@ -37,10 +36,12 @@ const NotificationDropdown = () => {
                 <span
                   className={clsx(
                     "w-2 h-2 rounded-full bg-[rgb(var(--color-muted))]",
-                    !notification?.read && "bg-green-600"
+                    !notification.read && "bg-green-600"
                   )}
                 ></span>
-                <p className="text-sm truncate w-full">{notification?.title}</p>
+                <p className="text-sm truncate w-full">
+                  {notification.subject}
+                </p>
               </button>
 
               <button
