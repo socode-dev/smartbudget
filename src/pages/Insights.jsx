@@ -4,7 +4,7 @@ import ScrollToTop from "../layout/ScrollToTop";
 
 const Insights = () => {
   return (
-    <main className="px-2 py-8">
+    <main className="px-5 md:px-10 py-8">
       <ScrollToTop />
       <h2 className="text-3xl md:text-4xl font-semibold mb-2">
         Smart Insights

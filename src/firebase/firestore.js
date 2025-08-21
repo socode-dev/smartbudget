@@ -74,3 +74,23 @@ export const createWelcomeNotification = (userUID) => {
     console.log("notification initiation completed");
   }
 };
+
+export const createNotification = async (
+  uid,
+  { subject, message, type, meta = {} }
+) => {
+  const ref = userColRef(uid, "notifications");
+
+  try {
+    await addDoc(ref, {
+      subject,
+      message,
+      type,
+      read: false,
+      createdAt: serverTimestamp(),
+      meta,
+    });
+  } catch (err) {
+    console.log(err);
+  }
+};

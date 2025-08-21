@@ -13,7 +13,7 @@ const IncomeBudgetOverview = () => {
 
   const dynamicIncomeRingBG = {
     background: `conic-gradient(${
-      budgetPercent >= 100 ? "rgb(34, 197, 94)" : "rgb(37 99 235)"
+      budgetPercent >= 100 ? "rgb(34, 197, 94)" : "rgb(29, 78, 216)"
     } 0% ${Math.ceil(budgetPercent)}%, rgb(107, 114, 128) ${Math.ceil(
       budgetPercent
     )}% 100%)`,
@@ -88,7 +88,7 @@ const IncomeBudgetOverview = () => {
           Status:{" "}
           <strong
             className={clsx(
-              "text-[rgb(var(--color-brand))] bg-[rgb(var(--color-status-bg-blue))] px-2 py-1 rounded",
+              "text-[rgb(var(--color-brand-deep))] bg-[rgb(var(--color-status-bg-blue))] px-2 py-1 rounded",
               budgetPercent >= 100 &&
                 "text-green-500 bg-[rgb(var(--color-status-bg-green))]"
             )}

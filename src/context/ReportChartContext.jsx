@@ -1,6 +1,6 @@
 import { useContext, createContext, useMemo } from "react";
 import useTransactionStore from "../store/useTransactionStore";
-import { useReportContext } from "./ReportContext";
+import { useTransactionsContext } from "./TransactionsContext";
 
 const ReportChartContext = createContext();
 
@@ -22,7 +22,7 @@ const categoryColor = {
 
 export const ReportChartProvider = ({ children }) => {
   const { transactions } = useTransactionStore();
-  const { formattedAmount } = useReportContext();
+  const { formattedAmount } = useTransactionsContext();
 
   const expenses = useMemo(
     () => transactions.filter((tx) => tx.type === "expense"),

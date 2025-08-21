@@ -9,6 +9,8 @@ import { TransactionsProvider } from "../context/TransactionsContext";
 import { ReportProvider } from "../context/ReportContext";
 import { ReportChartProvider } from "../context/ReportChartContext";
 import { NotificationProvider } from "../context/NotificationContext";
+import { BudgetsProvider } from "../context/BudgetsContext";
+import { GoalsProvider } from "../context/GoalsContext";
 
 const AppWrapper = ({ children }) => {
   return (
@@ -21,9 +23,13 @@ const AppWrapper = ({ children }) => {
               <OverviewProvider>
                 <OverviewChartProvider>
                   <TransactionsProvider>
-                    <ReportProvider>
-                      <ReportChartProvider>{children}</ReportChartProvider>
-                    </ReportProvider>
+                    <BudgetsProvider>
+                      <GoalsProvider>
+                        <ReportProvider>
+                          <ReportChartProvider>{children}</ReportChartProvider>
+                        </ReportProvider>
+                      </GoalsProvider>
+                    </BudgetsProvider>
                   </TransactionsProvider>
                 </OverviewChartProvider>
               </OverviewProvider>

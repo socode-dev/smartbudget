@@ -41,7 +41,9 @@ const SettingsDropdown = ({ open }) => {
           <button
             className={clsx(
               "ml-2 w-13 h-6 rounded-full relative focus:outline-none cursor-pointer transition-colors flex items-center",
-              theme === "dark" ? "bg-blue-600" : "bg-gray-200"
+              theme === "dark"
+                ? "bg-[rgb(var(--color-brand-deep))]"
+                : "bg-gray-200"
             )}
             onClick={toggleTheme}
             aria-label="Toggle theme"

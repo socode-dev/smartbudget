@@ -9,11 +9,12 @@
 }
 
 :root {
-  --color-brand: 37 99 235;
-  --color-brand-hover: 29 78 216;
-  --color-bg: 245 245 245;
-  --color-bg-card: 255 255 255;
-  --color-text: 15 23 42;
+  --color-brand: 39, 99, 235;
+  --color-brand-hover: 30, 64, 175;
+  --color-brand-deep: 29, 78, 216;
+  --color-bg: 245, 245, 245;
+  --color-bg-card: 255, 255, 255;
+  --color-text: 15, 23, 42;
   --color-muted: 55, 65, 81;
   --color-gray-bg: 229, 231, 235; /* light gray for AI settings dropdowns */
   --color-gray-bg-settings: 245, 245, 245; /* darker gray for settings dropdown */
@@ -26,14 +27,15 @@
 }
 
 .dark {
-  --color-bg: 0 0 0;
-  --color-bg-card: 23 23 23;
-  --color-brand: 59 130 246;
-  --color-brand-hover: 37 99 235;
-  --color-text: 255 255 255;
+  --color-bg: 0, 0, 0;
+  --color-bg-card: 25, 25, 25;
+  --color-brand: 59, 130, 246;
+  --color-brand-hover: 29, 78, 216;
+  --color-brand-deep: 37, 99, 235;
+  --color-text: 255, 255, 255;
   --color-muted: 156, 163, 175;
   --color-gray-bg: 64 64 64; /* dark gray for AI settings dropdowns */
-  --color-gray-bg-settings: 23 23 23; /* darker gray for settings dropdown */
+  --color-gray-bg-settings: 23, 23, 23; /* darker gray for settings dropdown */
   --color-gray-border: 64 64 64; /* border for dropdowns */
   --color-contribution-bg: 5, 46, 22;
   --color-status-bg-blue: 23, 37, 84;

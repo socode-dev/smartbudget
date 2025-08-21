@@ -157,9 +157,9 @@ export const OverviewChartProvider = ({ children }) => {
     datasets: [
       {
         data: [totalBudgetUsed, budgetRemaining],
-        backgroundColor: ["#F97316", "#E5E7EB"],
-        hoverBackgroundColor: ["#EA580C", "#D1D5DB"],
-        borderWidth: 2,
+        backgroundColor: ["#f59e0b", "#9ca3af"],
+        hoverBackgroundColor: ["#d97706", "#6b7280"],
+        borderWidth: 1,
       },
     ],
   };

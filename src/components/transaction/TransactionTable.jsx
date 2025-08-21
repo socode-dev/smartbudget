@@ -102,7 +102,7 @@ const TransactionTable = () => {
               <td className="p-2">
                 <button
                   onClick={() => handleEditTransaction(transaction.id)}
-                  className="cursor-pointer text-blue-500 hover:text-blue-600 transition mr-4"
+                  className="cursor-pointer text-[rgb(var(--color-brand-deep))] hover:text-[rgb(var(--color-brand))] transition mr-4"
                 >
                   <HiOutlinePencil className="text-base" />
                 </button>

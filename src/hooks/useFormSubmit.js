@@ -3,6 +3,7 @@ import { useModalContext } from "../context/ModalContext";
 import { toast } from "react-hot-toast";
 import { useFormContext } from "../context/FormContext";
 import { generateCategoryKey } from "../utils/generateKey";
+import { createNotification } from "../firebase/firestore";
 
 const useFormSubmit = (label, mode) => {
   const forms = useFormContext(label);
@@ -12,7 +13,6 @@ const useFormSubmit = (label, mode) => {
     editTransaction,
     addTransactionToStore,
     updateTransaction,
-    selectedCurrency,
     CATEGORY_OPTIONS,
   } = useTransactionStore();
   const { onCloseModal } = useModalContext();
@@ -56,7 +56,11 @@ const useFormSubmit = (label, mode) => {
     }
   };
 
-  const onSubmit = async (data, userID, transactionID) => {
+  // Transaction threshold
+  const FIXED_THRESHOLD = 10000;
+
+  // Handle submit form to add transactions, budgets, goals and contributions
+  const onSubmit = async (data, userUID, transactionID, formattedAmount) => {
     const categoryType = CATEGORY_OPTIONS.find(
       (opt) => opt.name === data.category
     )?.type;
@@ -64,13 +68,15 @@ const useFormSubmit = (label, mode) => {
     try {
       if (!transactions && !budgets && !goals && !contributions) return;
 
+      const type = getTransactionType(categoryType, data.type);
+
       // Create transaction object
       const transaction = {
         name: getName(categoryType, data.category, data.name),
         category: goals || contributions ? null : data.category,
         categoryKey: getUniqueCategoryKey(data.category, data.name),
         amount: data.amount,
-        type: getTransactionType(categoryType, data.type),
+        type: type,
         date: data.date,
         description: data.description,
       };
@@ -79,14 +85,15 @@ const useFormSubmit = (label, mode) => {
         transaction.id = editTransaction.id;
       }
 
+      // Add transaction if mode is add / update edited transaction if mode is edit
       if (mode === "add") {
-        // await addTransactionToStore(transaction, label);
-        await addTransactionToStore(userID, label, transaction);
+        await addTransactionToStore(userUID, label, transaction);
         console.log(`${label} added successfully`);
       } else if (mode === "edit") {
-        await updateTransaction(userID, label, transactionID, transaction);
+        await updateTransaction(userUID, label, transactionID, transaction);
       }
 
+      // Close the modl
       onCloseModal(label);
       toast.success(
         `${(label.charAt(0).toUpperCase() + label.slice(1)).slice(0, -1)} ${
@@ -97,7 +104,27 @@ const useFormSubmit = (label, mode) => {
           position: "top-center",
         }
       );
+      // Reset/Clear the form
       reset();
+
+      // if label === "transactions", check if the transaction amount is bigger than the threshold
+      if (
+        label === "transactions" &&
+        type === "expense" &&
+        transaction.amount >= FIXED_THRESHOLD
+      ) {
+        await createNotification(userUID, {
+          subject: "Large Expense Alert 🚨",
+          message: `You recorded an expense transaction of ${formattedAmount(
+            data.amount
+          )} for "${
+            transaction.category
+          }", which is higher than your set threshold of ${formattedAmount(
+            FIXED_THRESHOLD
+          )}. Keep an eye on your spending.`,
+          type: "transaction",
+        });
+      }
     } catch (err) {
       console.error("Error adding transaction:", err);
     } finally {

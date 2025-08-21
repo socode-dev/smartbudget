@@ -58,7 +58,7 @@ const Sidebar = ({ isOpen, onClose }) => {
           SB
         </h1>
         {/* Navigation */}
-        <nav className="flex flex-col grow gap-2 mt-12 px-3 overflow-y-auto">
+        <nav className="flex flex-col grow gap-2 mt-12 px-3 overflow-y-auto font-semibold">
           {navLinks.map((link) => (
             <Link
               key={link.to}
@@ -66,9 +66,11 @@ const Sidebar = ({ isOpen, onClose }) => {
               onClick={onClose}
               aria-label={link.label}
               className={clsx(
-                "relative group flex items-center gap-3 px-2 py-2 rounded-lg hover:bg-blue-700 hover:text-white transition-colors text-[rgb(var(--color-muted))] text-sm",
+                "relative group flex items-center gap-3 px-2 py-2 rounded-lg hover:bg-[rgb(var(--color-brand-deep))] hover:text-white transition-colors text-[rgb(var(--color-muted))] text-base",
                 expanded ? "justify-start pl-3" : "justify-center",
-                location.pathname === link.to ? "bg-blue-100 text-blue-700" : ""
+                location.pathname === link.to
+                  ? "bg-[rgb(var(--color-status-bg-blue))] text-blue-600"
+                  : ""
               )}
             >
               <link.icon className="text-lg" />

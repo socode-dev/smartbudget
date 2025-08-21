@@ -23,7 +23,7 @@ const NotificationDialog = () => {
       >
         <section className="bg-[rgb(var(--color-bg-card))] w-full sm:w-5/6 md:w-4/6 lg:w-3/6 xl:w-2/6 h-2/3 max-w-md overflow-y-auto p-6 rounded-lg shadow-xl flex flex-col">
           <div className="flex justify-between items-start gap-10">
-            <h3 className="text-xl font-medium">{notification?.subject}</h3>
+            <h3 className="text-xl font-semibold">{notification?.subject}</h3>
 
             <button
               onClick={onCloseDialog}
@@ -32,13 +32,13 @@ const NotificationDialog = () => {
               <FaXmark />
             </button>
           </div>
-          <div className="mt-10 w-full grow">
-            <p className="text-base text-gray-600">{notification?.message}</p>
-          </div>
+          <p className="text-base font-medium text-[rgb(var(--color-muted))] mt-10 w-full grow">
+            {notification?.message}
+          </p>
 
           <button
             onClick={onCloseDialog}
-            className="self-end bg-[rgb(var(--color-brand))] hover:bg-[rgb(var(--color-brand-hover))] transition text-white px-4 py-2 rounded cursor-pointer"
+            className="self-end bg-[rgb(var(--color-brand))] hover:bg-[rgb(var(--color-brand-hover))] transition text-white font-medium px-4 py-2 rounded cursor-pointer"
           >
             Close
           </button>
