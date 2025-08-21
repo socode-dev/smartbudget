@@ -103,7 +103,7 @@ const SummaryCards = () => {
           <h3 className="text-base text-[rgb(var(--color-muted))] font-medium">
             Net Balance
           </h3>
-          <p className="text-3xl font-bold text-blue-600">
+          <p className="text-3xl font-bold text-[rgb(var(--color-brand-deep))]">
             {formattedAmount(netBalance)}
           </p>
           {netBalanceLabel}

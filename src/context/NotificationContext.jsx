@@ -1,5 +1,4 @@
-import { createContext, useContext, useRef, useState } from "react";
-import { useDropdownClose } from "../hooks/useDropdownClose";
+import { createContext, useContext, useState } from "react";
 import { useAuthContext } from "./AuthContext";
 import {
   addDocument,
@@ -16,29 +15,17 @@ import { serverTimestamp } from "firebase/firestore";
 const NotificationContext = createContext();
 
 export const NotificationProvider = ({ children }) => {
-  const notificationRef = useRef(null);
   const { currentUser } = useAuthContext();
   const setNotifications = useNotificationStore(
     (state) => state.setNotifications
   );
   const [notificationId, setNotificationId] = useState("");
-  const [openNotificationDropdown, setOpenNotificationDropdown] =
-    useState(false);
   const [openNotificationDialog, setOpenNotificationDialog] = useState(false);
 
-  useDropdownClose(
-    openNotificationDropdown,
-    notificationRef,
-    setOpenNotificationDropdown
-  );
-
-  const onOpenDropdown = () => setOpenNotificationDropdown((prev) => !prev);
-
-  const onCloseDropdown = () => setOpenNotificationDropdown(false);
-
   const onOpenDialog = async (id, subject, message, type) => {
+    if (!id && !subject && !message && !type) return;
     setNotificationId(id);
-    onCloseDropdown();
+    // onCloseDropdown();
     // update notification read true
     const data = {
       subject: subject,
@@ -91,20 +78,17 @@ export const NotificationProvider = ({ children }) => {
     };
 
     await addDocument(currentUser.uid, "notifications", notification);
-    toast.success(
-      "Verification link has been sent your email. Check your inbox or spam folder.",
-      { position: "top-center", duration: 5000 }
-    );
+    toast.success("Verification link sent. Check your inbox or spam folder.", {
+      position: "top-center",
+      duration: 5000,
+    });
   };
 
   return (
     <NotificationContext.Provider
       value={{
-        notificationRef,
-        openNotificationDropdown,
         openNotificationDialog,
         notificationId,
-        onOpenDropdown,
         onOpenDialog,
         onCloseDialog,
         handleDelete,

@@ -4,6 +4,7 @@ import useFormSubmit from "../../hooks/useFormSubmit";
 import { useFormContext } from "../../context/FormContext";
 import { useAuthContext } from "../../context/AuthContext";
 import { useRef } from "react";
+import { useTransactionsContext } from "../../context/TransactionsContext";
 
 const ModalForm = ({ label, mode }) => {
   const formRef = useRef(null);
@@ -17,6 +18,7 @@ const ModalForm = ({ label, mode }) => {
     setValue,
     formState: { errors },
   } = forms;
+  const { formattedAmount } = useTransactionsContext();
 
   const { CATEGORY_OPTIONS, currencySymbol } = useTransactionStore();
 
@@ -35,7 +37,9 @@ const ModalForm = ({ label, mode }) => {
 
   return (
     <form
-      onSubmit={handleSubmit((data) => onSubmit(data, currentUser.uid, txID))}
+      onSubmit={handleSubmit((data) =>
+        onSubmit(data, currentUser.uid, txID, formattedAmount)
+      )}
       className="space-y-4"
     >
       {/* Category Dropdown */}

@@ -9,7 +9,7 @@ const Reports = () => {
   const { expenses, handleCSVExport, handlePDFExport } = useReportContext();
 
   return (
-    <main className="px-2 py-8">
+    <main className="px-5 md:px-10 py-8">
       <ScrollToTop />
       <h2 className="text-3xl md:text-4xl font-semibold mb-2">Reports</h2>
       <p className="text-base text-[rgb(var(--color-muted))] mb-10">

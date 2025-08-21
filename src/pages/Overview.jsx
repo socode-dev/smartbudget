@@ -10,12 +10,12 @@ const Overview = () => {
   const { userName } = useAuthContext();
 
   return (
-    <main className="flex flex-col gap-16 px-2 py-8">
+    <main className="flex flex-col gap-16 px-5 md:px-10 py-8">
       <ScrollToTop />
       <div className="flex flex-col gap-5">
         <h2 className="text-3xl md:text-4xl font-semibold text-[rgb(var(--color-text))]">
           Welcome,{" "}
-          <span className="text-[rgb(var(--color-brand))]">
+          <span className="text-[rgb(var(--color-brand-deep))]">
             {userName.fullName}
           </span>
         </h2>

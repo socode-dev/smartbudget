@@ -1,4 +1,10 @@
-import { useContext, createContext, useMemo, useState } from "react";
+import {
+  useContext,
+  createContext,
+  useMemo,
+  useState,
+  useCallback,
+} from "react";
 import useTransactionStore from "../store/useTransactionStore";
 import { transactionTotal } from "../utils/transactionTotal";
 import useCurrencyStore from "../store/useCurrencyStore";
@@ -18,11 +24,14 @@ export const TransactionsProvider = ({ children }) => {
   });
 
   // Format currency amount
-  const formattedAmount = (amount) => {
-    const formatCurrency = formatAmount(selectedCurrency);
-    const amountFormat = formatCurrency.format(amount);
-    return amountFormat;
-  };
+  const formattedAmount = useCallback(
+    (amount) => {
+      const formatCurrency = formatAmount(selectedCurrency);
+      const amountFormat = formatCurrency.format(amount);
+      return amountFormat;
+    },
+    [selectedCurrency]
+  );
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);

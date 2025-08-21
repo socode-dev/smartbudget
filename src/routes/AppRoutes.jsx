@@ -15,6 +15,7 @@ const Budgets = lazy(() => import("../pages/Budgets"));
 const Goals = lazy(() => import("../pages/Goals"));
 const Insights = lazy(() => import("../pages/Insights"));
 const Reports = lazy(() => import("../pages/Reports"));
+const Notifications = lazy(() => import("../pages/Notifications"));
 
 const AppRoutes = () => {
   return (
@@ -55,6 +56,7 @@ const AppRoutes = () => {
         <Route path="reports" element={<Reports />} />
         <Route path="goals" element={<Goals />} />
         <Route path="insights" element={<Insights />} />
+        <Route path="notifications" element={<Notifications />} />
         <Route path="email-verified" element={<EmailVerified />} />
       </Route>
     </Routes>

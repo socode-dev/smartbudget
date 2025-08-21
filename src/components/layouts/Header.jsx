@@ -3,18 +3,16 @@ import { FaBars } from "react-icons/fa";
 import { HiOutlineCog8Tooth } from "react-icons/hi2";
 import { FaRegBell } from "react-icons/fa6";
 import SettingsDropdown from "./SettingsDropdown";
-import NotificationDropdown from "./NotificationDropdown";
 import ProfileDropdown from "./ProfileDropdown";
 import { useAuthContext } from "../../context/AuthContext";
-import clsx from "clsx";
 import { useDropdownClose } from "../../hooks/useDropdownClose";
 import useNotificationStore from "../../store/useNotificationStore";
-import { useNotificationContext } from "../../context/NotificationContext";
+import { useNavigate } from "react-router-dom";
 
 const Header = ({ onSidebarToggle }) => {
+  const navigate = useNavigate();
   const { userName } = useAuthContext();
   const { notifications } = useNotificationStore();
-  const { notificationRef, onOpenDropdown } = useNotificationContext();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [openProfileDropdown, setOpenProfileDropdown] = useState(false);
   const settingsRef = useRef(null);
@@ -47,23 +45,24 @@ const Header = ({ onSidebarToggle }) => {
       {/* Right: Icons and User Avatar */}
       <div className="flex items-center gap-6">
         {/* Notification Icon with Dot */}
-        <div ref={notificationRef} className="relative">
-          <button
-            className="flex p-2 bg-[rgb(var(--color-bg))] border border-[rgb(var(--color-status-bg-blue))] rounded-lg shadow text-[rgb(var(--color-brand))] hover:text-[rgb(var(--color-brand-hover)] transition cursor-pointer"
-            aria-label="Notifications"
-            onClick={onOpenDropdown}
-            type="button"
-          >
-            <FaRegBell className="text-lg" />
+        {/* <div ref={notificationRef} className=""> */}
+        <button
+          className="relative flex p-2 bg-[rgb(var(--color-bg))] border border-[rgb(var(--color-status-bg-blue))] rounded-lg shadow text-[rgb(var(--color-brand))] hover:text-[rgb(var(--color-brand-hover)] transition cursor-pointer"
+          onClick={() => navigate("/notifications")}
+          type="button"
+        >
+          <FaRegBell className="text-lg" />
 
-            {newNotifications?.length > 0 && (
-              <span className="py-1 px-2 bg-red-600 text-white text-[12px] absolute -top-3 -right-2 rounded-lg">
-                {newNotifications?.length}
-              </span>
-            )}
-          </button>
-          <NotificationDropdown />
-        </div>
+          {newNotifications?.length > 0 && (
+            <span className="py-1 px-2 bg-red-600 text-white text-[12px] absolute -top-3 -right-2 rounded-lg">
+              {newNotifications?.length}
+            </span>
+          )}
+        </button>
+        {/* </div> */}
+        {/* Notification Dropdown */}
+        {/* <NotificationDropdown /> */}
+
         {/* Settings Icon with Dropdown */}
         <div className="relative" ref={settingsRef}>
           <button

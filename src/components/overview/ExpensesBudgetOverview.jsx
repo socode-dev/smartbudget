@@ -11,7 +11,7 @@ const ExpensesBudgetOverview = () => {
 
   const budgetPercent = expensesBudgetPercent || 0;
 
-  let dynamicColor = "rgb(37, 99, 235)";
+  let dynamicColor = "rgb(29, 78, 216)";
 
   if (budgetPercent > 90) {
     dynamicColor = "rgb(220, 38, 38)";

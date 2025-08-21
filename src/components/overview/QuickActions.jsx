@@ -42,7 +42,7 @@ const QuickActions = () => {
 
         <button
           onClick={() => onOpenModal("budgets")}
-          className="bg-indigo-600 hover:bg-indigo-700  text-white text-sm font-medium px-4 py-2 rounded-lg shadow-md transition cursor-pointer flex justify-center items-center gap-2"
+          className="bg-[rgb(var(--color-brand-deep))] hover:bg-[rgb(var(--color-brand))]  text-white text-sm font-medium px-4 py-2 rounded-lg shadow-md transition cursor-pointer flex justify-center items-center gap-2"
         >
           <FiTarget className="text-lg" />
           <span>Set Budget</span>
@@ -50,7 +50,7 @@ const QuickActions = () => {
 
         <button
           onClick={() => onOpenModal("goals")}
-          className="bg-indigo-600 hover:bg-indigo-700  text-white text-sm font-medium px-4 py-2 rounded-lg shadow-md transition cursor-pointer flex justify-center items-center gap-2"
+          className="bg-[rgb(var(--color-brand-deep))] hover:bg-[rgb(var(--color-brand))]  text-white text-sm font-medium px-4 py-2 rounded-lg shadow-md transition cursor-pointer flex justify-center items-center gap-2"
         >
           <FiTarget className="text-lg" />
           <span>Set Goal</span>

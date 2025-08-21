@@ -20,7 +20,7 @@ const Transactions = () => {
   } = useTransactionsContext();
 
   return (
-    <main className="px-2 py-8">
+    <main className="px-5 md:px-10 py-8">
       <ScrollToTop />
       <section className="flex items-center justify-between gap-8 mb-6">
         <div className="flex flex-col gap-5">
@@ -34,6 +34,7 @@ const Transactions = () => {
           <button
             onClick={() => onOpenModal("transactions", "add")}
             title="Add transaction"
+            aria-label="Add transaction"
             className="bg-green-500 hover:bg-green-600 transition cursor-pointer text-white px-4 py-2 rounded-md text-xl"
           >
             <FaPlus />
@@ -50,7 +51,7 @@ const Transactions = () => {
           <TransactionTable />
 
           {/* Amount Summary */}
-          <div className="w-fit grid grid-cols-2 md:grid-cols-4 items-center text-[12px] mt-8 gap-x-8 gap-y-4">
+          <section className="w-fit grid grid-cols-2 md:grid-cols-4 items-center text-[12px] mt-8 gap-x-8 gap-y-4">
             <p className="text-[rgb(var(--color-muted))] text-sm font-medium">
               Total Income:{" "}
               <span className="font-semibold text-green-500 text-base">
@@ -65,7 +66,7 @@ const Transactions = () => {
             </p>
             <p className="text-[rgb(var(--color-muted))] text-sm font-medium">
               Total Balance:{" "}
-              <span className="font-semibold text-blue-500 text-base">
+              <span className="font-semibold text-[rgb(var(--color-brand-deep))] text-base">
                 {formattedAmount(totalBalance)}
               </span>
             </p>
@@ -75,7 +76,7 @@ const Transactions = () => {
                 {formattedAmount(netBalance)}
               </span>
             </p>
-          </div>
+          </section>
         </>
       )}
 
