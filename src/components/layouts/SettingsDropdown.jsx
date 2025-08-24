@@ -6,27 +6,41 @@ import CurrencyFlag from "react-currency-flags";
 import clsx from "clsx";
 import { useMainContext } from "../../context/MainContext";
 import CurrencyDropdown from "./CurrencyDropdown";
+import { useOverviewContext } from "../../context/OverviewContext";
+import Export from "../ui/Export";
 
 const SettingsDropdown = () => {
+  const { handleCSVExport, handlePDFExport } = useOverviewContext();
   const { theme, toggleTheme } = useThemeStore();
   const { selectedCurrency } = useCurrencyStore();
   const {
     isSettingsOpen,
     isAISettingsOpen,
-    aiSettingsRef,
-    currencyRef,
     handleCurrencyToggle,
     handleAISettingsToggle,
     handlePreferencesOpen,
+    isExportOpen,
+    setIsExportOpen,
+    handleExportToggle,
   } = useMainContext();
 
   if (!isSettingsOpen) return null;
 
+  const exportCSV = () => {
+    handleCSVExport();
+    setIsExportOpen(false);
+  };
+
+  const exportPDF = () => {
+    handlePDFExport();
+    setIsExportOpen(false);
+  };
+
   return (
     // <div className="">
-    <ul className="py-2 flex flex-col items-start absolute right-0 top-15 w-56 bg-[rgb(var(--color-gray-bg-settings))] border border-[rgb(var(--color-gray-border))] rounded-lg shadow-lg z-60 text-sm font-medium overflow-y-visible">
+    <ul className="flex flex-col items-start absolute right-0 top-13 w-56 bg-[rgb(var(--color-gray-bg-settings))] border border-[rgb(var(--color-gray-border))] rounded-lg shadow-lg z-60 text-sm overflow-y-visible">
       {/* Theme mode switch */}
-      <li className="w-full px-4 py-2 cursor-pointer flex items-center justify-between hover:bg-[rgb(var(--color-gray-bg))] transition">
+      <li className="w-full px-4 py-3 cursor-pointer flex items-center justify-between hover:bg-[rgb(var(--color-gray-bg))] transition rounded-tl-lg rounded-tr-lg">
         <span>Theme</span>
         {/* Sun/Moon sliding switch */}
         <button
@@ -60,8 +74,7 @@ const SettingsDropdown = () => {
       <li
         role="button"
         onClick={handleCurrencyToggle}
-        className="w-full px-4 py-2 cursor-pointer flex items-center justify-between hover:bg-[rgb(var(--color-gray-bg))] transition relative"
-        ref={currencyRef}
+        className="w-full px-4 py-3 cursor-pointer flex items-center justify-between hover:bg-[rgb(var(--color-gray-bg))] transition relative"
       >
         <span className="flex-1">Currency</span>
         <button className="ml-2 px-2 py-1 rounded text-xs bg-[rgb(var(--color-gray-bg))] flex items-center gap-2">
@@ -76,15 +89,14 @@ const SettingsDropdown = () => {
       {/* Preferences button */}
       <button
         onClick={handlePreferencesOpen}
-        className="w-full text-left px-4 py-2 cursor-pointer hover:bg-[rgb(var(--color-gray-bg))] transition"
+        className="w-full text-left px-4 py-3 cursor-pointer hover:bg-[rgb(var(--color-gray-bg))] transition"
       >
         Preferences
       </button>
 
       {/* AI Settings */}
-      <button
-        className="w-full px-4 py-2 cursor-pointer relative flex items-center justify-between hover:bg-[rgb(var(--color-gray-bg))] transition"
-        ref={aiSettingsRef}
+      {/* <button
+        className="w-full px-4 py-3 cursor-pointer relative flex items-center justify-between hover:bg-[rgb(var(--color-gray-bg))] transition"
       >
         <span
           onClick={handleAISettingsToggle}
@@ -98,17 +110,28 @@ const SettingsDropdown = () => {
           )}
         </span>
         <AiSettingsDropdown />
-      </button>
+      </button> */}
 
       {/* Export all data */}
-      <button className="w-full text-left px-4 py-2 cursor-pointer hover:bg-[rgb(var(--color-gray-bg))] transition">
-        Export All Data
-      </button>
+      <div className="relative w-full">
+        <button
+          onClick={handleExportToggle}
+          className="w-full text-left px-4 py-3 cursor-pointer hover:bg-[rgb(var(--color-gray-bg))] transition rounded-bl-lg rounded-br-lg"
+        >
+          Export All Data
+        </button>
+
+        <Export
+          isExportOpen={isExportOpen}
+          exportCSV={exportCSV}
+          exportPDF={exportPDF}
+        />
+      </div>
 
       {/* Help center */}
-      <button className="w-full text-left px-4 py-2 cursor-pointer hover:bg-[rgb(var(--color-gray-bg))] transition">
+      {/* <button className="w-full text-left px-4 py-3 cursor-pointer hover:bg-[rgb(var(--color-gray-bg))] transition">
         Help
-      </button>
+      </button> */}
     </ul>
   );
 };

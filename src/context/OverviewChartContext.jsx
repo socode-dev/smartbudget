@@ -116,7 +116,7 @@ export const OverviewChartProvider = ({ children }) => {
         position: "bottom",
         labels: {
           color: "#9ca3af",
-          font: { size: 14, weight: 600 },
+          font: { size: 14, weight: 400 },
         },
       },
       tooltip: {
@@ -179,7 +179,7 @@ export const OverviewChartProvider = ({ children }) => {
           color: "#9ca3af",
           font: {
             size: 14,
-            weight: "600",
+            weight: "400",
           },
           padding: 12,
         },

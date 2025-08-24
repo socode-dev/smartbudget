@@ -4,7 +4,7 @@ const SmartInsight = () => {
   return (
     <>
       <h2 className="text-3xl font-medium mb-2">Smart Insights</h2>
-      <p className="text-base text-[rgb(var(--color-muted))] font-medium mb-6">
+      <p className="text-base text-[rgb(var(--color-muted))] mb-6">
         Get personalized tips, forecast, and savings suggestions.
       </p>
 

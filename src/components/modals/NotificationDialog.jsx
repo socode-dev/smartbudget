@@ -7,11 +7,11 @@ const NotificationDialog = () => {
   const { onCloseDialog, openNotificationDialog, notificationId } =
     useNotificationContext();
 
-  if (!openNotificationDialog && !notificationId) return;
-
   const notification = notifications?.find(
     (notification) => notification.id === notificationId
   );
+
+  if (!openNotificationDialog && !notification) return;
 
   return (
     <>

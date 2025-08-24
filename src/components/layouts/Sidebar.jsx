@@ -61,7 +61,7 @@ const Sidebar = () => {
           SB
         </h1>
         {/* Navigation */}
-        <nav className="flex flex-col grow gap-2 mt-12 px-3 overflow-y-auto font-semibold">
+        <nav className="flex flex-col grow gap-2 mt-12 px-3 overflow-y-auto">
           {navLinks.map((link) => (
             <Link
               key={link.to}
@@ -80,7 +80,7 @@ const Sidebar = () => {
               {/* Label: show if expanded (sidebar open or hovered) */}
               <span
                 className={clsx(
-                  "font-medium transition-all duration-200",
+                  "transition-all duration-200",
                   expanded ? "inline" : "hidden"
                 )}
               >
@@ -100,7 +100,7 @@ const Sidebar = () => {
           <FaUserCircle className="text-3xl" />
           <span
             className={clsx(
-              "font-semibold text-sm transition-all duration-200 truncate max-w-full",
+              "text-sm transition-all duration-200 truncate max-w-full",
               expanded ? "inline" : "hidden"
             )}
           >

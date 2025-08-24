@@ -4,15 +4,12 @@ import useNotificationStore from "../store/useNotificationStore";
 import useTransactionStore from "../store/useTransactionStore";
 import { useDropdownClose } from "../hooks/useDropdownClose";
 import useCurrencyStore from "../store/useCurrencyStore";
-// import useThresholdStore from "../store/useThresholdStore";
-// import { getUserThresholds } from "../firebase/firestore";
 
 const MainContext = createContext();
 
 export const MainProvider = ({ children }) => {
   const { loadTransactions } = useTransactionStore();
   const { loadNotifications } = useNotificationStore();
-  // const { loadThresholds } = useThresholdStore();
   const { currentUser } = useAuthContext();
   const { fetchCurrencies } = useCurrencyStore();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -22,16 +19,19 @@ export const MainProvider = ({ children }) => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isAISettingsOpen, setIsAISettingsOpen] = useState(false);
   const [isCurrencyOpen, setIsCurrencyOpen] = useState(false);
+  const [isExportOpen, setIsExportOpen] = useState(false);
 
-  const aiSettingsRef = useRef(null);
-  const currencyRef = useRef(null);
   const settingsRef = useRef(null);
   const profileRef = useRef(null);
 
-  useDropdownClose(isSettingsOpen, settingsRef, setIsSettingsOpen);
+  useDropdownClose(
+    isSettingsOpen,
+    settingsRef,
+    setIsSettingsOpen,
+    setIsCurrencyOpen,
+    setIsExportOpen
+  );
   useDropdownClose(isProfileOpen, profileRef, setIsProfileOpen);
-  useDropdownClose(isAISettingsOpen, aiSettingsRef, setIsAISettingsOpen);
-  useDropdownClose(isCurrencyOpen, currencyRef, setIsCurrencyOpen);
 
   const handleSidebarOpen = () => setIsSidebarOpen((prev) => !prev);
   const handleSidebarClose = () => setIsSidebarOpen(false);
@@ -55,6 +55,8 @@ export const MainProvider = ({ children }) => {
   // Handle currency open and close
   const handleCurrencyToggle = () => setIsCurrencyOpen((prev) => !prev);
   const handleCurrencyClose = () => setIsCurrencyOpen(false);
+
+  const handleExportToggle = () => setIsExportOpen((prev) => !prev);
 
   // Handle Open Sign out prompt and close profile
   const handleSignoutPromptOpen = () => {
@@ -111,8 +113,6 @@ export const MainProvider = ({ children }) => {
     <MainContext.Provider
       value={{
         settingsRef,
-        aiSettingsRef,
-        currencyRef,
         profileRef,
         isSidebarOpen,
         isSettingsOpen,
@@ -120,6 +120,7 @@ export const MainProvider = ({ children }) => {
         isPreferencesOpen,
         isAISettingsOpen,
         isCurrencyOpen,
+        isExportOpen,
         isSignoutPromptOpen,
         handleSidebarOpen,
         handleSidebarClose,
@@ -132,6 +133,8 @@ export const MainProvider = ({ children }) => {
         handleCurrencyClose,
         handleSignoutPromptOpen,
         handleSignoutPromptClose,
+        handleExportToggle,
+        setIsExportOpen,
       }}
     >
       {children}

@@ -79,7 +79,7 @@ const ExpensesBudgetOverview = () => {
           <strong>{Math.ceil(budgetPercent)}%</strong> of{" "}
           <strong>{formattedAmount(totalExpensesBudget)}</strong> limit used
         </p>
-        <p className="text-base text-[rgb(var(--color-muted))] font-medium">
+        <p className="text-base text-[rgb(var(--color-muted))]">
           {budgetPercent > 100 ? "Overspent" : "Remaining"}:{" "}
           <strong
             className={clsx(
@@ -92,11 +92,11 @@ const ExpensesBudgetOverview = () => {
               : formattedAmount(remainingExpenses)}
           </strong>
         </p>
-        <p className="text-base text-[rgb(var(--color-muted))] font-medium">
+        <p className="text-base text-[rgb(var(--color-muted))]">
           Status:{" "}
-          <strong
+          <span
             className={clsx(
-              "px-2 py-1 rounded",
+              "px-2 py-1 rounded font-medium",
               budgetPercent < 50
                 ? "text-[rgb(var(--color-brand))] bg-[rgb(var(--color-status-bg-blue))]"
                 : budgetPercent < 100
@@ -105,7 +105,7 @@ const ExpensesBudgetOverview = () => {
             )}
           >
             {expensesStatus}
-          </strong>
+          </span>
         </p>
       </div>
     </div>

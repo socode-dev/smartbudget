@@ -100,14 +100,10 @@ const Transactions = () => {
 
           <button
             onClick={() => onOpenModal("transactions", "add")}
-            className="mt-8 mx-auto bg-green-500 hover:bg-green-600 transition cursor-pointer text-white px-4 py-2 rounded-md text-base font-medium flex items-center gap-2"
+            className="mt-8 mx-auto bg-green-500 hover:bg-green-600 transition cursor-pointer text-white px-4 py-2 rounded-md text-base flex items-center gap-2"
           >
             <FaPlus className="text-lg" />
-            <span>
-              {transactions?.length > 0
-                ? "Add Transaction"
-                : "Add First Transaction"}
-            </span>
+            <span>Add First Transaction</span>
           </button>
         </>
       )}

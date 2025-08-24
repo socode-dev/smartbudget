@@ -239,7 +239,7 @@ const ModalForm = ({ label, mode }) => {
       <footer className="flex justify-end gap-2">
         <button
           type="button"
-          className="text-[rgb(var(--color-text))] bg-[rgb(var(--color-gray-bg))] hover:bg-[rgb(var(--color-gray-bg-settings))] cursor-pointer px-4 py-2 rounded-md text-base font-medium transition"
+          className="text-[rgb(var(--color-muted))] border border-[rgb(var(--color-gray-bg))]  cursor-pointer px-4 py-2 rounded-md text-base transition"
           onClick={onClose}
         >
           Cancel
@@ -247,7 +247,7 @@ const ModalForm = ({ label, mode }) => {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="w-3/6 bg-[rgb(var(--color-brand))] text-white hover:bg-[rgb(var(--color-brand-hover))] transition cursor-pointer px-4 py-2 rounded-md text-base font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-3/5 bg-[rgb(var(--color-brand))] text-white hover:bg-[rgb(var(--color-brand-hover))] transition cursor-pointer px-4 py-2 rounded-md text-base font-medium disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isSubmitting ? (
             <LoadingSpinner size={25} />
