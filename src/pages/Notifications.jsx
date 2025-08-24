@@ -25,7 +25,6 @@ const NotificationDropdown = () => {
   const sortedNotification = notifications?.sort(
     (a, b) => b.createdAt?.toDate() - a.createdAt?.toDate()
   );
-  console.log(sortedNotification);
 
   const toggleOptions = (id) =>
     setOptions((prev) => ({ ...prev, id: id, open: !prev.open }));
@@ -41,7 +40,7 @@ const NotificationDropdown = () => {
         sortedNotification.map((notification) => {
           return (
             <div
-              key={notification.key}
+              key={notification.id}
               className={clsx(
                 "w-full px-2 py-4 flex items-center bg-[rgb(var(--color-bg-card))]",
                 !notification.read && "bg-[rgb(var(--color-status-bg-blue))]"
