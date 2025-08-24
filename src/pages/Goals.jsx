@@ -29,13 +29,15 @@ const Goals = () => {
       </section>
 
       {/* Search bar to search goal by name */}
-      <input
-        type="text"
-        placeholder="Search by name..."
-        className="w-full mx-auto mb-10 rounded border border-[rgb(var(--color-gray-border))] bg-[rgb(var(--color-bg-card))] outline-none focus:border-[rgb(var(--color-brand))] transition text-sm p-2"
-        value={searchName}
-        onChange={(e) => setSearchName(e.target.value)}
-      />
+      {goals?.length > 0 && filteredGoals?.length === 0 && (
+        <input
+          type="text"
+          placeholder="Search by name..."
+          className="w-full mx-auto mb-10 rounded border border-[rgb(var(--color-gray-border))] bg-[rgb(var(--color-bg-card))] outline-none focus:border-[rgb(var(--color-brand))] transition text-sm p-2"
+          value={searchName}
+          onChange={(e) => setSearchName(e.target.value)}
+        />
+      )}
 
       {/* Goal Cards */}
       <Cards />
@@ -49,22 +51,20 @@ const Goals = () => {
 
       {/* Empty State */}
       {goals.length === 0 && (
-        <>
-          <div className="mt-4 flex flex-col items-center w-full">
-            <p className="text-base text-[rgb(var(--color-muted))] mb-6">
-              You have not set any financial goals yet. Start saving
-              intentionally.
-            </p>
-          </div>
+        <div className="mt-4 flex flex-col items-center w-full">
+          <p className="text-base text-[rgb(var(--color-muted))] text-center mb-6">
+            You have not set any financial goals yet. Start saving
+            intentionally.
+          </p>
 
           <button
             onClick={() => onOpenModal("goals", "add")}
-            className="mx-auto bg-blue-500 hover:bg-blue-600 transition cursor-pointer text-white px-4 py-2 rounded-md text-base font-semibold flex items-center gap-2"
+            className=" bg-blue-500 hover:bg-blue-600 transition cursor-pointer text-white px-4 py-2 rounded-md text-base font-semibold flex items-center gap-2"
           >
             <FaPlus className="text-lg" />
             <span>Add Your First Goal</span>
           </button>
-        </>
+        </div>
       )}
     </main>
   );

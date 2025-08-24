@@ -13,6 +13,7 @@ import { handleEdit } from "../utils/handleEdit";
 import { checkBudgetThreshold } from "../firebase/checkBudgetThreshold";
 import { useAuthContext } from "./AuthContext";
 import { useTransactionsContext } from "./TransactionsContext";
+import useThresholdStore from "../store/useThresholdStore";
 
 const BudgetsContext = createContext();
 
@@ -25,10 +26,15 @@ export const BudgetsProvider = ({ children }) => {
   const { formattedAmount } = useTransactionsContext();
   const forms = useFormContext("budgets");
   const { setValue } = forms;
+  const { thresholds } = useThresholdStore();
+
+  const budgetThreshold50 = thresholds?.budgetThreshold50 ?? 50;
+  const budgetThreshold80 = thresholds?.budgetThreshold80 ?? 80;
+  const budgetThreshold100 = thresholds?.budgetThreshold100 ?? 100;
 
   const filteredBudgets = useMemo(
     () =>
-      budgets.filter((budget) => {
+      budgets?.filter((budget) => {
         const matchesName =
           searchName === ""
             ? true
@@ -42,7 +48,7 @@ export const BudgetsProvider = ({ children }) => {
   const getAmountSpent = useCallback(
     (key, date) => {
       const budgetDate = new Date(date);
-      const spendingRecords = transactions.filter(
+      const spendingRecords = transactions?.filter(
         (tx) =>
           tx.categoryKey === key &&
           new Date(tx.date).getMonth() === budgetDate.getMonth() &&
@@ -54,8 +60,8 @@ export const BudgetsProvider = ({ children }) => {
     [transactions]
   );
 
-  const budgetCounts = budgets.length;
-  const transactionCounts = transactions.length;
+  const budgetCounts = budgets?.length;
+  const transactionCounts = transactions?.length;
 
   useEffect(() => {
     if (!currentUser?.uid || budgetCounts === 0) return;
@@ -67,21 +73,23 @@ export const BudgetsProvider = ({ children }) => {
         budgets,
         transactions,
         getAmountSpent,
-        formattedAmount
+        formattedAmount,
+        budgetThreshold50,
+        budgetThreshold80,
+        budgetThreshold100
       ).catch((error) =>
         console.error("Error generating notifications:", error)
       );
     }, 300);
 
     return () => clearTimeout(timeout);
-  }, [currentUser.uid, budgetCounts, transactionCounts]);
+  }, [currentUser?.uid, budgetCounts, transactionCounts]);
 
   const handleEditBudget = (id) => {
     handleEdit(
       id,
       "budgets",
       "edit",
-      budgets,
       setValue,
       onOpenModal,
       setEditTransaction

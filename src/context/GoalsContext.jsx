@@ -14,6 +14,7 @@ import useTransactionStore from "../store/useTransactionStore";
 import { handleEdit } from "../utils/handleEdit";
 import toast from "react-hot-toast";
 import { checkGoalThreshold } from "../firebase/checkGoalThreshold";
+import useThresholdStore from "../store/useThresholdStore";
 
 const GoalsContext = createContext();
 
@@ -25,6 +26,11 @@ export const GoalsProvider = ({ children }) => {
     useTransactionStore();
   const [searchName, setSearchName] = useState("");
   const { formattedAmount } = useTransactionsContext();
+  const { thresholds } = useThresholdStore();
+
+  const goalThreshold50 = thresholds?.goalThreshold50 ?? 50;
+  const goalThreshold80 = thresholds?.goalThreshold80 ?? 80;
+  const goalThreshold100 = thresholds?.goalThreshold100 ?? 100;
 
   // Goal form
   const goalForm = useFormContext("goals");
@@ -56,7 +62,6 @@ export const GoalsProvider = ({ children }) => {
       id,
       "goals",
       "edit",
-      goals,
       setGoalValue,
       onOpenModal,
       setEditTransaction
@@ -66,7 +71,7 @@ export const GoalsProvider = ({ children }) => {
 
   const getAmountSaved = useCallback(
     (key) => {
-      const amountSaved = contributions.filter(
+      const amountSaved = contributions?.filter(
         (contribution) => contribution.categoryKey === key
       );
       return amountSaved.reduce((acc, tx) => acc + tx.amount, 0);
@@ -74,8 +79,8 @@ export const GoalsProvider = ({ children }) => {
     [contributions]
   );
 
-  const goalCounts = goals.length;
-  const contributionCounts = contributions.length;
+  const goalCounts = goals?.length;
+  const contributionCounts = contributions?.length;
 
   useEffect(() => {
     if (!currentUser?.uid || goalCounts === 0) return;
@@ -87,7 +92,10 @@ export const GoalsProvider = ({ children }) => {
           currentUser.uid,
           goals,
           getAmountSaved,
-          formattedAmount
+          formattedAmount,
+          goalThreshold50,
+          goalThreshold80,
+          goalThreshold100
         );
       } catch (error) {
         console.error("Error generating notifications:", error);
@@ -95,11 +103,11 @@ export const GoalsProvider = ({ children }) => {
     }, 300);
 
     return () => clearTimeout(timeout);
-  }, [currentUser.uid, goalCounts, contributionCounts]);
+  }, [currentUser?.uid, goalCounts, contributionCounts]);
 
   const filteredGoals = useMemo(
     () =>
-      goals.filter((goal) => {
+      goals?.filter((goal) => {
         const matchesName =
           searchName === ""
             ? true
@@ -113,7 +121,7 @@ export const GoalsProvider = ({ children }) => {
   // Handler to delete goal and its contributions(if any)
   const deleteGoalAndContribution = useCallback(
     (id, key) => {
-      const goalContributions = contributions.filter(
+      const goalContributions = contributions?.filter(
         (contribution) => contribution.categoryKey === key
       );
 

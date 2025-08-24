@@ -11,6 +11,7 @@ import {
 } from "react-icons/fa";
 import { useAuthContext } from "../../context/AuthContext";
 import clsx from "clsx";
+import { useMainContext } from "../../context/MainContext";
 
 const navLinks = [
   { to: "/", icon: FaTachometerAlt, label: "Overview" },
@@ -21,31 +22,33 @@ const navLinks = [
   { to: "/reports", icon: FaChartPie, label: "Reports" },
 ];
 
-const Sidebar = ({ isOpen, onClose }) => {
+const Sidebar = () => {
   const location = useLocation();
   const { userName } = useAuthContext();
+  const { isSidebarOpen, handleSidebarClose } = useMainContext();
   const [hovered, setHovered] = useState(false);
 
   // Sidebar expanded if hovered (desktop) or open (mobile)
-  const expanded = hovered || isOpen;
+  const expanded = hovered || isSidebarOpen;
 
   return (
     <aside className="w-fit">
       {/* Overlay for mobile */}
-      {isOpen && (
+      {isSidebarOpen && (
         <div
+          role="button"
           className={clsx(
             "fixed inset-0 bg-black/20 z-60 lg:hidden transition-opacity duration-200",
-            isOpen ? "block" : "hidden"
+            isSidebarOpen ? "block" : "hidden"
           )}
-          onClick={onClose}
+          onClick={handleSidebarClose}
           aria-label="Close sidebar overlay"
         />
       )}
       <section
         className={clsx(
           "fixed left-0 top-0 h-svh bg-[rgb(var(--color-bg))] text-[rgb(var(--color-text))] flex flex-col shadow-lg transition-all duration-200 z-70 lg:translate-x-0 lg:static",
-          isOpen ? "translate-x-0" : "-translate-x-100 lg:translate-x-0",
+          isSidebarOpen ? "translate-x-0" : "-translate-x-100 lg:translate-x-0",
           expanded ? "lg:w-48 w-56" : "lg:w-20 w-16"
         )}
         style={{ minWidth: expanded ? "10rem" : "4rem" }}
@@ -63,7 +66,7 @@ const Sidebar = ({ isOpen, onClose }) => {
             <Link
               key={link.to}
               to={link.to}
-              onClick={onClose}
+              onClick={handleSidebarClose}
               aria-label={link.label}
               className={clsx(
                 "relative group flex items-center gap-3 px-2 py-2 rounded-lg hover:bg-[rgb(var(--color-brand-deep))] hover:text-white transition-colors text-[rgb(var(--color-muted))] text-base",

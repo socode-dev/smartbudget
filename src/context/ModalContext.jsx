@@ -1,5 +1,4 @@
 import { createContext, useContext, useReducer, useState } from "react";
-import { useFormContext } from "../context/FormContext";
 
 const ModalContext = createContext();
 
@@ -36,18 +35,14 @@ export const ModalProvider = ({ children }) => {
     modalReducer,
     modalInitialState
   );
-  const forms = useFormContext("budgets");
-  const { reset } = forms;
 
   const [transactionID, setTransactionID] = useState("");
 
   const onOpenModal = (modal, mode = "add", meta = {}) => {
     modalDispatch({ type: "OPEN", label: modal, mode, meta });
   };
-
   const onCloseModal = (modal) => {
     modalDispatch({ type: "CLOSE", label: modal });
-    reset();
   };
 
   return (

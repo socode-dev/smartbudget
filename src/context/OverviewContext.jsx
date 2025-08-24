@@ -26,17 +26,17 @@ export const OverviewProvider = ({ children }) => {
 
   // Get last month and this month total income and expenses
   const income = useMemo(
-    () => transactions.filter((tx) => tx.type === "income"),
+    () => transactions?.filter((tx) => tx.type === "income"),
     [transactions]
   );
   const expenses = useMemo(
-    () => transactions.filter((tx) => tx.type === "expense"),
+    () => transactions?.filter((tx) => tx.type === "expense"),
     [transactions]
   );
 
   // Get income using month argument
   const getTxTypeByMonth = useCallback((transaction, month) => {
-    return transaction.filter((tx) => {
+    return transaction?.filter((tx) => {
       const thisMonth = new Date().getMonth();
       const txMonth = new Date(tx.date).getMonth();
       const thisYear = new Date().getFullYear();
@@ -52,7 +52,7 @@ export const OverviewProvider = ({ children }) => {
 
   const lastMonthIncome = useMemo(
     () =>
-      getTxTypeByMonth(income, "last").reduce(
+      getTxTypeByMonth(income, "last")?.reduce(
         (total, tx) => total + tx.amount,
         0
       ),
@@ -60,7 +60,7 @@ export const OverviewProvider = ({ children }) => {
   );
   const thisMonthIncome = useMemo(
     () =>
-      getTxTypeByMonth(income, "this").reduce(
+      getTxTypeByMonth(income, "this")?.reduce(
         (total, tx) => total + tx.amount,
         0
       ),
@@ -89,7 +89,7 @@ export const OverviewProvider = ({ children }) => {
 
   const lastMonthExpense = useMemo(
     () =>
-      getTxTypeByMonth(expenses, "last").reduce(
+      getTxTypeByMonth(expenses, "last")?.reduce(
         (total, expense) => total + expense.amount,
         0
       ),
@@ -97,7 +97,7 @@ export const OverviewProvider = ({ children }) => {
   );
   const thisMonthExpense = useMemo(
     () =>
-      getTxTypeByMonth(expenses, "this").reduce(
+      getTxTypeByMonth(expenses, "this")?.reduce(
         (total, expense) => total + expense.amount,
         0
       ),
@@ -141,7 +141,7 @@ export const OverviewProvider = ({ children }) => {
 
   // Get total budget limit
   const totalBudget = useMemo(
-    () => budgets.reduce((total, budget) => total + budget.amount, 0),
+    () => budgets?.reduce((total, budget) => total + budget.amount, 0),
     [budgets]
   );
 
@@ -156,19 +156,20 @@ export const OverviewProvider = ({ children }) => {
   );
 
   const incomeBudget = useMemo(
-    () => budgets.filter((tx) => tx.type === "income"),
+    () => budgets?.filter((tx) => tx.type === "income"),
     [budgets]
   );
   const expensesBudget = useMemo(
-    () => budgets.filter((tx) => tx.type === "expense"),
+    () => budgets?.filter((tx) => tx.type === "expense"),
     [budgets]
   );
 
-  const totalIncomeBudget = incomeBudget.reduce(
-    (sum, budget) => sum + budget.amount,
+  const totalIncomeBudget = incomeBudget?.reduce(
+    (sum, incoome) => sum + incoome.amount,
     0
   );
-  const totalExpensesBudget = expensesBudget.reduce(
+
+  const totalExpensesBudget = expensesBudget?.reduce(
     (sum, expense) => sum + expense.amount,
     0
   );
@@ -194,7 +195,7 @@ export const OverviewProvider = ({ children }) => {
   // Sort transaction by date for exporting
   const sortedTransactions = useMemo(
     () =>
-      transactions.sort(
+      transactions?.sort(
         (a, b) => new Date(b.date).getMonth() - new Date(a.date).getMonth()
       ),
     [transactions]
@@ -203,7 +204,7 @@ export const OverviewProvider = ({ children }) => {
   // Return needed key-value pairs needed for pdf and csv format
   const modifiedTransactions = useMemo(
     () =>
-      sortedTransactions.map((transaction) => {
+      sortedTransactions?.map((transaction) => {
         return {
           Date: format(new Date(transaction.date), "MMM yyyy"),
           Name: transaction.name,

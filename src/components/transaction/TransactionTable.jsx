@@ -1,17 +1,8 @@
-import useTransactionStore from "../../store/useTransactionStore";
 import { HiOutlineTrash, HiOutlinePencil } from "react-icons/hi";
-import { useModalContext } from "../../context/ModalContext";
-import { useFormContext } from "../../context/FormContext";
-import { useCallback, useEffect } from "react";
-import { handleEdit } from "../../utils/handleEdit";
 import { useTransactionsContext } from "../../context/TransactionsContext";
-import { useAuthContext } from "../../context/AuthContext";
 import clsx from "clsx";
 
 const TransactionTable = () => {
-  const { currentUser } = useAuthContext();
-  const { onOpenModal, setTransactionID } = useModalContext();
-  const { deleteTransaction, setEditTransaction } = useTransactionStore();
   const {
     sortedTransactions,
     currentTransactions,
@@ -22,35 +13,9 @@ const TransactionTable = () => {
     indexOfFirstTransaction,
     indexOfLastTransaction,
     formattedAmount,
+    handleEditTransaction,
+    handleDeleteTransaction,
   } = useTransactionsContext();
-
-  const forms = useFormContext("transactions");
-  const { setValue } = forms;
-
-  // Scroll to top when page changes
-  useEffect(() => {
-    const mainElement = document.querySelector("main");
-    if (mainElement) {
-      mainElement.scrollTo({ top: 0, behavior: "smooth" });
-    }
-  }, [currentPage]);
-
-  const handleEditTransaction = useCallback((id) => {
-    handleEdit(
-      id,
-      "transactions",
-      "edit",
-      sortedTransactions,
-      setValue,
-      onOpenModal,
-      setEditTransaction
-    );
-    setTransactionID(id);
-  }, []);
-
-  const handleDeleteTransaction = useCallback((id) => {
-    deleteTransaction(currentUser.uid, "transactions", id);
-  }, []);
 
   return (
     <div>
