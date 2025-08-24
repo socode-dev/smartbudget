@@ -4,16 +4,24 @@ import {
   useMemo,
   useState,
   useCallback,
+  useEffect,
 } from "react";
 import useTransactionStore from "../store/useTransactionStore";
 import { transactionTotal } from "../utils/transactionTotal";
 import useCurrencyStore from "../store/useCurrencyStore";
 import { formatAmount } from "../utils/formatAmount";
+import { handleEdit } from "../utils/handleEdit";
+import { useFormContext } from "./FormContext";
+import { useModalContext } from "./ModalContext";
+import { useAuthContext } from "./AuthContext";
 
 const TransactionsContext = createContext();
 
 export const TransactionsProvider = ({ children }) => {
-  const { transactions } = useTransactionStore();
+  const { currentUser } = useAuthContext();
+  const { onOpenModal, setTransactionID } = useModalContext();
+  const { transactions, deleteTransaction, setEditTransaction } =
+    useTransactionStore();
   const { selectedCurrency } = useCurrencyStore();
   const [filters, setFilters] = useState({
     search: "",
@@ -22,6 +30,9 @@ export const TransactionsProvider = ({ children }) => {
     category: "all",
     type: "all",
   });
+
+  const forms = useFormContext("transactions");
+  const { setValue } = forms;
 
   // Format currency amount
   const formattedAmount = useCallback(
@@ -36,6 +47,14 @@ export const TransactionsProvider = ({ children }) => {
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const transactionsPerPage = 10;
+
+  // Scroll to top when page changes
+  useEffect(() => {
+    const mainElement = document.querySelector("main");
+    if (mainElement) {
+      mainElement.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  }, [currentPage]);
 
   // Filter transaction by description search, date range, category and type
   const filteredTransactions = useMemo(
@@ -88,7 +107,7 @@ export const TransactionsProvider = ({ children }) => {
   // Sort transactions by date (latest first)
   const sortedTransactions = useMemo(
     () =>
-      filteredTransactions.sort((a, b) => new Date(b.date) - new Date(a.date)),
+      filteredTransactions?.sort((a, b) => new Date(b.date) - new Date(a.date)),
     [filteredTransactions]
   );
 
@@ -103,12 +122,14 @@ export const TransactionsProvider = ({ children }) => {
     [totalIncome, totalExpenses]
   );
 
-  const totalPages = Math.ceil(sortedTransactions.length / transactionsPerPage);
+  const totalPages = Math.ceil(
+    sortedTransactions?.length / transactionsPerPage
+  );
 
-  // Claculate current page slice
+  // Calculate current page slice
   const indexOfLastTransaction = currentPage * transactionsPerPage;
   const indexOfFirstTransaction = indexOfLastTransaction - transactionsPerPage;
-  const currentTransactions = sortedTransactions.slice(
+  const currentTransactions = sortedTransactions?.slice(
     indexOfFirstTransaction,
     indexOfLastTransaction
   );
@@ -118,6 +139,23 @@ export const TransactionsProvider = ({ children }) => {
 
   const handleNext = () =>
     setCurrentPage((prev) => Math.min(prev + 1, totalPages));
+
+  const handleEditTransaction = useCallback((id) => {
+    handleEdit(
+      id,
+      "transactions",
+      "edit",
+      setValue,
+      onOpenModal,
+      setEditTransaction
+    );
+    setTransactionID(id);
+  }, []);
+
+  // Handle for deleting transaction
+  const handleDeleteTransaction = useCallback((id) => {
+    deleteTransaction(currentUser.uid, "transactions", id);
+  }, []);
 
   const value = {
     sortedTransactions,
@@ -135,6 +173,8 @@ export const TransactionsProvider = ({ children }) => {
     formattedAmount,
     filters,
     setFilters,
+    handleEditTransaction,
+    handleDeleteTransaction,
   };
 
   return (

@@ -5,10 +5,13 @@ import { useFormContext } from "../../context/FormContext";
 import { useAuthContext } from "../../context/AuthContext";
 import { useRef } from "react";
 import { useTransactionsContext } from "../../context/TransactionsContext";
+import LoadingSpinner from "../ui/LoadingSpinner";
+import useThresholdStore from "../../store/useThresholdStore";
 
 const ModalForm = ({ label, mode }) => {
   const formRef = useRef(null);
   const { currentUser } = useAuthContext();
+  const { thresholds } = useThresholdStore();
   const { onCloseModal, transactionID } = useModalContext();
   const { onSubmit, handleSubmit } = useFormSubmit(label, mode);
   const forms = useFormContext(label);
@@ -16,11 +19,12 @@ const ModalForm = ({ label, mode }) => {
     register,
     watch,
     setValue,
-    formState: { errors },
+    reset,
+    formState: { errors, isSubmitting },
   } = forms;
   const { formattedAmount } = useTransactionsContext();
 
-  const { CATEGORY_OPTIONS, currencySymbol } = useTransactionStore();
+  const { CATEGORY_OPTIONS } = useTransactionStore();
 
   const categoryValue = watch("category");
 
@@ -35,10 +39,36 @@ const ModalForm = ({ label, mode }) => {
 
   const txID = mode === "edit" ? transactionID : null;
 
+  let submitPrefix = "Save";
+  let submitLabel = "Transaction";
+
+  if (mode === "edit") {
+    submitPrefix = "Edit";
+  }
+
+  if (budgetLabel) {
+    submitLabel = "Budget";
+  } else if (goalLabel) {
+    submitLabel = "Goal";
+  } else if (contributionLabel) {
+    submitLabel = "Contribution";
+  }
+
+  const onClose = () => {
+    onCloseModal(label);
+    reset();
+  };
+
   return (
     <form
       onSubmit={handleSubmit((data) =>
-        onSubmit(data, currentUser.uid, txID, formattedAmount)
+        onSubmit(
+          data,
+          currentUser.uid,
+          txID,
+          formattedAmount,
+          thresholds.transactionThreshold ?? 10000
+        )
       )}
       className="space-y-4"
     >
@@ -51,9 +81,7 @@ const ModalForm = ({ label, mode }) => {
             {...register("category")}
             className="rounded border border-[rgb(var(--color-gray-border))] bg-[rgb(var(--color-bg-card))] outline-none focus:border-[rgb(var(--color-brand))] text-sm w-full p-2 cursor-pointer"
           >
-            <option value="" disabled>
-              Select category
-            </option>
+            <option value="">Select category</option>
             {CATEGORY_OPTIONS.map((opt, i) => (
               <option key={i} value={opt.name}>
                 {opt.name}
@@ -211,23 +239,21 @@ const ModalForm = ({ label, mode }) => {
       <footer className="flex justify-end gap-2">
         <button
           type="button"
-          className="text-[rgb(var(--color-text))] bg-[rgb(var(--color-gray-bg))] hover:bg-[rgb(var(--color-gray-bg-settings))] cursor-pointer px-4 py-2 rounded-md text-sm font-medium transition"
-          onClick={() => onCloseModal(label)}
+          className="text-[rgb(var(--color-text))] bg-[rgb(var(--color-gray-bg))] hover:bg-[rgb(var(--color-gray-bg-settings))] cursor-pointer px-4 py-2 rounded-md text-base font-medium transition"
+          onClick={onClose}
         >
           Cancel
         </button>
         <button
           type="submit"
-          className="bg-[rgb(var(--color-brand))] text-white hover:bg-[rgb(var(--color-brand-hover))] transition cursor-pointer px-4 py-2 rounded-md text-sm font-medium"
+          disabled={isSubmitting}
+          className="w-3/6 bg-[rgb(var(--color-brand))] text-white hover:bg-[rgb(var(--color-brand-hover))] transition cursor-pointer px-4 py-2 rounded-md text-base font-medium disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {mode === "add" ? "Save" : "Edit"}{" "}
-          {transactionLabel
-            ? "Transaction"
-            : budgetLabel
-            ? "Budget"
-            : goalLabel
-            ? "Goal"
-            : "Contribution"}
+          {isSubmitting ? (
+            <LoadingSpinner size={25} />
+          ) : (
+            `${submitPrefix} ${submitLabel}`
+          )}
         </button>
       </footer>
     </form>

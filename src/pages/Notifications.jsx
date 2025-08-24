@@ -35,68 +35,65 @@ const NotificationDropdown = () => {
   };
 
   return (
-    <main className="w-full  h-full py-8 flex flex-col">
-      <div className="w-full max-w-[600px] mx-auto">
-        {notifications?.length > 0 && (
-          <>
-            {sortedNotification.map((notification) => (
+    <main className="w-full h-full py-8 flex flex-col">
+      <div className="w-full  max-w-[600px] mx-auto">
+        {notifications?.length > 0 &&
+          sortedNotification.map((notification) => (
+            <div
+              key={notification.id}
+              className={clsx(
+                "flex items-center gap-5 p-3 bg-[rgb(var(--color-bg-card))] w-full font-medium",
+                !notification.read && "bg-[rgb(var(--color-status-bg-blue))]"
+              )}
+            >
               <div
-                key={notification.id}
                 className={clsx(
-                  "flex items-center gap-5 p-3 bg-[rgb(var(--color-bg-card))] w-full font-medium",
-                  !notification.read && "bg-[rgb(var(--color-status-bg-blue))]"
+                  "w-2.5 h-2 rounded-full",
+                  !notification.read && "bg-[rgb(var(--color-brand-deep))]"
                 )}
+              ></div>
+
+              <button
+                onClick={() =>
+                  onOpenDialog(
+                    notification.id,
+                    notification.subject,
+                    notification.message,
+                    notification.type
+                  )
+                }
+                className="w-full px-4 py-1 flex flex-col items-start gap-1 cursor-pointer"
               >
-                <span
-                  className={clsx(
-                    "w-2.5 h-2 rounded-full",
-                    !notification.read && "bg-[rgb(var(--color-brand-deep))]"
-                  )}
-                ></span>
+                <p className="text-xs text-[rgb(var(--color-muted))]">
+                  {formatRelativeTime(notification.createdAt)}
+                </p>
 
+                <p className="truncate w-fit max-w-[300px]">
+                  {notification.subject}
+                </p>
+              </button>
+
+              <div className="relative">
                 <button
-                  onClick={() =>
-                    onOpenDialog(
-                      notification.id,
-                      notification.subject,
-                      notification.message,
-                      notification.type
-                    )
-                  }
-                  className="w-full flex flex-col items-start gap-1 cursor-pointer"
+                  onClick={() => toggleOptions(notification.id)}
+                  className="text-xl text-[rgb(var(--color-muted))] hover:text-gray-700 transition cursor-pointer"
                 >
-                  <p className="text-xs text-[rgb(var(--color-muted))]">
-                    {formatRelativeTime(notification.createdAt)}
-                  </p>
-
-                  <p className="text-left truncate w-5/6">
-                    {notification.subject}
-                  </p>
+                  <FiMoreVertical />
                 </button>
 
-                <div className="relative">
-                  <button
-                    onClick={() => toggleOptions(notification.id)}
-                    className="text-xl text-[rgb(var(--color-muted))] hover:text-gray-700 transition cursor-pointer"
-                  >
-                    <FiMoreVertical />
-                  </button>
-
-                  {options.id === notification.id && options.open && (
-                    <div className="absolute right-0 bg-[rgb(var(--color-bg-card))] border border-[rgb(var(--color-gray-border))] rounded-lg shadow-2xl">
-                      <button
-                        onClick={() => deleteNotification(notification.id)}
-                        className="px-4 py-2 hover:bg-[rgb(var(--color-bg))] text-sm transition cursor-pointer"
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  )}
-                </div>
+                {options.id === notification.id && options.open && (
+                  <div className="absolute right-0 bg-[rgb(var(--color-bg-card))] border border-[rgb(var(--color-gray-border))] rounded-lg shadow-2xl">
+                    <button
+                      onClick={() => deleteNotification(notification.id)}
+                      className="px-4 py-2 hover:bg-[rgb(var(--color-bg))] text-sm transition cursor-pointer"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                )}
               </div>
-            ))}
-          </>
-        )}
+            </div>
+          ))}
       </div>
     </main>
   );

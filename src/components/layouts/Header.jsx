@@ -1,25 +1,24 @@
-import { useState, useRef } from "react";
 import { FaBars } from "react-icons/fa";
 import { HiOutlineCog8Tooth } from "react-icons/hi2";
 import { FaRegBell } from "react-icons/fa6";
 import SettingsDropdown from "./SettingsDropdown";
 import ProfileDropdown from "./ProfileDropdown";
 import { useAuthContext } from "../../context/AuthContext";
-import { useDropdownClose } from "../../hooks/useDropdownClose";
 import useNotificationStore from "../../store/useNotificationStore";
 import { useNavigate } from "react-router-dom";
+import { useMainContext } from "../../context/MainContext";
 
-const Header = ({ onSidebarToggle }) => {
+const Header = () => {
   const navigate = useNavigate();
   const { userName } = useAuthContext();
   const { notifications } = useNotificationStore();
-  const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [openProfileDropdown, setOpenProfileDropdown] = useState(false);
-  const settingsRef = useRef(null);
-  const profileRef = useRef(null);
-
-  useDropdownClose(dropdownOpen, settingsRef, setDropdownOpen);
-  useDropdownClose(openProfileDropdown, profileRef, setOpenProfileDropdown);
+  const {
+    settingsRef,
+    profileRef,
+    handleSidebarOpen,
+    handleSettingsToggle,
+    handleProfileToggle,
+  } = useMainContext();
 
   // Get unread notifications
   const newNotifications = notifications?.filter((notif) => !notif?.read);
@@ -31,21 +30,23 @@ const Header = ({ onSidebarToggle }) => {
       <div className="flex items-center gap-2">
         <button
           className="lg:hidden mr-2 p-2 cursor-pointer hover:text-[rgb(var(--color-brand))]"
-          onClick={onSidebarToggle}
+          onClick={handleSidebarOpen}
           aria-label="Open sidebar"
         >
           <FaBars className="text-xl transition" />
         </button>
       </div>
 
-      <h2 className="text-lg md:text-xl grow ml-4 font-semibold text-[rgb(var(--color-muted))]">
+      <button
+        onClick={() => navigate("/")}
+        className="text-lg md:text-xl grow font-semibold text-[rgb(var(--color-muted))] text-left ml-4 cursor-pointer"
+      >
         Dashboard
-      </h2>
+      </button>
 
       {/* Right: Icons and User Avatar */}
       <div className="flex items-center gap-6">
-        {/* Notification Icon with Dot */}
-        {/* <div ref={notificationRef} className=""> */}
+        {/* Notification Icon with new notification counts(if there is any) */}
         <button
           className="relative flex p-2 bg-[rgb(var(--color-bg))] border border-[rgb(var(--color-status-bg-blue))] rounded-lg shadow text-[rgb(var(--color-brand))] hover:text-[rgb(var(--color-brand-hover)] transition cursor-pointer"
           onClick={() => navigate("/notifications")}
@@ -59,37 +60,28 @@ const Header = ({ onSidebarToggle }) => {
             </span>
           )}
         </button>
-        {/* </div> */}
-        {/* Notification Dropdown */}
-        {/* <NotificationDropdown /> */}
 
         {/* Settings Icon with Dropdown */}
         <div className="relative" ref={settingsRef}>
           <button
             className="flex items-center p-2 bg-[rgb(var(--color-bg))] border border-[rgb(var(--color-status-bg-blue))] rounded-lg shadow text-[rgb(var(--color-brand))] hover:text-[rgb(var(--color-brand-hover)] transition cursor-pointer"
             aria-label="Settings"
-            onClick={() => setDropdownOpen((open) => !open)}
+            onClick={handleSettingsToggle}
             type="button"
           >
             <HiOutlineCog8Tooth className="text-xl" />
           </button>
-          <SettingsDropdown
-            open={dropdownOpen}
-            onClose={() => setDropdownOpen(false)}
-          />
+          <SettingsDropdown />
         </div>
         <div className="relative" ref={profileRef}>
           <button
-            onClick={() => setOpenProfileDropdown((prev) => !prev)}
+            onClick={handleProfileToggle}
             className="text-base tracking-wide text-white font-bold bg-[rgb(var(--color-brand))] hover:bg-[rgb(var(--color-brand-hover))] px-2.5 py-1.5 rounded-full transition cursor-pointer"
           >
             {userName.initials ?? "SB"}
           </button>
 
-          <ProfileDropdown
-            open={openProfileDropdown}
-            onClose={() => setOpenProfileDropdown(false)}
-          />
+          <ProfileDropdown />
         </div>
       </div>
     </header>

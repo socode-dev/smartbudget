@@ -12,13 +12,13 @@ export const ReportProvider = ({ children }) => {
   const { formattedAmount } = useTransactionsContext();
 
   const expenses = useMemo(
-    () => transactions.filter((tx) => tx.type === "expense"),
+    () => transactions?.filter((tx) => tx.type === "expense"),
     [transactions]
   );
 
   const reportTableData = useCallback(() => {
     // Group transactions by category e.g, {other: [{...transaction details}]}
-    const categoryGroups = expenses.reduce((acc, tx) => {
+    const categoryGroups = expenses?.reduce((acc, tx) => {
       if (!acc[tx.category]) {
         acc[tx.category] = [];
       }
@@ -29,10 +29,10 @@ export const ReportProvider = ({ children }) => {
     // Convert object to array format [category, transactions]
     const transactionEntries = Object.entries(categoryGroups);
     // Create array of objects with aggregated data
-    const totalAmount = expenses.reduce((acc, tx) => acc + tx.amount, 0);
-    const tableData = transactionEntries.map(
+    const totalAmount = expenses?.reduce((acc, tx) => acc + tx.amount, 0);
+    const tableData = transactionEntries?.map(
       ([category, reportItems], index) => {
-        const totalCategoryAmount = reportItems.reduce(
+        const totalCategoryAmount = reportItems?.reduce(
           (sum, item) => sum + item.amount,
           0
         );
@@ -51,7 +51,7 @@ export const ReportProvider = ({ children }) => {
     );
 
     // Sort by amount descending
-    return tableData.sort((a, b) => b.Amount - a.Amount);
+    return tableData?.sort((a, b) => b.Amount - a.Amount);
   }, [expenses]);
 
   // Handler for exporting via CSV

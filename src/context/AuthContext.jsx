@@ -9,19 +9,26 @@ import {
   doCreateUserWithEmailAndPassword,
   doSignInWithGoogle,
   doSignUserWithEmailAndPassword,
-  doSignOut,
   doSignInWithMicrosoft,
 } from "../firebase/auth";
-import { doc, setDoc, getDoc, serverTimestamp } from "firebase/firestore";
+import {
+  doc,
+  setDoc,
+  getDoc,
+  serverTimestamp,
+  addDoc,
+} from "firebase/firestore";
 import { useAuthFormContext } from "./AuthFormContext";
 import { getAuthErrorMessage } from "../utils/authErrorrs";
 import { getUserName } from "../utils/getUserName";
 import { createWelcomeNotification } from "../firebase/firestore";
+import useThresholdForm from "../hooks/useThresholdForm";
+import useThresholdStore from "../store/useThresholdStore";
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  // const [searchParams] = useSearchParams();
+  const setThresholds = useThresholdStore((state) => state.setThresholds);
   const [currentUser, setCurrentUser] = useState(null);
   const [isUserEmailVerified, setIsUserEmailVerified] = useState(false);
   const [userName, setUserName] = useState({ initials: "", fullName: "" });
@@ -31,7 +38,6 @@ export const AuthProvider = ({ children }) => {
   const [onSignupErr, setOnSignupErr] = useState(null);
   const [googleErr, setGoogleErr] = useState(null);
   const [microsoftErr, setMicrosoftErr] = useState(null);
-  const [isSignoutPromptOpen, setIsSignoutPromptOpen] = useState(false);
   const [resetLinkModalOpen, setResetLinkModalOpen] = useState(false);
   const {
     loginHandleSubmit,
@@ -42,6 +48,8 @@ export const AuthProvider = ({ children }) => {
     forgotFormReset,
   } = useAuthFormContext();
 
+  const { getValues } = useThresholdForm();
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
@@ -49,10 +57,13 @@ export const AuthProvider = ({ children }) => {
         const userDocSnap = await getDoc(userDocRef);
 
         if (userDocSnap.exists()) {
-          setCurrentUser({ uid: user.uid, ...userDocSnap.data() });
-          const { userInitials, userFirstName, userLastName } = getUserName(
-            userDocSnap.data()
-          );
+          const data = userDocSnap.data();
+          setCurrentUser({ uid: user.uid, ...data.profile });
+          const { userInitials, userFirstName, userLastName } =
+            getUserName(data);
+
+          // Set user thresholds
+          setThresholds(data.thresholds ?? null);
           setUserName((prev) => ({
             ...prev,
             initials: userInitials,
@@ -137,7 +148,11 @@ export const AuthProvider = ({ children }) => {
       };
 
       // Create user document in Firestore
-      await setDoc(doc(db, "users", user.uid), { profile: userDocData });
+      await setDoc(
+        doc(db, "users", user.uid),
+        { profile: userDocData },
+        { merge: true }
+      );
 
       // Set current user
       setCurrentUser({ uid: user.uid, ...userDocData });
@@ -150,13 +165,31 @@ export const AuthProvider = ({ children }) => {
         fullName: `${userDocData.firstName} ${userDocData.lastName}`,
       }));
 
-      createWelcomeNotification(user.uid);
-
       // Send email verification
       await sendEmailVerification(user, {
         url: "http://localhost:5173/email-verified",
         handleCodeInApp: true,
       });
+
+      // Get user's default thresholds
+      const thresholdsData = {
+        transactionThreshold: getValues("transactionThreshold"),
+        budgetThreshold50: getValues("budgetThreshold50"),
+        budgetThreshold80: getValues("budgetThreshold80"),
+        budgetThreshold100: getValues("budgetThreshold100"),
+        goalThreshold50: getValues("goalThreshold50"),
+        goalThreshold80: getValues("goalThreshold80"),
+        goalThreshold100: getValues("goalThreshold100"),
+      };
+
+      // Send the thresholds to firestore
+      await setDoc(
+        doc(db, "users", user.uid),
+        { thresholds: thresholdsData },
+        { merge: true }
+      );
+      // Send welcome notification
+      createWelcomeNotification(user.uid);
     } catch (err) {
       setOnSignupErr(getAuthErrorMessage(err));
 
@@ -187,11 +220,7 @@ export const AuthProvider = ({ children }) => {
         createdAt: serverTimestamp(),
       };
 
-      // Create user document in Firestore
-      await setDoc(doc(db, "users", user.uid), { profile: userDocData });
-
       setCurrentUser({ uid: user.uid, ...userDocData });
-
       setUserName((prev) => ({
         ...prev,
         initials:
@@ -199,6 +228,38 @@ export const AuthProvider = ({ children }) => {
           userDocData?.lastName?.slice(0, 1),
         fullName: `${userDocData?.firstName} ${userDocData?.lastName}`,
       }));
+
+      const userDocRef = doc(db, "users", user.uid);
+      const userDocSnap = await getDoc(userDocRef);
+
+      if (!userDocSnap.exists()) {
+        // Get user's default thresholds
+        const thresholdsData = {
+          transactionThreshold: getValues("transactionThreshold"),
+          budgetThreshold50: getValues("budgetThreshold50"),
+          budgetThreshold80: getValues("budgetThreshold80"),
+          budgetThreshold100: getValues("budgetThreshold100"),
+          goalThreshold50: getValues("goalThreshold50"),
+          goalThreshold80: getValues("goalThreshold80"),
+          goalThreshold100: getValues("goalThreshold100"),
+        };
+
+        // Create user document in Firestore
+        await setDoc(
+          doc(db, "users", user.uid),
+          { profile: userDocData },
+          { merge: true }
+        );
+
+        // Send the thresholds to firestore
+        await setDoc(
+          doc(db, "users", user.uid),
+          { thresholds: thresholdsData },
+          { merge: true }
+        );
+        // Set welcome notification
+        createWelcomeNotification(user.uid);
+      }
     } catch (err) {
       setGoogleErr(getAuthErrorMessage(err, "google"));
 
@@ -211,7 +272,6 @@ export const AuthProvider = ({ children }) => {
     try {
       const result = await doSignInWithMicrosoft();
       const user = result.user;
-      console.log(user);
 
       const splitName = user.displayName.split(" ");
       const firstName = splitName?.at(0);
@@ -228,11 +288,7 @@ export const AuthProvider = ({ children }) => {
         createdAt: serverTimestamp(),
       };
 
-      // Create user document in Firestore
-      await setDoc(doc(db, "users", user.uid), { profile: userDocData });
-
       setCurrentUser({ uid: user.uid, ...userDocData });
-
       setUserName((prev) => ({
         ...prev,
         initials:
@@ -240,19 +296,43 @@ export const AuthProvider = ({ children }) => {
           userDocData?.lastName?.slice(0, 1),
         fullName: `${userDocData?.firstName} ${userDocData?.lastName}`,
       }));
+
+      // Create user document in Firestore
+      await setDoc(
+        doc(db, "users", user.uid),
+        { profile: userDocData },
+        { merge: true }
+      );
+
+      const userDocRef = doc(db, "users", user.uid);
+      const userDocSnap = await getDoc(userDocRef);
+
+      if (!userDocSnap.exists) {
+        // Get user's default thresholds
+        const thresholdsData = {
+          transactionThreshold: getValues("transactionThreshold"),
+          budgetThreshold50: getValues("budgetThreshold50"),
+          budgetThreshold80: getValues("budgetThreshold80"),
+          budgetThreshold100: getValues("budgetThreshold100"),
+          goalThreshold50: getValues("goalThreshold50"),
+          goalThreshold80: getValues("goalThreshold80"),
+          goalThreshold100: getValues("goalThreshold100"),
+        };
+
+        // Send the thresholds to firestore
+        await setDoc(
+          doc(db, "users", user.uid),
+          { thresholds: thresholdsData },
+          { merge: true }
+        );
+        // Set welcome notification
+        createWelcomeNotification(user.uid);
+      }
     } catch (err) {
       setMicrosoftErr(getAuthErrorMessage(err, "microsoft"));
 
       setTimeout(() => setMicrosoftErr(null), 10000);
     }
-  };
-
-  // Handle sign out
-  const onSignOut = () => {
-    setIsSignoutPromptOpen(false);
-    doSignOut();
-    setCurrentUser(null);
-    setUserName((prev) => ({ ...prev, initials: "", fullName: "" }));
   };
 
   const sendResetEmail = forgotHandleSubmit(async (data) => {
@@ -277,6 +357,8 @@ export const AuthProvider = ({ children }) => {
       value={{
         currentUser,
         userName,
+        setCurrentUser,
+        setUserName,
         userLoggedIn,
         loading,
         onLoginErr,
@@ -287,9 +369,6 @@ export const AuthProvider = ({ children }) => {
         onSignup,
         onGoogleSignIn,
         onMicrosoftSignIn,
-        onSignOut,
-        isSignoutPromptOpen,
-        setIsSignoutPromptOpen,
         sendResetEmail,
         resetLinkModalOpen,
         setResetLinkModalOpen,

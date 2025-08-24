@@ -18,8 +18,8 @@ const Modal = ({ label, title, description, mode }) => {
         className="fixed inset-0 flex items-center justify-center z-70"
       >
         <section className="bg-[rgb(var(--color-bg-card))] w-5/6 md:w-4/6 lg:w-3/6 xl:w-2/6 h-5/6 max-w-md overflow-y-auto p-6 rounded-lg shadow-xl">
-          <h2 className="text-2xl font-semibold mb-2">{title}</h2>
-          <p className="text-sm text-[rgb(var(--color-muted))] mb-4">
+          <h2 className="text-2xl md:text-3xl font-semibold mb-1">{title}</h2>
+          <p className="text-base text-[rgb(var(--color-muted))] mb-6">
             {description}
           </p>
           <ModalForm label={label} mode={mode} />

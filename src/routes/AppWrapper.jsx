@@ -11,31 +11,36 @@ import { ReportChartProvider } from "../context/ReportChartContext";
 import { NotificationProvider } from "../context/NotificationContext";
 import { BudgetsProvider } from "../context/BudgetsContext";
 import { GoalsProvider } from "../context/GoalsContext";
+import { MainProvider } from "../context/MainContext";
 
 const AppWrapper = ({ children }) => {
   return (
     <AuthFormProvider>
       <AuthProvider>
         <AppInitializer />
-        <FormProvider>
-          <NotificationProvider>
-            <ModalProvider>
-              <OverviewProvider>
-                <OverviewChartProvider>
-                  <TransactionsProvider>
-                    <BudgetsProvider>
-                      <GoalsProvider>
-                        <ReportProvider>
-                          <ReportChartProvider>{children}</ReportChartProvider>
-                        </ReportProvider>
-                      </GoalsProvider>
-                    </BudgetsProvider>
-                  </TransactionsProvider>
-                </OverviewChartProvider>
-              </OverviewProvider>
-            </ModalProvider>
-          </NotificationProvider>
-        </FormProvider>
+        <MainProvider>
+          <FormProvider>
+            <NotificationProvider>
+              <ModalProvider>
+                <OverviewProvider>
+                  <OverviewChartProvider>
+                    <TransactionsProvider>
+                      <BudgetsProvider>
+                        <GoalsProvider>
+                          <ReportProvider>
+                            <ReportChartProvider>
+                              {children}
+                            </ReportChartProvider>
+                          </ReportProvider>
+                        </GoalsProvider>
+                      </BudgetsProvider>
+                    </TransactionsProvider>
+                  </OverviewChartProvider>
+                </OverviewProvider>
+              </ModalProvider>
+            </NotificationProvider>
+          </FormProvider>
+        </MainProvider>
       </AuthProvider>
     </AuthFormProvider>
   );

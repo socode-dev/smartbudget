@@ -52,7 +52,10 @@ export const checkBudgetThreshold = async (
   budgets,
   transactions,
   getAmountSpent,
-  formattedAmount
+  formattedAmount,
+  budgetThreshold50,
+  budgetThreshold80,
+  budgetThreshold100
 ) => {
   // Expense budgets
   const expenseBudgets = budgets?.filter((budget) => budget.type === "expense");
@@ -70,7 +73,7 @@ export const checkBudgetThreshold = async (
     const percentage = (spent / amount) * 100;
 
     // Fire notification if threshold condition is met
-    if (percentage > 110) {
+    if (percentage > budgetThreshold100) {
       await createBudgetNotification(userUID, {
         subject: `Over Budget in ${category}`,
         message: `You've exceeded your "${category}" by ${formattedAmount(
@@ -81,9 +84,9 @@ export const checkBudgetThreshold = async (
         type: "budget",
         category,
         key: categoryKey,
-        threshold: "EXPENSE_OVER_100",
+        threshold: `EXPENSE_OVER_${budgetThreshold100}`,
       });
-    } else if (percentage >= 100) {
+    } else if (percentage >= budgetThreshold80) {
       await createBudgetNotification(userUID, {
         subject: `Budget reached: ${category}`,
         message: `Your "${category}" budget of ${formattedAmount(
@@ -92,12 +95,12 @@ export const checkBudgetThreshold = async (
         type: "budget",
         category,
         key: categoryKey,
-        threshold: "EXPENSE_100",
+        threshold: `EXPENSE_${budgetThreshold80}`,
       });
-    } else if (percentage >= 80) {
+    } else if (percentage >= budgetThreshold50) {
       await createBudgetNotification(userUID, {
-        subject: `Budget Alert: 80% of ${category} Used`,
-        message: `You have spent 80% of your "${category}" budget. That's ${formattedAmount(
+        subject: `Budget Alert: ${budgetThreshold50}% of ${category} Used`,
+        message: `You have spent ${budgetThreshold50}% of your "${category}" budget. That's ${formattedAmount(
           spent
         )} out of ${formattedAmount(
           amount
@@ -105,7 +108,7 @@ export const checkBudgetThreshold = async (
         type: "budget",
         category,
         key: categoryKey,
-        threshold: "EXPENSE_80",
+        threshold: `EXPENSE_${budgetThreshold50}`,
       });
     }
   }

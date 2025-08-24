@@ -13,10 +13,12 @@ export const OverviewChartProvider = ({ children }) => {
   const budgetRemaining =
     totalBudget - totalBudgetUsed > 0 ? totalBudget - totalBudgetUsed : 0;
 
-  const dates = transactions.map((tx) => new Date(tx.date));
+  const dates = transactions?.map((tx) => new Date(tx.date));
 
-  const firstDate = new Date(Math.min(...dates));
-  const lastDate = new Date(Math.max(...dates));
+  const firstDate =
+    dates?.length > 0 ? new Date(Math.min(...dates)) : new Date();
+  const lastDate =
+    dates?.length > 0 ? new Date(Math.max(...dates)) : new Date();
 
   const months = eachMonthOfInterval({
     start: new Date(firstDate.getFullYear(), firstDate.getMonth()),
@@ -26,12 +28,12 @@ export const OverviewChartProvider = ({ children }) => {
   const monthlyIncome = useMemo(
     () =>
       months.map((month) => {
-        const sameMonthTransactions = transactions.filter(
+        const sameMonthTransactions = transactions?.filter(
           (transaction) =>
             transaction.type === "income" &&
             format(new Date(transaction.date), "MMM") === month
         );
-        const totalMonthlyIncome = sameMonthTransactions.reduce(
+        const totalMonthlyIncome = sameMonthTransactions?.reduce(
           (sum, tx) => sum + tx.amount,
           0
         );
@@ -43,12 +45,12 @@ export const OverviewChartProvider = ({ children }) => {
   const monthlyExpenses = useMemo(
     () =>
       months.map((month) => {
-        const sameMonthTransactions = transactions.filter(
+        const sameMonthTransactions = transactions?.filter(
           (transaction) =>
             transaction.type === "expense" &&
             format(new Date(transaction.date), "MMM") === month
         );
-        const totalMonthlyExpenses = sameMonthTransactions.reduce(
+        const totalMonthlyExpenses = sameMonthTransactions?.reduce(
           (sum, tx) => sum + tx.amount,
           0
         );

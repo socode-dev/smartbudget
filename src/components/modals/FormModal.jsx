@@ -1,9 +1,11 @@
 import { useEffect } from "react";
-import { useModalContext } from "../context/ModalContext";
-import Modal from "../components/modals/Modal";
+import { useModalContext } from "../../context/ModalContext";
+import Modal from "./Modal";
+import { useMainContext } from "../../context/MainContext";
 
-const FormModal = ({ sidebarOpen }) => {
+const FormModal = () => {
   const { modalState } = useModalContext();
+  const { isSidebarOpen } = useMainContext();
 
   // Disable window scroll when modal is open
   useEffect(() => {
@@ -12,7 +14,7 @@ const FormModal = ({ sidebarOpen }) => {
       modalState.budgets.open ||
       modalState.goals.open ||
       modalState.contributions.open ||
-      sidebarOpen
+      isSidebarOpen
     ) {
       document.body.style.overflow = "hidden";
     } else {
@@ -20,7 +22,7 @@ const FormModal = ({ sidebarOpen }) => {
     }
 
     return () => (document.body.style.overflow = "");
-  }, [modalState, sidebarOpen]);
+  }, [modalState, isSidebarOpen]);
 
   return (
     <>

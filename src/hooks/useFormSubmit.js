@@ -56,11 +56,14 @@ const useFormSubmit = (label, mode) => {
     }
   };
 
-  // Transaction threshold
-  const FIXED_THRESHOLD = 10000;
-
   // Handle submit form to add transactions, budgets, goals and contributions
-  const onSubmit = async (data, userUID, transactionID, formattedAmount) => {
+  const onSubmit = async (
+    data,
+    userUID,
+    transactionID,
+    formattedAmount,
+    transactionThreshold
+  ) => {
     const categoryType = CATEGORY_OPTIONS.find(
       (opt) => opt.name === data.category
     )?.type;
@@ -88,15 +91,16 @@ const useFormSubmit = (label, mode) => {
       // Add transaction if mode is add / update edited transaction if mode is edit
       if (mode === "add") {
         await addTransactionToStore(userUID, label, transaction);
-        console.log(`${label} added successfully`);
       } else if (mode === "edit") {
         await updateTransaction(userUID, label, transactionID, transaction);
       }
 
-      // Close the modl
+      // Close the modal
       onCloseModal(label);
+
+      // Show toast on success
       toast.success(
-        `${(label.charAt(0).toUpperCase() + label.slice(1)).slice(0, -1)} ${
+        `${(label[0].toUpperCase() + label.slice(1)).slice(0, -1)} ${
           mode === "add" ? "added" : "updated"
         } successfully`,
         {
@@ -111,7 +115,7 @@ const useFormSubmit = (label, mode) => {
       if (
         label === "transactions" &&
         type === "expense" &&
-        transaction.amount >= FIXED_THRESHOLD
+        transaction.amount >= transactionThreshold
       ) {
         await createNotification(userUID, {
           subject: "Large Expense Alert 🚨",
@@ -120,7 +124,7 @@ const useFormSubmit = (label, mode) => {
           )} for "${
             transaction.category
           }", which is higher than your set threshold of ${formattedAmount(
-            FIXED_THRESHOLD
+            transactionThreshold
           )}. Keep an eye on your spending.`,
           type: "transaction",
         });

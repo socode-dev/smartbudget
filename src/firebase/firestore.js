@@ -8,6 +8,7 @@ import {
   collection,
   query,
   orderBy,
+  getDoc,
 } from "firebase/firestore";
 import { db } from "./firebase";
 
@@ -92,5 +93,17 @@ export const createNotification = async (
     });
   } catch (err) {
     console.log(err);
+  }
+};
+
+export const getUserThresholds = async (uid) => {
+  const userRef = doc(db, "users", uid);
+  const userSnapshot = await getDoc(userRef);
+
+  if (userSnapshot.exists()) {
+    const data = userSnapshot.data();
+    return data.thresholds || null;
+  } else {
+    return null;
   }
 };

@@ -3,40 +3,47 @@ import { db } from "./firebase";
 import useTransactionStore from "../store/useTransactionStore";
 import useNotificationStore from "../store/useNotificationStore";
 
-// attach a realtime listenerfor a given subcollection
-export const subcollectionListener = (uid, subcollection, setter) => {
-  const ref = collection(db, "users", uid, subcollection);
+// attach a realtime listener for a given subcollection
+export const subcollectionListener = (userUID, subcollection, setter) => {
+  const ref = collection(db, "users", userUID, subcollection);
 
   return onSnapshot(ref, (snapshot) => {
-    const items = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-    setter(items);
+    if (!snapshot.empty) {
+      const items = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+      setter(items);
+    } else {
+    }
   });
 };
 
 // intialize user listener
-export const initUserListener = (uid) => {
+export const initUserListener = (userUID) => {
   const { setTransactions, setBudgets, setGoals, setContributions } =
     useTransactionStore.getState();
   const { setNotifications } = useNotificationStore.getState();
 
   const unsubscribeTransactions = subcollectionListener(
-    uid,
+    userUID,
     "transactions",
     setTransactions
   );
 
-  const unsubscribeBudgets = subcollectionListener(uid, "budgets", setBudgets);
+  const unsubscribeBudgets = subcollectionListener(
+    userUID,
+    "budgets",
+    setBudgets
+  );
 
-  const unsubscribeGoals = subcollectionListener(uid, "goals", setGoals);
+  const unsubscribeGoals = subcollectionListener(userUID, "goals", setGoals);
 
   const unsubscribeContributions = subcollectionListener(
-    uid,
+    userUID,
     "contributions",
     setContributions
   );
 
   const unsubscribeNotif = subcollectionListener(
-    uid,
+    userUID,
     "notifications",
     setNotifications
   );

@@ -1,7 +1,11 @@
 import { FaBellSlash } from "react-icons/fa";
+import { useMainContext } from "../../context/MainContext";
 
-const AiSettingsDropdown = ({ open, onClose }) => {
-  if (!open) return null;
+const AiSettingsDropdown = () => {
+  const mainContext = useMainContext();
+  const isAISettingsOpen = mainContext.isAISettingsOpen;
+
+  if (!isAISettingsOpen) return null;
   return (
     <div className="absolute -right-14 top-10 ml-2 w-56 bg-[rgb(var(--color-gray-bg))] border border-[rgb(var(--color-gray-border))] rounded-lg shadow-lg z-70 text-xs">
       <ul className="py-2">

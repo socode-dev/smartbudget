@@ -25,13 +25,13 @@ export const ReportChartProvider = ({ children }) => {
   const { formattedAmount } = useTransactionsContext();
 
   const expenses = useMemo(
-    () => transactions.filter((tx) => tx.type === "expense"),
+    () => transactions?.filter((tx) => tx.type === "expense"),
     [transactions]
   );
 
   const categoryTotals = useMemo(
     () =>
-      expenses.reduce((acc, tx) => {
+      expenses?.reduce((acc, tx) => {
         const cat = tx.category;
         acc[cat] = (acc[cat] || 0) + tx.amount;
         return acc;
@@ -39,21 +39,21 @@ export const ReportChartProvider = ({ children }) => {
     [expenses]
   );
 
-  const labels = Object.keys(categoryTotals);
-  const amounts = Object.values(categoryTotals);
+  const labels = categoryTotals ? Object.keys(categoryTotals) : [];
+  const amounts = categoryTotals ? Object.values(categoryTotals) : [];
   const totalAmount = useMemo(
-    () => expenses.reduce((acc, tx) => acc + tx.amount, 0),
+    () => expenses?.reduce((acc, tx) => acc + tx.amount, 0),
     [expenses]
   );
 
   const backgroundColor = useMemo(
-    () => labels.map((label) => categoryColor[label] || "#9CA3AF"),
+    () => labels?.map((label) => categoryColor[label] || "#9CA3AF"),
     [labels, categoryColor]
   );
 
   const formattedLabels = useMemo(
     () =>
-      labels.map((label) => {
+      labels?.map((label) => {
         const percentage = totalAmount
           ? ((categoryTotals[label] / totalAmount) * 100)?.toFixed(1)
           : 0;

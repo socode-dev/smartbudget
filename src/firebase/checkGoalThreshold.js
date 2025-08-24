@@ -51,7 +51,10 @@ export const checkGoalThreshold = async (
   userUID,
   goals,
   getAmountSaved,
-  formattedAmount
+  formattedAmount,
+  goalThreshold50,
+  goalThreshold80,
+  goalThreshold100
 ) => {
   for (const goal of goals) {
     const { name, categoryKey, amount, date } = goal;
@@ -62,7 +65,7 @@ export const checkGoalThreshold = async (
     const percentage = (saved / amount) * 100;
 
     // Fire notification if threshold condition is met
-    if (percentage > 110) {
+    if (percentage > goalThreshold100) {
       await createGoalNotification(userUID, {
         subject: `Goal Surpassed: ${name}`,
         message: `Fantastic! You've exceeded your "${name}" goal by ${formattedAmount(
@@ -73,9 +76,9 @@ export const checkGoalThreshold = async (
         type: "goal",
         name,
         key: categoryKey,
-        threshold: "GOAL_OVER_100",
+        threshold: `GOAL_OVER_${goalThreshold100}`,
       });
-    } else if (percentage >= 100) {
+    } else if (percentage >= goalThreshold80) {
       await createGoalNotification(userUID, {
         subject: `Goal Achieved: ${name}`,
         message: `Congratulations! 🎉 You've reached your savings goal of ${formattedAmount(
@@ -84,18 +87,18 @@ export const checkGoalThreshold = async (
         type: "goal",
         name,
         key: categoryKey,
-        threshold: "GOAL_100",
+        threshold: `GOAL_${goalThreshold80}`,
       });
-    } else if (percentage >= 80) {
+    } else if (percentage >= goalThreshold50) {
       await createGoalNotification(userUID, {
-        subject: `Goal Progress: 80% of ${name} Saved`,
-        message: `Great job! You've saved 80% of your goal "${name}", which is ${formattedAmount(
+        subject: `Goal Progress: ${goalThreshold50}% of ${name} Saved`,
+        message: `Great job! You've saved ${goalThreshold50}% of your goal "${name}", which is ${formattedAmount(
           saved
         )} out of ${formattedAmount(amount)}. You're almost there, Keep it up.`,
         type: "goal",
         name,
         key: categoryKey,
-        threshold: "GOAL_80",
+        threshold: `GOAL_${goalThreshold50}`,
       });
     }
   }
