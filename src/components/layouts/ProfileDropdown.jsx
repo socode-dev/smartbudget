@@ -33,7 +33,7 @@ const ProfileDropdown = () => {
 
       <button
         onClick={handleSignoutPromptOpen}
-        className="flex gap-1.5 items-center mt-15 cursor-pointer text-red-600 font-medium hover:text-red-700 transition"
+        className="flex gap-1.5 items-center mt-15 mx-auto cursor-pointer text-red-600 hover:text-red-700 transition"
       >
         <FaSignOutAlt />
         <span>Log Out</span>

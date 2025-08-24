@@ -87,8 +87,8 @@ export const ReportChartProvider = ({ children }) => {
         labels: {
           color: "#6b7280",
           font: {
-            size: 14,
-            weight: "600",
+            size: 16,
+            weight: "400",
           },
           padding: 12,
         },
@@ -117,7 +117,7 @@ export const ReportChartProvider = ({ children }) => {
         borderWidth: 1,
         borderRadius: 50,
         color: "#6b7280",
-        font: { weight: 600, size: 14 },
+        font: { weight: 400, size: 16 },
       },
     ],
   };
@@ -132,8 +132,8 @@ export const ReportChartProvider = ({ children }) => {
         padding: 10,
         labels: {
           font: {
-            size: 14,
-            weight: "600",
+            size: 16,
+            weight: "400",
           },
           scales: {
             x: {

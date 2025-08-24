@@ -57,12 +57,10 @@ const Budgets = () => {
 
           <button
             onClick={() => onOpenModal("budgets", "add")}
-            className="bg-[rgb(var(--color-brand-deep))] hover:bg-[rgb(var(--color-brand))] transition cursor-pointer text-white px-4 py-2 rounded-md text-base font-semibold flex items-center mx-auto gap-2"
+            className="bg-[rgb(var(--color-brand-deep))] hover:bg-[rgb(var(--color-brand))] transition cursor-pointer text-white px-4 py-2 rounded-md text-base flex items-center mx-auto gap-2"
           >
             <FaPlus />
-            <span>
-              {budgets.length === 0 ? "Add Your First Budget" : "Add Budget"}
-            </span>
+            <span>Add Your First Budget</span>
           </button>
         </>
       )}

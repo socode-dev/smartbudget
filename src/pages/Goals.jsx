@@ -59,7 +59,7 @@ const Goals = () => {
 
           <button
             onClick={() => onOpenModal("goals", "add")}
-            className=" bg-blue-500 hover:bg-blue-600 transition cursor-pointer text-white px-4 py-2 rounded-md text-base font-semibold flex items-center gap-2"
+            className=" bg-blue-500 hover:bg-blue-600 transition cursor-pointer text-white px-4 py-2 rounded-md text-base flex items-center gap-2"
           >
             <FaPlus className="text-lg" />
             <span>Add Your First Goal</span>

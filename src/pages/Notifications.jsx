@@ -25,6 +25,7 @@ const NotificationDropdown = () => {
   const sortedNotification = notifications?.sort(
     (a, b) => b.createdAt?.toDate() - a.createdAt?.toDate()
   );
+  console.log(sortedNotification);
 
   const toggleOptions = (id) =>
     setOptions((prev) => ({ ...prev, id: id, open: !prev.open }));
@@ -35,24 +36,23 @@ const NotificationDropdown = () => {
   };
 
   return (
-    <main className="w-full h-full py-8 flex flex-col">
-      <div className="w-full  max-w-[600px] mx-auto">
-        {notifications?.length > 0 &&
-          sortedNotification.map((notification) => (
+    <main className="w-full max-w-[600px] mx-auto py-8 text-[rgb(var(--color-text))]">
+      {notifications?.length > 0 &&
+        sortedNotification.map((notification) => {
+          return (
             <div
-              key={notification.id}
+              key={notification.key}
               className={clsx(
-                "flex items-center gap-5 p-3 bg-[rgb(var(--color-bg-card))] w-full font-medium",
+                "w-full px-2 py-4 flex items-center bg-[rgb(var(--color-bg-card))]",
                 !notification.read && "bg-[rgb(var(--color-status-bg-blue))]"
               )}
             >
               <div
                 className={clsx(
-                  "w-2.5 h-2 rounded-full",
+                  "w-[8px] h-[8px] rounded-full",
                   !notification.read && "bg-[rgb(var(--color-brand-deep))]"
                 )}
               ></div>
-
               <button
                 onClick={() =>
                   onOpenDialog(
@@ -73,7 +73,7 @@ const NotificationDropdown = () => {
                 </p>
               </button>
 
-              <div className="relative">
+              <div className="relative flex items-center">
                 <button
                   onClick={() => toggleOptions(notification.id)}
                   className="text-xl text-[rgb(var(--color-muted))] hover:text-gray-700 transition cursor-pointer"
@@ -82,7 +82,7 @@ const NotificationDropdown = () => {
                 </button>
 
                 {options.id === notification.id && options.open && (
-                  <div className="absolute right-0 bg-[rgb(var(--color-bg-card))] border border-[rgb(var(--color-gray-border))] rounded-lg shadow-2xl">
+                  <div className="absolute top-7 right-0 bg-[rgb(var(--color-bg-card))] border border-[rgb(var(--color-gray-border))] rounded-lg shadow-2xl">
                     <button
                       onClick={() => deleteNotification(notification.id)}
                       className="px-4 py-2 hover:bg-[rgb(var(--color-bg))] text-sm transition cursor-pointer"
@@ -93,8 +93,8 @@ const NotificationDropdown = () => {
                 )}
               </div>
             </div>
-          ))}
-      </div>
+          );
+        })}
     </main>
   );
 };

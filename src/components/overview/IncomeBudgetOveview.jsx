@@ -71,7 +71,7 @@ const IncomeBudgetOverview = () => {
           <strong>{Math.ceil(budgetPercent)}%</strong> of{" "}
           <strong>{formattedAmount(totalIncomeBudget)}</strong> goal reached
         </p>
-        <p className="text-base text-[rgb(var(--color-muted))] font-medium">
+        <p className="text-base text-[rgb(var(--color-muted))] ">
           {budgetPercent > 100 ? "Extra" : "Remaining"}:{" "}
           <strong
             className={clsx(
@@ -84,17 +84,17 @@ const IncomeBudgetOverview = () => {
               : formattedAmount(remainingIncome)}
           </strong>
         </p>
-        <p className="font-medium text-base text-[rgb(var(--color-muted))]">
+        <p className=" text-base text-[rgb(var(--color-muted))]">
           Status:{" "}
-          <strong
+          <span
             className={clsx(
-              "text-[rgb(var(--color-brand-deep))] bg-[rgb(var(--color-status-bg-blue))] px-2 py-1 rounded",
+              "text-[rgb(var(--color-brand-deep))] bg-[rgb(var(--color-status-bg-blue))] px-2 py-1 rounded font-medium",
               budgetPercent >= 100 &&
                 "text-green-500 bg-[rgb(var(--color-status-bg-green))]"
             )}
           >
             {incomeStatus}
-          </strong>
+          </span>
         </p>
       </div>
     </div>
