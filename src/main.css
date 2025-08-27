@@ -24,6 +24,8 @@
   --color-status-bg-green: 240, 253, 244;
   --color-status-bg-amber: 255, 251, 235;
   --color-status-bg-red: 254, 242, 242;
+  --color-skeleton-bg: 203, 213, 225;
+  --color-skeleton-bg-deep: 148, 163, 184;
 }
 
 .dark {
@@ -42,6 +44,8 @@
   --color-status-bg-green: 5, 46, 22;
   --color-status-bg-amber: 69, 26, 3;
   --color-status-bg-red: 69, 10, 10;
+  --color-skeleton-bg: 30, 41, 59;
+  --color-skeleton-bg-deep: 15, 23, 42;
 }
 
 html {

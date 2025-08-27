@@ -1,4 +1,3 @@
-import { Suspense, lazy } from "react";
 import { BrowserRouter as Router } from "react-router-dom";
 import { useThemeEffect } from "./hooks/useThemeEffect";
 import AppWrapper from "./routes/AppWrapper";
@@ -10,11 +9,9 @@ function App() {
 
   return (
     <Router>
-      <Suspense fallback={<div className="p-8">Loading...</div>}>
-        <AppWrapper>
-          <AppRoutes />
-        </AppWrapper>
-      </Suspense>
+      <AppWrapper>
+        <AppRoutes />
+      </AppWrapper>
     </Router>
   );
 }

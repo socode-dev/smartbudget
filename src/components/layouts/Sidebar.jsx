@@ -12,6 +12,7 @@ import {
 import { useAuthContext } from "../../context/AuthContext";
 import clsx from "clsx";
 import { useMainContext } from "../../context/MainContext";
+import SidebarSkeleton from "../skeletons/SidebarSkeleton";
 
 const navLinks = [
   { to: "/", icon: FaTachometerAlt, label: "Overview" },
@@ -31,6 +32,10 @@ const Sidebar = () => {
   // Sidebar expanded if hovered (desktop) or open (mobile)
   const expanded = hovered || isSidebarOpen;
 
+  if (!userName) {
+    return <SidebarSkeleton />;
+  }
+
   return (
     <aside className="w-fit">
       {/* Overlay for mobile */}
@@ -47,7 +52,7 @@ const Sidebar = () => {
       )}
       <section
         className={clsx(
-          "fixed left-0 top-0 h-svh bg-[rgb(var(--color-bg))] text-[rgb(var(--color-text))] flex flex-col shadow-lg transition-all duration-200 z-70 lg:translate-x-0 lg:static",
+          "fixed left-0 top-0 h-svh bg-[rgb(var(--color-bg))] text-[rgb(var(--color-text))] flex flex-col shadow-lg transition-all duration-200 z-70 lg:translate-x-0 lg:static p-3",
           isSidebarOpen ? "translate-x-0" : "-translate-x-100 lg:translate-x-0",
           expanded ? "lg:w-48 w-56" : "lg:w-20 w-16"
         )}
@@ -57,11 +62,11 @@ const Sidebar = () => {
         aria-label="Sidebar navigation"
       >
         {/* Logo */}
-        <h1 className="mx-3 mt-3.5 bg-blue-700 rounded-lg flex items-center justify-center text-white font-bold text-xl md:text-2xl py-1.5">
+        <h1 className=" bg-blue-700 rounded-lg flex items-center justify-center text-white font-bold text-xl md:text-2xl py-1.5">
           SB
         </h1>
         {/* Navigation */}
-        <nav className="flex flex-col grow gap-2 mt-12 px-3 overflow-y-auto">
+        <nav className="flex flex-col grow gap-2 mt-12 overflow-y-auto">
           {navLinks.map((link) => (
             <Link
               key={link.to}
@@ -93,7 +98,7 @@ const Sidebar = () => {
         {/* User Info */}
         <div
           className={clsx(
-            "flex items-center bg-[rgb(var(--color-brand))] text-white gap-2 px-4 mx-3 mb-6 rounded-lg py-2",
+            "flex items-center bg-[rgb(var(--color-brand))] text-white gap-2 px-4 rounded-lg py-2",
             expanded ? "justify-start" : "justify-center"
           )}
         >

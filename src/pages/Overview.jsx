@@ -5,9 +5,29 @@ import BudgetOverview from "../components/overview/BudgetOverview";
 import QuickActions from "../components/overview/QuickActions";
 import ScrollToTop from "../layout/ScrollToTop";
 import { useAuthContext } from "../context/AuthContext";
+import OverviewSkeleton from "../components/skeletons/overview/OverviewSkeleton";
+import { useOverviewContext } from "../context/OverviewContext";
 
 const Overview = () => {
-  const { userName } = useAuthContext();
+  const { userName, currentUser } = useAuthContext();
+  const {
+    totalIncome,
+    totalExpenses,
+    netBalance,
+    totalBudget,
+    totalBudgetUsed,
+  } = useOverviewContext;
+
+  if (
+    !currentUser &&
+    !totalIncome &&
+    !totalExpenses &&
+    !netBalance &&
+    !totalBudget &&
+    !totalBudgetUsed
+  ) {
+    return <OverviewSkeleton />;
+  }
 
   return (
     <main className="flex flex-col gap-16 px-5 md:px-10 py-8">
