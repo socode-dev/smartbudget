@@ -12,7 +12,7 @@ const Charts = () => {
         Track your spending and category distribution
       </p>
 
-      <section className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <figure className="space-y-4 bg-[rgb(var(--color-bg-card))] rounded-lg p-4 shadow">
           <h3 className="text-xl font-medium">Income vs Expenses</h3>
 
@@ -37,7 +37,7 @@ const Charts = () => {
             <DoughnutChart page="overview" />
           )}
         </figure>
-      </section>
+      </div>
     </>
   );
 };

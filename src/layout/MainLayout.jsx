@@ -8,6 +8,9 @@ import { useNotificationContext } from "../context/NotificationContext";
 import FormModal from "../components/modals/FormModal";
 import NotificationDialog from "../components/modals/NotificationDialog";
 import Preferences from "../components/modals/Preferences";
+import LazyWrapper from "../routes/LazyWrapper";
+import HeaderSkeleton from "../components/skeletons/HeaderSkeleton";
+import SidebarSkeleton from "../components/skeletons/SidebarSkeleton";
 
 const MainLayout = () => {
   const { isUserEmailVerified } = useAuthContext();
@@ -20,9 +23,6 @@ const MainLayout = () => {
       {/* Sign out confirmation dialog */}
       <SignoutPrompt />
 
-      {/* Sidebar */}
-      <Sidebar />
-
       {/* Form Modal */}
       <FormModal />
 
@@ -32,9 +32,16 @@ const MainLayout = () => {
       {/* Preferences dialog */}
       <Preferences />
 
+      {/* Sidebar */}
+      <LazyWrapper loadingFallback={SidebarSkeleton}>
+        <Sidebar />
+      </LazyWrapper>
+
       {/* Main Content */}
       <div className="flex flex-col grow">
-        <Header />
+        <LazyWrapper loadingFallback={<HeaderSkeleton />}>
+          <Header />
+        </LazyWrapper>
         <main className="bg-[rgb(var(--color-bg))] overflow-y-auto grow transition-all duration-200 lg:pt-0 pt-14">
           {/* pt-14 for mobile header, lg:pt-0 for desktop */}
           {/* Display under header if user email is not verified */}

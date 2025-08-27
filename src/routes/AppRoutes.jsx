@@ -8,6 +8,12 @@ import Signup from "../pages/Signup";
 import ForgotPassword from "../pages/ForgotPassword";
 import { lazy } from "react";
 import EmailVerified from "../pages/EmailVerified";
+import LazyWrapper from "./LazyWrapper";
+import OverviewSkeleton from "../components/skeletons/overview/OverviewSkeleton";
+import TransactionSkeleton from "../components/skeletons/TransactionSkeleton";
+import BudgetSkeleton from "../components/skeletons/BudgetSkeleton";
+import GoalSkeleton from "../components/skeletons/GoalSkeleton";
+import ReportSkeleton from "../components/skeletons/ReportSkeleton";
 
 const Overview = lazy(() => import("../pages/Overview"));
 const Transactions = lazy(() => import("../pages/Transactions"));
@@ -50,12 +56,47 @@ const AppRoutes = () => {
           </ProtectedRoute>
         }
       >
-        <Route index element={<Overview />} />
-        <Route path="transactions" element={<Transactions />} />
-        <Route path="budgets" element={<Budgets />} />
-        <Route path="reports" element={<Reports />} />
-        <Route path="goals" element={<Goals />} />
+        <Route
+          index
+          element={
+            <LazyWrapper loadingFallback={<OverviewSkeleton />}>
+              <Overview />
+            </LazyWrapper>
+          }
+        />
+        <Route
+          path="transactions"
+          element={
+            <LazyWrapper loadingFallback={<TransactionSkeleton />}>
+              <Transactions />
+            </LazyWrapper>
+          }
+        />
+        <Route
+          path="budgets"
+          element={
+            <LazyWrapper loadingFallback={<BudgetSkeleton />}>
+              <Budgets />
+            </LazyWrapper>
+          }
+        />
+        <Route
+          path="goals"
+          element={
+            <LazyWrapper loadingFallback={<GoalSkeleton />}>
+              <Goals />
+            </LazyWrapper>
+          }
+        />
         <Route path="insights" element={<Insights />} />
+        <Route
+          path="reports"
+          element={
+            <LazyWrapper loadingFallback={<ReportSkeleton />}>
+              <Reports />
+            </LazyWrapper>
+          }
+        />
         <Route path="notifications" element={<Notifications />} />
         <Route path="email-verified" element={<EmailVerified />} />
       </Route>

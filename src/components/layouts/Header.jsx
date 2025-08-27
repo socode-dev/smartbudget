@@ -7,6 +7,7 @@ import { useAuthContext } from "../../context/AuthContext";
 import useNotificationStore from "../../store/useNotificationStore";
 import { useNavigate } from "react-router-dom";
 import { useMainContext } from "../../context/MainContext";
+import HeaderSkeleton from "../skeletons/HeaderSkeleton";
 
 const Header = () => {
   const navigate = useNavigate();
@@ -19,6 +20,10 @@ const Header = () => {
     handleSettingsToggle,
     handleProfileToggle,
   } = useMainContext();
+
+  if (!userName) {
+    return <HeaderSkeleton />;
+  }
 
   // Get unread notifications
   const newNotifications = notifications?.filter((notif) => !notif?.read);
