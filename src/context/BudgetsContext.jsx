@@ -14,6 +14,7 @@ import { checkBudgetThreshold } from "../firebase/checkBudgetThreshold";
 import { useAuthContext } from "./AuthContext";
 import { useTransactionsContext } from "./TransactionsContext";
 import useThresholdStore from "../store/useThresholdStore";
+import { scheduleThresholdCheck } from "../services/scheduleThresholdCheck";
 
 const BudgetsContext = createContext();
 
@@ -64,25 +65,37 @@ export const BudgetsProvider = ({ children }) => {
   const transactionCounts = transactions?.length;
 
   useEffect(() => {
-    if (!currentUser?.uid || budgetCounts === 0) return;
+    // if (!currentUser?.uid || budgetCounts === 0) return;
+    let mounted = true;
+    let lastRunKey = null;
 
-    // Debounce notification to avoid firing multiple time during quick updates
-    const timeout = setTimeout(() => {
-      checkBudgetThreshold(
-        currentUser.uid,
-        budgets,
-        transactions,
-        getAmountSpent,
-        formattedAmount,
-        budgetThreshold50,
-        budgetThreshold80,
-        budgetThreshold100
-      ).catch((error) =>
-        console.error("Error generating notifications:", error)
-      );
-    }, 300);
+    const runKey = `${currentUser?.uid || "nouser"}|b:${budgetCounts || 0}|t:${
+      transactionCounts || 0
+    }`;
 
-    return () => clearTimeout(timeout);
+    if (currentUser?.uid && (budgetCounts || 0) > 0) {
+      if (lastRunKey !== runKey) {
+        lastRunKey = runKey;
+        scheduleThresholdCheck(
+          mounted,
+          checkBudgetThreshold,
+          currentUser.uid,
+          budgets,
+          transactions,
+          getAmountSpent,
+          formattedAmount,
+          budgetThreshold50,
+          budgetThreshold80,
+          budgetThreshold100
+        );
+      } else {
+        console.log("Skipping duplicate budget-check run");
+      }
+    }
+
+    return () => {
+      mounted = false;
+    };
   }, [currentUser?.uid, budgetCounts, transactionCounts]);
 
   const handleEditBudget = (id) => {
@@ -97,8 +110,8 @@ export const BudgetsProvider = ({ children }) => {
     setTransactionID(id);
   };
 
-  const handleDeleteTransaction = (id) => {
-    deleteTransaction(id, "budgets");
+  const handleDeleteBudget = (id) => {
+    deleteTransaction(currentUser.uid, "budgets", id);
   };
 
   const getProgressBackground = (percentage, type) => {
@@ -124,7 +137,7 @@ export const BudgetsProvider = ({ children }) => {
         getProgressBackground,
         onOpenModal,
         handleEditBudget,
-        handleDeleteTransaction,
+        handleDeleteBudget,
       }}
     >
       {children}

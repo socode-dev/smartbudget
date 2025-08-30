@@ -31,8 +31,11 @@ const TransactionSkeleton = () => {
         <div className="w-3xs h-10 bg-[rgb(var(--color-skeleton-bg))] rounded-lg animate-pulse mb-6"></div>
         {/* Table */}
         <div className="flex flex-col gap-2">
-          {Array.from({ length: 10 }).map((_) => (
-            <div className="w-full h-14 bg-[rgb(var(--color-skeleton-bg))] rounded-lg animate-pulse"></div>
+          {Array.from({ length: 10 }).map((_, i) => (
+            <div
+              key={i}
+              className="w-full h-14 bg-[rgb(var(--color-skeleton-bg))] rounded-lg animate-pulse"
+            ></div>
           ))}
         </div>
       </section>
@@ -45,8 +48,11 @@ const TransactionSkeleton = () => {
       </section>
 
       <section className="grid grid-cols-2 md:grid-cols-4 gap-8">
-        {Array.from({ length: 4 }).map((_) => (
-          <div className="h-8 bg-[rgb(var(--color-skeleton-bg))] rounded-lg animate-pulse"></div>
+        {Array.from({ length: 4 }).map((_, i) => (
+          <div
+            key={i}
+            className="h-8 bg-[rgb(var(--color-skeleton-bg))] rounded-lg animate-pulse"
+          ></div>
         ))}
       </section>
     </main>

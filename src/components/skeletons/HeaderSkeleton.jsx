@@ -13,8 +13,11 @@ const HeaderSkeleton = () => {
       {/* Right: Icons and User Avatar */}
       <div className="flex items-center gap-6">
         {/* Notification Icon with new notification counts(if there is any) */}
-        {Array.from({ length: 2 }).map((_) => (
-          <div className="w-8 h-8 bg-[rgb(var(--color-skeleton-bg))] rounded-lg animate-pulse"></div>
+        {Array.from({ length: 2 }).map((_, i) => (
+          <div
+            key={i}
+            className="w-8 h-8 bg-[rgb(var(--color-skeleton-bg))] rounded-lg animate-pulse"
+          ></div>
         ))}
 
         <div className="w-10 h-8 bg-[rgb(var(--color-skeleton-bg))] rounded-full animate-pulse"></div>

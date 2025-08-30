@@ -9,6 +9,7 @@ import {
   query,
   orderBy,
   getDoc,
+  setDoc,
 } from "firebase/firestore";
 import { db } from "./firebase";
 
@@ -76,20 +77,17 @@ export const createWelcomeNotification = (userUID) => {
   }
 };
 
-export const createNotification = async (
-  uid,
-  { subject, message, type, meta = {} }
-) => {
-  const ref = userColRef(uid, "notifications");
+export const createNotification = async (uid, { subject, message, type }) => {
+  const id = `${uid}_${type}_${message}`.replace(/\s+/g, "_").toLowerCase();
+  const notifDocRef = doc(db, "users", uid, "notifications", id);
 
   try {
-    await addDoc(ref, {
+    await setDoc(notifDocRef, {
       subject,
       message,
       type,
       read: false,
       createdAt: serverTimestamp(),
-      meta,
     });
   } catch (err) {
     console.log(err);

@@ -12,6 +12,7 @@ export const subcollectionListener = (userUID, subcollection, setter) => {
       const items = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
       setter(items);
     } else {
+      setter([]);
     }
   });
 };

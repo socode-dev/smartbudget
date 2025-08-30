@@ -1,8 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import axios from "axios";
-import CURRENCY_SYMBOLS from "../data/currencySymbols";
-import { symbol } from "zod";
 
 const useCurrencyStore = create(
   persist(
@@ -26,9 +24,14 @@ const useCurrencyStore = create(
           set({ currencies: ["USD", "EUR", "NGN"] }); // fallback
         }
       },
+
+      clearCurrencyStore: () => {
+        set({ currencies: [] });
+      },
     }),
     {
       name: "currency-storage",
+      partialize: (state) => ({ currencies: state.currencies }),
     }
   )
 );

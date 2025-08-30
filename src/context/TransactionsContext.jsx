@@ -154,7 +154,7 @@ export const TransactionsProvider = ({ children }) => {
 
   // Handle for deleting transaction
   const handleDeleteTransaction = useCallback((id) => {
-    deleteTransaction(currentUser.uid, "transactions", id);
+    deleteTransaction(currentUser?.uid, "transactions", id);
   }, []);
 
   const value = {
