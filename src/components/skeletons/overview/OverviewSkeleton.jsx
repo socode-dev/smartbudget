@@ -39,10 +39,12 @@ const OverviewSkeleton = () => {
         <div className="w-full max-w-2xl h-[30px] bg-[rgb(var(--color-skeleton-bg))] rounded-lg animate-pulse mb-6"></div>
 
         <div className="w-full h-auto grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 justify-between gap-4 ">
-          <div className=" h-12 bg-[rgb(var(--color-skeleton-bg))] rounded-lg animate-pulse"></div>
-          <div className=" h-12 bg-[rgb(var(--color-skeleton-bg))] rounded-lg animate-pulse"></div>
-          <div className=" h-12 bg-[rgb(var(--color-skeleton-bg))] rounded-lg animate-pulse"></div>
-          <div className=" h-12 bg-[rgb(var(--color-skeleton-bg))] rounded-lg animate-pulse"></div>
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div
+              key={i}
+              className=" h-12 bg-[rgb(var(--color-skeleton-bg))] rounded-lg animate-pulse"
+            ></div>
+          ))}
         </div>
       </section>
     </main>

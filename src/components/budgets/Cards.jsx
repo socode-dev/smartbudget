@@ -11,7 +11,7 @@ const Cards = () => {
     getAmountSpent,
     getProgressBackground,
     handleEditBudget,
-    handleDeleteTransaction,
+    handleDeleteBudget,
   } = useBudgetsContext();
 
   return (
@@ -106,7 +106,7 @@ const Cards = () => {
                 <HiOutlinePencil className="text-lg" />
               </button>
               <button
-                onClick={() => handleDeleteTransaction(budget.id)}
+                onClick={() => handleDeleteBudget(budget.id)}
                 className="text-sm text-red-500 hover:text-red-600 transition cursor-pointer"
               >
                 <HiOutlineTrash className="text-lg" />

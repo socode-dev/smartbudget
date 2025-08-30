@@ -5,6 +5,9 @@ import {
   getDocs,
   addDoc,
   serverTimestamp,
+  getDoc,
+  setDoc,
+  doc,
 } from "firebase/firestore";
 import { db } from "./firebase";
 
@@ -20,23 +23,25 @@ const createBudgetNotification = async (userUID, data) => {
     return;
   }
 
-  const notifRef = collection(db, "users", userUID, "notifications");
+  const id = `${data.type}_${data.key}_${data.threshold}`
+    .replace(/\s+/g, "_")
+    .toLowerCase();
+  const notifDocRef = doc(db, "users", userUID, "notifications", id);
 
   // Use type + category + category key as a unique combo
-  const q = query(
-    notifRef,
-    where("type", "==", data.type),
-    where("category", "==", data.category),
-    where("key", "==", data.key),
-    where("threshold", "==", data.threshold)
-  );
+  // const q = query(
+  //   notifRef,
+  //   where("type", "==", data.type),
+  //   where("category", "==", data.category),
+  //   where("key", "==", data.key),
+  //   where("threshold", "==", data.threshold)
+  // );
 
   try {
-    const existing = await getDocs(q);
-    if (!existing.empty) return; // Notification already exist -> skip
+    const existing = await getDoc(notifDocRef);
+    if (existing.exists()) return; // Notification already exist -> skip
 
-    // console.log("Comencing notification creation!");
-    await addDoc(notifRef, {
+    await setDoc(notifDocRef, {
       ...data,
       read: false,
       createdAt: serverTimestamp(),

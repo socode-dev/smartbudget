@@ -15,6 +15,7 @@ import { handleEdit } from "../utils/handleEdit";
 import toast from "react-hot-toast";
 import { checkGoalThreshold } from "../firebase/checkGoalThreshold";
 import useThresholdStore from "../store/useThresholdStore";
+import { scheduleThresholdCheck } from "../services/scheduleThresholdCheck";
 
 const GoalsContext = createContext();
 
@@ -83,12 +84,20 @@ export const GoalsProvider = ({ children }) => {
   const contributionCounts = contributions?.length;
 
   useEffect(() => {
-    if (!currentUser?.uid || goalCounts === 0) return;
+    // if (!currentUser?.uid || goalCounts === 0) return;
+    let mounted = true;
+    let lastRunKey = null;
 
-    // Debounce notification to avoid firing multiple time during quick updates
-    const timeout = setTimeout(async () => {
-      try {
-        await checkGoalThreshold(
+    const runKey = `${currentUser?.uid || "nouser"}|g:${goalCounts || 0}|c:${
+      contributionCounts || 0
+    }`;
+
+    if (currentUser?.uid && (goalCounts || 0) > 0) {
+      if (lastRunKey !== runKey) {
+        lastRunKey = runKey;
+        scheduleThresholdCheck(
+          mounted,
+          checkGoalThreshold,
           currentUser.uid,
           goals,
           getAmountSaved,
@@ -97,12 +106,33 @@ export const GoalsProvider = ({ children }) => {
           goalThreshold80,
           goalThreshold100
         );
-      } catch (error) {
-        console.error("Error generating notifications:", error);
+      } else {
+        console.log("Skipping duplicate budget-check run");
       }
-    }, 300);
+    }
 
-    return () => clearTimeout(timeout);
+    return () => {
+      mounted = false;
+    };
+
+    // Debounce notification to avoid firing multiple time during quick updates
+    // const timeout = setTimeout(async () => {
+    //   try {
+    // await checkGoalThreshold(
+    //   currentUser.uid,
+    //   goals,
+    //   getAmountSaved,
+    //   formattedAmount,
+    //   goalThreshold50,
+    //   goalThreshold80,
+    //   goalThreshold100
+    // );
+    //   } catch (error) {
+    //     console.error("Error generating notifications:", error);
+    //   }
+    // }, 300);
+
+    // return () => clearTimeout(timeout);
   }, [currentUser?.uid, goalCounts, contributionCounts]);
 
   const filteredGoals = useMemo(

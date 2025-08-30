@@ -5,8 +5,11 @@ const SidebarSkeleton = () => {
       <div className="w-full h-12 bg-[rgb(var(--color-skeleton-bg))] rounded-lg animate-pulse"></div>
       {/* Navigation */}
       <div className="w-full flex flex-col grow gap-2 mt-12 overflow-y-auto">
-        {Array.from({ length: 6 }).map((_) => (
-          <div className="w-full h-10 bg-[rgb(var(--color-skeleton-bg))] rounded-lg animate-pulse"></div>
+        {Array.from({ length: 6 }).map((_, i) => (
+          <div
+            key={i}
+            className="w-full h-10 bg-[rgb(var(--color-skeleton-bg))] rounded-lg animate-pulse"
+          ></div>
         ))}
       </div>
 

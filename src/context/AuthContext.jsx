@@ -11,23 +11,24 @@ import {
   doSignUserWithEmailAndPassword,
   doSignInWithMicrosoft,
 } from "../firebase/auth";
-import {
-  doc,
-  setDoc,
-  getDoc,
-  serverTimestamp,
-  addDoc,
-} from "firebase/firestore";
+import { doc, setDoc, getDoc, serverTimestamp } from "firebase/firestore";
 import { useAuthFormContext } from "./AuthFormContext";
 import { getAuthErrorMessage } from "../utils/authErrorrs";
 import { getUserName } from "../utils/getUserName";
 import { createWelcomeNotification } from "../firebase/firestore";
 import useThresholdForm from "../hooks/useThresholdForm";
 import useThresholdStore from "../store/useThresholdStore";
+import useTransactionStore from "../store/useTransactionStore";
+import useNotificationStore from "../store/useNotificationStore";
+import useCurrencyStore from "../store/useCurrencyStore";
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
+  const { clearFinanceStore } = useTransactionStore();
+  const { clearNotificationStore } = useNotificationStore();
+  const { clearThresholdStore } = useThresholdStore();
+  const { clearCurrencyStore } = useCurrencyStore();
   const setThresholds = useThresholdStore((state) => state.setThresholds);
   const [currentUser, setCurrentUser] = useState(null);
   const [isUserEmailVerified, setIsUserEmailVerified] = useState(false);
@@ -53,7 +54,7 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
-        const userDocRef = doc(db, "users", user.uid);
+        const userDocRef = doc(db, "users", user?.uid);
         const userDocSnap = await getDoc(userDocRef);
 
         if (userDocSnap.exists()) {
@@ -76,8 +77,19 @@ export const AuthProvider = ({ children }) => {
         setUserLoggedIn(true);
         setIsUserEmailVerified(user.emailVerified);
       } else {
+        const storageItems = [
+          "finances-storage",
+          "notifications-storage",
+          "thresholds-storage",
+          "currency-storage",
+        ];
         setCurrentUser(null);
         setUserLoggedIn(false);
+        storageItems.forEach((item) => localStorage.removeItem(item));
+        clearFinanceStore();
+        clearNotificationStore();
+        clearThresholdStore();
+        clearCurrencyStore();
       }
 
       setLoading(false);
