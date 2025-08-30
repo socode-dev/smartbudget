@@ -28,15 +28,6 @@ const createGoalNotification = async (userUID, data) => {
     .toLowerCase();
   const notifDocRef = doc(db, "users", userUID, "notifications", id);
 
-  // Use type + name + category key and threshold as a unique combo
-  // const q = query(
-  //   notifRef,
-  //   where("type", "==", data.type),
-  //   where("name", "==", data.name),
-  //   where("key", "==", data.key),
-  //   where("threshold", "==", data.threshold)
-  // );
-
   try {
     const existing = await getDoc(notifDocRef);
     if (existing.exists()) return; // Notification already exist -> skip
