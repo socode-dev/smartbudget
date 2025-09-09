@@ -11,15 +11,19 @@ import { useFormContext } from "./FormContext";
 import { useModalContext } from "./ModalContext";
 import { handleEdit } from "../utils/handleEdit";
 import { checkBudgetThreshold } from "../firebase/checkBudgetThreshold";
-import { useAuthContext } from "./AuthContext";
+// import { useAuthContext } from "./AuthContext";
 import { useTransactionsContext } from "./TransactionsContext";
 import useThresholdStore from "../store/useThresholdStore";
 import { scheduleThresholdCheck } from "../services/scheduleThresholdCheck";
+// import { useCurrentUser } from "../hooks/useAuthHooks";
+import useAuthStore from "../store/useAuthStore";
 
 const BudgetsContext = createContext();
 
 export const BudgetsProvider = ({ children }) => {
-  const { currentUser } = useAuthContext();
+  // const { currentUser } = useAuthContext();
+  // const user = useCurrentUser();
+  const { currentUser: user } = useAuthStore();
   const [searchName, setSearchName] = useState("");
   const { onOpenModal, setTransactionID } = useModalContext();
   const { budgets, transactions, deleteTransaction, setEditTransaction } =
@@ -69,17 +73,17 @@ export const BudgetsProvider = ({ children }) => {
     let mounted = true;
     let lastRunKey = null;
 
-    const runKey = `${currentUser?.uid || "nouser"}|b:${budgetCounts || 0}|t:${
+    const runKey = `${user?.uid || "nouser"}|b:${budgetCounts || 0}|t:${
       transactionCounts || 0
     }`;
 
-    if (currentUser?.uid && (budgetCounts || 0) > 0) {
+    if (user?.uid && (budgetCounts || 0) > 0) {
       if (lastRunKey !== runKey) {
         lastRunKey = runKey;
         scheduleThresholdCheck(
           mounted,
           checkBudgetThreshold,
-          currentUser.uid,
+          user.uid,
           budgets,
           transactions,
           getAmountSpent,
@@ -96,7 +100,7 @@ export const BudgetsProvider = ({ children }) => {
     return () => {
       mounted = false;
     };
-  }, [currentUser?.uid, budgetCounts, transactionCounts]);
+  }, [user?.uid, budgetCounts, transactionCounts]);
 
   const handleEditBudget = (id) => {
     handleEdit(
@@ -111,7 +115,7 @@ export const BudgetsProvider = ({ children }) => {
   };
 
   const handleDeleteBudget = (id) => {
-    deleteTransaction(currentUser.uid, "budgets", id);
+    deleteTransaction(user.uid, "budgets", id);
   };
 
   const getProgressBackground = (percentage, type) => {

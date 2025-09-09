@@ -1,5 +1,4 @@
 import { Outlet } from "react-router-dom";
-import AuthHeader from "./AuthHeader";
 import { Toaster } from "react-hot-toast";
 import ResetLink from "../components/modals/ResetLink";
 import ResetSuccessful from "../components/modals/ResetSuccessful";

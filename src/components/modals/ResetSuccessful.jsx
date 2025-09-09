@@ -1,10 +1,11 @@
 import { useNavigate } from "react-router-dom";
-import { useAuthContext } from "../../context/AuthContext";
 import { FaCheck } from "react-icons/fa";
+import useAuthStore from "../../store/useAuthStore";
 
 const ResetSuccessful = () => {
   const navigate = useNavigate();
-  const { openResetSuccessModal, setOpenResetSuccessModal } = useAuthContext();
+  const { openResetSuccessModal, setOpenResetSuccessModal } =
+    useAuthStore.getState();
 
   if (!openResetSuccessModal) return null;
 

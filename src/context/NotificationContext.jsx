@@ -1,5 +1,5 @@
 import { createContext, useContext, useState } from "react";
-import { useAuthContext } from "./AuthContext";
+// import { useAuthContext } from "./AuthContext";
 import {
   addDocument,
   deleteDocument,
@@ -11,11 +11,15 @@ import toast from "react-hot-toast";
 import { sendEmailVerification } from "firebase/auth";
 import { auth } from "../firebase/firebase";
 import { serverTimestamp } from "firebase/firestore";
+// import { useCurrentUser } from "../hooks/useAuthHooks";
+import useAuthStore from "../store/useAuthStore";
 
 const NotificationContext = createContext();
 
 export const NotificationProvider = ({ children }) => {
-  const { currentUser } = useAuthContext();
+  // const { currentUser } = useAuthContext();
+  // const user = useCurrentUser();
+  const { currentUser: user } = useAuthStore();
   const setNotifications = useNotificationStore(
     (state) => state.setNotifications
   );
@@ -25,19 +29,17 @@ export const NotificationProvider = ({ children }) => {
   const onOpenDialog = async (id, subject, message, type) => {
     if (!id && !subject && !message && !type) return;
     setNotificationId(id);
-    // onCloseDropdown();
-    // update notification read true
     const data = {
       subject: subject,
       message: message,
       type: type,
       read: true,
     };
-    await updateDocument(currentUser?.uid, "notifications", id, data);
+    await updateDocument(user?.uid, "notifications", id, data);
 
     // Refetch all notifications to ensure sync
     const refetchedNotifications = await getAllDocuments(
-      currentUser?.uid,
+      user?.uid,
       "notifications"
     );
     setNotifications(refetchedNotifications);
@@ -52,11 +54,11 @@ export const NotificationProvider = ({ children }) => {
   };
 
   const handleDelete = async (id) => {
-    await deleteDocument(currentUser?.uid, "notifications", id);
+    await deleteDocument(user?.uid, "notifications", id);
 
     // Refetch all notifications to ensure sync
     const refetchedNotifications = await getAllDocuments(
-      currentUser?.uid,
+      user?.uid,
       "notifications"
     );
     setNotifications(refetchedNotifications);
@@ -77,7 +79,7 @@ export const NotificationProvider = ({ children }) => {
       createdAt: serverTimestamp(),
     };
 
-    await addDocument(currentUser.uid, "notifications", notification);
+    await addDocument(user.uid, "notifications", notification);
     toast.success("Verification link sent. Check your inbox or spam folder.", {
       position: "top-center",
       duration: 5000,

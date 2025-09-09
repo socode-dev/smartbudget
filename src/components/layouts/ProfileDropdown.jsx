@@ -1,10 +1,10 @@
 import clsx from "clsx";
-import { useAuthContext } from "../../context/AuthContext";
 import { FaSignOutAlt, FaUserCircle } from "react-icons/fa";
 import { useMainContext } from "../../context/MainContext";
+import useAuthStore from "../../store/useAuthStore";
 
 const ProfileDropdown = () => {
-  const { userName, isUserEmailVerified, currentUser } = useAuthContext();
+  const { currentUser: user, userName, isUserEmailVerified } = useAuthStore();
   const { isProfileOpen, handleSignoutPromptOpen } = useMainContext();
 
   if (!isProfileOpen) return null;
@@ -17,7 +17,7 @@ const ProfileDropdown = () => {
       <FaUserCircle className="text-5xl md:text-6xl text-[rgb(var(--color-muted))]" />
       <h2 className="text-xl font-medium mt-3">{userName?.fullName}</h2>
       <p className="text-sm text-[rgb(var(--color-muted))] mt-1">
-        Email: <span className="font-light">{currentUser?.email}</span>
+        Email: <span className="font-light">{user?.email}</span>
       </p>
       <p className="text-sm text-[rgb(var(--color-muted))]">
         Status:{" "}

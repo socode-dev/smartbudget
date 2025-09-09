@@ -12,9 +12,13 @@ export const useDropdownClose = (
     const handleClickOutside = (e) => {
       if (ref.current && !ref.current.contains(e.target)) {
         setter(false);
-        if (secondSetter || thirdSetter || fourthSetter) {
+        if (secondSetter) {
           secondSetter(false);
+        }
+        if (thirdSetter) {
           thirdSetter(false);
+        }
+        if (fourthSetter) {
           fourthSetter(false);
         }
       }

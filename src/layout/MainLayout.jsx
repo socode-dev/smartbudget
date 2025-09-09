@@ -3,7 +3,6 @@ import Header from "../components/layouts/Header";
 import Sidebar from "../components/layouts/Sidebar";
 import SignoutPrompt from "../components/modals/SignoutPrompt";
 import { Toaster } from "react-hot-toast";
-import { useAuthContext } from "../context/AuthContext";
 import { useNotificationContext } from "../context/NotificationContext";
 import FormModal from "../components/modals/FormModal";
 import NotificationDialog from "../components/modals/NotificationDialog";
@@ -11,9 +10,10 @@ import Preferences from "../components/modals/Preferences";
 import LazyWrapper from "../routes/LazyWrapper";
 import HeaderSkeleton from "../components/skeletons/HeaderSkeleton";
 import SidebarSkeleton from "../components/skeletons/SidebarSkeleton";
+import useAuthStore from "../store/useAuthStore";
 
 const MainLayout = () => {
-  const { isUserEmailVerified } = useAuthContext();
+  const { isUserEmailVerified } = useAuthStore();
   const { resendVerificationLink } = useNotificationContext();
 
   return (

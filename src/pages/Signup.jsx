@@ -2,24 +2,31 @@ import { useState } from "react";
 import { FaEye, FaEyeSlash, FaGoogle, FaMicrosoft } from "react-icons/fa6";
 import { Link } from "react-router-dom";
 import { useAuthFormContext } from "../context/AuthFormContext";
-import { useAuthContext } from "../context/AuthContext";
 import ScrollToTop from "../layout/ScrollToTop";
 import LoadingSpinner from "../components/ui/LoadingSpinner";
+import useThresholdForm from "../hooks/useThresholdForm";
+import { getThresholdsValue } from "../utils/getValues";
+import useAuthStore from "../store/useAuthStore";
 
 const Signup = () => {
+  const {
+    onSignup,
+    onGoogleSignIn,
+    onMicrosoftSignIn,
+    onSignupErr,
+    microsoftErr,
+    googleErr,
+  } = useAuthStore();
+
   const {
     signupRegister: register,
     signupErrors: errors,
     signupIsSubmitting: isSubmitting,
+    signupHandleSubmit: handleSubmit,
   } = useAuthFormContext();
-  const {
-    onSignup,
-    onSignupErr,
-    onGoogleSignIn,
-    onMicrosoftSignIn,
-    microsoftErr,
-    googleErr,
-  } = useAuthContext();
+
+  const { getValues } = useThresholdForm();
+
   const [revealPassword, setRevealPassword] = useState({
     password: false,
     confirmPassword: false,
@@ -62,13 +69,18 @@ const Signup = () => {
         </p>
       )}
 
-      <form onSubmit={onSignup} className="w-full grid grid-cols-2 gap-2">
+      <form
+        onSubmit={handleSubmit((data) =>
+          onSignup(data, getThresholdsValue(getValues))
+        )}
+        className="w-full grid grid-cols-2 gap-2"
+      >
         {/* First Name field */}
         <fieldset>
           <div className="flex flex-col gap-1">
             <label
-              htmlFor="firstName"
-              className="text-base text-[rgb(var(--color-muted))] font-medium"
+              htmlFor="first-name"
+              className="text-base text-[rgb(var(--color-muted))] font-medium after:content-['*'] after:text-red-500 after:ml-0.5"
             >
               First Name
             </label>
@@ -91,15 +103,15 @@ const Signup = () => {
         <fieldset>
           <div className="flex flex-col gap-1">
             <label
-              htmlFor="lastName"
-              className="text-base text-[rgb(var(--color-muted))] font-medium"
+              htmlFor="last-name"
+              className="text-base text-[rgb(var(--color-muted))] font-medium after:content-['*'] after:text-red-500 after:ml-0.5"
             >
               Last Name
             </label>
             <input
               {...register("lastName")}
               type="lastName"
-              id="lastName"
+              id="last-name"
               placeholder="Enter your last name"
               className="w-full text-sm text-[rgb(var(--color-muted))] px-4 py-2 rounded-lg border-2 border-[rgb(var(--color-gray-border))] outline-none focus:border-[rgb(var(--color-brand))] transition"
             />
@@ -116,7 +128,7 @@ const Signup = () => {
           <div className="flex flex-col gap-1">
             <label
               htmlFor="email"
-              className="text-base text-[rgb(var(--color-muted))] font-medium"
+              className="text-base text-[rgb(var(--color-muted))] font-medium after:content-['*'] after:text-red-500 after:ml-0.5"
             >
               Email
             </label>
@@ -138,7 +150,7 @@ const Signup = () => {
           <div className="flex flex-col gap-1">
             <label
               htmlFor="password"
-              className="text-base text-[rgb(var(--color-muted))] font-medium"
+              className="text-base text-[rgb(var(--color-muted))] font-medium after:content-['*'] after:text-red-500 after:ml-0.5"
             >
               Password
             </label>
@@ -168,7 +180,7 @@ const Signup = () => {
           <div className="flex flex-col gap-1">
             <label
               htmlFor="confirm-password"
-              className="text-base text-[rgb(var(--color-muted))] font-medium"
+              className="text-base text-[rgb(var(--color-muted))] font-medium after:content-['*'] after:text-red-500 after:ml-0.5"
             >
               Confirm Password
             </label>
@@ -210,7 +222,7 @@ const Signup = () => {
         <fieldset className="w-full flex gap-4">
           {/* Google sign up */}
           <button
-            onClick={onGoogleSignIn}
+            onClick={() => onGoogleSignIn(getThresholdsValue(getValues))}
             className="w-1/2 px-4 py-2 flex items-center justify-center gap-4 border-2 border-[rgb(var(--color-gray-border))] hover:bg-[rgb(var(--color-gray-bg))] transition rounded-lg text-base text-[rgb(var(--color-muted))] font-medium cursor-pointer"
           >
             <FaGoogle />
@@ -219,7 +231,7 @@ const Signup = () => {
 
           {/* Microsoft sign up */}
           <button
-            onClick={onMicrosoftSignIn}
+            onClick={() => onMicrosoftSignIn(getThresholdsValue(getValues))}
             className="w-1/2 px-4 py-2 flex items-center justify-center gap-4 border-2 border-[rgb(var(--color-gray-border))] rounded-lg text-base text-[rgb(var(--color-muted))] hover:bg-[rgb(var(--color-gray-bg))] transition font-medium cursor-pointer"
           >
             <FaMicrosoft />

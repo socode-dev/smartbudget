@@ -32,7 +32,7 @@ const NotificationDialog = () => {
               <FaXmark />
             </button>
           </div>
-          <p className="text-base font-medium text-[rgb(var(--color-muted))] mt-10 w-full grow">
+          <p className="text-base text-[rgb(var(--color-muted))] mt-10 w-full grow">
             {notification?.message}
           </p>
 

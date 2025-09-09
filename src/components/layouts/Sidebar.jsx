@@ -9,10 +9,10 @@ import {
   FaLightbulb,
   FaUserCircle,
 } from "react-icons/fa";
-import { useAuthContext } from "../../context/AuthContext";
 import clsx from "clsx";
 import { useMainContext } from "../../context/MainContext";
 import SidebarSkeleton from "../skeletons/SidebarSkeleton";
+import useAuthStore from "../../store/useAuthStore";
 
 const navLinks = [
   { to: "/", icon: FaTachometerAlt, label: "Overview" },
@@ -25,7 +25,7 @@ const navLinks = [
 
 const Sidebar = () => {
   const location = useLocation();
-  const { userName } = useAuthContext();
+  const { userName } = useAuthStore();
   const { isSidebarOpen, handleSidebarClose } = useMainContext();
   const [hovered, setHovered] = useState(false);
 

@@ -1,14 +1,20 @@
 import { useAuthFormContext } from "../context/AuthFormContext";
-import { useAuthContext } from "../context/AuthContext";
 import LoadingSpinner from "../components/ui/LoadingSpinner";
+import useAuthStore from "../store/useAuthStore";
 
 const ForgotPassword = () => {
+  const { sendResetEmail } = useAuthStore();
   const {
     forgotRegister: register,
     forgotErrors: errors,
     forgotIsSubmitting: isSubmitting,
+    forgotHandleSubmit: handleSubmit,
   } = useAuthFormContext();
-  const { sendResetEmail } = useAuthContext();
+
+  const onSendResetEmail = handleSubmit((data) => {
+    if (!data) return;
+    sendResetEmail(data?.email);
+  });
 
   return (
     <main className="w-full max-w-[500px] px-2 py-8 flex flex-col items-center mx-auto">
@@ -46,7 +52,7 @@ const ForgotPassword = () => {
         </fieldset>
 
         <button
-          onClick={sendResetEmail}
+          onClick={onSendResetEmail}
           disabled={isSubmitting}
           className="self-end text-base text-center font-medium w-1/2 py-1 mt-6 rounded-lg shadow bg-[rgb(var(--color-brand))] text-white hover:scale-97 active:scale-103 disabled:opacity-50 transition cursor-pointer"
         >

@@ -4,12 +4,12 @@ import SmartInsight from "../components/overview/SmartInsight";
 import BudgetOverview from "../components/overview/BudgetOverview";
 import QuickActions from "../components/overview/QuickActions";
 import ScrollToTop from "../layout/ScrollToTop";
-import { useAuthContext } from "../context/AuthContext";
 import OverviewSkeleton from "../components/skeletons/overview/OverviewSkeleton";
 import { useOverviewContext } from "../context/OverviewContext";
+import useAuthStore from "../store/useAuthStore";
 
 const Overview = () => {
-  const { userName, currentUser } = useAuthContext();
+  const { currentUser: user, userName } = useAuthStore();
   const {
     totalIncome,
     totalExpenses,
@@ -19,7 +19,7 @@ const Overview = () => {
   } = useOverviewContext;
 
   if (
-    !currentUser &&
+    !user &&
     !totalIncome &&
     !totalExpenses &&
     !netBalance &&

@@ -1,13 +1,14 @@
 import { Navigate } from "react-router-dom";
-import { useAuthContext } from "../context/AuthContext";
+import useAuthStore from "../store/useAuthStore";
+import AnimatedLoader from "../components/ui/AnimatedLoader";
 
 const PublicRoute = ({ children }) => {
-  const { userLoggedIn, loading } = useAuthContext();
+  const { userLoggedIn, loading } = useAuthStore();
 
   if (loading) {
     return (
       <div className="h-screen w-screen flex items-center justify-center">
-        <p className="text-lg text-[rgb(var(--color-muted))]">Loading...</p>
+        <AnimatedLoader />
       </div>
     );
   }

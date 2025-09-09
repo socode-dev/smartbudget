@@ -1,11 +1,11 @@
 import { FaCheck } from "react-icons/fa";
-import { useAuthContext } from "../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
+import useAuthStore from "../../store/useAuthStore";
 
 const ResetLink = () => {
   const navigate = useNavigate();
-  const { setResetLinkModalOpen, resetLinkModalOpen } = useAuthContext();
+  const { resetLinkModalOpen, setResetLinkModalOpen } = useAuthStore.getState();
 
   if (!resetLinkModalOpen) return;
 
