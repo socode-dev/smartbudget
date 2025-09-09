@@ -1,5 +1,4 @@
 import { AuthFormProvider } from "../context/AuthFormContext";
-import { AuthProvider } from "../context/AuthContext";
 import AppInitializer from "../initializer/AppInitializer";
 import { FormProvider } from "../context/FormContext";
 import { ModalProvider } from "../context/ModalContext";
@@ -16,32 +15,28 @@ import { MainProvider } from "../context/MainContext";
 const AppWrapper = ({ children }) => {
   return (
     <AuthFormProvider>
-      <AuthProvider>
-        <AppInitializer />
-        <MainProvider>
-          <FormProvider>
-            <NotificationProvider>
-              <ModalProvider>
-                <OverviewProvider>
-                  <OverviewChartProvider>
-                    <TransactionsProvider>
-                      <BudgetsProvider>
-                        <GoalsProvider>
-                          <ReportProvider>
-                            <ReportChartProvider>
-                              {children}
-                            </ReportChartProvider>
-                          </ReportProvider>
-                        </GoalsProvider>
-                      </BudgetsProvider>
-                    </TransactionsProvider>
-                  </OverviewChartProvider>
-                </OverviewProvider>
-              </ModalProvider>
-            </NotificationProvider>
-          </FormProvider>
-        </MainProvider>
-      </AuthProvider>
+      <AppInitializer />
+      <MainProvider>
+        <FormProvider>
+          <NotificationProvider>
+            <ModalProvider>
+              <OverviewProvider>
+                <OverviewChartProvider>
+                  <TransactionsProvider>
+                    <BudgetsProvider>
+                      <GoalsProvider>
+                        <ReportProvider>
+                          <ReportChartProvider>{children}</ReportChartProvider>
+                        </ReportProvider>
+                      </GoalsProvider>
+                    </BudgetsProvider>
+                  </TransactionsProvider>
+                </OverviewChartProvider>
+              </OverviewProvider>
+            </ModalProvider>
+          </NotificationProvider>
+        </FormProvider>
+      </MainProvider>
     </AuthFormProvider>
   );
 };

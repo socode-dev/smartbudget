@@ -1,13 +1,10 @@
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import { useAuthContext } from "../context/AuthContext";
-import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { auth } from "../firebase/firebase";
-import { applyActionCode } from "firebase/auth";
-import clsx from "clsx";
-import { FaCheck, FaXmark } from "react-icons/fa6";
+import { FaCheck } from "react-icons/fa6";
+import useAuthStore from "../store/useAuthStore";
 
 const EmailVerified = () => {
-  const { currentUser } = useAuthContext();
+  const { currentUser: user } = useAuthStore();
   const navigate = useNavigate();
 
   const handleNavigate = () => {
@@ -24,8 +21,8 @@ const EmailVerified = () => {
         Email verified
       </h4>
       <p className="text-base text-[rgb(var(--color-muted))] font-medium">
-        Your email {currentUser?.email} has been verified successfully. You can
-        now access SmartBudget features.
+        Your email {user?.email} has been verified successfully. You can now
+        access SmartBudget features.
       </p>
 
       <button

@@ -1,9 +1,9 @@
-import { useAuthContext } from "../../context/AuthContext";
 import { useMainContext } from "../../context/MainContext";
 import { doSignOut } from "../../firebase/auth";
+import useAuthStore from "../../store/useAuthStore";
 
 const SignoutPrompt = () => {
-  const { setCurrentUser, setUserName } = useAuthContext();
+  const { setCurrentUser, setUserName } = useAuthStore.getState();
   const { isSignoutPromptOpen, handleSignoutPromptClose } = useMainContext();
 
   if (!isSignoutPromptOpen) return null;

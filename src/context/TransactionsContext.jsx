@@ -13,12 +13,17 @@ import { formatAmount } from "../utils/formatAmount";
 import { handleEdit } from "../utils/handleEdit";
 import { useFormContext } from "./FormContext";
 import { useModalContext } from "./ModalContext";
-import { useAuthContext } from "./AuthContext";
+// import { useAuthContext } from "./AuthContext";
+// import { useCurrentUser } from "../hooks/useAuthHooks";
+// import { useAuthContext } from "./AuthContext";
+import useAuthStore from "../store/useAuthStore";
 
 const TransactionsContext = createContext();
 
 export const TransactionsProvider = ({ children }) => {
-  const { currentUser } = useAuthContext();
+  // const user = useCurrentUser();
+  // const {currentUser} = useAuthContext();
+  const { currentUser: user } = useAuthStore();
   const { onOpenModal, setTransactionID } = useModalContext();
   const { transactions, deleteTransaction, setEditTransaction } =
     useTransactionStore();
@@ -154,7 +159,7 @@ export const TransactionsProvider = ({ children }) => {
 
   // Handle for deleting transaction
   const handleDeleteTransaction = useCallback((id) => {
-    deleteTransaction(currentUser?.uid, "transactions", id);
+    deleteTransaction(user?.uid, "transactions", id);
   }, []);
 
   const value = {

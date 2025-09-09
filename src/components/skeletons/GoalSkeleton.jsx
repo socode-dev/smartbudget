@@ -21,8 +21,11 @@ const GoalSkeleton = () => {
 
                 {/* Budget summary */}
                 <div className="grow w-full space-y-2">
-                  {Array.from({ length: 2 }).map((_) => (
-                    <div className="h-4 w-44 bg-[rgb(var(--color-skeleton-bg-deep))] rounded-md animate-pulse"></div>
+                  {Array.from({ length: 2 }).map((_, i) => (
+                    <div
+                      key={i}
+                      className="h-4 w-44 bg-[rgb(var(--color-skeleton-bg-deep))] rounded-md animate-pulse"
+                    ></div>
                   ))}
                 </div>
 

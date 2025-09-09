@@ -8,7 +8,7 @@ import {
 } from "react";
 import { useModalContext } from "./ModalContext";
 import { useFormContext } from "./FormContext";
-import { useAuthContext } from "./AuthContext";
+// import { useAuthContext } from "./AuthContext";
 import { useTransactionsContext } from "./TransactionsContext";
 import useTransactionStore from "../store/useTransactionStore";
 import { handleEdit } from "../utils/handleEdit";
@@ -16,11 +16,15 @@ import toast from "react-hot-toast";
 import { checkGoalThreshold } from "../firebase/checkGoalThreshold";
 import useThresholdStore from "../store/useThresholdStore";
 import { scheduleThresholdCheck } from "../services/scheduleThresholdCheck";
+// import { useCurrentUser } from "../hooks/useAuthHooks";
+import useAuthStore from "../store/useAuthStore";
 
 const GoalsContext = createContext();
 
 export const GoalsProvider = ({ children }) => {
-  const { currentUser } = useAuthContext();
+  // const { currentUser } = useAuthContext();
+  // const user = useCurrentUser();
+  const { currentUser: user } = useAuthStore();
   const { onOpenModal, modalState, setTransactionID } = useModalContext();
   const contributionModalState = modalState.contributions;
   const { goals, contributions, deleteTransaction, setEditTransaction } =
@@ -88,17 +92,17 @@ export const GoalsProvider = ({ children }) => {
     let mounted = true;
     let lastRunKey = null;
 
-    const runKey = `${currentUser?.uid || "nouser"}|g:${goalCounts || 0}|c:${
+    const runKey = `${user?.uid || "nouser"}|g:${goalCounts || 0}|c:${
       contributionCounts || 0
     }`;
 
-    if (currentUser?.uid && (goalCounts || 0) > 0) {
+    if (user?.uid && (goalCounts || 0) > 0) {
       if (lastRunKey !== runKey) {
         lastRunKey = runKey;
         scheduleThresholdCheck(
           mounted,
           checkGoalThreshold,
-          currentUser.uid,
+          user.uid,
           goals,
           getAmountSaved,
           formattedAmount,
@@ -114,26 +118,7 @@ export const GoalsProvider = ({ children }) => {
     return () => {
       mounted = false;
     };
-
-    // Debounce notification to avoid firing multiple time during quick updates
-    // const timeout = setTimeout(async () => {
-    //   try {
-    // await checkGoalThreshold(
-    //   currentUser.uid,
-    //   goals,
-    //   getAmountSaved,
-    //   formattedAmount,
-    //   goalThreshold50,
-    //   goalThreshold80,
-    //   goalThreshold100
-    // );
-    //   } catch (error) {
-    //     console.error("Error generating notifications:", error);
-    //   }
-    // }, 300);
-
-    // return () => clearTimeout(timeout);
-  }, [currentUser?.uid, goalCounts, contributionCounts]);
+  }, [user?.uid, goalCounts, contributionCounts]);
 
   const filteredGoals = useMemo(
     () =>
@@ -158,16 +143,12 @@ export const GoalsProvider = ({ children }) => {
       if (goalContributions.length > 0) {
         for (let i = 0; i < goalContributions?.length; i++) {
           for (const contribution of goalContributions) {
-            deleteTransaction(
-              currentUser.uid,
-              "contributions",
-              contribution.id
-            );
+            deleteTransaction(user.uid, "contributions", contribution.id);
           }
         }
-        deleteTransaction(currentUser.uid, "goals", id);
+        deleteTransaction(user.uid, "goals", id);
       } else {
-        deleteTransaction(currentUser.uid, "goals", id);
+        deleteTransaction(user.uid, "goals", id);
       }
 
       setTimeout(() => {

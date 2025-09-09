@@ -1,16 +1,27 @@
-import { createContext, useContext, useState, useEffect, useRef } from "react";
-import { useAuthContext } from "./AuthContext";
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useRef,
+  useCallback,
+} from "react";
+// import { useAuthContext } from "./AuthContext";
 import useNotificationStore from "../store/useNotificationStore";
 import useTransactionStore from "../store/useTransactionStore";
 import { useDropdownClose } from "../hooks/useDropdownClose";
 import useCurrencyStore from "../store/useCurrencyStore";
+// import { useCurrentUser } from "../hooks/useAuthHooks";
+import useAuthStore from "../store/useAuthStore";
 
 const MainContext = createContext();
 
 export const MainProvider = ({ children }) => {
+  // const { currentUser } = useAuthContext();
+  // const user = useCurrentUser();
+  const { currentUser: user } = useAuthStore();
   const { loadTransactions } = useTransactionStore();
   const { loadNotifications } = useNotificationStore();
-  const { currentUser } = useAuthContext();
   const { fetchCurrencies } = useCurrencyStore();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isPreferencesOpen, setIsPreferencesOpen] = useState(false);
@@ -30,40 +41,65 @@ export const MainProvider = ({ children }) => {
     setIsSettingsOpen,
     setIsCurrencyOpen,
     setIsExportOpen
+    // setIsAISettingsOpen
   );
   useDropdownClose(isProfileOpen, profileRef, setIsProfileOpen);
 
-  const handleSidebarOpen = () => setIsSidebarOpen((prev) => !prev);
-  const handleSidebarClose = () => setIsSidebarOpen(false);
+  const handleSidebarOpen = useCallback(
+    () => setIsSidebarOpen((prev) => !prev),
+    []
+  );
+  const handleSidebarClose = useCallback(() => setIsSidebarOpen(false), []);
 
   // Handle to open and close preferences
-  const handlePreferencesOpen = () => {
+  const handlePreferencesOpen = useCallback(() => {
     setIsPreferencesOpen(true);
     setIsSettingsOpen(false);
-  };
-  const handlePreferencesClose = () => setIsPreferencesOpen(false);
+  }, []);
+  const handlePreferencesClose = useCallback(
+    () => setIsPreferencesOpen(false),
+    []
+  );
 
   // Handle to open and close settings
-  const handleSettingsToggle = () => setIsSettingsOpen((prev) => !prev);
+  const handleSettingsToggle = useCallback(
+    () => setIsSettingsOpen((prev) => !prev),
+    []
+  );
 
   // Handle to open and close profile
-  const handleProfileToggle = () => setIsProfileOpen((prev) => !prev);
+  const handleProfileToggle = useCallback(
+    () => setIsProfileOpen((prev) => !prev),
+    []
+  );
 
   // Handle AI Settings open and close
-  const handleAISettingsToggle = () => setIsAISettingsOpen((prev) => !prev);
+  const handleAISettingsToggle = useCallback(
+    () => setIsAISettingsOpen((prev) => !prev),
+    []
+  );
 
   // Handle currency open and close
-  const handleCurrencyToggle = () => setIsCurrencyOpen((prev) => !prev);
-  const handleCurrencyClose = () => setIsCurrencyOpen(false);
+  const handleCurrencyToggle = useCallback(
+    () => setIsCurrencyOpen((prev) => !prev),
+    []
+  );
+  const handleCurrencyClose = useCallback(() => setIsCurrencyOpen(false), []);
 
-  const handleExportToggle = () => setIsExportOpen((prev) => !prev);
+  const handleExportToggle = useCallback(
+    () => setIsExportOpen((prev) => !prev),
+    []
+  );
 
   // Handle Open Sign out prompt and close profile
-  const handleSignoutPromptOpen = () => {
+  const handleSignoutPromptOpen = useCallback(() => {
     setIsSignoutPromptOpen(true);
     setIsProfileOpen(false);
-  };
-  const handleSignoutPromptClose = () => setIsSignoutPromptOpen(false);
+  }, []);
+  const handleSignoutPromptClose = useCallback(
+    () => setIsSignoutPromptOpen(false),
+    []
+  );
 
   // Load all transactions, budgets, goals on mount
   useEffect(() => {
@@ -74,17 +110,17 @@ export const MainProvider = ({ children }) => {
 
     // Fetch user's data
     const fetchUserData = async () => {
-      if (!currentUser?.uid) return;
+      if (!user?.uid) return;
 
       try {
         // Load all transactions, budgets, goals and contributions
         const types = ["transactions", "budgets", "goals", "contributions"];
         types.forEach(async (label) => {
-          await loadTransactions(currentUser.uid, label);
+          await loadTransactions(user.uid, label);
         });
 
         // Load notifications
-        await loadNotifications(currentUser.uid);
+        await loadNotifications(user.uid);
       } catch (err) {
         console.log(err);
       }
@@ -96,7 +132,7 @@ export const MainProvider = ({ children }) => {
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [user]);
 
   // Close sidebar on resize
   useEffect(() => {

@@ -1,10 +1,19 @@
 import { Navigate } from "react-router-dom";
-import { useAuthContext } from "../context/AuthContext";
+import useAuthStore from "../store/useAuthStore";
+import AnimatedLoader from "../components/ui/AnimatedLoader";
 
 const ProtectedRoute = ({ children }) => {
-  const auth = useAuthContext();
+  const { currentUser: user, loading } = useAuthStore();
 
-  if (!auth?.currentUser) {
+  if (loading) {
+    return (
+      <div className="h-screen w-screen flex items-center justify-center">
+        <AnimatedLoader />
+      </div>
+    );
+  }
+
+  if (!user) {
     return <Navigate to="/login" replace />;
   }
 

@@ -2,15 +2,15 @@ import useTransactionStore from "../../store/useTransactionStore";
 import { useModalContext } from "../../context/ModalContext";
 import useFormSubmit from "../../hooks/useFormSubmit";
 import { useFormContext } from "../../context/FormContext";
-import { useAuthContext } from "../../context/AuthContext";
 import { useRef } from "react";
 import { useTransactionsContext } from "../../context/TransactionsContext";
 import LoadingSpinner from "../ui/LoadingSpinner";
 import useThresholdStore from "../../store/useThresholdStore";
+import useAuthStore from "../../store/useAuthStore";
 
 const ModalForm = ({ label, mode }) => {
+  const { currentUser: user } = useAuthStore();
   const formRef = useRef(null);
-  const { currentUser } = useAuthContext();
   const { thresholds } = useThresholdStore();
   const { onCloseModal, transactionID } = useModalContext();
   const { onSubmit, handleSubmit } = useFormSubmit(label, mode);
@@ -64,7 +64,7 @@ const ModalForm = ({ label, mode }) => {
       onSubmit={handleSubmit((data) =>
         onSubmit(
           data,
-          currentUser.uid,
+          user.uid,
           txID,
           formattedAmount,
           thresholds.transactionThreshold ?? 10000
@@ -75,7 +75,9 @@ const ModalForm = ({ label, mode }) => {
       {/* Category Dropdown */}
       {(transactionLabel || budgetLabel) && (
         <div>
-          <label className="block text-base font-medium mb-2">Category</label>
+          <label className="block text-base font-medium mb-2 after:content-['*'] after:text-red-500 after:ml-0.5">
+            Category
+          </label>
           <select
             ref={formRef}
             {...register("category")}
@@ -101,7 +103,11 @@ const ModalForm = ({ label, mode }) => {
         goalLabel ||
         contributionLabel) && (
         <div>
-          <label htmlFor="name" className="block text-base font-medium mb-2">
+          <label
+            htmlFor="name"
+            aria-label="name"
+            className="block text-base font-medium mb-2 after:content-['*'] after:text-red-500 after:ml-0.5"
+          >
             {budgetLabel
               ? "Budget Name"
               : transactionLabel
@@ -127,65 +133,72 @@ const ModalForm = ({ label, mode }) => {
       )}
 
       {/* Show type radio buttons if category is other */}
-      {categoryValue?.toLowerCase() === "other" && transactionLabel && (
-        <div className="flex flex-col">
-          <h3 className="text-base font-medium mb-2">Type</h3>
-          <div className="flex items-center gap-2">
-            {/* Income Radio Button */}
+      {categoryValue?.toLowerCase() === "other" &&
+        (transactionLabel || budgetLabel) && (
+          <div className="flex flex-col">
+            <h3 className="text-base font-medium mb-2 after:content-['*'] after:text-red-500 after:ml-0.5">
+              Type
+            </h3>
             <div className="flex items-center gap-2">
-              <input
-                {...register("type")}
-                type="radio"
-                name="type"
-                id="income"
-                value="income"
-                className="hidden peer"
-              />
-              <label
-                htmlFor="income"
-                className="text-sm border-2 rounded-lg border-[rgb(var(--color-gray-border))] px-4 py-2 peer-checked:border-[rgb(var(--color-brand))] transition cursor-pointer"
-              >
-                Income
-              </label>
-            </div>
+              {/* Income Radio Button */}
+              <div className="flex items-center gap-2">
+                <input
+                  {...register("type")}
+                  type="radio"
+                  name="type"
+                  id="income"
+                  value="income"
+                  className="hidden peer"
+                />
+                <label
+                  htmlFor="income"
+                  aria-label="income"
+                  className="text-sm border-2 rounded-lg border-[rgb(var(--color-gray-border))] px-4 py-2 peer-checked:border-[rgb(var(--color-brand))] transition cursor-pointer"
+                >
+                  Income
+                </label>
+              </div>
 
-            {/* Expense Radio Button */}
-            <div className="flex items-center gap-2">
-              <input
-                {...register("type")}
-                type="radio"
-                name="type"
-                id="expense"
-                value="expense"
-                className="hidden peer"
-              />
-              <label
-                htmlFor="expense"
-                className="text-sm border-2 rounded-lg border-[rgb(var(--color-gray-border))] px-4 py-2 peer-checked:border-[rgb(var(--color-brand))] transition cursor-pointer"
-              >
-                Expense
-              </label>
+              {/* Expense Radio Button */}
+              <div className="flex items-center gap-2">
+                <input
+                  {...register("type")}
+                  type="radio"
+                  name="type"
+                  id="expense"
+                  value="expense"
+                  className="hidden peer"
+                />
+                <label
+                  htmlFor="expense"
+                  aria-label="expense"
+                  className="text-sm border-2 rounded-lg border-[rgb(var(--color-gray-border))] px-4 py-2 peer-checked:border-[rgb(var(--color-brand))] transition cursor-pointer"
+                >
+                  Expense
+                </label>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
 
       {/* Amount and Date */}
-      <div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="mb-4 grid grid-cols-2 gap-4">
         {/* Amount Input */}
         <div>
-          <label className="block text-base font-medium mb-2">
+          <label
+            htmlFor="amount"
+            className="block text-base font-medium mb-2 after:content-['*'] after:text-red-500 after:ml-0.5"
+          >
             {budgetLabel ? "Limit" : goalLabel ? "Target" : "Amount"}
           </label>
-          <div className="flex items-center">
-            <input
-              {...register("amount")}
-              type="number"
-              className="rounded border border-[rgb(var(--color-gray-border))] bg-[rgb(var(--color-bg-card))] outline-none focus:border-[rgb(var(--color-brand))] text-sm w-full p-2 cursor-pointer"
-              placeholder="0.00"
-              step="0.01"
-            />
-          </div>
+          <input
+            {...register("amount")}
+            type="number"
+            id="amount"
+            className="rounded border border-[rgb(var(--color-gray-border))] bg-[rgb(var(--color-bg-card))] outline-none focus:border-[rgb(var(--color-brand))] text-sm w-full p-2 cursor-pointer"
+            placeholder="0.00"
+            step="0.01"
+          />
           {errors.amount && (
             <p className="text-[13px] text-red-500 mt-1">
               {errors.amount.message}
@@ -195,7 +208,10 @@ const ModalForm = ({ label, mode }) => {
 
         {/* Date Picker */}
         <div>
-          <label className="block text-base font-medium mb-2">
+          <label
+            htmlFor="date"
+            className="block text-base font-medium mb-2 after:content-['*'] after:text-red-500 after:ml-0.5"
+          >
             {transactionLabel
               ? "Date"
               : budgetLabel
@@ -207,6 +223,7 @@ const ModalForm = ({ label, mode }) => {
           <input
             {...register("date")}
             type="date"
+            id="date"
             className="rounded border border-[rgb(var(--color-gray-border))] bg-[rgb(var(--color-bg-card))] outline-none focus:border-[rgb(var(--color-brand))] text-sm w-full p-2 cursor-pointer"
           />
           {errors.date && (
@@ -219,11 +236,12 @@ const ModalForm = ({ label, mode }) => {
 
       {/* Description || Notes Textarea */}
       <div>
-        <label className="block text-base font-medium mb-2">
+        <label htmlFor="note" className="block text-base font-medium mb-2">
           {transactionLabel ? "Description" : "Notes"}{" "}
-          <span className="text-[rgb(var(--color-muted))]">(optional)</span>
+          {/* <span className="text-[rgb(var(--color-muted))]">(optional)</span> */}
         </label>
         <textarea
+          id="note"
           className="rounded border border-[rgb(var(--color-gray-border))] bg-[rgb(var(--color-bg-card))] outline-none focus:border-[rgb(var(--color-brand))] textsm w-full p-2 resize-none"
           rows={3}
           placeholder={transactionLabel ? "Short description" : "Short notes"}

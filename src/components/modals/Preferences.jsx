@@ -3,12 +3,12 @@ import { useMainContext } from "../../context/MainContext";
 import useThresholdForm from "../../hooks/useThresholdForm";
 import { defaultThresholds } from "../../schema/thresholdSchemas";
 import useThresholdStore from "../../store/useThresholdStore";
-import { useAuthContext } from "../../context/AuthContext";
 import toast from "react-hot-toast";
 import LoadingSpinner from "../ui/LoadingSpinner";
+import useAuthStore from "../../store/useAuthStore";
 
 const Preferences = () => {
-  const { currentUser } = useAuthContext();
+  const { currentUser: user } = useAuthStore();
   const { isPreferencesOpen, handlePreferencesClose } = useMainContext();
   const { register, errors, isSubmitting, handleSubmit, reset, setValue } =
     useThresholdForm();
@@ -18,8 +18,8 @@ const Preferences = () => {
 
   const onSubmit = async (data) => {
     try {
-      if (currentUser?.uid) {
-        await updateThresholds(currentUser.uid, data);
+      if (user?.uid) {
+        await updateThresholds(user.uid, data);
         handlePreferencesClose();
         toast.success("Thresholds updated successfully");
 

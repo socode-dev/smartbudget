@@ -3,15 +3,15 @@ import { HiOutlineCog8Tooth } from "react-icons/hi2";
 import { FaRegBell } from "react-icons/fa6";
 import SettingsDropdown from "./SettingsDropdown";
 import ProfileDropdown from "./ProfileDropdown";
-import { useAuthContext } from "../../context/AuthContext";
 import useNotificationStore from "../../store/useNotificationStore";
 import { useNavigate } from "react-router-dom";
 import { useMainContext } from "../../context/MainContext";
 import HeaderSkeleton from "../skeletons/HeaderSkeleton";
+import useAuthStore from "../../store/useAuthStore";
 
 const Header = () => {
   const navigate = useNavigate();
-  const { userName } = useAuthContext();
+  const { userName } = useAuthStore();
   const { notifications } = useNotificationStore();
   const {
     settingsRef,
@@ -27,7 +27,6 @@ const Header = () => {
 
   // Get unread notifications
   const newNotifications = notifications?.filter((notif) => !notif?.read);
-  // console.log(newNotifications);
 
   return (
     <header className="h-16 lg:relative fixed top-0 left-0 w-full bg-[rgb(var(--color-bg))] text-[rgb(var(--color-text))] shadow flex items-center py-3 px-4 lg:px-6 z-50">

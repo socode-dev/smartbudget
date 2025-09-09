@@ -1,25 +1,29 @@
 import { useState } from "react";
 import { FaEye, FaEyeSlash, FaGoogle, FaMicrosoft } from "react-icons/fa6";
 import { Link } from "react-router-dom";
+import useAuthStore from "../store/useAuthStore";
 import { useAuthFormContext } from "../context/AuthFormContext.jsx";
-import { useAuthContext } from "../context/AuthContext";
 import ScrollToTop from "../layout/ScrollToTop";
 import LoadingSpinner from "../components/ui/LoadingSpinner.jsx";
+import useThresholdForm from "../hooks/useThresholdForm.js";
+import { getThresholdsValue } from "../utils/getValues";
 
 const Login = () => {
+  const {
+    onLogin,
+    onGoogleSignin,
+    onMicrosoftSignIn,
+    onLoginErr,
+    googleErr,
+    microsoftErr,
+  } = useAuthStore();
   const {
     loginRegister: register,
     loginErrors: errors,
     loginIsSubmitting: isSubmitting,
+    loginHandleSubmit: handleSubmit,
   } = useAuthFormContext();
-  const {
-    onLogin,
-    onLoginErr,
-    onGoogleSignIn,
-    onMicrosoftSignIn,
-    microsoftErr,
-    googleErr,
-  } = useAuthContext();
+  const { getValues } = useThresholdForm();
 
   const [revealPassword, setRevealPassword] = useState(false);
 
@@ -56,12 +60,15 @@ const Login = () => {
         </p>
       )}
 
-      <form onSubmit={onLogin} className="w-11/12">
+      <form
+        onSubmit={handleSubmit((data) => onLogin(data))}
+        className="w-11/12"
+      >
         <fieldset className=" w-full mb-4">
           <div className="flex flex-col gap-1">
             <label
               htmlFor="email"
-              className="text-base text-[rgb(var(--color-muted))] font-medium"
+              className="text-base text-[rgb(var(--color-muted))] font-medium after:content-['*'] after:text-red-500 after:ml-0.5"
             >
               Email
             </label>
@@ -79,11 +86,12 @@ const Login = () => {
             </p>
           )}
         </fieldset>
+
         <fieldset className="w-full mb-3">
           <div className="flex flex-col gap-1">
             <label
               htmlFor="loginPassword"
-              className="text-base text-[rgb(var(--color-muted))] font-medium"
+              className="text-base text-[rgb(var(--color-muted))] font-medium after:content-['*'] after:text-red-500 after:ml-0.5"
             >
               Password
             </label>
@@ -144,7 +152,7 @@ const Login = () => {
         <fieldset className="w-full flex gap-4">
           {/* Google login */}
           <button
-            onClick={onGoogleSignIn}
+            onClick={() => onGoogleSignin(getThresholdsValue(getValues))}
             className="w-1/2 px-4 py-2 flex items-center justify-center gap-3 border-2 border-[rgb(var(--color-gray-border))] hover:bg-[rgb(var(--color-gray-bg))] transition rounded-lg text-base text-[rgb(var(--color-muted))] font-medium cursor-pointer"
           >
             <FaGoogle />
@@ -153,7 +161,7 @@ const Login = () => {
 
           {/* Apple login */}
           <button
-            onClick={onMicrosoftSignIn}
+            onClick={() => onMicrosoftSignIn(getThresholdsValue(getValues))}
             className="w-1/2 px-4 py-2 flex items-center justify-center gap-3 border-2 border-[rgb(var(--color-gray-border))] hover:bg-[rgb(var(--color-gray-bg))] transition rounded-lg text-base text-[rgb(var(--color-muted))] font-medium cursor-pointer"
           >
             <FaMicrosoft />
