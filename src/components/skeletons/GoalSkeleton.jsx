@@ -4,7 +4,7 @@ const GoalSkeleton = () => {
       {/* Heading */}
       <div className="flex flex-col gap-5">
         <div className="w-48 h-[50px] animate-pulse bg-[rgb(var(--color-skeleton-bg))] rounded-lg"></div>
-        <div className="w-full h-[35px] animate-pulse bg-[rgb(var(--color-skeleton-bg))] rounded-lg"></div>
+        <div className="w-full max-w-2xl h-[35px] animate-pulse bg-[rgb(var(--color-skeleton-bg))] rounded-lg"></div>
       </div>
 
       <div className="h-12 col-span-full sm:col-span-4 md:col-span-full xl:col-span-3 bg-[rgb(var(--color-skeleton-bg))] rounded-lg animate-pulse"></div>

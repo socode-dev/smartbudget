@@ -14,6 +14,7 @@ import TransactionSkeleton from "../components/skeletons/TransactionSkeleton";
 import BudgetSkeleton from "../components/skeletons/BudgetSkeleton";
 import GoalSkeleton from "../components/skeletons/GoalSkeleton";
 import ReportSkeleton from "../components/skeletons/ReportSkeleton";
+import InsightSkeleton from "../components/skeletons/InsightSkeleton";
 
 const Overview = lazy(() => import("../pages/Overview"));
 const Transactions = lazy(() => import("../pages/Transactions"));
@@ -88,7 +89,14 @@ const AppRoutes = () => {
             </LazyWrapper>
           }
         />
-        <Route path="insights" element={<Insights />} />
+        <Route
+          path="insights"
+          element={
+            <LazyWrapper loadingFallback={<InsightSkeleton />}>
+              <Insights />
+            </LazyWrapper>
+          }
+        />
         <Route
           path="reports"
           element={
