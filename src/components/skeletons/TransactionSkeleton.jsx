@@ -4,7 +4,7 @@ const TransactionSkeleton = () => {
       {/* Heading */}
       <div className="flex flex-col gap-5">
         <div className="w-56 h-[50px] animate-pulse bg-[rgb(var(--color-skeleton-bg))] rounded-lg"></div>
-        <div className="w-full h-[35px] animate-pulse bg-[rgb(var(--color-skeleton-bg))] rounded-lg"></div>
+        <div className="w-full max-w-2xl h-[35px] animate-pulse bg-[rgb(var(--color-skeleton-bg))] rounded-lg"></div>
       </div>
 
       {/* Filters */}

@@ -7,8 +7,8 @@ const OverviewSkeleton = () => {
     <main className="flex flex-col gap-16 px-5 md:px-10 py-8">
       {/* Heading */}
       <div className="flex flex-col gap-5">
-        <div className="w-full max-w-[700px] h-[50px] animate-pulse bg-[rgb(var(--color-skeleton-bg))] rounded-lg"></div>
-        <div className="w-full h-[35px] animate-pulse bg-[rgb(var(--color-skeleton-bg))] rounded-lg"></div>
+        <div className="w-48 max-w-[700px] h-[50px] animate-pulse bg-[rgb(var(--color-skeleton-bg))] rounded-lg"></div>
+        <div className="w-full max-w-2xl h-[35px] animate-pulse bg-[rgb(var(--color-skeleton-bg))] rounded-lg"></div>
       </div>
 
       <SummaryCardSkeleton />
