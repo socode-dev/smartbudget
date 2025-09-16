@@ -1,5 +1,4 @@
 import { initUserListener } from "../firebase/firestoreListener";
-// import { useAuthContext } from "../context/AuthContext";
 import { useEffect } from "react";
 import useTransactionStore from "../store/useTransactionStore";
 import useThresholdStore from "../store/useThresholdStore";
@@ -7,20 +6,16 @@ import { doc, onSnapshot } from "firebase/firestore";
 import { db } from "../firebase/firebase";
 import useInsightsStore from "../store/useInsightsStore";
 import useAuthStore from "../store/useAuthStore";
+import { generateInsight } from "../ml/runInsights";
 
 const AppInitializer = () => {
   const { currentUser: user } = useAuthStore();
   const setThresholds = useThresholdStore((state) => state.setThresholds);
   const { transactions, budgets, goals, contributions } = useTransactionStore();
-  const generateInsights = useInsightsStore((state) => state.generateInsights);
+  const { initInsights, generateRuleBasedInsights } = useInsightsStore();
 
   // Auth listener
   useEffect(() => {
-    // Start the firebase auth listener once on app mount. We must not wait
-    // for `user` to exist because that creates a circular dependency: the
-    // listener is responsible for setting `currentUser` on load. If we
-    // only start the listener when `user` exists, the listener is never
-    // registered and the app appears to log the user out on refresh.
     const { startAuthListener, stopAuthListener } = useAuthStore.getState();
     startAuthListener();
 
@@ -40,24 +35,46 @@ const AppInitializer = () => {
       }
     });
 
-    const unsubscribe = initUserListener(user?.uid);
+    const unsubscribeUser = initUserListener(user?.uid);
+    const unsubscribeInsights = initInsights(user?.uid);
 
     return () => {
-      unsubscribe();
+      unsubscribeUser();
+      unsubscribeInsights();
       unsubscribeThresholds();
     };
   }, [user?.uid]);
 
+  // Generate rule-based insights
   useEffect(() => {
+    if (!user) return;
     if (
-      transactions.length ||
-      budgets.length ||
-      goals.length ||
-      contributions
+      transactions?.length ||
+      budgets?.length ||
+      goals?.length ||
+      contributions?.length
     ) {
-      generateInsights(transactions, budgets, goals, contributions);
+      generateRuleBasedInsights(
+        user.uid,
+        transactions,
+        budgets,
+        goals,
+        contributions
+      );
     }
-  }, [transactions, budgets, goals, contributions]);
+  }, [user?.uid, transactions, budgets, goals, contributions]);
+
+  // Generate ML insights
+  useEffect(() => {
+    let isMounted = true;
+    if (!isMounted) return;
+
+    generateInsight(user?.uid, transactions);
+
+    return () => {
+      isMounted = false;
+    };
+  }, [user?.uid, transactions]);
 
   return null;
 };

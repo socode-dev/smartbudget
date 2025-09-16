@@ -1,7 +1,6 @@
-import AiSettingsDropdown from "./AiSettingsDropdown";
 import useThemeStore from "../../store/useThemeStore";
 import useCurrencyStore from "../../store/useCurrencyStore";
-import { FaSun, FaMoon, FaChevronDown, FaChevronUp } from "react-icons/fa";
+import { FaSun, FaMoon } from "react-icons/fa";
 import CurrencyFlag from "react-currency-flags";
 import clsx from "clsx";
 import { useMainContext } from "../../context/MainContext";
@@ -15,9 +14,7 @@ const SettingsDropdown = () => {
   const { selectedCurrency } = useCurrencyStore();
   const {
     isSettingsOpen,
-    isAISettingsOpen,
     handleCurrencyToggle,
-    handleAISettingsToggle,
     handlePreferencesOpen,
     isExportOpen,
     setIsExportOpen,
@@ -93,24 +90,6 @@ const SettingsDropdown = () => {
       >
         Preferences
       </button>
-
-      {/* AI Settings */}
-      {/* <button
-        className="w-full px-4 py-3 cursor-pointer relative flex items-center justify-between hover:bg-[rgb(var(--color-gray-bg))] transition"
-      >
-        <span
-          onClick={handleAISettingsToggle}
-          className="flex-1 flex items-center justify-between"
-        >
-          AI Settings
-          {isAISettingsOpen ? (
-            <FaChevronUp className="ml-2" />
-          ) : (
-            <FaChevronDown className="ml-2" />
-          )}
-        </span>
-        <AiSettingsDropdown />
-      </button> */}
 
       {/* Export all data */}
       <div className="relative w-full">

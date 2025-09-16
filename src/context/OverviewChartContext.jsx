@@ -2,13 +2,15 @@ import { createContext, useContext, useMemo } from "react";
 import useTransactionStore from "../store/useTransactionStore";
 import { eachMonthOfInterval, format } from "date-fns";
 import { useOverviewContext } from "./OverviewContext";
+import { formatAmount } from "../utils/formatAmount";
+import useCurrencyStore from "../store/useCurrencyStore";
 
 const OverviewChartContext = createContext();
 
 export const OverviewChartProvider = ({ children }) => {
   const { transactions } = useTransactionStore();
-  const { totalBudget, totalBudgetUsed, formattedAmount } =
-    useOverviewContext();
+  const { selectedCurrency } = useCurrencyStore();
+  const { totalBudget, totalBudgetUsed } = useOverviewContext();
 
   const budgetRemaining =
     totalBudget - totalBudgetUsed > 0 ? totalBudget - totalBudgetUsed : 0;
@@ -66,23 +68,25 @@ export const OverviewChartProvider = ({ children }) => {
   // Only set stepSize if max is greater than 60000
   let stepSize;
   switch (true) {
-    case maxValue > 200000:
-      stepSize = 30000;
-      break;
-    case maxValue > 140000:
+    case maxValue > 150000:
       stepSize = 25000;
       break;
-    case maxValue > 70000:
+    case maxValue > 100000:
       stepSize = 20000;
       break;
-    case maxValue > 30000:
+    case maxValue > 50000:
       stepSize = 10000;
       break;
-    case maxValue > 10000:
+    case maxValue > 20000:
       stepSize = 5000;
       break;
-    default:
+    case maxValue > 10000:
       stepSize = 2000;
+      break;
+    case maxValue > 5000:
+      stepSize = 1000;
+    default:
+      stepSize = 500;
   }
 
   // Income vs Expenses line chart data
@@ -125,7 +129,7 @@ export const OverviewChartProvider = ({ children }) => {
             const label = context.label || "";
             const value = context.raw || "";
 
-            return `${label} ${formattedAmount(value)}`;
+            return `${label} ${formatAmount(value, selectedCurrency)}`;
           },
         },
       },
@@ -136,7 +140,7 @@ export const OverviewChartProvider = ({ children }) => {
         suggestedMax: maxValue,
         ticks: {
           stepSize,
-          callback: (value) => formattedAmount(value),
+          callback: (value) => formatAmount(value, selectedCurrency),
           color: "#9ca3af",
           font: { size: 14 },
         },
@@ -189,7 +193,7 @@ export const OverviewChartProvider = ({ children }) => {
           label: (context) => {
             const label = context.label || "";
             const amount = context.raw || "";
-            return `${label} ${formattedAmount(amount)}`;
+            return `${label} ${formatAmount(amount, selectedCurrency)}`;
           },
         },
       },

@@ -4,6 +4,18 @@ import { toast } from "react-hot-toast";
 import { useFormContext } from "../context/FormContext";
 import { generateCategoryKey } from "../utils/generateKey";
 import { createNotification } from "../firebase/firestore";
+import useCurrencyStore from "../store/useCurrencyStore";
+import { formatAmount } from "../utils/formatAmount";
+
+const getSnakeCaseValue = (value) => {
+  const splitValue = value?.split(" ");
+  const capitalizedValue = splitValue?.map((v) => {
+    if (v === "a" && v.length === 1) return "a";
+    return v.slice(0, 1).toUpperCase() + v.slice(1).toLowerCase();
+  });
+
+  return capitalizedValue?.join(" ");
+};
 
 const useFormSubmit = (label, mode) => {
   const forms = useFormContext(label);
@@ -48,11 +60,24 @@ const useFormSubmit = (label, mode) => {
   // Get Transaction / Budget / Goal name
   const getName = (categoryType, category, name) => {
     if ((transactions || budgets) && categoryType !== "other") {
-      return category;
+      return getSnakeCaseValue(category);
     } else if (goals || contributions) {
-      return name;
+      return getSnakeCaseValue(name);
     } else {
-      return name;
+      return getSnakeCaseValue(name);
+    }
+  };
+
+  const getCategory = (name, category, categoryType) => {
+    const snakeCaseName = getSnakeCaseValue(name);
+    const snakeCaseCategory = getSnakeCaseValue(category);
+
+    if ((transactions || budgets) && categoryType === "other") {
+      return snakeCaseCategory;
+    } else if (goals || contributions) {
+      return snakeCaseName;
+    } else {
+      return snakeCaseCategory;
     }
   };
 
@@ -61,9 +86,9 @@ const useFormSubmit = (label, mode) => {
     data,
     userUID,
     transactionID,
-    formattedAmount,
     transactionThreshold
   ) => {
+    const { selectedCurrency } = useCurrencyStore.getState();
     const categoryType = CATEGORY_OPTIONS.find(
       (opt) => opt.name === data.category
     )?.type;
@@ -76,7 +101,7 @@ const useFormSubmit = (label, mode) => {
       // Create transaction object
       const transaction = {
         name: getName(categoryType, data.category, data.name),
-        category: goals || contributions ? null : data.category,
+        category: getCategory(data.name, data.category, categoryType),
         categoryKey: getUniqueCategoryKey(data.category, data.name),
         amount: data.amount,
         type: type,
@@ -119,12 +144,14 @@ const useFormSubmit = (label, mode) => {
       ) {
         await createNotification(userUID, {
           subject: "Large Expense Alert 🚨",
-          message: `You recorded an expense transaction of ${formattedAmount(
-            data.amount
+          message: `You recorded an expense transaction of ${formatAmount(
+            data.amount,
+            selectedCurrency
           )} for "${
             transaction.category
-          }", which is higher than your set threshold of ${formattedAmount(
-            transactionThreshold
+          }", which is higher than your set threshold of ${formatAmount(
+            transactionThreshold,
+            selectedCurrency
           )}. Keep an eye on your spending.`,
           type: "transaction",
         });

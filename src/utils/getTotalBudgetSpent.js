@@ -3,7 +3,7 @@ export const getTotalBudgetSpent = (transactions, budgets, type) => {
   const budgetTransactions = transactions?.filter((tx) => {
     // Check if transaction category matches any budget category
     const matchingBudget = budgets?.find((budget) => {
-      if (type && type === budget.type) {
+      if (type === budget.type) {
         return budget.categoryKey === tx.categoryKey;
       } else if (type === "all") {
         return budget.categoryKey === tx.categoryKey;
@@ -14,9 +14,12 @@ export const getTotalBudgetSpent = (transactions, budgets, type) => {
 
     // Check if transaction date is in the same month as budget date
     const txDate = new Date(tx.date);
+    const txType = tx.type;
     const budgetDate = new Date(matchingBudget.date);
+    const budgetType = matchingBudget.type;
 
     return (
+      txType === budgetType &&
       txDate.getMonth() === budgetDate.getMonth() &&
       txDate.getFullYear() === budgetDate.getFullYear()
     );

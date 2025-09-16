@@ -2,12 +2,14 @@ import { HiOutlinePencil, HiOutlineTrash } from "react-icons/hi";
 import CircularProgress from "../ui/CircularProgress";
 import { FaPlus } from "react-icons/fa";
 import { useGoalsContext } from "../../context/GoalsContext";
+import useCurrencyStore from "../../store/useCurrencyStore";
+import { formatAmount } from "../../utils/formatAmount";
 
 const Cards = () => {
+  const { selectedCurrency } = useCurrencyStore();
   const {
     filteredGoals,
     getAmountSaved,
-    formattedAmount,
     handleEditGoal,
     handleAddContribution,
     deleteGoalAndContribution,
@@ -34,10 +36,16 @@ const Cards = () => {
                     {goal.name}
                   </h3>
                   <p className="mt-4 text-base text-[rgb(var(--color-muted))] font-medium">
-                    Target: <strong>{formattedAmount(goalTargetAmount)}</strong>
+                    Target:{" "}
+                    <strong>
+                      {formatAmount(goalTargetAmount, selectedCurrency)}
+                    </strong>
                   </p>
                   <p className="text-base text-[rgb(var(--color-muted))] font-medium">
-                    Saved: <strong>{formattedAmount(amountSaved)}</strong>
+                    Saved:{" "}
+                    <strong>
+                      {formatAmount(amountSaved, selectedCurrency)}
+                    </strong>
                   </p>
                 </div>
                 {/* Progress bar */}

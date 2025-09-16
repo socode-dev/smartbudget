@@ -2,10 +2,7 @@ export const scheduleThresholdCheck = (
   mounted,
   checkThreshold,
   userUid,
-  firstData,
-  secondData,
-  getAmount,
-  formattedAmount,
+  budgets,
   threshold50,
   threshold80,
   threshold100
@@ -16,17 +13,14 @@ export const scheduleThresholdCheck = (
     try {
       await checkThreshold(
         userUid,
-        firstData,
-        secondData,
-        getAmount,
-        formattedAmount,
+        budgets,
         threshold50,
         threshold80,
         threshold100
       );
     } catch (err) {
       if (mounted) {
-        console.error("generateNotifications error:", err);
+        console.warn("Generate notifications error:", err);
       }
     }
   };

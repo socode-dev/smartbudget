@@ -8,30 +8,24 @@ import {
 } from "react";
 import { useModalContext } from "./ModalContext";
 import { useFormContext } from "./FormContext";
-// import { useAuthContext } from "./AuthContext";
-import { useTransactionsContext } from "./TransactionsContext";
 import useTransactionStore from "../store/useTransactionStore";
 import { handleEdit } from "../utils/handleEdit";
 import toast from "react-hot-toast";
-import { checkGoalThreshold } from "../firebase/checkGoalThreshold";
+import { checkGoalThreshold } from "../services/checkGoalThreshold";
 import useThresholdStore from "../store/useThresholdStore";
 import { scheduleThresholdCheck } from "../services/scheduleThresholdCheck";
-// import { useCurrentUser } from "../hooks/useAuthHooks";
 import useAuthStore from "../store/useAuthStore";
 
 const GoalsContext = createContext();
 
 export const GoalsProvider = ({ children }) => {
-  // const { currentUser } = useAuthContext();
-  // const user = useCurrentUser();
   const { currentUser: user } = useAuthStore();
+  const { thresholds } = useThresholdStore();
   const { onOpenModal, modalState, setTransactionID } = useModalContext();
   const contributionModalState = modalState.contributions;
   const { goals, contributions, deleteTransaction, setEditTransaction } =
     useTransactionStore();
   const [searchName, setSearchName] = useState("");
-  const { formattedAmount } = useTransactionsContext();
-  const { thresholds } = useThresholdStore();
 
   const goalThreshold50 = thresholds?.goalThreshold50 ?? 50;
   const goalThreshold80 = thresholds?.goalThreshold80 ?? 80;
@@ -105,7 +99,6 @@ export const GoalsProvider = ({ children }) => {
           user.uid,
           goals,
           getAmountSaved,
-          formattedAmount,
           goalThreshold50,
           goalThreshold80,
           goalThreshold100
@@ -167,7 +160,6 @@ export const GoalsProvider = ({ children }) => {
         searchName,
         setSearchName,
         getAmountSaved,
-        formattedAmount,
         handleEditGoal,
         handleAddContribution,
         deleteGoalAndContribution,

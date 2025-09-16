@@ -1,20 +1,21 @@
-import { FaLightbulb } from "react-icons/fa6";
-import { FiTrendingUp, FiAlertTriangle } from "react-icons/fi";
+import { FaCircleInfo } from "react-icons/fa6";
+import { FiTrendingUp } from "react-icons/fi";
+import { MdOutlineError } from "react-icons/md";
 
 export const insightUIMap = {
-  tip: {
-    icon: FaLightbulb,
-    color: "text-blue-500 bg-[rgb(var(--color-bg-status-blue))]",
-    label: "Tip",
+  info: {
+    icon: FaCircleInfo,
+    color: "text-blue-500",
+    label: "Info",
   },
-  suggestion: {
-    icon: FiAlertTriangle,
-    color: "text-amber-500 bg-[rgb(var(--color-bg-status-amber))]",
-    label: "Suggestion",
+  anomaly: {
+    icon: MdOutlineError,
+    color: "text-red-500",
+    label: "Anomaly",
   },
   forecast: {
     icon: FiTrendingUp,
-    color: "text-green-500 bg-[rgb(var9--color-bg-status-green)]",
+    color: "text-green-500",
     label: "Forecast",
   },
 };

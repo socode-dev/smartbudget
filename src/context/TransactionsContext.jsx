@@ -8,26 +8,15 @@ import {
 } from "react";
 import useTransactionStore from "../store/useTransactionStore";
 import { transactionTotal } from "../utils/transactionTotal";
-import useCurrencyStore from "../store/useCurrencyStore";
-import { formatAmount } from "../utils/formatAmount";
 import { handleEdit } from "../utils/handleEdit";
 import { useFormContext } from "./FormContext";
 import { useModalContext } from "./ModalContext";
-// import { useAuthContext } from "./AuthContext";
-// import { useCurrentUser } from "../hooks/useAuthHooks";
-// import { useAuthContext } from "./AuthContext";
-import useAuthStore from "../store/useAuthStore";
 
 const TransactionsContext = createContext();
 
 export const TransactionsProvider = ({ children }) => {
-  // const user = useCurrentUser();
-  // const {currentUser} = useAuthContext();
-  const { currentUser: user } = useAuthStore();
   const { onOpenModal, setTransactionID } = useModalContext();
-  const { transactions, deleteTransaction, setEditTransaction } =
-    useTransactionStore();
-  const { selectedCurrency } = useCurrencyStore();
+  const { transactions, setEditTransaction } = useTransactionStore();
   const [filters, setFilters] = useState({
     search: "",
     fromDate: "",
@@ -38,16 +27,6 @@ export const TransactionsProvider = ({ children }) => {
 
   const forms = useFormContext("transactions");
   const { setValue } = forms;
-
-  // Format currency amount
-  const formattedAmount = useCallback(
-    (amount) => {
-      const formatCurrency = formatAmount(selectedCurrency);
-      const amountFormat = formatCurrency.format(amount);
-      return amountFormat;
-    },
-    [selectedCurrency]
-  );
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
@@ -111,8 +90,7 @@ export const TransactionsProvider = ({ children }) => {
 
   // Sort transactions by date (latest first)
   const sortedTransactions = useMemo(
-    () =>
-      filteredTransactions?.sort((a, b) => new Date(b.date) - new Date(a.date)),
+    () => filteredTransactions?.sort((a, b) => b.createdAt - a.createdAt),
     [filteredTransactions]
   );
 
@@ -157,11 +135,6 @@ export const TransactionsProvider = ({ children }) => {
     setTransactionID(id);
   }, []);
 
-  // Handle for deleting transaction
-  const handleDeleteTransaction = useCallback((id) => {
-    deleteTransaction(user?.uid, "transactions", id);
-  }, []);
-
   const value = {
     sortedTransactions,
     currentTransactions,
@@ -175,11 +148,9 @@ export const TransactionsProvider = ({ children }) => {
     totalExpenses,
     totalIncome,
     netBalance,
-    formattedAmount,
     filters,
     setFilters,
     handleEditTransaction,
-    handleDeleteTransaction,
   };
 
   return (

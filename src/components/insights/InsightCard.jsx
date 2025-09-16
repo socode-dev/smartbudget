@@ -2,14 +2,14 @@ import clsx from "clsx";
 import { insightUIMap } from "../../utils/insightUIMap";
 
 const InsightCard = ({ insight }) => {
-  const { actionType: type, actionText, message, severity } = insight;
+  const { actionType, type, actionText, message, severity } = insight;
 
-  const ui = insightUIMap[type] || insightUIMap.tip;
+  const ui = insightUIMap[type] ?? insightUIMap.info;
 
   const Icon = ui.icon;
 
   return (
-    <div className="flex flex-col gap-4 bg-[rgb(var(--color-bg-card))] p-4 rounded-lg shadow-lg border border-[rgb(var(--color-gray-border))]">
+    <div className="flex flex-col gap-4 bg-[rgb(var(--color-bg-card))] p-4 rounded-lg shadow border border-[rgb(var(--color-gray-border))]">
       <div className="flex items-center gap-2">
         <span
           className={clsx(
@@ -25,8 +25,11 @@ const InsightCard = ({ insight }) => {
         )}
       </div>
       <p className="text-base text-[rgb(var(--color-muted))]">{message}</p>
-      <p className="text-base text-[rgb(var(--color-muted))] font-medium">
-        {actionText}
+      <p className="text-base text-[rgb(var(--color-muted))]">
+        <strong>
+          {actionType?.slice(0, 1)?.toUpperCase() + actionType?.slice(1)}:
+        </strong>{" "}
+        <span>{actionText}</span>
       </p>
     </div>
   );

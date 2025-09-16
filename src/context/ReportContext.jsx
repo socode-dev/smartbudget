@@ -3,13 +3,14 @@ import useTransactionStore from "../store/useTransactionStore";
 import Papa from "papaparse";
 import { jsPDF } from "jspdf";
 import { autoTable } from "jspdf-autotable";
-import { useTransactionsContext } from "./TransactionsContext";
+import useCurrencyStore from "../store/useCurrencyStore";
+import { formatAmount } from "../utils/formatAmount";
 
 const ReportContext = createContext();
 
 export const ReportProvider = ({ children }) => {
   const { transactions } = useTransactionStore();
-  const { formattedAmount } = useTransactionsContext();
+  const { selectedCurrency } = useCurrencyStore();
 
   const expenses = useMemo(
     () => transactions?.filter((tx) => tx.type === "expense"),
@@ -43,7 +44,7 @@ export const ReportProvider = ({ children }) => {
         return {
           No: index + 1,
           Category: category,
-          Amount: formattedAmount(totalCategoryAmount),
+          Amount: formatAmount(totalCategoryAmount, selectedCurrency),
           Percentage: `${parseFloat(percentage)}%`,
           Count: reportItems.length,
         };

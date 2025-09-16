@@ -3,23 +3,19 @@ import { useEffect } from "react";
 export const useDropdownClose = (
   dropdownOpen,
   ref,
-  setter,
+  firstSetter,
   secondSetter,
-  thirdSetter,
-  fourthSetter
+  thirdSetter
 ) => {
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (ref.current && !ref.current.contains(e.target)) {
-        setter(false);
+        firstSetter(false);
         if (secondSetter) {
           secondSetter(false);
         }
         if (thirdSetter) {
           thirdSetter(false);
-        }
-        if (fourthSetter) {
-          fourthSetter(false);
         }
       }
     };

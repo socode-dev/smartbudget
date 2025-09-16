@@ -5,17 +5,19 @@ import useTransactionStore from "../store/useTransactionStore";
 import { useModalContext } from "../context/ModalContext";
 import ScrollToTop from "../layout/ScrollToTop";
 import { useTransactionsContext } from "../context/TransactionsContext";
+import useCurrencyStore from "../store/useCurrencyStore";
+import { formatAmount } from "../utils/formatAmount";
 
 const Transactions = () => {
   const { onOpenModal } = useModalContext();
   const { transactions } = useTransactionStore();
+  const { selectedCurrency } = useCurrencyStore();
   const {
     sortedTransactions,
     totalBalance,
     totalExpenses,
     totalIncome,
     netBalance,
-    formattedAmount,
   } = useTransactionsContext();
 
   return (
@@ -29,7 +31,7 @@ const Transactions = () => {
           </p>
         </div>
 
-        {transactions.length > 0 && (
+        {transactions?.length > 0 && (
           <button
             onClick={() => onOpenModal("transactions", "add")}
             title="Add transaction"
@@ -42,7 +44,7 @@ const Transactions = () => {
       </section>
 
       {/* Filter Row (Search by note, date range and category) */}
-      {transactions.length > 0 && <Filter />}
+      {transactions?.length > 0 && <Filter />}
 
       {sortedTransactions?.length > 0 && (
         <>
@@ -54,25 +56,25 @@ const Transactions = () => {
             <p className="text-[rgb(var(--color-muted))] text-sm font-medium">
               Total Income:{" "}
               <span className="font-semibold text-green-500 text-base">
-                +{formattedAmount(totalIncome)}
+                +{formatAmount(totalIncome, selectedCurrency)}
               </span>
             </p>
             <p className="text-[rgb(var(--color-muted))] text-sm font-medium">
               Total Expenses:{" "}
               <span className="font-semibold text-red-500 text-base">
-                -{formattedAmount(totalExpenses)}
+                -{formatAmount(totalExpenses, selectedCurrency)}
               </span>
             </p>
             <p className="text-[rgb(var(--color-muted))] text-sm font-medium">
               Total Balance:{" "}
               <span className="font-semibold text-[rgb(var(--color-brand-deep))] text-base">
-                {formattedAmount(totalBalance)}
+                {formatAmount(totalBalance, selectedCurrency)}
               </span>
             </p>
             <p className="text-[rgb(var(--color-muted))] text-sm font-medium">
               Net Balance:{" "}
               <span className="font-semibold text-yellow-500 text-base">
-                {formattedAmount(netBalance)}
+                {formatAmount(netBalance, selectedCurrency)}
               </span>
             </p>
           </section>

@@ -1,13 +1,12 @@
 import { useOverviewContext } from "../../context/OverviewContext";
 import clsx from "clsx";
+import useCurrencyStore from "../../store/useCurrencyStore";
+import { formatAmount } from "../../utils/formatAmount";
 
 const ExpensesBudgetOverview = () => {
-  const {
-    totalExpensesBudget,
-    expensesBudgetPercent,
-    remainingExpenses,
-    formattedAmount,
-  } = useOverviewContext();
+  const { selectedCurrency } = useCurrencyStore();
+  const { totalExpensesBudget, expensesBudgetPercent, remainingExpenses } =
+    useOverviewContext();
 
   const budgetPercent = expensesBudgetPercent || 0;
 
@@ -22,7 +21,7 @@ const ExpensesBudgetOverview = () => {
   const dynamicExpenseRingBG = {
     background: `conic-gradient(${dynamicColor} 0% ${Math.ceil(
       budgetPercent
-    )}%, rgb(107, 114, 128) ${Math.ceil(budgetPercent)}% 100%)`,
+    )}%, rgb(107, 114, 158) ${Math.ceil(budgetPercent)}% 100%)`,
   };
 
   let expensesStatus = "";
@@ -77,7 +76,8 @@ const ExpensesBudgetOverview = () => {
         </div>
         <p className="text-base text-[rgb(var(--color-muted))]">
           <strong>{Math.ceil(budgetPercent)}%</strong> of{" "}
-          <strong>{formattedAmount(totalExpensesBudget)}</strong> limit used
+          <strong>{formatAmount(totalExpensesBudget, selectedCurrency)}</strong>{" "}
+          limit used
         </p>
         <p className="text-base text-[rgb(var(--color-muted))]">
           {budgetPercent > 100 ? "Overspent" : "Remaining"}:{" "}
@@ -88,8 +88,11 @@ const ExpensesBudgetOverview = () => {
             )}
           >
             {budgetPercent > 100
-              ? `-${formattedAmount(Math.abs(remainingExpenses))}`
-              : formattedAmount(remainingExpenses)}
+              ? `-${formatAmount(
+                  Math.abs(remainingExpenses),
+                  selectedCurrency
+                )}`
+              : formatAmount(remainingExpenses, selectedCurrency)}
           </strong>
         </p>
         <p className="text-base text-[rgb(var(--color-muted))]">

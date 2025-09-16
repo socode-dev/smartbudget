@@ -22,7 +22,6 @@ const ModalForm = ({ label, mode }) => {
     reset,
     formState: { errors, isSubmitting },
   } = forms;
-  const { formattedAmount } = useTransactionsContext();
 
   const { CATEGORY_OPTIONS } = useTransactionStore();
 
@@ -39,20 +38,7 @@ const ModalForm = ({ label, mode }) => {
 
   const txID = mode === "edit" ? transactionID : null;
 
-  let submitPrefix = "Save";
-  let submitLabel = "Transaction";
-
-  if (mode === "edit") {
-    submitPrefix = "Edit";
-  }
-
-  if (budgetLabel) {
-    submitLabel = "Budget";
-  } else if (goalLabel) {
-    submitLabel = "Goal";
-  } else if (contributionLabel) {
-    submitLabel = "Contribution";
-  }
+  const submitPrefix = mode === "edit" ? "Edit" : "Save";
 
   const onClose = () => {
     onCloseModal(label);
@@ -62,13 +48,7 @@ const ModalForm = ({ label, mode }) => {
   return (
     <form
       onSubmit={handleSubmit((data) =>
-        onSubmit(
-          data,
-          user.uid,
-          txID,
-          formattedAmount,
-          thresholds.transactionThreshold ?? 10000
-        )
+        onSubmit(data, user.uid, txID, thresholds.transactionThreshold ?? 10000)
       )}
       className="space-y-4"
     >
@@ -212,13 +192,7 @@ const ModalForm = ({ label, mode }) => {
             htmlFor="date"
             className="block text-base font-medium mb-2 after:content-['*'] after:text-red-500 after:ml-0.5"
           >
-            {transactionLabel
-              ? "Date"
-              : budgetLabel
-              ? "Start Date"
-              : goalLabel
-              ? "Due Date"
-              : "Contribution Date"}
+            {budgetLabel ? "Start Date" : goalLabel ? "Due Date" : "Date"}
           </label>
           <input
             {...register("date")}
@@ -267,11 +241,7 @@ const ModalForm = ({ label, mode }) => {
           disabled={isSubmitting}
           className="w-3/5 bg-[rgb(var(--color-brand))] text-white hover:bg-[rgb(var(--color-brand-hover))] transition cursor-pointer px-4 py-2 rounded-md text-base font-medium disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {isSubmitting ? (
-            <LoadingSpinner size={25} />
-          ) : (
-            `${submitPrefix} ${submitLabel}`
-          )}
+          {isSubmitting ? <LoadingSpinner size={25} /> : `${submitPrefix}`}
         </button>
       </footer>
     </form>

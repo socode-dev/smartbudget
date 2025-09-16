@@ -1,8 +1,13 @@
 import { useContext, createContext, useMemo } from "react";
 import useTransactionStore from "../store/useTransactionStore";
-import { useTransactionsContext } from "./TransactionsContext";
+import { formatAmount } from "../utils/formatAmount";
+import useCurrencyStore from "../store/useCurrencyStore";
 
 const ReportChartContext = createContext();
+
+export const generateRandomNumber = (number) => {
+  return Math.floor(Math.random() * number) + 1;
+};
 
 const categoryColor = {
   Freelance: "#38BDF8",
@@ -11,18 +16,21 @@ const categoryColor = {
   Gifts: "#D946EF",
   Loan: "#EF4444",
   Groceries: "#84CC16",
+  Food: "#22C55E",
   Transport: "#F59E0B",
   Dining: "#F43F5E",
   Shopping: "#A855F7",
   Utilities: "#14B8A6",
   Health: "#06B6D4",
   Entertainment: "#FB923C",
-  Other: "#9CA3AF",
+  Other: `rgb(${generateRandomNumber(255)}, ${generateRandomNumber(
+    255
+  )}, ${generateRandomNumber(255)})`,
 };
 
 export const ReportChartProvider = ({ children }) => {
   const { transactions } = useTransactionStore();
-  const { formattedAmount } = useTransactionsContext();
+  const { selectedCurrency } = useCurrencyStore();
 
   const expenses = useMemo(
     () => transactions?.filter((tx) => tx.type === "expense"),
@@ -98,7 +106,7 @@ export const ReportChartProvider = ({ children }) => {
           label: (context) => {
             const label = context.label || "";
             const amount = context.raw || "";
-            return `${label} ${formattedAmount(amount)}`;
+            return `${label} ${formatAmount(amount, selectedCurrency)}`;
           },
         },
       },
@@ -175,7 +183,7 @@ export const ReportChartProvider = ({ children }) => {
             const label = context.label || "";
             const value = context.raw || "";
 
-            return `${label} ${formattedAmount(value)}`;
+            return `${label} ${formatAmount(value, selectedCurrency)}`;
           },
         },
       },

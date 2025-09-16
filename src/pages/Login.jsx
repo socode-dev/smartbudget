@@ -99,7 +99,7 @@ const Login = () => {
               <input
                 {...register("password")}
                 type={revealPassword ? "text" : "password"}
-                id="password"
+                id="loginPassword"
                 placeholder="Enter your password"
                 className="w-full text-sm text-[rgb(var(--color-muted))] px-4 py-2 rounded-lg border-2 border-[rgb(var(--color-gray-border))] outline-none focus:border-[rgb(var(--color-brand))] transition"
               />
