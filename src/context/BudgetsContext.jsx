@@ -10,28 +10,22 @@ import useTransactionStore from "../store/useTransactionStore";
 import { useFormContext } from "./FormContext";
 import { useModalContext } from "./ModalContext";
 import { handleEdit } from "../utils/handleEdit";
-import { checkBudgetThreshold } from "../firebase/checkBudgetThreshold";
-// import { useAuthContext } from "./AuthContext";
-import { useTransactionsContext } from "./TransactionsContext";
+import { checkBudgetThreshold } from "../services/checkBudgetThreshold";
 import useThresholdStore from "../store/useThresholdStore";
 import { scheduleThresholdCheck } from "../services/scheduleThresholdCheck";
-// import { useCurrentUser } from "../hooks/useAuthHooks";
 import useAuthStore from "../store/useAuthStore";
 
 const BudgetsContext = createContext();
 
 export const BudgetsProvider = ({ children }) => {
-  // const { currentUser } = useAuthContext();
-  // const user = useCurrentUser();
   const { currentUser: user } = useAuthStore();
+  const { thresholds } = useThresholdStore();
   const [searchName, setSearchName] = useState("");
   const { onOpenModal, setTransactionID } = useModalContext();
   const { budgets, transactions, deleteTransaction, setEditTransaction } =
     useTransactionStore();
-  const { formattedAmount } = useTransactionsContext();
   const forms = useFormContext("budgets");
   const { setValue } = forms;
-  const { thresholds } = useThresholdStore();
 
   const budgetThreshold50 = thresholds?.budgetThreshold50 ?? 50;
   const budgetThreshold80 = thresholds?.budgetThreshold80 ?? 80;
@@ -48,21 +42,6 @@ export const BudgetsProvider = ({ children }) => {
         return matchesName;
       }),
     [budgets, searchName]
-  );
-
-  const getAmountSpent = useCallback(
-    (key, date) => {
-      const budgetDate = new Date(date);
-      const spendingRecords = transactions?.filter(
-        (tx) =>
-          tx.categoryKey === key &&
-          new Date(tx.date).getMonth() === budgetDate.getMonth() &&
-          new Date(tx.date).getFullYear() === budgetDate.getFullYear()
-      );
-
-      return spendingRecords.reduce((acc, tx) => acc + tx.amount, 0);
-    },
-    [transactions]
   );
 
   const budgetCounts = budgets?.length;
@@ -85,9 +64,6 @@ export const BudgetsProvider = ({ children }) => {
           checkBudgetThreshold,
           user.uid,
           budgets,
-          transactions,
-          getAmountSpent,
-          formattedAmount,
           budgetThreshold50,
           budgetThreshold80,
           budgetThreshold100
@@ -100,7 +76,7 @@ export const BudgetsProvider = ({ children }) => {
     return () => {
       mounted = false;
     };
-  }, [user?.uid, budgetCounts, transactionCounts]);
+  }, [user?.uid, budgets, transactions]);
 
   const handleEditBudget = (id) => {
     handleEdit(
@@ -137,7 +113,6 @@ export const BudgetsProvider = ({ children }) => {
         filteredBudgets,
         searchName,
         setSearchName,
-        getAmountSpent,
         getProgressBackground,
         onOpenModal,
         handleEditBudget,

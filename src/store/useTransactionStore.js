@@ -1,7 +1,5 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import useCurrencyStore from "./useCurrencyStore";
-// import idbTransactions from "../store/idbTransactions";
 import { toast } from "react-hot-toast";
 import {
   addDocument,
@@ -15,14 +13,22 @@ const CATEGORY_OPTIONS = [
   { name: "Salary", type: "income" },
   { name: "Investments", type: "expense" },
   { name: "Gifts", type: "expense" },
-  { name: "Loan", type: "expense" },
+  { name: "Insurance", type: "expense" },
+  { name: "Food", type: "expense" },
   { name: "Groceries", type: "expense" },
-  { name: "Transport", type: "expense" },
+  { name: "Transportation", type: "expense" },
   { name: "Dining", type: "expense" },
   { name: "Shopping", type: "expense" },
   { name: "Utilities", type: "expense" },
-  { name: "Health", type: "expense" },
+  { name: "Healthcare", type: "expense" },
   { name: "Entertainment", type: "expense" },
+  { name: "Travel", type: "expense" },
+  { name: "Rent", type: "expense" },
+  { name: "Gas", type: "expense" },
+  { name: "Phone", type: "expense" },
+  { name: "Internet", type: "expense" },
+  { name: "Gym", type: "expense" },
+  { name: "Books", type: "expense" },
   { name: "Other", type: "other" },
 ];
 
@@ -54,6 +60,9 @@ const useTransactionStore = create(
 
       // Delete transaction from firestore
       deleteTransaction: async (userUID, type, transactionID) => {
+        set((state) => ({
+          [type]: state[type]?.filter((record) => record.id !== transactionID),
+        }));
         await deleteDocument(userUID, type, transactionID);
         const txs = await getAllDocuments(userUID, type);
         set({ [type]: txs });

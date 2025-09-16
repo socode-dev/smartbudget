@@ -6,8 +6,11 @@ import {
 } from "react-icons/fa";
 import { useOverviewContext } from "../../context/OverviewContext";
 import { useCallback, useMemo } from "react";
+import useCurrencyStore from "../../store/useCurrencyStore";
+import { formatAmount } from "../../utils/formatAmount";
 
 const SummaryCards = () => {
+  const { selectedCurrency } = useCurrencyStore();
   const {
     totalIncome,
     totalExpenses,
@@ -17,10 +20,9 @@ const SummaryCards = () => {
     totalBudgetUsed,
     incomeLabel,
     expensesLabel,
-    formattedAmount,
   } = useOverviewContext();
 
-  // Display net budget label
+  // Generate net budget label
   const getNetBalanceLabel = useCallback(() => {
     if (netBalance === 0) {
       return (
@@ -70,7 +72,7 @@ const SummaryCards = () => {
             Total Income
           </h3>
           <p className="text-3xl font-bold text-green-600">
-            {formattedAmount(totalIncome)}
+            {formatAmount(totalIncome, selectedCurrency)}
           </p>
           <p className="text-sm text-green-500">{incomeLabel}</p>
         </div>
@@ -87,7 +89,7 @@ const SummaryCards = () => {
             Total Expenses
           </h3>
           <p className="text-3xl font-bold text-red-600">
-            {formattedAmount(totalExpenses)}
+            {formatAmount(totalExpenses, selectedCurrency)}
           </p>
           <p className="text-sm text-red-500">{expensesLabel}</p>
         </div>
@@ -104,7 +106,7 @@ const SummaryCards = () => {
             Net Balance
           </h3>
           <p className="text-3xl font-bold text-[rgb(var(--color-brand-deep))]">
-            {formattedAmount(netBalance)}
+            {formatAmount(netBalance, selectedCurrency)}
           </p>
           {netBalanceLabel}
         </div>
@@ -124,7 +126,8 @@ const SummaryCards = () => {
             {budgetUsagePercentage > 0 ? budgetUsagePercentage : "0"}% used
           </p>
           <p className="text-sm text-[rgb(var(--color-muted))]">
-            {formattedAmount(totalBudgetUsed)} of {formattedAmount(totalBudget)}
+            {formatAmount(totalBudgetUsed, selectedCurrency)} of{" "}
+            {formatAmount(totalBudget, selectedCurrency)}
           </p>
         </div>
       </div>

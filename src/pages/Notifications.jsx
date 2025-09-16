@@ -6,7 +6,7 @@ import { formatRelativeTime } from "../utils/formatRelativeTime";
 import { FiMoreVertical } from "react-icons/fi";
 import { useState } from "react";
 
-const NotificationDropdown = () => {
+const Notification = () => {
   const { notifications } = useNotificationStore();
   const { onOpenDialog, handleDelete } = useNotificationContext();
   const [options, setOptions] = useState({
@@ -23,7 +23,7 @@ const NotificationDropdown = () => {
   }
 
   const sortedNotification = notifications?.sort(
-    (a, b) => b.createdAt?.toDate() - a.createdAt?.toDate()
+    (a, b) => b.createdAt - a.createdAt
   );
 
   const toggleOptions = (id) =>
@@ -98,4 +98,4 @@ const NotificationDropdown = () => {
   );
 };
 
-export default NotificationDropdown;
+export default Notification;

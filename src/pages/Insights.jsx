@@ -1,9 +1,23 @@
 import ScrollToTop from "../layout/ScrollToTop";
+import useAuthStore from "../store/useAuthStore";
 import useInsightsStore from "../store/useInsightsStore";
 import InsightCard from "../components/insights/InsightCard";
 
 const Insights = () => {
+  const { isUserEmailVerified } = useAuthStore();
   const { insights } = useInsightsStore();
+
+  if (!isUserEmailVerified) {
+    return (
+      <main className=" px-5 md:px-10 py-8 flex justify-center items-center">
+        <p className="mt-10 text-2xl md:text-3xl text-center text-[rgb(var(--color-muted))]">
+          Please verify your email to access this feature.
+        </p>
+      </main>
+    );
+  }
+
+  const sortedInsights = insights?.sort((a, b) => a.createdAt - b.createdAt);
 
   return (
     <main className="px-5 md:px-10 py-8">
@@ -28,7 +42,7 @@ const Insights = () => {
       {/* Smart Insights */}
       {!!insights.length && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {insights.map((insight) => (
+          {sortedInsights.map((insight) => (
             <InsightCard key={insight.id} insight={insight} />
           ))}
         </div>

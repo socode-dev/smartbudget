@@ -1,20 +1,19 @@
 import { useOverviewContext } from "../../context/OverviewContext";
 import clsx from "clsx";
+import useCurrencyStore from "../../store/useCurrencyStore";
+import { formatAmount } from "../../utils/formatAmount";
 
 const IncomeBudgetOverview = () => {
-  const {
-    totalIncomeBudget,
-    incomeBudgetPercent,
-    remainingIncome,
-    formattedAmount,
-  } = useOverviewContext();
+  const { selectedCurrency } = useCurrencyStore();
+  const { totalIncomeBudget, incomeBudgetPercent, remainingIncome } =
+    useOverviewContext();
 
   const budgetPercent = incomeBudgetPercent || 0;
 
   const dynamicIncomeRingBG = {
     background: `conic-gradient(${
       budgetPercent >= 100 ? "rgb(34, 197, 94)" : "rgb(29, 78, 216)"
-    } 0% ${Math.ceil(budgetPercent)}%, rgb(107, 114, 128) ${Math.ceil(
+    } 0% ${Math.ceil(budgetPercent)}%, rgb(107, 114, 158) ${Math.ceil(
       budgetPercent
     )}% 100%)`,
   };
@@ -69,7 +68,8 @@ const IncomeBudgetOverview = () => {
         </div>
         <p className="text-base text-[rgb(var(--color-muted))]">
           <strong>{Math.ceil(budgetPercent)}%</strong> of{" "}
-          <strong>{formattedAmount(totalIncomeBudget)}</strong> goal reached
+          <strong>{formatAmount(totalIncomeBudget, selectedCurrency)}</strong>{" "}
+          goal reached
         </p>
         <p className="text-base text-[rgb(var(--color-muted))] ">
           {budgetPercent > 100 ? "Extra" : "Remaining"}:{" "}
@@ -80,8 +80,8 @@ const IncomeBudgetOverview = () => {
             )}
           >
             {remainingIncome < 0
-              ? `+${formattedAmount(Math.abs(remainingIncome))}`
-              : formattedAmount(remainingIncome)}
+              ? `+${formatAmount(Math.abs(remainingIncome), selectedCurrency)}`
+              : formatAmount(remainingIncome, selectedCurrency)}
           </strong>
         </p>
         <p className=" text-base text-[rgb(var(--color-muted))]">

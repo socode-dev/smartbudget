@@ -6,19 +6,15 @@ import {
   useRef,
   useCallback,
 } from "react";
-// import { useAuthContext } from "./AuthContext";
 import useNotificationStore from "../store/useNotificationStore";
 import useTransactionStore from "../store/useTransactionStore";
 import { useDropdownClose } from "../hooks/useDropdownClose";
 import useCurrencyStore from "../store/useCurrencyStore";
-// import { useCurrentUser } from "../hooks/useAuthHooks";
 import useAuthStore from "../store/useAuthStore";
 
 const MainContext = createContext();
 
 export const MainProvider = ({ children }) => {
-  // const { currentUser } = useAuthContext();
-  // const user = useCurrentUser();
   const { currentUser: user } = useAuthStore();
   const { loadTransactions } = useTransactionStore();
   const { loadNotifications } = useNotificationStore();
@@ -28,7 +24,6 @@ export const MainProvider = ({ children }) => {
   const [isSignoutPromptOpen, setIsSignoutPromptOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
-  const [isAISettingsOpen, setIsAISettingsOpen] = useState(false);
   const [isCurrencyOpen, setIsCurrencyOpen] = useState(false);
   const [isExportOpen, setIsExportOpen] = useState(false);
 
@@ -41,7 +36,6 @@ export const MainProvider = ({ children }) => {
     setIsSettingsOpen,
     setIsCurrencyOpen,
     setIsExportOpen
-    // setIsAISettingsOpen
   );
   useDropdownClose(isProfileOpen, profileRef, setIsProfileOpen);
 
@@ -70,12 +64,6 @@ export const MainProvider = ({ children }) => {
   // Handle to open and close profile
   const handleProfileToggle = useCallback(
     () => setIsProfileOpen((prev) => !prev),
-    []
-  );
-
-  // Handle AI Settings open and close
-  const handleAISettingsToggle = useCallback(
-    () => setIsAISettingsOpen((prev) => !prev),
     []
   );
 
@@ -154,7 +142,6 @@ export const MainProvider = ({ children }) => {
         isSettingsOpen,
         isProfileOpen,
         isPreferencesOpen,
-        isAISettingsOpen,
         isCurrencyOpen,
         isExportOpen,
         isSignoutPromptOpen,
@@ -164,7 +151,6 @@ export const MainProvider = ({ children }) => {
         handlePreferencesClose,
         handleSettingsToggle,
         handleProfileToggle,
-        handleAISettingsToggle,
         handleCurrencyToggle,
         handleCurrencyClose,
         handleSignoutPromptOpen,

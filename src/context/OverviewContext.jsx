@@ -1,6 +1,5 @@
 import { createContext, useContext, useCallback, useMemo } from "react";
 import useTransactionStore from "../store/useTransactionStore";
-import useCurrencyStore from "../store/useCurrencyStore";
 import { transactionTotal } from "../utils/transactionTotal";
 import { getTotalBudgetSpent } from "../utils/getTotalBudgetSpent";
 import Papa from "papaparse";
@@ -8,21 +7,13 @@ import { jsPDF } from "jspdf";
 import { autoTable } from "jspdf-autotable";
 import { format } from "date-fns";
 import { formatAmount } from "../utils/formatAmount";
+import useCurrencyStore from "../store/useCurrencyStore";
 
 const OverviewContext = createContext();
 
 export const OverviewProvider = ({ children }) => {
   const { selectedCurrency } = useCurrencyStore();
   const { transactions, budgets } = useTransactionStore();
-
-  const formattedAmount = useCallback(
-    (amount) => {
-      const formatCurrency = formatAmount(selectedCurrency);
-      const amountFormat = formatCurrency.format(amount);
-      return amountFormat;
-    },
-    [selectedCurrency]
-  );
 
   // Get last month and this month total income and expenses
   const income = useMemo(
@@ -165,7 +156,7 @@ export const OverviewProvider = ({ children }) => {
   );
 
   const totalIncomeBudget = incomeBudget?.reduce(
-    (sum, incoome) => sum + incoome.amount,
+    (sum, income) => sum + income.amount,
     0
   );
 
@@ -210,9 +201,10 @@ export const OverviewProvider = ({ children }) => {
           Name: transaction.name,
           Type: transaction.type,
           Note: transaction.description || "-",
-          Amount: `${
-            transaction.type === "income" ? "+" : "-"
-          }${formattedAmount(transaction.amount)}`,
+          Amount: `${transaction.type === "income" ? "+" : "-"}${formatAmount(
+            transaction.amount,
+            selectedCurrency
+          )}`,
         };
       }),
     [sortedTransactions]
@@ -290,7 +282,6 @@ export const OverviewProvider = ({ children }) => {
         remainingIncome,
         expensesBudgetPercent,
         remainingExpenses,
-        formattedAmount,
         handleCSVExport,
         handlePDFExport,
       }}

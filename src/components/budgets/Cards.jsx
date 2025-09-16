@@ -2,13 +2,14 @@ import { HiOutlineTrash, HiOutlinePencil } from "react-icons/hi";
 import clsx from "clsx";
 import { format } from "date-fns";
 import { useBudgetsContext } from "../../context/BudgetsContext";
-import { useTransactionsContext } from "../../context/TransactionsContext";
+import useCurrencyStore from "../../store/useCurrencyStore";
+import { formatAmount } from "../../utils/formatAmount";
+import { getAmountSpent } from "../../utils/getAmountSpent";
 
 const Cards = () => {
-  const { formattedAmount } = useTransactionsContext();
+  const { selectedCurrency } = useCurrencyStore();
   const {
     filteredBudgets,
-    getAmountSpent,
     getProgressBackground,
     handleEditBudget,
     handleDeleteBudget,
@@ -19,7 +20,11 @@ const Cards = () => {
       {filteredBudgets.map((budget) => {
         const monthLabel = format(new Date(budget.date), "MMMM yyyy");
         const budgetLimit = budget.amount;
-        const amountSpent = getAmountSpent(budget.categoryKey, budget.date);
+        const amountSpent = getAmountSpent(
+          budget.categoryKey,
+          budget.date,
+          budget.type
+        );
         const remainingBalance = budgetLimit - amountSpent;
         const progressBarPercentage = (amountSpent / budgetLimit) * 100;
         const progressBarBackground = getProgressBackground(
@@ -39,9 +44,16 @@ const Cards = () => {
                     ? budget.name
                     : budget.category}
                 </h3>
-                <p className="text-gray-500 bg-[rgb(var(--color-bg))] text-sm font-medium w-fit py-0.5 px-2 rounded mt-1">
-                  {monthLabel}
-                </p>
+                <div className="flex gap-3">
+                  <p className="text-gray-500 bg-[rgb(var(--color-bg))] text-sm font-medium w-fit py-0.5 px-2 rounded mt-1">
+                    {budget.type.slice(0, 1).toUpperCase() +
+                      budget.type.slice(1).toLowerCase()}
+                  </p>
+
+                  <p className="text-gray-500 bg-[rgb(var(--color-bg))] text-sm font-medium w-fit py-0.5 px-2 rounded mt-1">
+                    {monthLabel}
+                  </p>
+                </div>
               </div>
 
               {/* Budget summary */}
@@ -49,17 +61,17 @@ const Cards = () => {
                 <p className="text-[rgb(var(--color-muted))] text-base font-medium">
                   Limit:{" "}
                   <strong className="text-[rgb(var(--color-muted))]">
-                    {formattedAmount(budgetLimit)}
+                    {formatAmount(budgetLimit, selectedCurrency)}
                   </strong>
                 </p>
-                {budget.type === "expense" && (
-                  <p className="text-[rgb(var(--color-muted))] text-base font-medium">
-                    Spent:{" "}
-                    <strong className="text-[rgb(var(--color-muted))]">
-                      {formattedAmount(amountSpent)}
-                    </strong>
-                  </p>
-                )}
+                {/* {budget.type === "expense" && ( */}
+                <p className="text-[rgb(var(--color-muted))] text-base font-medium">
+                  {budget.type === "income" ? "Received:" : "Spent:"}{" "}
+                  <strong className="text-[rgb(var(--color-muted))]">
+                    {formatAmount(amountSpent, selectedCurrency)}
+                  </strong>
+                </p>
+                {/* )} */}
                 <p className="text-[rgb(var(--color-muted))] text-base font-medium">
                   {progressBarPercentage > 100 && budget.type === "expense"
                     ? "Overspent"
@@ -79,10 +91,11 @@ const Cards = () => {
                     )}
                   >
                     {progressBarPercentage > 100
-                      ? `${
-                          budget.type === "income" ? "+" : "-"
-                        }${formattedAmount(Math.abs(remainingBalance))}`
-                      : formattedAmount(remainingBalance)}
+                      ? `${budget.type === "income" ? "+" : "-"}${formatAmount(
+                          Math.abs(remainingBalance),
+                          selectedCurrency
+                        )}`
+                      : formatAmount(remainingBalance, selectedCurrency)}
                   </strong>
                 </p>
               </div>

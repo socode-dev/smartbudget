@@ -1,5 +1,4 @@
 import { createContext, useContext, useState } from "react";
-// import { useAuthContext } from "./AuthContext";
 import {
   addDocument,
   deleteDocument,
@@ -11,14 +10,11 @@ import toast from "react-hot-toast";
 import { sendEmailVerification } from "firebase/auth";
 import { auth } from "../firebase/firebase";
 import { serverTimestamp } from "firebase/firestore";
-// import { useCurrentUser } from "../hooks/useAuthHooks";
 import useAuthStore from "../store/useAuthStore";
 
 const NotificationContext = createContext();
 
 export const NotificationProvider = ({ children }) => {
-  // const { currentUser } = useAuthContext();
-  // const user = useCurrentUser();
   const { currentUser: user } = useAuthStore();
   const setNotifications = useNotificationStore(
     (state) => state.setNotifications

@@ -14,35 +14,42 @@ import {
 import { db } from "./firebase";
 
 // Helper to get colection reference
-const userColRef = (userUID, columnName) =>
-  collection(db, "users", userUID, columnName);
+const userColRef = (userUID, collectionName) =>
+  collection(db, "users", userUID, collectionName);
 
 // Add new document to user's subcollection
-export const addDocument = async (userID, type, data) => {
-  return await addDoc(userColRef(userID, type), {
+export const addDocument = async (userID, collectionName, data) => {
+  return await addDoc(userColRef(userID, collectionName), {
     ...data,
     createdAt: serverTimestamp(),
   });
 };
 
-export const updateDocument = async (userID, type, itemUID, data) => {
-  return await updateDoc(doc(db, "users", userID, type, itemUID), {
+export const updateDocument = async (userID, collectionName, itemUID, data) => {
+  return await updateDoc(doc(db, "users", userID, collectionName, itemUID), {
     ...data,
     updatedAt: serverTimestamp(),
   });
 };
 
-export const deleteDocument = async (userUID, type, dataID) => {
-  return await deleteDoc(doc(db, "users", userUID, type, dataID));
+export const deleteDocument = async (userUID, collectionName, dataID) => {
+  try {
+    await deleteDoc(doc(db, "users", userUID, collectionName, dataID));
+  } catch (err) {
+    console.warn(err);
+  }
 };
 
-export const getAllDocuments = async (userUID, type) => {
+export const getAllDocuments = async (userUID, collectionName) => {
   try {
-    const q = query(userColRef(userUID, type), orderBy("createdAt", "desc"));
+    const q = query(
+      userColRef(userUID, collectionName),
+      orderBy("createdAt", "desc")
+    );
     const snapshot = await getDocs(q);
     return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
   } catch (error) {
-    console.log(error);
+    console.warn(error);
   }
 };
 

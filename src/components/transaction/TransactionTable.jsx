@@ -1,8 +1,15 @@
 import { HiOutlineTrash, HiOutlinePencil } from "react-icons/hi";
 import { useTransactionsContext } from "../../context/TransactionsContext";
 import clsx from "clsx";
+import useCurrencyStore from "../../store/useCurrencyStore";
+import { formatAmount } from "../../utils/formatAmount";
+import useTransactionStore from "../../store/useTransactionStore";
+import useAuthStore from "../../store/useAuthStore";
 
 const TransactionTable = () => {
+  const { currentUser: user } = useAuthStore();
+  const { deleteTransaction } = useTransactionStore();
+  const { selectedCurrency } = useCurrencyStore();
   const {
     sortedTransactions,
     currentTransactions,
@@ -12,9 +19,7 @@ const TransactionTable = () => {
     totalPages,
     indexOfFirstTransaction,
     indexOfLastTransaction,
-    formattedAmount,
     handleEditTransaction,
-    handleDeleteTransaction,
   } = useTransactionsContext();
 
   return (
@@ -52,7 +57,11 @@ const TransactionTable = () => {
               <td className="p-2">
                 {transaction.description || "No description"}
               </td>
-              <td className="p-2">{transaction.category}</td>
+              <td className="p-2">
+                {transaction.category === "Other"
+                  ? `${transaction.category} (${transaction.name})`
+                  : transaction.category}
+              </td>
               <td
                 className={clsx(
                   "p-2 font-medium",
@@ -62,7 +71,7 @@ const TransactionTable = () => {
                 )}
               >
                 {transaction.type === "income" ? "+" : "-"}
-                {formattedAmount(transaction.amount)}
+                {formatAmount(transaction.amount, selectedCurrency)}
               </td>
               <td className="p-2">
                 <button
@@ -72,7 +81,9 @@ const TransactionTable = () => {
                   <HiOutlinePencil className="text-base" />
                 </button>
                 <button
-                  onClick={() => handleDeleteTransaction(transaction.id)}
+                  onClick={() =>
+                    deleteTransaction(user.uid, "transactions", transaction.id)
+                  }
                   className="cursor-pointer text-red-500 hover:text-red-600 transition"
                 >
                   <HiOutlineTrash className="text-base" />
@@ -99,7 +110,11 @@ const TransactionTable = () => {
                 </p>
                 <p className="flex items-center gap-1">
                   <span className="w-2 h-2 bg-[rgb(var(--color-muted))] rounded-full"></span>
-                  <span>{transaction.category}</span>
+                  <span>
+                    {transaction.category === "Other"
+                      ? `${transaction.category} (${transaction.name})`
+                      : transaction.category}
+                  </span>
                 </p>
                 <p className="flex items-center gap-1">
                   <span className="w-2 h-2 bg-[rgb(var(--color-muted))] rounded-full"></span>
@@ -112,7 +127,7 @@ const TransactionTable = () => {
                     )}
                   >
                     {transaction.type === "income" ? "+" : "-"}
-                    {formattedAmount(transaction.amount)}
+                    {formatAmount(transaction.amount, selectedCurrency)}
                   </span>
                 </p>
               </div>
@@ -123,7 +138,9 @@ const TransactionTable = () => {
                 <HiOutlinePencil className="text-base" />
               </button>
               <button
-                onClick={() => handleDeleteTransaction(transaction.id)}
+                onClick={() =>
+                  deleteTransaction(user.uid, "transactions", transaction.id)
+                }
                 className="cursor-pointer text-red-500 hover:text-red-600 transition"
               >
                 <HiOutlineTrash className="text-base" />
