@@ -2,13 +2,20 @@ import { FaPlus } from "react-icons/fa";
 import ScrollToTop from "../layout/ScrollToTop";
 import { useGoalsContext } from "../context/GoalsContext";
 import Cards from "../components/goals/Cards";
+import { motion } from "framer-motion";
 
 const Goals = () => {
   const { goals, filteredGoals, onOpenModal, searchName, setSearchName } =
     useGoalsContext();
 
   return (
-    <main className="px-5 md:px-10 py-8">
+    <motion.main
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -20 }}
+      transition={{ duration: 0.4, ease: "easeOut" }}
+      className="px-5 md:px-10 py-8"
+    >
       <ScrollToTop />
       <section className="flex justify-between items-start gap-8 mb-6">
         <div>
@@ -66,7 +73,7 @@ const Goals = () => {
           </button>
         </div>
       )}
-    </main>
+    </motion.main>
   );
 };
 

@@ -7,6 +7,7 @@ import LoadingSpinner from "../components/ui/LoadingSpinner";
 import useThresholdForm from "../hooks/useThresholdForm";
 import { getThresholdsValue } from "../utils/getValues";
 import useAuthStore from "../store/useAuthStore";
+import { motion } from "framer-motion";
 
 const Signup = () => {
   const {
@@ -41,7 +42,13 @@ const Signup = () => {
     setRevealPassword((prev) => ({ ...prev, [type]: !prev[type] }));
 
   return (
-    <main className="w-full max-w-[650px] h-auto px-2 py-8 flex flex-col items-center mx-auto">
+    <motion.main
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -20 }}
+      transition={{ duration: 0.4, ease: "easeOut" }}
+      className="w-full max-w-[650px] h-auto px-2 py-8 flex flex-col items-center mx-auto"
+    >
       <ScrollToTop />
       <h2 className="text-3xl md:text-4xl text-[rgb(var(--color-brand))] text-center font-medium tracking-wide">
         Create an Account
@@ -249,7 +256,7 @@ const Signup = () => {
           Log in
         </Link>
       </p>
-    </main>
+    </motion.main>
   );
 };
 

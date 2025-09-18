@@ -2,6 +2,7 @@ import ScrollToTop from "../layout/ScrollToTop";
 import useAuthStore from "../store/useAuthStore";
 import useInsightsStore from "../store/useInsightsStore";
 import InsightCard from "../components/insights/InsightCard";
+import { motion } from "framer-motion";
 
 const Insights = () => {
   const { isUserEmailVerified } = useAuthStore();
@@ -9,18 +10,30 @@ const Insights = () => {
 
   if (!isUserEmailVerified) {
     return (
-      <main className=" px-5 md:px-10 py-8 flex justify-center items-center">
+      <motion.main
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -20 }}
+        transition={{ duration: 0.4, ease: "easeOut" }}
+        className=" px-5 md:px-10 py-8 flex justify-center items-center"
+      >
         <p className="mt-10 text-2xl md:text-3xl text-center text-[rgb(var(--color-muted))]">
           Please verify your email to access this feature.
         </p>
-      </main>
+      </motion.main>
     );
   }
 
   const sortedInsights = insights?.sort((a, b) => a.createdAt - b.createdAt);
 
   return (
-    <main className="px-5 md:px-10 py-8">
+    <motion.main
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -20 }}
+      transition={{ duration: 0.3, ease: "easeOut" }}
+      className="px-5 md:px-10 py-8"
+    >
       <ScrollToTop />
       <h2 className="text-3xl md:text-4xl font-semibold mb-2">
         Smart Insights
@@ -47,7 +60,7 @@ const Insights = () => {
           ))}
         </div>
       )}
-    </main>
+    </motion.main>
   );
 };
 

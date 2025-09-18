@@ -8,9 +8,9 @@ const Modal = ({ label, title, description, mode }) => {
       <div className="fixed top-0 left-0 w-full h-full bg-black/30 z-60" />
       {/* Centered Modal Box */}
       <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
+        initial={{ scale: 0 }}
+        animate={{ scale: 1 }}
+        exit={{ scale: 0 }}
         transition={{ duration: 0.3, ease: "easeOut" }}
         role="dialog"
         aria-modal="true"

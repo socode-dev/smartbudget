@@ -7,6 +7,7 @@ import ScrollToTop from "../layout/ScrollToTop";
 import OverviewSkeleton from "../components/skeletons/overview/OverviewSkeleton";
 import { useOverviewContext } from "../context/OverviewContext";
 import useAuthStore from "../store/useAuthStore";
+import { motion } from "framer-motion";
 
 const Overview = () => {
   const { currentUser: user, userName } = useAuthStore();
@@ -30,7 +31,13 @@ const Overview = () => {
   }
 
   return (
-    <main className="flex flex-col gap-16 px-5 md:px-10 py-8">
+    <motion.main
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -20 }}
+      transition={{ duration: 0.4, ease: "easeOut" }}
+      className="flex flex-col gap-16 px-5 md:px-10 py-8"
+    >
       <ScrollToTop />
       <div className="flex flex-col gap-5">
         <h2 className="text-3xl md:text-4xl font-semibold text-[rgb(var(--color-text))]">
@@ -63,7 +70,7 @@ const Overview = () => {
       <section>
         <QuickActions />
       </section>
-    </main>
+    </motion.main>
   );
 };
 

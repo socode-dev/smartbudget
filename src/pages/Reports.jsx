@@ -4,12 +4,19 @@ import DoughnutChart from "../components/charts/DoughnutChart";
 import Table from "../components/reports/Table";
 import { useReportContext } from "../context/ReportContext";
 import ScrollToTop from "../layout/ScrollToTop";
+import { motion } from "framer-motion";
 
 const Reports = () => {
   const { expenses, handleCSVExport, handlePDFExport } = useReportContext();
 
   return (
-    <main className="px-5 md:px-10 py-8">
+    <motion.main
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -20 }}
+      transition={{ duration: 0.4, ease: "easeOut" }}
+      className="px-5 md:px-10 py-8"
+    >
       <ScrollToTop />
       <h2 className="text-3xl md:text-4xl font-semibold mb-2">Reports</h2>
       <p className="text-base text-[rgb(var(--color-muted))] mb-10">
@@ -67,7 +74,7 @@ const Reports = () => {
           spending insights!.
         </p>
       )}
-    </main>
+    </motion.main>
   );
 };
 

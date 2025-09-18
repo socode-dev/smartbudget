@@ -6,6 +6,7 @@ import useThresholdStore from "../../store/useThresholdStore";
 import toast from "react-hot-toast";
 import LoadingSpinner from "../ui/LoadingSpinner";
 import useAuthStore from "../../store/useAuthStore";
+import { motion } from "framer-motion";
 
 const Preferences = () => {
   const { currentUser: user } = useAuthStore();
@@ -58,7 +59,11 @@ const Preferences = () => {
     <>
       <div className="fixed top-0 left-0 w-full h-full bg-black/30 z-60" />
 
-      <div
+      <motion.div
+        initial={{ scale: 0 }}
+        animate={{ scale: 1 }}
+        exit={{ scale: 0 }}
+        transition={{ duration: 0.3, ease: "easeOut" }}
         role="dialog"
         className="w-full fixed inset-0 flex items-center justify-center z-70 p-4"
       >
@@ -291,7 +296,7 @@ const Preferences = () => {
             </div>
           </form>
         </section>
-      </div>
+      </motion.div>
     </>
   );
 };
