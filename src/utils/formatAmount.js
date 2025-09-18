@@ -1,16 +1,13 @@
-import CURRENCY_SYMBOLS from "../data/currencySymbols";
-
 export const formatAmount = (amount, selectedCurrency) => {
-  const formattedCurrency = new Intl.NumberFormat(
-    CURRENCY_SYMBOLS[selectedCurrency],
-    {
-      style: "currency",
-      currency: selectedCurrency,
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    }
-  );
+  const safeAmount = amount ?? 0;
 
-  const formattedAmount = formattedCurrency.format(amount);
+  const formattedCurrency = new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: selectedCurrency,
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+
+  const formattedAmount = formattedCurrency.format(safeAmount);
   return formattedAmount;
 };

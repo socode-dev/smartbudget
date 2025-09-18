@@ -7,6 +7,16 @@ import { db } from "../firebase/firebase";
 import useInsightsStore from "../store/useInsightsStore";
 import useAuthStore from "../store/useAuthStore";
 import { generateInsight } from "../ml/runInsights";
+// import { detectAnomalies } from "../ml/anomalyDetection";
+
+// const tx = [
+//   { category: "Food", amount: 130, date: "2025-04-03" },
+//   { category: "Food", amount: 124, date: "2025-05-12" },
+//   { category: "Food", amount: 135, date: "2025-06-17" },
+//   { category: "Food", amount: 100, date: "2025-07-27" },
+//   { category: "Food", amount: 210, date: "2025-08-13" },
+//   { category: "Food", amount: 2100, date: "2025-09-27" },
+// ];
 
 const AppInitializer = () => {
   const { currentUser: user } = useAuthStore();
@@ -14,6 +24,7 @@ const AppInitializer = () => {
   const { transactions, budgets, goals, contributions } = useTransactionStore();
   const { initInsights, generateRuleBasedInsights } = useInsightsStore();
 
+  // console.log(detectAnomalies(tx));
   // Auth listener
   useEffect(() => {
     const { startAuthListener, stopAuthListener } = useAuthStore.getState();

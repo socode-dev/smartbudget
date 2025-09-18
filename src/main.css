@@ -50,6 +50,7 @@
 
 html {
   @apply motion-reduce:scroll-smooth;
+  font-family: "Poppins", sans-serif;
 }
 
 body {
