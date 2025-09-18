@@ -9,8 +9,7 @@ import { formatAmount } from "../utils/formatAmount";
 const createWorker = () =>
   new Worker(new URL("./trainWorker.js", import.meta.url), { type: "module" });
 
-//  Generate insights: run anomaly detection synchronously and offload
-//  forecast training to a Web Worker to avoid blocking the UI.
+//  Generate insights: run anomaly detection synchronously and offload forecast training to a Web Worker to avoid blocking the UI.
 
 export const generateInsight = async (uid, transactions) => {
   // Access insight store's addInsight action

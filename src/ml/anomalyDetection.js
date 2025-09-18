@@ -29,15 +29,32 @@ export const detectAnomalies = (transactions) => {
     const mad = getMAD(values, median) || 1e-6;
 
     series.forEach(({ month, total }) => {
-      const robustZ = Math.abs(total / median / (1.4826 * mad));
-      if (robustZ >= 3) {
+      const robustZ = Math.abs((total - median) / (1.4826 * mad));
+      const percentageMore = ((total - median) / median) * 100;
+
+      if (robustZ >= 5) {
         insights.push({
           id: `tmp_${Math.random().toString(36).slice(2)}`,
           type: "anomaly",
-          message: `You've spent more on "${category}" in ${month} compared to your norm.`,
+          message: `You've spent ${Math.ceil(
+            percentageMore
+          )}% more on "${category}" in ${month} compared to your norm.`,
           actionType: "suggestion",
           actionText: `Set a spending limit on "${category}"`,
-          value: total,
+          createdAt: new Date(),
+          severity: "high",
+          source: "ml",
+          confidence: 0.8,
+        });
+      } else if (robustZ >= 3) {
+        insights.push({
+          id: `tmp_${Math.random().toString(36).slice(2)}`,
+          type: "anomaly",
+          message: `You've spent ${Math.ceil(
+            percentageMore
+          )}% more on "${category}" in ${month} compared to your norm.`,
+          actionType: "suggestion",
+          actionText: `Set a spending limit on "${category}"`,
           createdAt: new Date(),
           severity: "medium",
           source: "ml",

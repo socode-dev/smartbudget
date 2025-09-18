@@ -5,15 +5,15 @@ const CURRENCY_SYMBOLS = {
   GBP: "en-GB", // British Pound
   NGN: "en-NG", // Nigerian Naira
   JPY: "ja-JP", // Japanese Yen
-  AUD: "en-AU", // Australian Dollar
-  CAD: "en-CA", // Canadian Dollar
-  CHF: "de-CH", // Swiss Franc
+  AUD: "en-US", // Australian Dollar
+  CAD: "en-US", // Canadian Dollar
+  CHF: "en-US", // Swiss Franc
   CNY: "zh-CN", // Chinese Yuan
   SEK: "sv-SE", // Swedish Krona
-  NZD: "en-NZ", // New Zealand Dollar
+  NZD: "en-US", // New Zealand Dollar
   MXN: "es-MX", // Mexican Peso
-  SGD: "en-SG", // Singapore Dollar
-  HKD: "zh-HK", // Hong Kong Dollar
+  SGD: "en-US", // Singapore Dollar
+  HKD: "en-US", // Hong Kong Dollar
   NOK: "nb-NO", // Norwegian Krone
   KRW: "ko-KR", // South Korean Won
   TRY: "tr-TR", // Turkish Lira
@@ -23,7 +23,7 @@ const CURRENCY_SYMBOLS = {
   ZAR: "en-ZA", // South African Rand
   DKK: "da-DK", // Danish Krona
   PLN: "pl-PL", // Polish Zloty
-  TWD: "zh-TW", // Taiwan Dollar
+  TWD: "en-US", // Taiwan Dollar
   THB: "th-TH", // Thai Baht
   MYR: "ms-MY", // Malaysian Ringgit
   IDR: "id-ID", // Indonesian Rupiah
@@ -65,22 +65,22 @@ const CURRENCY_SYMBOLS = {
   CRC: "es-CR", // Costa Rican Colon
   PAB: "es-PA", // Panamanian Balboa
   DOP: "es-DO", // Dominican Peso
-  JMD: "en-JM", // Jamaican Dollar
-  TTD: "en-TT", // Trinidad and Tobago Dollar
-  BBD: "en-BB", // Barbadian Dollar
-  XCD: "en-AG", // East Caribbean Dollar
-  KYD: "en-KY", // Cayman Islands Dollar
-  BSD: "en-BS", // Bahamian Dollar
-  BMD: "en-BM", // Bermudian Dollar
+  JMD: "en-US", // Jamaican Dollar
+  TTD: "en-US", // Trinidad and Tobago Dollar
+  BBD: "en-US", // Barbadian Dollar
+  XCD: "en-US", // East Caribbean Dollar
+  KYD: "en-US", // Cayman Islands Dollar
+  BSD: "en-US", // Bahamian Dollar
+  BMD: "en-US", // Bermudian Dollar
   AWG: "nl-AW", // Aruban Florin
   ANG: "nl-CW", // Netherlands Antillean Guilder
-  SRD: "nl-SR", // Surinamese Dollar
-  GYD: "en-GY", // Guyana Dollar
+  SRD: "en-US", // Surinamese Dollar
+  GYD: "en-US", // Guyana Dollar
   VEF: "es-VE", // Venezuelan Bolivar
-  FJD: "en-FJ", // Fijian Dollar
+  FJD: "en-US", // Fijian Dollar
   WST: "sm-WS", // Samoan Tala
   TOP: "to-TO", // Tongan Pa'anga
-  SBD: "en-SB", // Solomon Islands Dollar
+  SBD: "en-US", // Solomon Islands Dollar
   VUV: "bi-VU", // Vanuatu Vatu
   PGK: "en-PG", // Papua New Guinean Kina
   KMF: "ar-KM", // Comorian Franc
@@ -125,11 +125,11 @@ const CURRENCY_SYMBOLS = {
   AOA: "pt-AO", // Angolan Kwanza
   ZMW: "en-ZM", // Zambian Kwacha
   MWK: "en-MW", // Malawian Kwacha
-  ZWL: "en-ZW", // Zimbabwean Dollar
+  ZWL: "en-US", // Zimbabwean Dollar
   BWP: "en-BW", // Botswana Pula
   SZL: "en-SZ", // Swazi Lilangeni
   LSL: "en-LS", // Lesotho Loti
-  NAD: "en-NA", // Namibian Dollar
+  NAD: "en-US", // Namibian Dollar
   MZN: "pt-MZ", // Mozambican Metical
   STN: "pt-ST", // Sao Tome and Principe Dobra
   CVE: "pt-CV", // Cape Verdean Escudo

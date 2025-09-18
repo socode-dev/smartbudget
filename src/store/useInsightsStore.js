@@ -4,6 +4,7 @@ import { v4 as uuid } from "uuid";
 import {
   collection,
   deleteDoc,
+  doc,
   onSnapshot,
   serverTimestamp,
 } from "firebase/firestore";
@@ -31,16 +32,16 @@ const useInsightsStore = create(
           const now = Date.now();
           const list = [];
 
-          for (const doc of snapshot.docs) {
-            const data = doc.data();
+          for (const document of snapshot.docs) {
+            const data = document.data();
             const expired = data.expiresAt && data.expiresAt < now;
 
             if (expired) {
               // Delete from firestore
-              await deleteDoc(doc(db, "users", uid, "insights", doc.id));
+              await deleteDoc(doc(db, "users", uid, "insights", document.id));
               continue;
             }
-            list.push({ id: doc.id, ...data });
+            list.push({ id: document.id, ...data });
           }
 
           set({ insights: list });
@@ -97,9 +98,8 @@ const useInsightsStore = create(
 
         // nothing to persist without a user id
         if (!uid) return;
+
         try {
-          // const colRef = collection(db, "users", uid, "insights");
-          // const docRef = await addDoc(colRef, insightWithExpiry);
           await addDocument(uid, "insights", insightWithExpiry);
 
           // Refetch all insights
@@ -188,7 +188,7 @@ const useInsightsStore = create(
           }
         });
 
-        // Budget insights: warn when near or over budget, notify unused near month end
+        // Budget insight: notify unused near month end
         budgets.forEach((budget) => {
           // Total spent this month for budget category
           const spent = transactions
@@ -214,7 +214,7 @@ const useInsightsStore = create(
               message: `You've only used ${Math.round(percent)}% of your "${
                 budget.category
               }" budget this month.`,
-              actionType: "suggestion",
+              actionType: "tip",
               actionText: "Consider reallocating unused budget to savings.",
               severity: "low",
               createdAt: new Date(),
@@ -227,7 +227,7 @@ const useInsightsStore = create(
 
         // Goal progress forecast (rule-based), respect due dates and use contribution history
         goals.forEach((goal) => {
-          // Total contributed to this goal
+          // Total contributed to goal
           const contributionsForGoal = contributions
             .filter((c) => c.categoryKey === goal.categoryKey)
             .map((c) => ({ amount: c.amount, date: new Date(c.date) }))
@@ -238,7 +238,7 @@ const useInsightsStore = create(
             0
           );
 
-          // Determine months elapsed since first contribution (inclusive)
+          // Determine months elapsed since first contribution
           let monthsElapsed = 0;
           if (contributionsForGoal.length > 0) {
             const first = contributionsForGoal[0].date;
@@ -252,7 +252,7 @@ const useInsightsStore = create(
             monthsElapsed = 0;
           }
 
-          // Average weeklyly contribution based on history
+          // Average weekly contribution based on history
           const avgWeeklyContribution =
             monthsElapsed > 0
               ? amountContributed / contributionsForGoal?.length
@@ -267,7 +267,7 @@ const useInsightsStore = create(
             monthsRemaining =
               (due.getFullYear() - thisYear) * 12 +
               (due.getMonth() - thisMonth) +
-              1; // inclusive
+              1;
             if (monthsRemaining < 0) monthsRemaining = 0;
           }
 
@@ -289,7 +289,6 @@ const useInsightsStore = create(
             );
           }
 
-          // Compose messages based on comparisons
           if (
             monthsRemaining !== null &&
             monthsRemaining === 0 &&
@@ -363,6 +362,7 @@ const useInsightsStore = create(
             new Date(goal.date).getTime() + 2 * 60 * 60 * 1000;
 
           // Suggest starting a monthly contribution if no contribution history after 2 days of adding goal
+          console.log(Date.now() > twoDaysLater);
           if (Date.now() >= twoDaysLater && amountContributed === 0) {
             insights.push({
               id: uuid(),

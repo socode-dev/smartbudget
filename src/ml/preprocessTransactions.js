@@ -6,7 +6,7 @@ export const preprocessTransaction = (transactions) => {
   const categoryTotals = {};
 
   // Aggregate each transaction into its category/month bucket
-  transactions.forEach((transaction) => {
+  transactions?.forEach((transaction) => {
     // month string like '2025-09'
     const month = format(parseISO(transaction.date), "yyyy-MM");
     const key = `${transaction.category}-${month}`;
