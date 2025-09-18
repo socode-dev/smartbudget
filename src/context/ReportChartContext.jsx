@@ -2,31 +2,9 @@ import { useContext, createContext, useMemo } from "react";
 import useTransactionStore from "../store/useTransactionStore";
 import { formatAmount } from "../utils/formatAmount";
 import useCurrencyStore from "../store/useCurrencyStore";
+import { categoryColor } from "../data/categoryData";
 
 const ReportChartContext = createContext();
-
-export const generateRandomNumber = (number) => {
-  return Math.floor(Math.random() * number) + 1;
-};
-
-const categoryColor = {
-  Freelance: "#38BDF8",
-  Salary: "#10B981",
-  Investments: "#6366F1",
-  Gifts: "#D946EF",
-  Loan: "#EF4444",
-  Groceries: "#84CC16",
-  Food: "#22C55E",
-  Transport: "#F59E0B",
-  Dining: "#F43F5E",
-  Shopping: "#A855F7",
-  Utilities: "#14B8A6",
-  Health: "#06B6D4",
-  Entertainment: "#FB923C",
-  Other: `rgb(${generateRandomNumber(255)}, ${generateRandomNumber(
-    255
-  )}, ${generateRandomNumber(255)})`,
-};
 
 export const ReportChartProvider = ({ children }) => {
   const { transactions } = useTransactionStore();

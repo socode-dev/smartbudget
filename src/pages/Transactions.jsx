@@ -7,6 +7,7 @@ import ScrollToTop from "../layout/ScrollToTop";
 import { useTransactionsContext } from "../context/TransactionsContext";
 import useCurrencyStore from "../store/useCurrencyStore";
 import { formatAmount } from "../utils/formatAmount";
+import { motion } from "framer-motion";
 
 const Transactions = () => {
   const { onOpenModal } = useModalContext();
@@ -21,7 +22,13 @@ const Transactions = () => {
   } = useTransactionsContext();
 
   return (
-    <main className="px-5 md:px-10 py-8">
+    <motion.main
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -20 }}
+      transition={{ duration: 0.4, ease: "easeOut" }}
+      className="px-5 md:px-10 py-8"
+    >
       <ScrollToTop />
       <section className="flex items-center justify-between gap-8 mb-6">
         <div className="flex flex-col gap-5">
@@ -109,7 +116,7 @@ const Transactions = () => {
           </button>
         </>
       )}
-    </main>
+    </motion.main>
   );
 };
 

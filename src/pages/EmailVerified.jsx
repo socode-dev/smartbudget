@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { auth } from "../firebase/firebase";
 import { FaCheck } from "react-icons/fa6";
 import useAuthStore from "../store/useAuthStore";
+import { motion } from "framer-motion";
 
 const EmailVerified = () => {
   const { currentUser: user } = useAuthStore();
@@ -13,7 +14,13 @@ const EmailVerified = () => {
   };
 
   return (
-    <div className="flex flex-col items-center text-center gap-6 bg-[rgb(var(--color-bg-card))] mt-20 p-6 w-full max-w-[500px] mx-auto h-fit rounded-lg">
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -20 }}
+      transition={{ duration: 0.4, ease: "easeOut" }}
+      className="flex flex-col items-center text-center gap-6 bg-[rgb(var(--color-bg-card))] mt-20 p-6 w-full max-w-[500px] mx-auto h-fit rounded-lg"
+    >
       <div className="border rounded-full border-green-500 text-green-500 p-3">
         <FaCheck />
       </div>
@@ -31,7 +38,7 @@ const EmailVerified = () => {
       >
         Back to Dashboard
       </button>
-    </div>
+    </motion.div>
   );
 };
 

@@ -1,6 +1,7 @@
 import { useAuthFormContext } from "../context/AuthFormContext";
 import LoadingSpinner from "../components/ui/LoadingSpinner";
 import useAuthStore from "../store/useAuthStore";
+import { motion } from "framer-motion";
 
 const ForgotPassword = () => {
   const { sendResetEmail } = useAuthStore();
@@ -17,7 +18,13 @@ const ForgotPassword = () => {
   });
 
   return (
-    <main className="w-full max-w-[500px] px-2 py-8 flex flex-col items-center mx-auto">
+    <motion.main
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -20 }}
+      transition={{ duration: 0.4, ease: "easeOut" }}
+      className="w-full max-w-[500px] px-2 py-8 flex flex-col items-center mx-auto"
+    >
       <h2 className="text-3xl md:text-4xl text-[rgb(var(--color-muted))] text-center font-medium tracking-wide">
         Forgot your password?
       </h2>
@@ -59,7 +66,7 @@ const ForgotPassword = () => {
           {isSubmitting ? <LoadingSpinner size={25} /> : "Continue"}
         </button>
       </form>
-    </main>
+    </motion.main>
   );
 };
 

@@ -2,13 +2,20 @@ import ScrollToTop from "../layout/ScrollToTop";
 import { useBudgetsContext } from "../context/BudgetsContext";
 import { FaPlus } from "react-icons/fa";
 import Cards from "../components/budgets/Cards";
+import { motion } from "framer-motion";
 
 const Budgets = () => {
   const { budgets, filteredBudgets, searchName, setSearchName, onOpenModal } =
     useBudgetsContext();
 
   return (
-    <main className="px-5 md:px-10 py-8">
+    <motion.main
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -20 }}
+      transition={{ duration: 0.4, ease: "easeOut" }}
+      className="px-5 md:px-10 py-8"
+    >
       <ScrollToTop />
       <section className="w-full flex items-start justify-between gap-8 mb-6">
         <div className="w-full">
@@ -64,7 +71,7 @@ const Budgets = () => {
           </button>
         </>
       )}
-    </main>
+    </motion.main>
   );
 };
 

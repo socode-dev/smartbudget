@@ -7,30 +7,7 @@ import {
   updateDocument,
   deleteDocument,
 } from "../firebase/firestore.js";
-
-const CATEGORY_OPTIONS = [
-  { name: "Freelance", type: "income" },
-  { name: "Salary", type: "income" },
-  { name: "Investments", type: "expense" },
-  { name: "Gifts", type: "expense" },
-  { name: "Insurance", type: "expense" },
-  { name: "Food", type: "expense" },
-  { name: "Groceries", type: "expense" },
-  { name: "Transportation", type: "expense" },
-  { name: "Dining", type: "expense" },
-  { name: "Shopping", type: "expense" },
-  { name: "Utilities", type: "expense" },
-  { name: "Healthcare", type: "expense" },
-  { name: "Entertainment", type: "expense" },
-  { name: "Travel", type: "expense" },
-  { name: "Rent", type: "expense" },
-  { name: "Gas", type: "expense" },
-  { name: "Phone", type: "expense" },
-  { name: "Internet", type: "expense" },
-  { name: "Gym", type: "expense" },
-  { name: "Books", type: "expense" },
-  { name: "Other", type: "other" },
-];
+import { CATEGORY_OPTIONS } from "../data/categoryData.js";
 
 const useTransactionStore = create(
   persist(

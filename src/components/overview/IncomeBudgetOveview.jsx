@@ -5,8 +5,10 @@ import { formatAmount } from "../../utils/formatAmount";
 
 const IncomeBudgetOverview = () => {
   const { selectedCurrency } = useCurrencyStore();
-  const { totalIncomeBudget, incomeBudgetPercent, remainingIncome } =
-    useOverviewContext();
+  const overviewContext = useOverviewContext();
+  const totalIncomeBudget = overviewContext.totalIncomeBudget;
+  const incomeBudgetPercent = overviewContext.incomeBudgetPercent;
+  const remainingIncome = overviewContext.remainingIncome;
 
   const budgetPercent = incomeBudgetPercent || 0;
 

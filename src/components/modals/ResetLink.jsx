@@ -2,6 +2,7 @@ import { FaCheck } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import useAuthStore from "../../store/useAuthStore";
+import { motion } from "framer-motion";
 
 const ResetLink = () => {
   const navigate = useNavigate();
@@ -28,7 +29,11 @@ const ResetLink = () => {
       {/* Modal Backdrop */}
       <div className="fixed top-0 left-0 w-full h-full bg-black/30 z-60" />
 
-      <div
+      <motion.div
+        initial={{ scale: 0 }}
+        animate={{ scale: 1 }}
+        exit={{ scale: 0 }}
+        transition={{ duration: 0.3, ease: "easeOut" }}
         role="dialog"
         className="fixed inset-0 top-[50%] left-[50%] -translate-[50%] flex flex-col items-center justify-center text-center gap-3 z-70 bg-[rgb(var(--color-bg-card))] p-4 w-4/5 max-w-[400px] h-fit rounded-lg"
       >
@@ -49,7 +54,7 @@ const ResetLink = () => {
         >
           OK
         </button>
-      </div>
+      </motion.div>
     </>
   );
 };

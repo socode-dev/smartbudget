@@ -5,6 +5,7 @@ import { useNotificationContext } from "../context/NotificationContext";
 import { formatRelativeTime } from "../utils/formatRelativeTime";
 import { FiMoreVertical } from "react-icons/fi";
 import { useState } from "react";
+import { motion } from "framer-motion";
 
 const Notification = () => {
   const { notifications } = useNotificationStore();
@@ -16,9 +17,15 @@ const Notification = () => {
 
   if (notifications?.length === 0) {
     return (
-      <p className="text-[rgb(var(--color-muted))] text-2xl text-center mt-20">
+      <motion.p
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -20 }}
+        transition={{ duration: 0.4, ease: "easeOut" }}
+        className="text-[rgb(var(--color-muted))] text-2xl text-center mt-20"
+      >
         You have no new notification
-      </p>
+      </motion.p>
     );
   }
 
@@ -35,7 +42,13 @@ const Notification = () => {
   };
 
   return (
-    <main className="w-full max-w-[600px] mx-auto py-8 text-[rgb(var(--color-text))]">
+    <motion.main
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -20 }}
+      transition={{ duration: 0.4, ease: "easeOut" }}
+      className="w-full max-w-[600px] mx-auto py-8 text-[rgb(var(--color-text))]"
+    >
       {notifications?.length > 0 &&
         sortedNotification.map((notification) => {
           return (
@@ -94,7 +107,7 @@ const Notification = () => {
             </div>
           );
         })}
-    </main>
+    </motion.main>
   );
 };
 

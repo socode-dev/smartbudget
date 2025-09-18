@@ -1,6 +1,7 @@
 import { useMainContext } from "../../context/MainContext";
 import { doSignOut } from "../../firebase/auth";
 import useAuthStore from "../../store/useAuthStore";
+import { motion } from "framer-motion";
 
 const SignoutPrompt = () => {
   const { setCurrentUser, setUserName } = useAuthStore.getState();
@@ -23,7 +24,11 @@ const SignoutPrompt = () => {
       {/* Modal Backdrop */}
       <div className="fixed top-0 left-0 w-full h-full bg-black/30 z-60" />
       {/* Centered Modal Box */}
-      <div
+      <motion.div
+        initial={{ scale: 0 }}
+        animate={{ scale: 1 }}
+        exit={{ scale: 0 }}
+        transition={{ duration: 0.3, ease: "easeOut" }}
         role="dialog"
         aria-modal="true"
         aria-labelledby="signout-prompt"
@@ -47,10 +52,10 @@ const SignoutPrompt = () => {
             onClick={onSignOut}
             className="px-4 py-2 font-medium text-sm text-white bg-red-600 hover:bg-red-700 rounded transition cursor-pointer"
           >
-            Yes! Log Out
+            Yes, Log Out
           </button>
         </div>
-      </div>
+      </motion.div>
     </>
   );
 };

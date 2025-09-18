@@ -1,6 +1,7 @@
 import useNotificationStore from "../../store/useNotificationStore";
 import { useNotificationContext } from "../../context/NotificationContext";
 import { FaXmark } from "react-icons/fa6";
+import { motion } from "framer-motion";
 
 const NotificationDialog = () => {
   const { notifications } = useNotificationStore();
@@ -17,7 +18,11 @@ const NotificationDialog = () => {
     <>
       <div className="fixed top-0 left-0 w-full h-full bg-black/30 z-60" />
 
-      <div
+      <motion.div
+        initial={{ scale: 0 }}
+        animate={{ scale: 1 }}
+        exit={{ scale: 0 }}
+        transition={{ duration: 0.3, ease: "easeOut" }}
         role="dialog"
         className="w-full fixed inset-0 flex items-center justify-center z-70 p-4"
       >
@@ -43,7 +48,7 @@ const NotificationDialog = () => {
             Close
           </button>
         </section>
-      </div>
+      </motion.div>
     </>
   );
 };
