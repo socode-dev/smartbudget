@@ -210,7 +210,7 @@ export const useAuthStore = create((set, get) => ({
 
       // Send email verification
       await sendEmailVerification(user, {
-        url: "http://localhost:5173/email-verified",
+        url: "https://smartbudget-beta.vercel.app/email-verified",
         handleCodeInApp: true,
       });
 
@@ -349,7 +349,7 @@ export const useAuthStore = create((set, get) => ({
     if (!email) return;
     try {
       await sendPasswordResetEmail(auth, email, {
-        url: "http://localhost:5173/login",
+        url: "https://smartbudget-beta.vercel.app/login",
         handleCodeInApp: true,
       });
       set({ resetLinkModalOpen: true });
@@ -360,7 +360,7 @@ export const useAuthStore = create((set, get) => ({
 
   resendVerificationLink: async (user) => {
     await sendEmailVerification(auth.currentUser, {
-      url: "http://localhost:5173/email-verified",
+      url: "https://smartbudget-beta.vercel.app/email-verified",
       handleCodeInApp: true,
     });
 

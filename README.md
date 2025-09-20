@@ -4,7 +4,7 @@
 
 ---
 
-**🚀 Live Demo 🔗 [Preview Demo](https://your-deployment-url.vercel.app)**
+**🚀 Live Demo 🔗 [Preview Demo](https://smartbudget-beta.vercel.app/)**
 
 ## 🚀 Features
 
