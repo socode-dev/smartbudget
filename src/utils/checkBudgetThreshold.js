@@ -1,8 +1,8 @@
 import { serverTimestamp, getDoc, setDoc, doc } from "firebase/firestore";
 import { db } from "../firebase/firebase";
 import useCurrencyStore from "../store/useCurrencyStore";
-import { formatAmount } from "../utils/formatAmount";
-import { getAmountSpent } from "../utils/getAmountSpent";
+import { formatAmount } from "./formatAmount";
+import { getAmountSpent } from "./getAmountSpent";
 
 const createBudgetNotification = async (userUID, data) => {
   if (

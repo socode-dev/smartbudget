@@ -8,8 +8,8 @@ import useCurrencyStore from "../store/useCurrencyStore";
 const OverviewChartContext = createContext();
 
 export const OverviewChartProvider = ({ children }) => {
-  const { transactions } = useTransactionStore();
-  const { selectedCurrency } = useCurrencyStore();
+  const transactions = useTransactionStore((state) => state.transactions);
+  const selectedCurrency = useCurrencyStore((state) => state.selectedCurrency);
   const { totalBudget, totalBudgetUsed } = useOverviewContext();
 
   const budgetRemaining =

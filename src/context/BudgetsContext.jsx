@@ -10,20 +10,26 @@ import useTransactionStore from "../store/useTransactionStore";
 import { useFormContext } from "./FormContext";
 import { useModalContext } from "./ModalContext";
 import { handleEdit } from "../utils/handleEdit";
-import { checkBudgetThreshold } from "../services/checkBudgetThreshold";
+import { checkBudgetThreshold } from "../utils/checkBudgetThreshold";
 import useThresholdStore from "../store/useThresholdStore";
-import { scheduleThresholdCheck } from "../services/scheduleThresholdCheck";
+import { scheduleThresholdCheck } from "../utils/scheduleThresholdCheck";
 import useAuthStore from "../store/useAuthStore";
 
 const BudgetsContext = createContext();
 
 export const BudgetsProvider = ({ children }) => {
-  const { currentUser: user } = useAuthStore();
-  const { thresholds } = useThresholdStore();
+  const user = useAuthStore((state) => state.currentUser);
+  const thresholds = useThresholdStore((state) => state.thresholds);
   const [searchName, setSearchName] = useState("");
   const { onOpenModal, setTransactionID } = useModalContext();
-  const { budgets, transactions, deleteTransaction, setEditTransaction } =
-    useTransactionStore();
+  const transactions = useTransactionStore((state) => state.transactions);
+  const budgets = useTransactionStore((state) => state.budgets);
+  const deleteTransaction = useTransactionStore(
+    (state) => state.deleteTransaction
+  );
+  const setEditTransaction = useTransactionStore(
+    (state) => state.setEditTransaction
+  );
   const forms = useFormContext("budgets");
   const { setValue } = forms;
 

@@ -17,12 +17,7 @@ const BarChart = () => {
 
   return (
     <div className="w-full h-80">
-      <Bar
-        ref={chartRef}
-        data={barChartData}
-        options={barChartOptions}
-        // height={700}
-      />
+      <Bar ref={chartRef} data={barChartData} options={barChartOptions} />
     </div>
   );
 };

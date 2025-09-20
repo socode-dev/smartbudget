@@ -5,15 +5,15 @@ import { getCurrencyName } from "../../utils/getCurrencyCode";
 import CurrencyFlag from "react-currency-flags";
 
 const CurrencyDropdown = () => {
-  const mainContext = useMainContext();
-  const isCurrencyOpen = mainContext.isCurrencyOpen;
-
-  const {
-    currencies,
-    selectedCurrency,
-    setSelectedCurrency,
-    handleCurrencyClose,
-  } = useCurrencyStore();
+  const { isCurrencyOpen } = useMainContext();
+  const currencies = useCurrencyStore((state) => state.currencies);
+  const selectedCurrency = useCurrencyStore((state) => state.selectedCurrency);
+  const setSelectedCurrency = useCurrencyStore(
+    (state) => state.setSelectedCurrency
+  );
+  const handleCurrencyClose = useCurrencyStore(
+    (state) => state.handleCurrencyClose
+  );
 
   if (!isCurrencyOpen) return null;
 

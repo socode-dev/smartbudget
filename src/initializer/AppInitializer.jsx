@@ -7,27 +7,23 @@ import { db } from "../firebase/firebase";
 import useInsightsStore from "../store/useInsightsStore";
 import useAuthStore from "../store/useAuthStore";
 import { generateInsight } from "../ml/runInsights";
-// import { detectAnomalies } from "../ml/anomalyDetection";
-
-// const tx = [
-//   { category: "Food", amount: 130, date: "2025-04-03" },
-//   { category: "Food", amount: 124, date: "2025-05-12" },
-//   { category: "Food", amount: 135, date: "2025-06-17" },
-//   { category: "Food", amount: 100, date: "2025-07-27" },
-//   { category: "Food", amount: 210, date: "2025-08-13" },
-//   { category: "Food", amount: 2100, date: "2025-09-27" },
-// ];
 
 const AppInitializer = () => {
-  const { currentUser: user } = useAuthStore();
+  const user = useAuthStore((state) => state.currentUser);
   const setThresholds = useThresholdStore((state) => state.setThresholds);
-  const { transactions, budgets, goals, contributions } = useTransactionStore();
-  const { initInsights, generateRuleBasedInsights } = useInsightsStore();
+  const transactions = useTransactionStore((state) => state.transactions);
+  const budgets = useTransactionStore((state) => state.budgets);
+  const goals = useTransactionStore((state) => state.goals);
+  const contributions = useTransactionStore((state) => state.contributions);
+  const initInsights = useInsightsStore((state) => state.initInsights);
+  const generateRuleBasedInsights = useInsightsStore(
+    (state) => state.generateRuleBasedInsights
+  );
+  const startAuthListener = useAuthStore((state) => state.startAuthListener);
+  const stopAuthListener = useAuthStore((state) => state.stopAuthListener);
 
-  // console.log(detectAnomalies(tx));
   // Auth listener
   useEffect(() => {
-    const { startAuthListener, stopAuthListener } = useAuthStore.getState();
     startAuthListener();
 
     return () => stopAuthListener();
@@ -59,6 +55,7 @@ const AppInitializer = () => {
   // Generate rule-based insights
   useEffect(() => {
     if (!user) return;
+
     if (
       transactions?.length ||
       budgets?.length ||
@@ -73,19 +70,21 @@ const AppInitializer = () => {
         contributions
       );
     }
-  }, [user?.uid, transactions, budgets, goals, contributions]);
+  }, [user?.uid]);
 
   // Generate ML insights
   useEffect(() => {
     let isMounted = true;
-    if (!isMounted) return;
 
-    generateInsight(user?.uid, transactions);
+    if (!isMounted) return;
+    if (!user?.uid) return;
+
+    generateInsight(user.uid, transactions);
 
     return () => {
       isMounted = false;
     };
-  }, [user?.uid, transactions]);
+  }, [user?.uid]);
 
   return null;
 };

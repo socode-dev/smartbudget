@@ -11,7 +11,6 @@ import {
 } from "react-icons/fa";
 import clsx from "clsx";
 import { useMainContext } from "../../context/MainContext";
-import SidebarSkeleton from "../skeletons/SidebarSkeleton";
 import useAuthStore from "../../store/useAuthStore";
 
 const navLinks = [
@@ -25,16 +24,12 @@ const navLinks = [
 
 const Sidebar = () => {
   const location = useLocation();
-  const { userName } = useAuthStore();
+  const userName = useAuthStore((state) => state.userName);
   const { isSidebarOpen, handleSidebarClose } = useMainContext();
   const [hovered, setHovered] = useState(false);
 
   // Sidebar expanded if hovered (desktop) or open (mobile)
   const expanded = hovered || isSidebarOpen;
-
-  if (!userName) {
-    return <SidebarSkeleton />;
-  }
 
   return (
     <aside className="w-fit">
@@ -52,7 +47,7 @@ const Sidebar = () => {
       )}
       <section
         className={clsx(
-          "fixed left-0 top-0 h-svh bg-[rgb(var(--color-bg))] text-[rgb(var(--color-text))] flex flex-col shadow-lg transition-all duration-200 z-70 lg:translate-x-0 lg:static p-3",
+          "fixed left-0 top-0 h-dvh bg-[rgb(var(--color-bg))] text-[rgb(var(--color-text))] flex flex-col shadow-lg transition-all duration-200 z-70 lg:translate-x-0 lg:static p-3",
           isSidebarOpen ? "translate-x-0" : "-translate-x-100 lg:translate-x-0",
           expanded ? "lg:w-48 w-56" : "lg:w-20 w-16"
         )}

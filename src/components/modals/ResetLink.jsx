@@ -6,7 +6,10 @@ import { motion } from "framer-motion";
 
 const ResetLink = () => {
   const navigate = useNavigate();
-  const { resetLinkModalOpen, setResetLinkModalOpen } = useAuthStore.getState();
+  const resetLinkModalOpen = useAuthStore((state) => state.resetLinkModalOpen);
+  const setResetLinkModalOpen = useAuthStore(
+    (state) => state.setResetLinkModalOpen
+  );
 
   if (!resetLinkModalOpen) return;
 

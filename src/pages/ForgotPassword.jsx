@@ -4,7 +4,7 @@ import useAuthStore from "../store/useAuthStore";
 import { motion } from "framer-motion";
 
 const ForgotPassword = () => {
-  const { sendResetEmail } = useAuthStore();
+  const sendResetEmail = useAuthStore((state) => state.sendResetEmail);
   const {
     forgotRegister: register,
     forgotErrors: errors,

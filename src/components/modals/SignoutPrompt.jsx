@@ -4,7 +4,8 @@ import useAuthStore from "../../store/useAuthStore";
 import { motion } from "framer-motion";
 
 const SignoutPrompt = () => {
-  const { setCurrentUser, setUserName } = useAuthStore.getState();
+  const setCurrentUser = useAuthStore((state) => state.setCurrentUser);
+  const setUserName = useAuthStore((state) => state.setUserName);
   const { isSignoutPromptOpen, handleSignoutPromptClose } = useMainContext();
 
   if (!isSignoutPromptOpen) return null;

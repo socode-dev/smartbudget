@@ -7,9 +7,11 @@ import useTransactionStore from "../../store/useTransactionStore";
 import useAuthStore from "../../store/useAuthStore";
 
 const TransactionTable = () => {
-  const { currentUser: user } = useAuthStore();
-  const { deleteTransaction } = useTransactionStore();
-  const { selectedCurrency } = useCurrencyStore();
+  const user = useAuthStore((state) => state.currentUser);
+  const deleteTransaction = useTransactionStore(
+    (state) => state.deleteTransaction
+  );
+  const selectedCurrency = useCurrencyStore((state) => state.selectedCurrency);
   const {
     sortedTransactions,
     currentTransactions,

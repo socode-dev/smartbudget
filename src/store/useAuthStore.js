@@ -17,19 +17,15 @@ import { getUserName } from "../utils/getUserName";
 import {
   createWelcomeNotification,
   createNotification,
+  addDocument,
 } from "../firebase/firestore";
 
-// Other stores (used here by calling their getState() methods)
 import useThresholdStore from "./useThresholdStore";
 import useTransactionStore from "./useTransactionStore";
 import useNotificationStore from "./useNotificationStore";
 import useCurrencyStore from "./useCurrencyStore";
 import useInsightsStore from "./useInsightsStore";
-
-// Auth store mirrors the AuthContext API. Actions that previously used
-// form handlers (loginHandleSubmit, signupHandleSubmit, getValues) accept
-// plain data parameters here. For social/signup flows that relied on
-// getValues from a form, pass `thresholdsData` as the second argument.
+import toast from "react-hot-toast";
 
 const emailVerificationEmail = {
   subject: "Verify Your Email Address",
@@ -75,13 +71,19 @@ export const useAuthStore = create((set, get) => ({
 
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
+        set({
+          currentUser: { uid: user.uid, email: user.email },
+        });
         const userDocRef = doc(db, "users", user?.uid);
         const userDocSnap = await getDoc(userDocRef);
 
         if (userDocSnap.exists()) {
           const data = userDocSnap.data();
           const profile = data.profile ?? {};
-          set({ currentUser: { uid: user.uid, ...profile } });
+
+          set((state) => ({
+            currentUser: { ...state.currentUser, ...profile },
+          }));
 
           const { userInitials, userFirstName, userLastName } =
             getUserName(data);
@@ -354,6 +356,28 @@ export const useAuthStore = create((set, get) => ({
     } catch (err) {
       console.error(err);
     }
+  },
+
+  resendVerificationLink: async (user) => {
+    await sendEmailVerification(auth.currentUser, {
+      url: "http://localhost:5173/email-verified",
+      handleCodeInApp: true,
+    });
+
+    const notification = {
+      subject: "A new email verification link has been sent",
+      message:
+        "We've just sent a fresh verification link to your email address. Please check your inbox, and if you don't see it there within a few minutes, don't forget to look in your spam or junk folder.",
+      type: "System",
+      read: false,
+      createdAt: serverTimestamp(),
+    };
+
+    await addDocument(user.uid, "notifications", notification);
+    toast.success("Verification link sent. Check your inbox or spam folder.", {
+      position: "top-center",
+      duration: 5000,
+    });
   },
 }));
 

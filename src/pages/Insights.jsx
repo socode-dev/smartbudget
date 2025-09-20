@@ -5,8 +5,10 @@ import InsightCard from "../components/insights/InsightCard";
 import { motion } from "framer-motion";
 
 const Insights = () => {
-  const { isUserEmailVerified } = useAuthStore();
-  const { insights } = useInsightsStore();
+  const isUserEmailVerified = useAuthStore(
+    (state) => state.isUserEmailVerified
+  );
+  const insights = useInsightsStore((state) => state.insights);
 
   if (!isUserEmailVerified) {
     return (

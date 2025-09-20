@@ -13,8 +13,12 @@ import SidebarSkeleton from "../components/skeletons/SidebarSkeleton";
 import useAuthStore from "../store/useAuthStore";
 
 const MainLayout = () => {
-  const { isUserEmailVerified } = useAuthStore();
-  const { resendVerificationLink } = useNotificationContext();
+  const isUserEmailVerified = useAuthStore(
+    (state) => state.isUserEmailVerified
+  );
+  const resendVerificationLink = useAuthStore(
+    (state) => state.resendVerificationLink
+  );
 
   return (
     <div className="relative flex h-svh bg-[rgb(var(--color-bg))]">
@@ -43,7 +47,6 @@ const MainLayout = () => {
           <Header />
         </LazyWrapper>
         <main className="bg-[rgb(var(--color-bg))] overflow-y-auto grow transition-all duration-200 lg:pt-0 pt-14">
-          {/* pt-14 for mobile header, lg:pt-0 for desktop */}
           {/* Display under header if user email is not verified */}
           {!isUserEmailVerified && (
             <div className="w-full mx-auto mt-2 lg:mt-0 px-6 py-3 shadow bg-[rgb(var(--color-bg-card))] border-t-2 border-[rgb(var(--color-brand-deep))] flex justify-between items-center gap-5">

@@ -4,7 +4,7 @@ import useCurrencyStore from "../../store/useCurrencyStore";
 import { formatAmount } from "../../utils/formatAmount";
 
 const ExpensesBudgetOverview = () => {
-  const { selectedCurrency } = useCurrencyStore();
+  const selectedCurrency = useCurrencyStore((state) => state.selectedCurrency);
   const overviewContext = useOverviewContext();
   const totalExpensesBudget = overviewContext.totalExpensesBudget;
   const expensesBudgetPercent = overviewContext.expensesBudgetPercent;

@@ -4,7 +4,7 @@ import { FaXmark } from "react-icons/fa6";
 import { motion } from "framer-motion";
 
 const NotificationDialog = () => {
-  const { notifications } = useNotificationStore();
+  const notifications = useNotificationStore((state) => state.notifications);
   const { onCloseDialog, openNotificationDialog, notificationId } =
     useNotificationContext();
 

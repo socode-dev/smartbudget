@@ -10,14 +10,12 @@ import { getThresholdsValue } from "../utils/getValues";
 import { motion } from "framer-motion";
 
 const Login = () => {
-  const {
-    onLogin,
-    onGoogleSignin,
-    onMicrosoftSignIn,
-    onLoginErr,
-    googleErr,
-    microsoftErr,
-  } = useAuthStore();
+  const onLogin = useAuthStore((state) => state.onLogin);
+  const onGoogleSignin = useAuthStore((state) => state.onGoogleSignin);
+  const onMicrosoftSignIn = useAuthStore((state) => state.onMicrosoftSignIn);
+  const onLoginErr = useAuthStore((state) => state.onLoginErr);
+  const googleErr = useAuthStore((state) => state.googleErr);
+  const microsoftErr = useAuthStore((state) => state.microsoftErr);
   const {
     loginRegister: register,
     loginErrors: errors,

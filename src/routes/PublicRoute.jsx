@@ -3,7 +3,8 @@ import useAuthStore from "../store/useAuthStore";
 import AnimatedLoader from "../components/ui/AnimatedLoader";
 
 const PublicRoute = ({ children }) => {
-  const { userLoggedIn, loading } = useAuthStore();
+  const userLoggedIn = useAuthStore((state) => state.isUserLoggedIn);
+  const loading = useAuthStore((state) => state.loading);
 
   if (loading) {
     return (

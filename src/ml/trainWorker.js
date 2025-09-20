@@ -2,10 +2,6 @@ import * as tf from "@tensorflow/tfjs";
 import { createForecastModel } from "./forecastModel";
 import { preprocessTransaction } from "./preprocessTransactions";
 
-// Web Worker entrypoint for training forecast models off the main thread.
-// Input message shape: { requestId, uid, transactions, category, options }
-// Output message shape: { requestId, uid, category, predictedValue, durationMs, error }
-
 // Message listener that orchestrates preprocess -> train -> predict in the worker
 self.addEventListener("message", async (event) => {
   // Destructure incoming message fields
@@ -28,8 +24,6 @@ self.addEventListener("message", async (event) => {
     const grouped = preprocessTransaction(transactions);
     // Not enough data to train/predict -> respond with null prediction
     if (!grouped[category] || grouped[category].length < 4) {
-      // console.log(`Not enough data to train model for ${category}`);
-
       self.postMessage({
         requestId,
         uid,
@@ -95,10 +89,6 @@ self.addEventListener("message", async (event) => {
     // Extract numeric prediction
     const predictedValue = (await predTensor.data())[0];
 
-    // console.log(
-    //   `Worker: Training completed for ${category}, predicted value: ${predictedValue}`
-    // );
-
     // Dispose tensors to free memory
     tf.dispose([xs, ys, predTensor]);
 
@@ -106,7 +96,6 @@ self.addEventListener("message", async (event) => {
     const durationMs = Date.now() - start;
     self.postMessage({ requestId, uid, category, predictedValue, durationMs });
   } catch (error) {
-    // console.log(`Worker: Training failed or ${category}:`, error);
     // On error, respond with error message for diagnostics
     self.postMessage({
       requestId,

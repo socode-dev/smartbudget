@@ -63,7 +63,6 @@ export const generateInsight = async (uid, transactions) => {
 
         // Compose the final insight object if predicted is greater than 0 and add it to the store
         if (predictedValue > 0) {
-          console.log(predictedValue);
           const insight = {
             id: `tmp_${Math.random().toString(36).slice(2)}`,
             type: "forecast",
@@ -72,6 +71,7 @@ export const generateInsight = async (uid, transactions) => {
               predictedValue,
               selectedCurrency
             )} on "${category}" next month`,
+            category,
             actionType: "suggestion",
             actionText: `Adjust your "${category}" budget for next month.`,
             createdAt: new Date(),

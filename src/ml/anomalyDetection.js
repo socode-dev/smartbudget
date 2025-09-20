@@ -39,6 +39,7 @@ export const detectAnomalies = (transactions) => {
           message: `You've spent ${Math.ceil(
             percentageMore
           )}% more on "${category}" in ${month} compared to your norm.`,
+          category,
           actionType: "suggestion",
           actionText: `Set a spending limit on "${category}"`,
           createdAt: new Date(),
@@ -53,6 +54,7 @@ export const detectAnomalies = (transactions) => {
           message: `You've spent ${Math.ceil(
             percentageMore
           )}% more on "${category}" in ${month} compared to your norm.`,
+          category,
           actionType: "suggestion",
           actionText: `Set a spending limit on "${category}"`,
           createdAt: new Date(),

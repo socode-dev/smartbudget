@@ -4,7 +4,11 @@ import { useMainContext } from "../../context/MainContext";
 import useAuthStore from "../../store/useAuthStore";
 
 const ProfileDropdown = () => {
-  const { currentUser: user, userName, isUserEmailVerified } = useAuthStore();
+  const user = useAuthStore((state) => state.currentUser);
+  const userName = useAuthStore((state) => state.userName);
+  const isUserEmailVerified = useAuthStore(
+    (state) => state.isUserEmailVerified
+  );
   const { isProfileOpen, handleSignoutPromptOpen } = useMainContext();
 
   if (!isProfileOpen) return null;

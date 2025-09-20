@@ -8,7 +8,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 
 const Notification = () => {
-  const { notifications } = useNotificationStore();
+  const notifications = useNotificationStore((state) => state.notifications);
   const { onOpenDialog, handleDelete } = useNotificationContext();
   const [options, setOptions] = useState({
     id: "",
@@ -66,14 +66,7 @@ const Notification = () => {
                 )}
               ></div>
               <button
-                onClick={() =>
-                  onOpenDialog(
-                    notification.id,
-                    notification.subject,
-                    notification.message,
-                    notification.type
-                  )
-                }
+                onClick={() => onOpenDialog(notification)}
                 className="w-full px-4 py-1 flex flex-col items-start gap-1 cursor-pointer"
               >
                 <p className="text-xs text-[rgb(var(--color-muted))]">
