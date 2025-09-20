@@ -11,7 +11,7 @@ import { motion } from "framer-motion";
 
 const Signup = () => {
   const onSignup = useAuthStore((state) => state.onSignup);
-  const onGoogleSignin = useAuthStore((state) => state.onGoogleSignin);
+  const onGoogleSignIn = useAuthStore((state) => state.onGoogleSignIn);
   const onMicrosoftSignIn = useAuthStore((state) => state.onMicrosoftSignIn);
   const onSignupErr = useAuthStore((state) => state.onSignupErr);
   const googleErr = useAuthStore((state) => state.googleErr);

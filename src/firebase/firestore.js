@@ -79,8 +79,6 @@ export const createWelcomeNotification = (userUID) => {
     datas.forEach(async (data) => await addDoc(notifRef, data));
   } catch (err) {
     console.error(err);
-  } finally {
-    console.log("notification initiation completed");
   }
 };
 

@@ -11,7 +11,7 @@ import { motion } from "framer-motion";
 
 const Login = () => {
   const onLogin = useAuthStore((state) => state.onLogin);
-  const onGoogleSignin = useAuthStore((state) => state.onGoogleSignin);
+  const onGoogleSignIn = useAuthStore((state) => state.onGoogleSignIn);
   const onMicrosoftSignIn = useAuthStore((state) => state.onMicrosoftSignIn);
   const onLoginErr = useAuthStore((state) => state.onLoginErr);
   const googleErr = useAuthStore((state) => state.googleErr);
@@ -157,7 +157,7 @@ const Login = () => {
         <fieldset className="w-full flex gap-4">
           {/* Google login */}
           <button
-            onClick={() => onGoogleSignin(getThresholdsValue(getValues))}
+            onClick={() => onGoogleSignIn(getThresholdsValue(getValues))}
             className="w-1/2 px-4 py-2 flex items-center justify-center gap-3 border-2 border-[rgb(var(--color-gray-border))] hover:bg-[rgb(var(--color-gray-bg))] transition rounded-lg text-base text-[rgb(var(--color-muted))] font-medium cursor-pointer"
           >
             <FaGoogle />

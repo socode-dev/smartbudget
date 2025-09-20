@@ -44,7 +44,7 @@ export const checkGoalThreshold = async (
   goalThreshold80,
   goalThreshold100
 ) => {
-  const { selectedCurrency } = useCurrencyStore.getState();
+  const selectedCurrency = useCurrencyStore((state) => state.selectedCurrency);
 
   for (const goal of goals) {
     const { name, categoryKey, amount, date } = goal;

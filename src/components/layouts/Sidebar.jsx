@@ -104,7 +104,7 @@ const Sidebar = () => {
               expanded ? "inline" : "hidden"
             )}
           >
-            {userName.fullName.toUpperCase()}
+            {userName?.fullName?.toUpperCase()}
           </span>
         </div>
         {/* </div> */}
