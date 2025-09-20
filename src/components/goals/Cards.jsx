@@ -6,7 +6,7 @@ import useCurrencyStore from "../../store/useCurrencyStore";
 import { formatAmount } from "../../utils/formatAmount";
 
 const Cards = () => {
-  const { selectedCurrency } = useCurrencyStore();
+  const selectedCurrency = useCurrencyStore((state) => state.selectedCurrency);
   const {
     filteredGoals,
     getAmountSaved,

@@ -1,17 +1,16 @@
-import useTransactionStore from "../../store/useTransactionStore";
 import { useModalContext } from "../../context/ModalContext";
 import useFormSubmit from "../../hooks/useFormSubmit";
 import { useFormContext } from "../../context/FormContext";
 import { useRef } from "react";
-import { useTransactionsContext } from "../../context/TransactionsContext";
 import LoadingSpinner from "../ui/LoadingSpinner";
 import useThresholdStore from "../../store/useThresholdStore";
 import useAuthStore from "../../store/useAuthStore";
+import { CATEGORY_OPTIONS } from "../../data/categoryData";
 
 const ModalForm = ({ label, mode }) => {
-  const { currentUser: user } = useAuthStore();
+  const user = useAuthStore((state) => state.currentUser);
   const formRef = useRef(null);
-  const { thresholds } = useThresholdStore();
+  const thresholds = useThresholdStore((state) => state.thresholds);
   const { onCloseModal, transactionID } = useModalContext();
   const { onSubmit, handleSubmit } = useFormSubmit(label, mode);
   const forms = useFormContext(label);
@@ -22,8 +21,6 @@ const ModalForm = ({ label, mode }) => {
     reset,
     formState: { errors, isSubmitting },
   } = forms;
-
-  const { CATEGORY_OPTIONS } = useTransactionStore();
 
   const categoryValue = watch("category");
 

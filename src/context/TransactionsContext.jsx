@@ -16,7 +16,10 @@ const TransactionsContext = createContext();
 
 export const TransactionsProvider = ({ children }) => {
   const { onOpenModal, setTransactionID } = useModalContext();
-  const { transactions, setEditTransaction } = useTransactionStore();
+  const transactions = useTransactionStore((state) => state.transactions);
+  const setEditTransaction = useTransactionStore(
+    (state) => state.setEditTransaction
+  );
   const [filters, setFilters] = useState({
     search: "",
     fromDate: "",

@@ -10,7 +10,8 @@ import useAuthStore from "../store/useAuthStore";
 import { motion } from "framer-motion";
 
 const Overview = () => {
-  const { currentUser: user, userName } = useAuthStore();
+  const user = useAuthStore((state) => state.currentUser);
+  const userName = useAuthStore((state) => state.userName);
   const {
     totalIncome,
     totalExpenses,

@@ -9,8 +9,8 @@ import { formatAmount } from "../utils/formatAmount";
 const ReportContext = createContext();
 
 export const ReportProvider = ({ children }) => {
-  const { transactions } = useTransactionStore();
-  const { selectedCurrency } = useCurrencyStore();
+  const transactions = useTransactionStore((state) => state.transactions);
+  const selectedCurrency = useCurrencyStore((state) => state.selectedCurrency);
 
   const expenses = useMemo(
     () => transactions?.filter((tx) => tx.type === "expense"),

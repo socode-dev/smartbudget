@@ -12,8 +12,9 @@ import useCurrencyStore from "../store/useCurrencyStore";
 const OverviewContext = createContext();
 
 export const OverviewProvider = ({ children }) => {
-  const { selectedCurrency } = useCurrencyStore();
-  const { transactions, budgets } = useTransactionStore();
+  const selectedCurrency = useCurrencyStore((state) => state.selectedCurrency);
+  const transactions = useTransactionStore((state) => state.transactions);
+  const budgets = useTransactionStore((state) => state.budgets);
 
   // Get last month and this month total income and expenses
   const income = useMemo(

@@ -9,9 +9,10 @@ import { useOverviewContext } from "../../context/OverviewContext";
 import Export from "../ui/Export";
 
 const SettingsDropdown = () => {
+  const theme = useThemeStore((state) => state.theme);
+  const toggleTheme = useThemeStore((state) => state.toggleTheme);
+  const selectedCurrency = useCurrencyStore((state) => state.selectedCurrency);
   const { handleCSVExport, handlePDFExport } = useOverviewContext();
-  const { theme, toggleTheme } = useThemeStore();
-  const { selectedCurrency } = useCurrencyStore();
   const {
     isSettingsOpen,
     handleCurrencyToggle,

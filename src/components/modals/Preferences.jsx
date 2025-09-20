@@ -9,11 +9,12 @@ import useAuthStore from "../../store/useAuthStore";
 import { motion } from "framer-motion";
 
 const Preferences = () => {
-  const { currentUser: user } = useAuthStore();
+  const user = useAuthStore((state) => state.currentUser);
+  const thresholds = useThresholdStore((state) => state.thresholds);
+  const updateThresholds = useThresholdStore((state) => state.updateThresolds);
   const { isPreferencesOpen, handlePreferencesClose } = useMainContext();
   const { register, errors, isSubmitting, handleSubmit, reset, setValue } =
     useThresholdForm();
-  const { updateThresholds, thresholds } = useThresholdStore();
 
   if (!isPreferencesOpen) return null;
 

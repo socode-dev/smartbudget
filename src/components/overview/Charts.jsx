@@ -3,7 +3,7 @@ import DoughnutChart from "../charts/DoughnutChart";
 import useTransactionStore from "../../store/useTransactionStore";
 
 const Charts = () => {
-  const { budgets } = useTransactionStore();
+  const budgets = useTransactionStore((state) => state.budgets);
 
   return (
     <>

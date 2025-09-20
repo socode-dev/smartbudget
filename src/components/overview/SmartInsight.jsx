@@ -2,7 +2,7 @@ import InsightCard from "../insights/InsightCard";
 import useInsightsStore from "../../store/useInsightsStore";
 
 const SmartInsight = () => {
-  const { insights } = useInsightsStore();
+  const insights = useInsightsStore((state) => state.insights);
 
   const sortedInsights = insights
     ?.sort((a, b) => a.createdAt - b.createdAt)

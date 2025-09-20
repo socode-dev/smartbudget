@@ -11,8 +11,8 @@ import { motion } from "framer-motion";
 
 const Transactions = () => {
   const { onOpenModal } = useModalContext();
-  const { transactions } = useTransactionStore();
-  const { selectedCurrency } = useCurrencyStore();
+  const transactions = useTransactionStore((state) => state.transactions);
+  const selectedCurrency = useCurrencyStore((state) => state.selectedCurrency);
   const {
     sortedTransactions,
     totalBalance,

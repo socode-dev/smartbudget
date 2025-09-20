@@ -11,8 +11,8 @@ import useAuthStore from "../../store/useAuthStore";
 
 const Header = () => {
   const navigate = useNavigate();
-  const { userName } = useAuthStore();
-  const { notifications } = useNotificationStore();
+  const userName = useAuthStore((state) => state.userName);
+  const notifications = useNotificationStore((state) => state.notifications);
   const {
     settingsRef,
     profileRef,

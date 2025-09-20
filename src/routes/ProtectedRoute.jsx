@@ -3,7 +3,8 @@ import useAuthStore from "../store/useAuthStore";
 import AnimatedLoader from "../components/ui/AnimatedLoader";
 
 const ProtectedRoute = ({ children }) => {
-  const { currentUser: user, loading } = useAuthStore();
+  const user = useAuthStore((state) => state.currentUser);
+  const loading = useAuthStore((state) => state.loading);
 
   if (loading) {
     return (

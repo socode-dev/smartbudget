@@ -12,6 +12,7 @@ import { db } from "../firebase/firebase";
 import { addDocument, getAllDocuments } from "../firebase/firestore";
 import useCurrencyStore from "./useCurrencyStore";
 import { formatAmount } from "../utils/formatAmount";
+import { toast } from "react-hot-toast";
 
 const EXPIRY_MS = 2 * 24 * 60 * 60 * 1000;
 
@@ -57,7 +58,7 @@ const useInsightsStore = create(
             .replace(/[^a-z0-9]+/g, " ")
             .trim();
 
-        const dedupeWindowMs = 2 * 60 * 1000; // 2 minutes
+        const dedupeWindowMs = 60 * 1000; // 2 minutes
         const now = Date.now();
 
         const existing = get().insights || [];
@@ -109,6 +110,13 @@ const useInsightsStore = create(
         } catch (err) {
           console.warn("Failed to persist insight to Firestore:", err);
         }
+        // Toast message for new insights
+        toast.success(
+          `New insight for ${insightWithExpiry?.category}: Check Insight page for more info.`,
+          {
+            duration: 10000,
+          }
+        );
       },
 
       generateRuleBasedInsights: (
@@ -179,6 +187,7 @@ const useInsightsStore = create(
               )}% more on ${transaction[0].category} compared to last month.`,
               actionType: "suggestion",
               actionText: `Set a spending limit on "${transaction[0].category}"`,
+              category: transaction[0]?.category,
               severity: "medium",
               createdAt: new Date(),
               expiresAt: Date.now() + EXPIRY_MS,
@@ -216,6 +225,7 @@ const useInsightsStore = create(
               }" budget this month.`,
               actionType: "tip",
               actionText: "Consider reallocating unused budget to savings.",
+              category: budget.category,
               severity: "low",
               createdAt: new Date(),
               expiresAt: Date.now() + EXPIRY_MS,
@@ -301,6 +311,7 @@ const useInsightsStore = create(
               message: `The due date for goal "${goal.name}" is ${goal.date} and the goal is not yet met. Consider revising the goal or increasing contributions.`,
               actionType: "suggestion",
               actionText: `Review goal settings`,
+              category: goal.name,
               severity: "high",
               createdAt: new Date(),
               expiresAt: Date.now() + EXPIRY_MS,
@@ -326,6 +337,7 @@ const useInsightsStore = create(
               ).toLocaleDateString()}. Keep it up!`,
               actionType: "tip",
               actionText: "No changes needed.",
+              category: goal.name,
               severity: "low",
               createdAt: new Date(),
               expiresAt: Date.now() + EXPIRY_MS,
@@ -346,6 +358,7 @@ const useInsightsStore = create(
                 requiredWeekly,
                 selectedCurrency
               )} to meet the due date.`,
+              category: goal.name,
               severity:
                 monthsToGoal <= (monthsRemaining || Infinity)
                   ? "low"
@@ -373,6 +386,7 @@ const useInsightsStore = create(
                 goal.amount,
                 selectedCurrency
               )}.`,
+              category: goal.name,
               actionType: "suggestion",
               actionText: `Set a weekly or monthly contribution`,
               severity: "low",

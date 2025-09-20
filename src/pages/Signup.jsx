@@ -10,14 +10,12 @@ import useAuthStore from "../store/useAuthStore";
 import { motion } from "framer-motion";
 
 const Signup = () => {
-  const {
-    onSignup,
-    onGoogleSignIn,
-    onMicrosoftSignIn,
-    onSignupErr,
-    microsoftErr,
-    googleErr,
-  } = useAuthStore();
+  const onSignup = useAuthStore((state) => state.onSignup);
+  const onGoogleSignin = useAuthStore((state) => state.onGoogleSignin);
+  const onMicrosoftSignIn = useAuthStore((state) => state.onMicrosoftSignIn);
+  const onSignupErr = useAuthStore((state) => state.onSignupErr);
+  const googleErr = useAuthStore((state) => state.googleErr);
+  const microsoftErr = useAuthStore((state) => state.microsoftErr);
 
   const {
     signupRegister: register,

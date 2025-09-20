@@ -10,7 +10,7 @@ import useCurrencyStore from "../../store/useCurrencyStore";
 import { formatAmount } from "../../utils/formatAmount";
 
 const SummaryCards = () => {
-  const { selectedCurrency } = useCurrencyStore();
+  const selectedCurrency = useCurrencyStore((state) => state.selectedCurrency);
   const {
     totalIncome,
     totalExpenses,

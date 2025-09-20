@@ -16,7 +16,7 @@ const Cards = () => {
   } = useBudgetsContext();
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {filteredBudgets.map((budget) => {
         const monthLabel = format(new Date(budget.date), "MMMM yyyy");
         const budgetLimit = budget.amount;
@@ -130,7 +130,7 @@ const Cards = () => {
       })}
 
       {/* End of Budgets */}
-    </div>
+    </section>
   );
 };
 

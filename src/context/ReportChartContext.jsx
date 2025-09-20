@@ -7,8 +7,8 @@ import { categoryColor } from "../data/categoryData";
 const ReportChartContext = createContext();
 
 export const ReportChartProvider = ({ children }) => {
-  const { transactions } = useTransactionStore();
-  const { selectedCurrency } = useCurrencyStore();
+  const transactions = useTransactionStore((state) => state.transactions);
+  const selectedCurrency = useCurrencyStore((state) => state.selectedCurrency);
 
   const expenses = useMemo(
     () => transactions?.filter((tx) => tx.type === "expense"),

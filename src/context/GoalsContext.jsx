@@ -11,20 +11,26 @@ import { useFormContext } from "./FormContext";
 import useTransactionStore from "../store/useTransactionStore";
 import { handleEdit } from "../utils/handleEdit";
 import toast from "react-hot-toast";
-import { checkGoalThreshold } from "../services/checkGoalThreshold";
+import { checkGoalThreshold } from "../utils/checkGoalThreshold";
 import useThresholdStore from "../store/useThresholdStore";
-import { scheduleThresholdCheck } from "../services/scheduleThresholdCheck";
+import { scheduleThresholdCheck } from "../utils/scheduleThresholdCheck";
 import useAuthStore from "../store/useAuthStore";
 
 const GoalsContext = createContext();
 
 export const GoalsProvider = ({ children }) => {
-  const { currentUser: user } = useAuthStore();
-  const { thresholds } = useThresholdStore();
+  const user = useAuthStore((state) => state.currentUser);
+  const thresholds = useThresholdStore((state) => state.thresolds);
+  const goals = useTransactionStore((state) => state.goals);
+  const contributions = useTransactionStore((state) => state.contributions);
+  const deleteTransaction = useTransactionStore(
+    (state) => state.deleteTransaction
+  );
+  const setEditTransaction = useTransactionStore(
+    (state) => state.setEditTransaction
+  );
   const { onOpenModal, modalState, setTransactionID } = useModalContext();
   const contributionModalState = modalState.contributions;
-  const { goals, contributions, deleteTransaction, setEditTransaction } =
-    useTransactionStore();
   const [searchName, setSearchName] = useState("");
 
   const goalThreshold50 = thresholds?.goalThreshold50 ?? 50;

@@ -5,7 +5,7 @@ import useAuthStore from "../store/useAuthStore";
 import { motion } from "framer-motion";
 
 const EmailVerified = () => {
-  const { currentUser: user } = useAuthStore();
+  const user = useAuthStore((state) => state.currentUser);
   const navigate = useNavigate();
 
   const handleNavigate = () => {

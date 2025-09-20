@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import useThemeStore from "../store/useThemeStore";
 
 export const useThemeEffect = () => {
-  const { theme, initializeTheme } = useThemeStore();
+  const { theme, initializeTheme } = useThemeStore.getState();
 
   useEffect(() => {
     // Initialize theme on mount

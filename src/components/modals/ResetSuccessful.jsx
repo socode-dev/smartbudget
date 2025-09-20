@@ -5,8 +5,12 @@ import { motion } from "framer-motion";
 
 const ResetSuccessful = () => {
   const navigate = useNavigate();
-  const { openResetSuccessModal, setOpenResetSuccessModal } =
-    useAuthStore.getState();
+  const openResetSuccessModal = useAuthStore(
+    (state) => state.openResetSuccessModal
+  );
+  const setOpenResetSuccessModal = useAuthStore(
+    (state) => state.setOpenResetSuccessModal
+  );
 
   if (!openResetSuccessModal) return null;
 

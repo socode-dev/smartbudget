@@ -1,7 +1,7 @@
 import { serverTimestamp, getDoc, doc, setDoc } from "firebase/firestore";
 import { db } from "../firebase/firebase";
 import useCurrencyStore from "../store/useCurrencyStore";
-import { formatAmount } from "../utils/formatAmount";
+import { formatAmount } from "./formatAmount";
 
 const createGoalNotification = async (userUID, data) => {
   if (

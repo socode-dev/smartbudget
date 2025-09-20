@@ -17,7 +17,7 @@ const Modal = ({ label, title, description, mode }) => {
         aria-labelledby={`${label}-modal`}
         className="fixed inset-0 flex items-center justify-center z-70"
       >
-        <section className="bg-[rgb(var(--color-bg-card))] w-11/12 max-w-lg h-auto overflow-y-auto p-6 rounded-lg shadow-xl">
+        <section className="bg-[rgb(var(--color-bg-card))] w-10/12 max-w-lg h-10/12 max-h-fit overflow-y-auto p-6 rounded-lg shadow-xl">
           <h2 className="text-2xl md:text-3xl font-semibold mb-1">{title}</h2>
           <p className="text-base text-[rgb(var(--color-muted))] mb-6">
             {description}

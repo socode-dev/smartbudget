@@ -15,10 +15,14 @@ import useAuthStore from "../store/useAuthStore";
 const MainContext = createContext();
 
 export const MainProvider = ({ children }) => {
-  const { currentUser: user } = useAuthStore();
-  const { loadTransactions } = useTransactionStore();
-  const { loadNotifications } = useNotificationStore();
-  const { fetchCurrencies } = useCurrencyStore();
+  const user = useAuthStore((state) => state.currentUser);
+  const loadTransactions = useTransactionStore(
+    (state) => state.loadTransactions
+  );
+  const loadNotifications = useNotificationStore(
+    (state) => state.loadNotifications
+  );
+  const fetchCurrencies = useCurrencyStore((state) => state.fetchCurrencies);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isPreferencesOpen, setIsPreferencesOpen] = useState(false);
   const [isSignoutPromptOpen, setIsSignoutPromptOpen] = useState(false);
