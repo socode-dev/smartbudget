@@ -20,7 +20,7 @@ const GoalsContext = createContext();
 
 export const GoalsProvider = ({ children }) => {
   const user = useAuthStore((state) => state.currentUser);
-  const thresholds = useThresholdStore((state) => state.thresolds);
+  const thresholds = useThresholdStore((state) => state.thresholds);
   const goals = useTransactionStore((state) => state.goals);
   const contributions = useTransactionStore((state) => state.contributions);
   const deleteTransaction = useTransactionStore(
@@ -42,7 +42,7 @@ export const GoalsProvider = ({ children }) => {
   const { setValue: setGoalValue } = goalForm;
   // Contribution form
   const contributionForm = useFormContext("contributions");
-  const { setValue: setContributionValue, reset, getValues } = contributionForm;
+  const { setValue: setContributionValue, reset } = contributionForm;
 
   // Set the value of contribution name to the clicked goal name
   useEffect(() => {

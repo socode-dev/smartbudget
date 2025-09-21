@@ -6,12 +6,12 @@ import useThresholdStore from "../../store/useThresholdStore";
 import toast from "react-hot-toast";
 import LoadingSpinner from "../ui/LoadingSpinner";
 import useAuthStore from "../../store/useAuthStore";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 
 const Preferences = () => {
   const user = useAuthStore((state) => state.currentUser);
   const thresholds = useThresholdStore((state) => state.thresholds);
-  const updateThresholds = useThresholdStore((state) => state.updateThresolds);
+  const updateThresholds = useThresholdStore((state) => state.updateThresholds);
   const { isPreferencesOpen, handlePreferencesClose } = useMainContext();
   const { register, errors, isSubmitting, handleSubmit, reset, setValue } =
     useThresholdForm();
@@ -57,13 +57,19 @@ const Preferences = () => {
   };
 
   return (
-    <>
-      <div className="fixed top-0 left-0 w-full h-full bg-black/30 z-60" />
+    <AnimatePresence>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.3, ease: "easeOut" }}
+        className="fixed top-0 left-0 w-full h-full bg-black/30 z-60"
+      />
 
       <motion.div
-        initial={{ scale: 0 }}
+        initial={{ scale: 0.8 }}
         animate={{ scale: 1 }}
-        exit={{ scale: 0 }}
+        exit={{ scale: 0.8 }}
         transition={{ duration: 0.3, ease: "easeOut" }}
         role="dialog"
         className="w-full fixed inset-0 flex items-center justify-center z-70 p-4"
@@ -298,7 +304,7 @@ const Preferences = () => {
           </form>
         </section>
       </motion.div>
-    </>
+    </AnimatePresence>
   );
 };
 

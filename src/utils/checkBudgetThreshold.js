@@ -45,7 +45,7 @@ export const checkBudgetThreshold = async (
   budgetThreshold80,
   budgetThreshold100
 ) => {
-  const selectedCurrency = useCurrencyStore((state) => state.selectedCurrency);
+  const { selectedCurrency } = useCurrencyStore.getState();
 
   // Expense budgets
   const expenseBudgets = budgets?.filter((budget) => budget.type === "expense");

@@ -44,10 +44,10 @@ export const checkGoalThreshold = async (
   goalThreshold80,
   goalThreshold100
 ) => {
-  const selectedCurrency = useCurrencyStore((state) => state.selectedCurrency);
+  const { selectedCurrency } = useCurrencyStore.getState();
 
   for (const goal of goals) {
-    const { name, categoryKey, amount, date } = goal;
+    const { name, categoryKey, amount } = goal;
     const saved = getAmountSaved(categoryKey);
 
     if (!amount || amount <= 0) continue;
@@ -55,7 +55,7 @@ export const checkGoalThreshold = async (
     const percentage = (saved / amount) * 100;
 
     // Fire notification if threshold condition is met
-    if (percentage > goalThreshold100) {
+    if (percentage >= goalThreshold100) {
       await createGoalNotification(userUID, {
         subject: `Goal Surpassed: ${name}`,
         message: `Fantastic! You've exceeded your "${name}" goal by ${formatAmount(
