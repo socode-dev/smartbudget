@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { FaFileCsv, FaFilePdf } from "react-icons/fa";
 import BarChart from "../components/charts/BarChart";
 import DoughnutChart from "../components/charts/DoughnutChart";
@@ -5,9 +6,22 @@ import Table from "../components/reports/Table";
 import { useReportContext } from "../context/ReportContext";
 import ScrollToTop from "../layout/ScrollToTop";
 import { motion } from "framer-motion";
+import useOnboardingStore from "../store/useOnboardingStore";
 
 const Reports = () => {
   const { expenses, handleCSVExport, handlePDFExport } = useReportContext();
+
+  const { setCurrentPage, startTourIfNotCompleted } = useOnboardingStore();
+
+  useEffect(() => {
+    setCurrentPage("reports");
+    // Start tour if not completed when navigating to reports page
+    const timer = setTimeout(() => {
+      startTourIfNotCompleted("reports");
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [setCurrentPage, startTourIfNotCompleted]);
 
   return (
     <motion.main
@@ -26,7 +40,10 @@ const Reports = () => {
       {/* Charts */}
       {expenses.length > 0 ? (
         <>
-          <section className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <section
+            id="reports-charts"
+            className="grid grid-cols-1 lg:grid-cols-2 gap-6"
+          >
             {/* Spending over time */}
             <figure className="flex flex-col gap-4 bg-[rgb(var(--color-bg-card))] p-4 rounded-lg shadow-md">
               <h3 className="text-xl font-semibold">Spending Over Time</h3>
@@ -49,7 +66,10 @@ const Reports = () => {
           </section>
 
           {/* Export */}
-          <section className="flex justify-end mt-10 gap-4 sm:gap-6 md:gap-8 lg:gap-10">
+          <section
+            id="export-buttons"
+            className="flex justify-end mt-10 gap-4 sm:gap-6 md:gap-8 lg:gap-10"
+          >
             <button
               onClick={handleCSVExport}
               type="button"
@@ -69,7 +89,10 @@ const Reports = () => {
           </section>
         </>
       ) : (
-        <p className="text-[rgb(var(--color-muted))] text-center text-lg">
+        <p
+          id="reports-empty-state"
+          className="text-[rgb(var(--color-muted))] text-center text-lg"
+        >
           Oops, no reports to show yet. <br /> Add some expenses to unlock your
           spending insights!.
         </p>

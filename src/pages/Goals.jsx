@@ -1,12 +1,26 @@
+import { useEffect } from "react";
 import { FaPlus } from "react-icons/fa";
 import ScrollToTop from "../layout/ScrollToTop";
 import { useGoalsContext } from "../context/GoalsContext";
 import Cards from "../components/goals/Cards";
 import { motion } from "framer-motion";
+import useOnboardingStore from "../store/useOnboardingStore";
 
 const Goals = () => {
   const { goals, filteredGoals, onOpenModal, searchName, setSearchName } =
     useGoalsContext();
+
+  const { setCurrentPage, startTourIfNotCompleted } = useOnboardingStore();
+
+  useEffect(() => {
+    setCurrentPage("goals");
+    // Start tour if not completed when navigating to goals page
+    const timer = setTimeout(() => {
+      startTourIfNotCompleted("goals");
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [setCurrentPage, startTourIfNotCompleted]);
 
   return (
     <motion.main
@@ -36,7 +50,7 @@ const Goals = () => {
       </section>
 
       {/* Search bar to search goal by name */}
-      {goals?.length > 0 && filteredGoals?.length === 0 && (
+      {goals?.length > 0 && (
         <input
           type="text"
           placeholder="Search by name..."
@@ -59,12 +73,16 @@ const Goals = () => {
       {/* Empty State */}
       {goals.length === 0 && (
         <div className="mt-4 flex flex-col items-center w-full">
-          <p className="text-base text-[rgb(var(--color-muted))] text-center mb-6">
+          <p
+            id="goals-empty-state"
+            className="text-base text-[rgb(var(--color-muted))] text-center mb-6"
+          >
             You have not set any financial goals yet. Start saving
             intentionally.
           </p>
 
           <button
+            id="add-first-goal-btn"
             onClick={() => onOpenModal("goals", "add")}
             className=" bg-blue-500 hover:bg-blue-600 transition cursor-pointer text-white px-4 py-2 rounded-md text-base flex items-center gap-2"
           >

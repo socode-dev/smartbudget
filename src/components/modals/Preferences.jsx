@@ -6,7 +6,7 @@ import useThresholdStore from "../../store/useThresholdStore";
 import toast from "react-hot-toast";
 import LoadingSpinner from "../ui/LoadingSpinner";
 import useAuthStore from "../../store/useAuthStore";
-import { motion, AnimatePresence } from "framer-motion";
+import Dialog from "../ui/Dialog";
 
 const Preferences = () => {
   const user = useAuthStore((state) => state.currentUser);
@@ -57,254 +57,233 @@ const Preferences = () => {
   };
 
   return (
-    <AnimatePresence>
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        transition={{ duration: 0.3, ease: "easeOut" }}
-        className="fixed top-0 left-0 w-full h-full bg-black/30 z-60"
-      />
+    <Dialog ariaLabel="preferences">
+      {/* <section className="bg-[rgb(var(--color-bg-card))] w-full sm:w-5/6 md:w-4/6 lg:w-3/6 xl:w-2/6 h-2/3 max-w-md overflow-y-auto p-6 rounded-lg shadow-xl flex flex-col"> */}
+      <h3 className="text-2xl text-[rgb(var(--color-text))] text-center font-semibold">
+        Notification Preferences
+      </h3>
 
-      <motion.div
-        initial={{ scale: 0.8 }}
-        animate={{ scale: 1 }}
-        exit={{ scale: 0.8 }}
-        transition={{ duration: 0.3, ease: "easeOut" }}
-        role="dialog"
-        className="w-full fixed inset-0 flex items-center justify-center z-70 p-4"
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className="w-full mt-6 flex flex-col"
       >
-        <section className="bg-[rgb(var(--color-bg-card))] w-full sm:w-5/6 md:w-4/6 lg:w-3/6 xl:w-2/6 h-2/3 max-w-md overflow-y-auto p-6 rounded-lg shadow-xl flex flex-col">
-          <h3 className="text-2xl text-[rgb(var(--color-text))] text-center font-semibold">
-            Notification Preferences
-          </h3>
+        {/* Transaction threshold */}
+        <fieldset className="w-full border-b-2 border-[rgb(var(--color-gray-bg))] py-4">
+          <legend className="text-xl font-medium text-[rgb(var(--color-text))]">
+            Transaction Alert
+          </legend>
 
-          <form
-            onSubmit={handleSubmit(onSubmit)}
-            className="w-full mt-6 flex flex-col"
-          >
-            {/* Transaction threshold */}
-            <fieldset className="w-full border-b-2 border-[rgb(var(--color-gray-bg))] py-4">
-              <legend className="text-xl font-medium text-[rgb(var(--color-text))]">
-                Transaction Alert
-              </legend>
-
-              <div className="flex justify-between">
-                <label
-                  htmlFor="transactionThreshold"
-                  className="text-base text-[rgb(var(--color-muted))]"
-                >
-                  Large Expense Threshold
-                </label>
-
-                <input
-                  {...register("transactionThreshold")}
-                  type="number"
-                  name="transactionThreshold"
-                  id="transactionThreshold"
-                  className="w-4/12 px-2 py-1 border border-[rgb(var(--color-gray-border))] rounded-md shadow-2xl outline-none focus:border-[rgb(var(--color-brand-deep))] transition"
-                />
-              </div>
-
-              {errors.transactionThreshold && (
-                <p className="text-[13px] text-red-500 mt-1">
-                  {errors.transactionThreshold.message}
-                </p>
-              )}
-            </fieldset>
-
-            {/* Budget thresholds */}
-            <fieldset className="w-full border-b-2 border-[rgb(var(--color-gray-bg))] py-4 mt-4 flex flex-col gap-y-2">
-              <legend className="text-xl font-medium text-[rgb(var(--color-text))]">
-                Budget Threshold
-              </legend>
-
-              <div>
-                <div className="flex justify-between">
-                  <label
-                    htmlFor="budgetThreshold50"
-                    className="text-base text-[rgb(var(--color-muted))]"
-                  >
-                    Alert when budget reaches %
-                  </label>
-                  <input
-                    {...register("budgetThreshold50")}
-                    type="number"
-                    name="budgetThreshold50"
-                    id="budgetThreshold50"
-                    className="w-4/12 px-2 py-1 border border-[rgb(var(--color-gray-border))] rounded-md shadow-2xl outline-none focus:border-[rgb(var(--color-brand-deep))] transition"
-                  />
-                </div>
-                {errors.budgetThreshold50 && (
-                  <p className="text-[13px] text-red-500 mt-1">
-                    {errors.budgetThreshold50.message}
-                  </p>
-                )}
-              </div>
-
-              <div>
-                <div className="flex justify-between">
-                  <label
-                    htmlFor="budgetThreshold80"
-                    className="text-base text-[rgb(var(--color-muted))]"
-                  >
-                    Alert when budget reaches %
-                  </label>
-
-                  <input
-                    {...register("budgetThreshold80")}
-                    type="number"
-                    name="budgetThreshold80"
-                    id="budgetThreshold80"
-                    className="w-4/12 px-2 py-1 border border-[rgb(var(--color-gray-border))] rounded-md shadow-2xl outline-none focus:border-[rgb(var(--color-brand-deep))] transition"
-                  />
-                </div>
-                {errors.budgetThreshold80 && (
-                  <p className="text-[13px] text-red-500 mt-1">
-                    {errors.budgetThreshold80.message}
-                  </p>
-                )}
-              </div>
-
-              <div>
-                <div className="flex justify-between">
-                  <label
-                    htmlFor="budgetThreshold100"
-                    className="text-base text-[rgb(var(--color-muted))]"
-                  >
-                    Alert when budget exceeds %
-                  </label>
-
-                  <input
-                    {...register("budgetThreshold100")}
-                    type="number"
-                    name="budgetThreshold100"
-                    id="budgetThreshold100"
-                    className="w-4/12 px-2 py-1 border border-[rgb(var(--color-gray-border))] rounded-md shadow-2xl outline-none focus:border-[rgb(var(--color-brand-deep))] transition"
-                  />
-                </div>
-                {errors.budgetThreshold100 && (
-                  <p className="text-[13px] text-red-500 mt-1">
-                    {errors.budgetThreshold100.message}
-                  </p>
-                )}
-              </div>
-            </fieldset>
-
-            {/* Goal thresholds */}
-            <fieldset className="w-full border-b-2 border-[rgb(var(--color-gray-bg))] py-4 mt-4 flex flex-col gap-y-2">
-              <legend className="text-xl font-medium text-[rgb(var(--color-text))]">
-                Goal Thresholds
-              </legend>
-
-              <div>
-                <div className="flex justify-between">
-                  <label
-                    htmlFor="goalThreshold50"
-                    className="text-base text-[rgb(var(--color-muted))]"
-                  >
-                    Alert when goal reaches %
-                  </label>
-
-                  <input
-                    {...register("goalThreshold50")}
-                    type="number"
-                    name="goalThreshold50"
-                    id="goalThreshold50"
-                    className="w-4/12 px-2 py-1 border border-[rgb(var(--color-gray-border))] rounded-md shadow-2xl outline-none focus:border-[rgb(var(--color-brand-deep))] transition"
-                  />
-                </div>
-                {errors.goalThreshold50 && (
-                  <p className="text-[13px] text-red-500 mt-1">
-                    {errors.goalThreshold50.message}
-                  </p>
-                )}
-              </div>
-
-              <div>
-                <div className="flex justify-between">
-                  <label
-                    htmlFor="goalThreshold80"
-                    className="text-base text-[rgb(var(--color-muted))]"
-                  >
-                    Alert when goal reaches %
-                  </label>
-
-                  <input
-                    {...register("goalThreshold80")}
-                    type="number"
-                    name="goalThreshold80"
-                    id="goalThreshold80"
-                    className="w-4/12 px-2 py-1 border border-[rgb(var(--color-gray-border))] rounded-md shadow-2xl outline-none focus:border-[rgb(var(--color-brand-deep))] transition"
-                  />
-                </div>
-                {errors.goalThreshold80 && (
-                  <p className="text-[13px] text-red-500 mt-1">
-                    {errors.goalThreshold80.message}
-                  </p>
-                )}
-              </div>
-
-              <div>
-                <div className="flex justify-between">
-                  <label
-                    htmlFor="goalThreshold100"
-                    className="text-base text-[rgb(var(--color-muted))]"
-                  >
-                    Alert when goal exceeds %
-                  </label>
-
-                  <input
-                    {...register("goalThreshold100")}
-                    type="number"
-                    name="goalThreshold100"
-                    id="goalThreshold100"
-                    className="w-4/12 px-2 py-1 border border-[rgb(var(--color-gray-border))] rounded-md shadow-2xl outline-none focus:border-[rgb(var(--color-brand-deep))] transition"
-                  />
-                </div>
-                {errors.goalThreshold100 && (
-                  <p className="text-[13px] text-red-500 mt-1">
-                    {errors.goalThreshold100.message}
-                  </p>
-                )}
-              </div>
-            </fieldset>
-
-            {/* Set to default preferences */}
-            <button
-              onClick={handleReset}
-              type="button"
-              className="w-fit text-base text-[rgb(var(--color-muted))] hover:text-[rgb(var(--color-text))] transition flex items-center gap-2 my-4 cursor-pointer"
+          <div className="flex justify-between">
+            <label
+              htmlFor="transactionThreshold"
+              className="text-base text-[rgb(var(--color-muted))]"
             >
-              <FaUndo className="text-xs" /> <span>Restore Defaults</span>
-            </button>
+              Large Expense Threshold
+            </label>
 
-            {/* Cancel and Save Buttons */}
-            <div className="my-6 flex self-end gap-5">
-              <button
-                type="button"
-                onClick={onClose}
-                className="px-4 py-2 text-base border border-[rgb(var(--color-gray-bg))] text-[rgb(var(--color-muted))] cursor-pointer rounded-md"
-              >
-                Cancel
-              </button>
+            <input
+              {...register("transactionThreshold")}
+              type="number"
+              name="transactionThreshold"
+              id="transactionThreshold"
+              className="w-4/12 px-2 py-1 border border-[rgb(var(--color-gray-border))] rounded-md shadow-2xl outline-none focus:border-[rgb(var(--color-brand-deep))] transition"
+            />
+          </div>
 
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="min-w-[180px] px-4 py-2 text-base text-white font-medium bg-[rgb(var(--color-brand-deep))] rounded-md hover:bg-[rgb(var(--color-brand))] transition cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+          {errors.transactionThreshold && (
+            <p className="text-[13px] text-red-500 mt-1">
+              {errors.transactionThreshold.message}
+            </p>
+          )}
+        </fieldset>
+
+        {/* Budget thresholds */}
+        <fieldset className="w-full border-b-2 border-[rgb(var(--color-gray-bg))] py-4 mt-4 flex flex-col gap-y-2">
+          <legend className="text-xl font-medium text-[rgb(var(--color-text))]">
+            Budget Threshold
+          </legend>
+
+          <div>
+            <div className="flex justify-between">
+              <label
+                htmlFor="budgetThreshold50"
+                className="text-base text-[rgb(var(--color-muted))]"
               >
-                {isSubmitting ? (
-                  <LoadingSpinner size={25} />
-                ) : (
-                  "Save Preferences"
-                )}
-              </button>
+                Alert when budget reaches %
+              </label>
+              <input
+                {...register("budgetThreshold50")}
+                type="number"
+                name="budgetThreshold50"
+                id="budgetThreshold50"
+                className="w-4/12 px-2 py-1 border border-[rgb(var(--color-gray-border))] rounded-md shadow-2xl outline-none focus:border-[rgb(var(--color-brand-deep))] transition"
+              />
             </div>
-          </form>
-        </section>
-      </motion.div>
-    </AnimatePresence>
+            {errors.budgetThreshold50 && (
+              <p className="text-[13px] text-red-500 mt-1">
+                {errors.budgetThreshold50.message}
+              </p>
+            )}
+          </div>
+
+          <div>
+            <div className="flex justify-between">
+              <label
+                htmlFor="budgetThreshold80"
+                className="text-base text-[rgb(var(--color-muted))]"
+              >
+                Alert when budget reaches %
+              </label>
+
+              <input
+                {...register("budgetThreshold80")}
+                type="number"
+                name="budgetThreshold80"
+                id="budgetThreshold80"
+                className="w-4/12 px-2 py-1 border border-[rgb(var(--color-gray-border))] rounded-md shadow-2xl outline-none focus:border-[rgb(var(--color-brand-deep))] transition"
+              />
+            </div>
+            {errors.budgetThreshold80 && (
+              <p className="text-[13px] text-red-500 mt-1">
+                {errors.budgetThreshold80.message}
+              </p>
+            )}
+          </div>
+
+          <div>
+            <div className="flex justify-between">
+              <label
+                htmlFor="budgetThreshold100"
+                className="text-base text-[rgb(var(--color-muted))]"
+              >
+                Alert when budget exceeds %
+              </label>
+
+              <input
+                {...register("budgetThreshold100")}
+                type="number"
+                name="budgetThreshold100"
+                id="budgetThreshold100"
+                className="w-4/12 px-2 py-1 border border-[rgb(var(--color-gray-border))] rounded-md shadow-2xl outline-none focus:border-[rgb(var(--color-brand-deep))] transition"
+              />
+            </div>
+            {errors.budgetThreshold100 && (
+              <p className="text-[13px] text-red-500 mt-1">
+                {errors.budgetThreshold100.message}
+              </p>
+            )}
+          </div>
+        </fieldset>
+
+        {/* Goal thresholds */}
+        <fieldset className="w-full border-b-2 border-[rgb(var(--color-gray-bg))] py-4 mt-4 flex flex-col gap-y-2">
+          <legend className="text-xl font-medium text-[rgb(var(--color-text))]">
+            Goal Thresholds
+          </legend>
+
+          <div>
+            <div className="flex justify-between">
+              <label
+                htmlFor="goalThreshold50"
+                className="text-base text-[rgb(var(--color-muted))]"
+              >
+                Alert when goal reaches %
+              </label>
+
+              <input
+                {...register("goalThreshold50")}
+                type="number"
+                name="goalThreshold50"
+                id="goalThreshold50"
+                className="w-4/12 px-2 py-1 border border-[rgb(var(--color-gray-border))] rounded-md shadow-2xl outline-none focus:border-[rgb(var(--color-brand-deep))] transition"
+              />
+            </div>
+            {errors.goalThreshold50 && (
+              <p className="text-[13px] text-red-500 mt-1">
+                {errors.goalThreshold50.message}
+              </p>
+            )}
+          </div>
+
+          <div>
+            <div className="flex justify-between">
+              <label
+                htmlFor="goalThreshold80"
+                className="text-base text-[rgb(var(--color-muted))]"
+              >
+                Alert when goal reaches %
+              </label>
+
+              <input
+                {...register("goalThreshold80")}
+                type="number"
+                name="goalThreshold80"
+                id="goalThreshold80"
+                className="w-4/12 px-2 py-1 border border-[rgb(var(--color-gray-border))] rounded-md shadow-2xl outline-none focus:border-[rgb(var(--color-brand-deep))] transition"
+              />
+            </div>
+            {errors.goalThreshold80 && (
+              <p className="text-[13px] text-red-500 mt-1">
+                {errors.goalThreshold80.message}
+              </p>
+            )}
+          </div>
+
+          <div>
+            <div className="flex justify-between">
+              <label
+                htmlFor="goalThreshold100"
+                className="text-base text-[rgb(var(--color-muted))]"
+              >
+                Alert when goal exceeds %
+              </label>
+
+              <input
+                {...register("goalThreshold100")}
+                type="number"
+                name="goalThreshold100"
+                id="goalThreshold100"
+                className="w-4/12 px-2 py-1 border border-[rgb(var(--color-gray-border))] rounded-md shadow-2xl outline-none focus:border-[rgb(var(--color-brand-deep))] transition"
+              />
+            </div>
+            {errors.goalThreshold100 && (
+              <p className="text-[13px] text-red-500 mt-1">
+                {errors.goalThreshold100.message}
+              </p>
+            )}
+          </div>
+        </fieldset>
+
+        {/* Set to default preferences */}
+        <button
+          onClick={handleReset}
+          type="button"
+          className="w-fit text-base text-[rgb(var(--color-muted))] hover:text-[rgb(var(--color-text))] transition flex items-center gap-2 my-4 cursor-pointer"
+        >
+          <FaUndo className="text-xs" /> <span>Restore Defaults</span>
+        </button>
+
+        {/* Cancel and Save Buttons */}
+        <div className="my-6 flex self-end gap-5">
+          <button
+            type="button"
+            onClick={onClose}
+            className="px-4 py-2 text-base border border-[rgb(var(--color-gray-bg))] text-[rgb(var(--color-muted))] cursor-pointer rounded-md"
+          >
+            Cancel
+          </button>
+
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className="min-w-[180px] px-4 py-2 text-base text-white font-medium bg-[rgb(var(--color-brand-deep))] rounded-md hover:bg-[rgb(var(--color-brand))] transition cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isSubmitting ? <LoadingSpinner size={25} /> : "Save Preferences"}
+          </button>
+        </div>
+      </form>
+      {/* </section> */}
+    </Dialog>
   );
 };
 

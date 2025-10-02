@@ -3,7 +3,6 @@ import Header from "../components/layouts/Header";
 import Sidebar from "../components/layouts/Sidebar";
 import SignoutPrompt from "../components/modals/SignoutPrompt";
 import { Toaster } from "react-hot-toast";
-import { useNotificationContext } from "../context/NotificationContext";
 import FormModal from "../components/modals/FormModal";
 import NotificationDialog from "../components/modals/NotificationDialog";
 import Preferences from "../components/modals/Preferences";
@@ -11,8 +10,11 @@ import LazyWrapper from "../routes/LazyWrapper";
 import HeaderSkeleton from "../components/skeletons/HeaderSkeleton";
 import SidebarSkeleton from "../components/skeletons/SidebarSkeleton";
 import useAuthStore from "../store/useAuthStore";
+import WelcomeModal from "../components/modals/WelcomeModal";
+import TourJoyride from "../components/ui/TourJoyride";
 
 const MainLayout = () => {
+  const user = useAuthStore((state) => state.currentUser);
   const isUserEmailVerified = useAuthStore(
     (state) => state.isUserEmailVerified
   );
@@ -23,6 +25,9 @@ const MainLayout = () => {
   return (
     <div className="relative flex h-svh bg-[rgb(var(--color-bg))]">
       <Toaster />
+
+      <WelcomeModal />
+      <TourJoyride />
 
       {/* Sign out confirmation dialog */}
       <SignoutPrompt />
@@ -55,7 +60,7 @@ const MainLayout = () => {
               </p>
 
               <button
-                onClick={resendVerificationLink}
+                onClick={() => resendVerificationLink(user)}
                 className="px-4 py-2 bg-[rgb(var(--color-brand-deep))] hover:bg-[rgb(var(--color-brand))] text-white rounded-lg shadow-2xl cursor-pointer font-medium"
               >
                 Resend

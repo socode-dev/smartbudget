@@ -52,6 +52,7 @@ const Header = () => {
       <div className="flex items-center gap-6">
         {/* Notification Icon with new notification counts(if there is any) */}
         <button
+          id="notifications"
           className="relative flex p-2 bg-[rgb(var(--color-bg))] border border-[rgb(var(--color-status-bg-blue))] rounded-lg shadow text-[rgb(var(--color-brand))] hover:text-[rgb(var(--color-brand-hover)] transition cursor-pointer"
           onClick={() => navigate("/notifications")}
           type="button"
@@ -68,6 +69,7 @@ const Header = () => {
         {/* Settings Icon with Dropdown */}
         <div className="relative" ref={settingsRef}>
           <button
+            id="settings"
             className="flex items-center p-2 bg-[rgb(var(--color-bg))] border border-[rgb(var(--color-status-bg-blue))] rounded-lg shadow text-[rgb(var(--color-brand))] hover:text-[rgb(var(--color-brand-hover)] transition cursor-pointer"
             aria-label="Settings"
             onClick={handleSettingsToggle}
@@ -77,6 +79,7 @@ const Header = () => {
           </button>
           <SettingsDropdown />
         </div>
+
         <div className="relative" ref={profileRef}>
           <button
             onClick={handleProfileToggle}

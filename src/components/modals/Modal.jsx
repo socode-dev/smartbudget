@@ -1,36 +1,17 @@
-import { motion, AnimatePresence } from "framer-motion";
 import ModalForm from "../forms/ModalForm";
+import Dialog from "../ui/Dialog";
 
 const Modal = ({ label, title, description, mode }) => {
   return (
-    <AnimatePresence>
-      {/* Modal Backdrop */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        className="fixed top-0 left-0 w-full h-full bg-black/30 z-60"
-      />
-      {/* Centered Modal Box */}
-      <motion.div
-        initial={{ scale: 0.8 }}
-        animate={{ scale: 1 }}
-        exit={{ scale: 0.8 }}
-        transition={{ duration: 0.3, ease: "easeOut" }}
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby={`${label}-modal`}
-        className="fixed inset-0 flex items-center justify-center z-70"
-      >
-        <section className="bg-[rgb(var(--color-bg-card))] w-10/12 max-w-lg h-10/12 max-h-fit overflow-y-auto p-6 rounded-lg shadow-xl">
-          <h2 className="text-2xl md:text-3xl font-semibold mb-1">{title}</h2>
-          <p className="text-base text-[rgb(var(--color-muted))] mb-6">
-            {description}
-          </p>
-          <ModalForm label={label} mode={mode} />
-        </section>
-      </motion.div>
-    </AnimatePresence>
+    <Dialog ariaLabel={`${mode}-${label}`}>
+      <section className="">
+        <h2 className="text-2xl md:text-3xl font-semibold mb-1">{title}</h2>
+        <p className="text-base text-[rgb(var(--color-muted))] mb-6">
+          {description}
+        </p>
+        <ModalForm label={label} mode={mode} />
+      </section>
+    </Dialog>
   );
 };
 
