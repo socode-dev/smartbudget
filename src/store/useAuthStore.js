@@ -25,6 +25,7 @@ import useTransactionStore from "./useTransactionStore";
 import useNotificationStore from "./useNotificationStore";
 import useCurrencyStore from "./useCurrencyStore";
 import useInsightsStore from "./useInsightsStore";
+import useOnboardingStore from "./useOnboardingStore";
 import toast from "react-hot-toast";
 
 const emailVerificationEmail = {
@@ -107,6 +108,7 @@ export const useAuthStore = create((set, get) => ({
           "insights-storage",
           "thresholds-storage",
           "currency-storage",
+          "onboarding-storage",
         ];
         set({ currentUser: null, userLoggedIn: false });
 
@@ -118,6 +120,7 @@ export const useAuthStore = create((set, get) => ({
         useNotificationStore.getState().clearNotificationStore?.();
         useThresholdStore.getState().clearThresholdStore?.();
         useCurrencyStore.getState().clearCurrencyStore?.();
+        useOnboardingStore.getState().resetTours?.();
       }
 
       set({ loading: false });
@@ -364,6 +367,11 @@ export const useAuthStore = create((set, get) => ({
       handleCodeInApp: true,
     });
 
+    toast.success("Verification link sent. Check your inbox or spam folder.", {
+      position: "top-center",
+      duration: 5000,
+    });
+
     const notification = {
       subject: "A new email verification link has been sent",
       message:
@@ -373,11 +381,7 @@ export const useAuthStore = create((set, get) => ({
       createdAt: serverTimestamp(),
     };
 
-    await addDocument(user.uid, "notifications", notification);
-    toast.success("Verification link sent. Check your inbox or spam folder.", {
-      position: "top-center",
-      duration: 5000,
-    });
+    await addDocument(user?.uid, "notifications", notification);
   },
 }));
 

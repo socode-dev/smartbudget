@@ -1,12 +1,26 @@
+import { useEffect } from "react";
 import ScrollToTop from "../layout/ScrollToTop";
 import { useBudgetsContext } from "../context/BudgetsContext";
 import { FaPlus } from "react-icons/fa";
 import Cards from "../components/budgets/Cards";
 import { motion } from "framer-motion";
+import useOnboardingStore from "../store/useOnboardingStore";
 
 const Budgets = () => {
   const { budgets, filteredBudgets, searchName, setSearchName, onOpenModal } =
     useBudgetsContext();
+
+  const { setCurrentPage, startTourIfNotCompleted } = useOnboardingStore();
+
+  useEffect(() => {
+    setCurrentPage("budgets");
+    // Start tour if not completed when navigating to budgets page
+    const timer = setTimeout(() => {
+      startTourIfNotCompleted("budgets");
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [setCurrentPage, startTourIfNotCompleted]);
 
   return (
     <motion.main
@@ -58,11 +72,15 @@ const Budgets = () => {
       {/* Empty State */}
       {budgets.length === 0 && (
         <>
-          <p className="mt-6 text-base text-center text-[rgb(var(--color-muted))] mb-6">
+          <p
+            id="budgets-empty-state"
+            className="mt-6 text-base text-center text-[rgb(var(--color-muted))] mb-6"
+          >
             You have not added any budgets yet.
           </p>
 
           <button
+            id="add-first-budget-btn"
             onClick={() => onOpenModal("budgets", "add")}
             className="bg-[rgb(var(--color-brand-deep))] hover:bg-[rgb(var(--color-brand))] transition cursor-pointer text-white px-4 py-2 rounded-md text-base flex items-center mx-auto gap-2"
           >

@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import TransactionTable from "../components/transaction/TransactionTable";
 import { FaPlus } from "react-icons/fa";
 import Filter from "../components/transaction/Filter";
@@ -8,6 +9,7 @@ import { useTransactionsContext } from "../context/TransactionsContext";
 import useCurrencyStore from "../store/useCurrencyStore";
 import { formatAmount } from "../utils/formatAmount";
 import { motion } from "framer-motion";
+import useOnboardingStore from "../store/useOnboardingStore";
 
 const Transactions = () => {
   const { onOpenModal } = useModalContext();
@@ -20,6 +22,18 @@ const Transactions = () => {
     totalIncome,
     netBalance,
   } = useTransactionsContext();
+
+  const { setCurrentPage, startTourIfNotCompleted } = useOnboardingStore();
+
+  useEffect(() => {
+    setCurrentPage("transactions");
+    // Start tour if not completed when navigating to transactions page
+    const timer = setTimeout(() => {
+      startTourIfNotCompleted("transactions");
+    }, 500); // Small delay to ensure page is rendered
+
+    return () => clearTimeout(timer);
+  }, [setCurrentPage, startTourIfNotCompleted]);
 
   return (
     <motion.main
@@ -51,7 +65,11 @@ const Transactions = () => {
       </section>
 
       {/* Filter Row (Search by note, date range and category) */}
-      {transactions?.length > 0 && <Filter />}
+      {transactions?.length > 0 && (
+        <div>
+          <Filter />
+        </div>
+      )}
 
       {sortedTransactions?.length > 0 && (
         <>
@@ -98,7 +116,10 @@ const Transactions = () => {
       {/* Empty transaction state */}
       {transactions?.length === 0 && (
         <>
-          <div className="text-center text-sm text-[rgb(var(--color-muted))] flex flex-col items-center gap-4">
+          <div
+            id="transactions-empty-state"
+            className="text-center text-sm text-[rgb(var(--color-muted))] flex flex-col items-center gap-4"
+          >
             <h3 className="text-xl text-[rgb(var(--color-muted))] font-semibold mb-2">
               No transactions yet.
             </h3>
@@ -108,6 +129,7 @@ const Transactions = () => {
           </div>
 
           <button
+            id="add-first-transaction-btn"
             onClick={() => onOpenModal("transactions", "add")}
             className="mt-8 mx-auto bg-green-500 hover:bg-green-600 transition cursor-pointer text-white px-4 py-2 rounded-md text-base flex items-center gap-2"
           >

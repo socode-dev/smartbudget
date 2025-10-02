@@ -1,14 +1,30 @@
+import { useEffect } from "react";
 import ScrollToTop from "../layout/ScrollToTop";
 import useAuthStore from "../store/useAuthStore";
 import useInsightsStore from "../store/useInsightsStore";
 import InsightCard from "../components/insights/InsightCard";
 import { motion } from "framer-motion";
+import useOnboardingStore from "../store/useOnboardingStore";
 
 const Insights = () => {
   const isUserEmailVerified = useAuthStore(
     (state) => state.isUserEmailVerified
   );
   const insights = useInsightsStore((state) => state.insights);
+
+  const { setCurrentPage, startTourIfNotCompleted } = useOnboardingStore();
+
+  useEffect(() => {
+    setCurrentPage("insights");
+    // Start tour if not completed when navigating to insights page (only if email verified)
+    if (!isUserEmailVerified) return;
+
+    const timer = setTimeout(() => {
+      startTourIfNotCompleted("insights");
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [setCurrentPage, startTourIfNotCompleted, isUserEmailVerified]);
 
   if (!isUserEmailVerified) {
     return (
@@ -19,7 +35,7 @@ const Insights = () => {
         transition={{ duration: 0.4, ease: "easeOut" }}
         className=" px-5 md:px-10 py-8 flex justify-center items-center"
       >
-        <p className="mt-10 text-2xl md:text-3xl text-center text-[rgb(var(--color-muted))]">
+        <p className="mt-10 text-xl md:text-2xl text-center text-[rgb(var(--color-muted))]">
           Please verify your email to access this feature.
         </p>
       </motion.main>
@@ -46,7 +62,10 @@ const Insights = () => {
 
       {/* Empty State */}
       {!insights.length && (
-        <div className="flex justify-center text-center mt-10">
+        <div
+          id="insights-empty-state"
+          className="flex justify-center text-center mt-10"
+        >
           <p className="text-lg text-[rgb(var(--color-muted))]">
             Nothing to show right now. <br />
             SmartBudget will generate insights as your data grows.
@@ -56,7 +75,10 @@ const Insights = () => {
 
       {/* Smart Insights */}
       {!!insights.length && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div
+          id="insights-grid"
+          className="grid grid-cols-1 md:grid-cols-2 gap-6"
+        >
           {sortedInsights.map((insight) => (
             <InsightCard key={insight.id} insight={insight} />
           ))}

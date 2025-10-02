@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import SummaryCards from "../components/overview/SummayCards";
 import Charts from "../components/overview/Charts";
 import SmartInsight from "../components/overview/SmartInsight";
@@ -8,6 +9,7 @@ import OverviewSkeleton from "../components/skeletons/overview/OverviewSkeleton"
 import { useOverviewContext } from "../context/OverviewContext";
 import useAuthStore from "../store/useAuthStore";
 import { motion } from "framer-motion";
+import useOnboardingStore from "../store/useOnboardingStore";
 
 const Overview = () => {
   const user = useAuthStore((state) => state.currentUser);
@@ -19,6 +21,25 @@ const Overview = () => {
     totalBudget,
     totalBudgetUsed,
   } = useOverviewContext;
+
+  const {
+    setCurrentPage,
+    startTourIfNotCompleted,
+    hasCompletedOnboarding,
+    tourActive,
+  } = useOnboardingStore();
+
+  useEffect(() => {
+    setCurrentPage("overview");
+    // Start overview tour automatically for new users when they first login
+    if (user && hasCompletedOnboarding && tourActive) {
+      const timer = setTimeout(() => {
+        startTourIfNotCompleted("overview");
+      }, 1000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [setCurrentPage, startTourIfNotCompleted, user, hasCompletedOnboarding]);
 
   if (
     !user &&
@@ -56,19 +77,19 @@ const Overview = () => {
         <SummaryCards />
       </section>
 
-      <section>
+      <section id="financial-charts">
         <Charts />
       </section>
 
-      <section>
+      <section id="smart-insights">
         <SmartInsight />
       </section>
 
-      <section>
+      <section id="budget-overview">
         <BudgetOverview />
       </section>
 
-      <section>
+      <section id="quick-actions">
         <QuickActions />
       </section>
     </motion.main>

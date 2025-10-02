@@ -62,7 +62,7 @@ const SummaryCards = () => {
   return (
     <>
       {/* Total Income */}
-      <div className={cardContainerStyle}>
+      <div className={cardContainerStyle} id="total-income">
         <div className={cardIconStyle}>
           <FaMoneyBillWave size={24} className="text-green-400" />
         </div>
@@ -79,7 +79,7 @@ const SummaryCards = () => {
       </div>
 
       {/* Total Expenses */}
-      <div className={cardContainerStyle}>
+      <div className={cardContainerStyle} id="total-expenses">
         <div className={cardIconStyle}>
           <FaCreditCard size={24} className="text-red-400" />
         </div>
@@ -96,7 +96,7 @@ const SummaryCards = () => {
       </div>
 
       {/* Net Balance */}
-      <div className={cardContainerStyle}>
+      <div className={cardContainerStyle} id="net-balance">
         <div className={cardIconStyle}>
           <FaChartLine size={24} className="text-blue-400" />
         </div>
@@ -113,7 +113,7 @@ const SummaryCards = () => {
       </div>
 
       {/* Budget Usage */}
-      <div className={cardContainerStyle}>
+      <div className={cardContainerStyle} id="budget-usage">
         <div className={cardIconStyle}>
           <FaChartPie size={24} className="text-yellow-400" />
         </div>
