@@ -82,7 +82,7 @@ const Login = () => {
               type="email"
               id="email"
               placeholder="Enter your email"
-              className="w-full text-sm text-[rgb(var(--color-muted))] px-4 py-2 rounded-lg border-2 border-[rgb(var(--color-gray-border))] outline-none focus:border-[rgb(var(--color-brand))] transition"
+              className="w-full text-base text-[rgb(var(--color-muted))] px-4 py-2 rounded-lg border-2 border-[rgb(var(--color-gray-border))] outline-none focus:border-[rgb(var(--color-brand))] transition"
             />
           </div>
           {errors.email && (
@@ -106,7 +106,7 @@ const Login = () => {
                 type={revealPassword ? "text" : "password"}
                 id="loginPassword"
                 placeholder="Enter your password"
-                className="w-full text-sm text-[rgb(var(--color-muted))] px-4 py-2 rounded-lg border-2 border-[rgb(var(--color-gray-border))] outline-none focus:border-[rgb(var(--color-brand))] transition"
+                className="w-full text-base text-[rgb(var(--color-muted))] px-4 py-2 rounded-lg border-2 border-[rgb(var(--color-gray-border))] outline-none focus:border-[rgb(var(--color-brand))] transition"
               />
               <Icon
                 onClick={togglePasswordReveal}

@@ -58,7 +58,7 @@ const ModalForm = ({ label, mode }) => {
           <select
             ref={formRef}
             {...register("category")}
-            className="rounded border border-[rgb(var(--color-gray-border))] bg-[rgb(var(--color-bg-card))] outline-none focus:border-[rgb(var(--color-brand))] text-sm w-full p-2 cursor-pointer"
+            className="rounded border border-[rgb(var(--color-gray-border))] bg-[rgb(var(--color-bg-card))] outline-none focus:border-[rgb(var(--color-brand))] text-base w-full p-2 cursor-pointer"
           >
             <option value="">Select category</option>
             {CATEGORY_OPTIONS.map((opt, i) => (
@@ -99,7 +99,7 @@ const ModalForm = ({ label, mode }) => {
               transactionLabel ? "transaction" : budgetLabel ? "budget" : "goal"
             } name`}
             readOnly={contributionLabel}
-            className="rounded border border-[rgb(var(--color-gray-border))] bg-[rgb(var(--color-bg-card))] outline-none focus:border-[rgb(var(--color-brand))] text-sm w-full p-2"
+            className="rounded border border-[rgb(var(--color-gray-border))] bg-[rgb(var(--color-bg-card))] outline-none focus:border-[rgb(var(--color-brand))] text-base w-full p-2"
           />
           {errors.name && (
             <p className="text-[13px] text-red-500 mt-1">
@@ -130,7 +130,7 @@ const ModalForm = ({ label, mode }) => {
                 <label
                   htmlFor="income"
                   aria-label="income"
-                  className="text-sm border-2 rounded-lg border-[rgb(var(--color-gray-border))] px-4 py-2 peer-checked:border-[rgb(var(--color-brand))] transition cursor-pointer"
+                  className="text-base border-2 rounded-lg border-[rgb(var(--color-gray-border))] px-4 py-2 peer-checked:border-[rgb(var(--color-brand))] transition cursor-pointer"
                 >
                   Income
                 </label>
@@ -172,7 +172,7 @@ const ModalForm = ({ label, mode }) => {
             {...register("amount")}
             type="number"
             id="amount"
-            className="rounded border border-[rgb(var(--color-gray-border))] bg-[rgb(var(--color-bg-card))] outline-none focus:border-[rgb(var(--color-brand))] text-sm w-full p-2 cursor-pointer"
+            className="rounded border border-[rgb(var(--color-gray-border))] bg-[rgb(var(--color-bg-card))] outline-none focus:border-[rgb(var(--color-brand))] text-base w-full p-2 cursor-pointer"
             placeholder="0.00"
             step="0.01"
           />
@@ -195,7 +195,7 @@ const ModalForm = ({ label, mode }) => {
             {...register("date")}
             type="date"
             id="date"
-            className="rounded border border-[rgb(var(--color-gray-border))] bg-[rgb(var(--color-bg-card))] outline-none focus:border-[rgb(var(--color-brand))] text-sm w-full p-2 cursor-pointer"
+            className="rounded border border-[rgb(var(--color-gray-border))] bg-[rgb(var(--color-bg-card))] outline-none focus:border-[rgb(var(--color-brand))] text-base w-full p-2 cursor-pointer"
           />
           {errors.date && (
             <p className="text-[13px] text-red-500 mt-1">
@@ -213,7 +213,7 @@ const ModalForm = ({ label, mode }) => {
         </label>
         <textarea
           id="note"
-          className="rounded border border-[rgb(var(--color-gray-border))] bg-[rgb(var(--color-bg-card))] outline-none focus:border-[rgb(var(--color-brand))] textsm w-full p-2 resize-none"
+          className="rounded border border-[rgb(var(--color-gray-border))] bg-[rgb(var(--color-bg-card))] outline-none focus:border-[rgb(var(--color-brand))] text-base w-full p-2 resize-none"
           rows={3}
           placeholder={transactionLabel ? "Short description" : "Short notes"}
           {...register("description")}
