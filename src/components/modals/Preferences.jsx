@@ -86,7 +86,7 @@ const Preferences = () => {
               type="number"
               name="transactionThreshold"
               id="transactionThreshold"
-              className="w-4/12 px-2 py-1 border border-[rgb(var(--color-gray-border))] rounded-md shadow-2xl outline-none focus:border-[rgb(var(--color-brand-deep))] transition"
+              className="text-base w-4/12 px-2 py-1 border border-[rgb(var(--color-gray-border))] rounded-md shadow-2xl outline-none focus:border-[rgb(var(--color-brand-deep))] transition"
             />
           </div>
 
@@ -116,7 +116,7 @@ const Preferences = () => {
                 type="number"
                 name="budgetThreshold50"
                 id="budgetThreshold50"
-                className="w-4/12 px-2 py-1 border border-[rgb(var(--color-gray-border))] rounded-md shadow-2xl outline-none focus:border-[rgb(var(--color-brand-deep))] transition"
+                className="w-4/12 px-2 py-1 text-base border border-[rgb(var(--color-gray-border))] rounded-md shadow-2xl outline-none focus:border-[rgb(var(--color-brand-deep))] transition"
               />
             </div>
             {errors.budgetThreshold50 && (
@@ -140,7 +140,7 @@ const Preferences = () => {
                 type="number"
                 name="budgetThreshold80"
                 id="budgetThreshold80"
-                className="w-4/12 px-2 py-1 border border-[rgb(var(--color-gray-border))] rounded-md shadow-2xl outline-none focus:border-[rgb(var(--color-brand-deep))] transition"
+                className="w-4/12 px-2 py-1 text-base border border-[rgb(var(--color-gray-border))] rounded-md shadow-2xl outline-none focus:border-[rgb(var(--color-brand-deep))] transition"
               />
             </div>
             {errors.budgetThreshold80 && (
@@ -164,7 +164,7 @@ const Preferences = () => {
                 type="number"
                 name="budgetThreshold100"
                 id="budgetThreshold100"
-                className="w-4/12 px-2 py-1 border border-[rgb(var(--color-gray-border))] rounded-md shadow-2xl outline-none focus:border-[rgb(var(--color-brand-deep))] transition"
+                className="w-4/12 px-2 py-1 text-base border border-[rgb(var(--color-gray-border))] rounded-md shadow-2xl outline-none focus:border-[rgb(var(--color-brand-deep))] transition"
               />
             </div>
             {errors.budgetThreshold100 && (
@@ -195,7 +195,7 @@ const Preferences = () => {
                 type="number"
                 name="goalThreshold50"
                 id="goalThreshold50"
-                className="w-4/12 px-2 py-1 border border-[rgb(var(--color-gray-border))] rounded-md shadow-2xl outline-none focus:border-[rgb(var(--color-brand-deep))] transition"
+                className="w-4/12 px-2 py-1 text-base border border-[rgb(var(--color-gray-border))] rounded-md shadow-2xl outline-none focus:border-[rgb(var(--color-brand-deep))] transition"
               />
             </div>
             {errors.goalThreshold50 && (
@@ -219,7 +219,7 @@ const Preferences = () => {
                 type="number"
                 name="goalThreshold80"
                 id="goalThreshold80"
-                className="w-4/12 px-2 py-1 border border-[rgb(var(--color-gray-border))] rounded-md shadow-2xl outline-none focus:border-[rgb(var(--color-brand-deep))] transition"
+                className="w-4/12 px-2 py-1 text-base border border-[rgb(var(--color-gray-border))] rounded-md shadow-2xl outline-none focus:border-[rgb(var(--color-brand-deep))] transition"
               />
             </div>
             {errors.goalThreshold80 && (
@@ -243,7 +243,7 @@ const Preferences = () => {
                 type="number"
                 name="goalThreshold100"
                 id="goalThreshold100"
-                className="w-4/12 px-2 py-1 border border-[rgb(var(--color-gray-border))] rounded-md shadow-2xl outline-none focus:border-[rgb(var(--color-brand-deep))] transition"
+                className="w-4/12 px-2 py-1 text-base border border-[rgb(var(--color-gray-border))] rounded-md shadow-2xl outline-none focus:border-[rgb(var(--color-brand-deep))] transition"
               />
             </div>
             {errors.goalThreshold100 && (

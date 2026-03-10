@@ -94,7 +94,7 @@ const Signup = () => {
               type="firstName"
               id="firstName"
               placeholder="Enter your first name"
-              className="w-full text-sm text-[rgb(var(--color-muted))] px-4 py-2 rounded-lg border-2 border-[rgb(var(--color-gray-border))] outline-none focus:border-[rgb(var(--color-brand))] transition"
+              className="w-full text-base text-[rgb(var(--color-muted))] px-4 py-2 rounded-lg border-2 border-[rgb(var(--color-gray-border))] outline-none focus:border-[rgb(var(--color-brand))] transition"
             />
           </div>
           {errors.firstName && (
@@ -118,7 +118,7 @@ const Signup = () => {
               type="lastName"
               id="last-name"
               placeholder="Enter your last name"
-              className="w-full text-sm text-[rgb(var(--color-muted))] px-4 py-2 rounded-lg border-2 border-[rgb(var(--color-gray-border))] outline-none focus:border-[rgb(var(--color-brand))] transition"
+              className="w-full text-base text-[rgb(var(--color-muted))] px-4 py-2 rounded-lg border-2 border-[rgb(var(--color-gray-border))] outline-none focus:border-[rgb(var(--color-brand))] transition"
             />
           </div>
           {errors.lastName && (
@@ -142,7 +142,7 @@ const Signup = () => {
               type="email"
               id="email"
               placeholder="Enter your email"
-              className="w-full text-sm text-[rgb(var(--color-muted))] px-4 py-2 rounded-lg border-2 border-[rgb(var(--color-gray-border))] outline-none focus:border-[rgb(var(--color-brand))] transition"
+              className="w-full text-base text-[rgb(var(--color-muted))] px-4 py-2 rounded-lg border-2 border-[rgb(var(--color-gray-border))] outline-none focus:border-[rgb(var(--color-brand))] transition"
             />
           </div>
           {errors.email && (
@@ -165,7 +165,7 @@ const Signup = () => {
                 type={revealPassword.password ? "text" : "password"}
                 id="password"
                 placeholder="Enter password"
-                className="w-full text-sm text-[rgb(var(--color-muted))] px-4 py-2 rounded-lg border-2 border-[rgb(var(--color-gray-border))] outline-none focus:border-[rgb(var(--color-brand))] transition"
+                className="w-full text-base text-[rgb(var(--color-muted))] px-4 py-2 rounded-lg border-2 border-[rgb(var(--color-gray-border))] outline-none focus:border-[rgb(var(--color-brand))] transition"
               />
               <Icon.password
                 onClick={() => togglePasswordReveal("password")}
@@ -195,7 +195,7 @@ const Signup = () => {
                 type={revealPassword.confirmPassword ? "text" : "password"}
                 id="confirm-password"
                 placeholder="Confirm password"
-                className="w-full text-sm text-[rgb(var(--color-muted))] px-4 py-2 rounded-lg border-2 border-[rgb(var(--color-gray-border))] outline-none focus:border-[rgb(var(--color-brand))] transition"
+                className="w-full text-base text-[rgb(var(--color-muted))] px-4 py-2 rounded-lg border-2 border-[rgb(var(--color-gray-border))] outline-none focus:border-[rgb(var(--color-brand))] transition"
               />
               <Icon.confirmPassword
                 onClick={() => togglePasswordReveal("confirmPassword")}

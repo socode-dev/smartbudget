@@ -27,23 +27,17 @@ const WelcomeModal = () => {
       </p>
 
       <div className="space-y-3 w-full">
-        <button
-          onClick={setOnboardingCompleted}
-          className="w-full px-4 py-2 bg-[rgb(var(--color-brand-deep))] text-white rounded-md hover:bg-[rgb(var(--color-brand))] active:bg-[rgb(var(--color-brand))] transition cursor-pointer"
-        >
-          Get Started
-        </button>
 
         <button
           onClick={handleTour}
-          className="w-full px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-500 active:bg-green-500  transition cursor-pointer"
+          className="w-full px-4 py-2 bg-[rgb(var(--color-brand-deep))] text-white rounded-md hover:bg-[rgb(var(--color-brand))] active:bg-[rgb(var(--color-brand))] transition cursor-pointer"
         >
           Take a Tour
         </button>
 
         <button
           onClick={setOnboardingCompleted}
-          className="w-full px-4 py-2 bg-[rgb(var(--color-muted))] text-white rounded-md hover:opacity-90 active:opacity-90 transition cursor-pointer"
+          className="w-full px-4 py-2 bg-transparent text-gray-500 rounded-md hover:opacity-90 active:opacity-90 transition cursor-pointer"
         >
           Skip for now
         </button>

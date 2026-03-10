@@ -11,7 +11,7 @@ const Input = forwardRef(
       onChange={onChange}
       placeholder={placeholder}
       ref={ref}
-      className={`block w-full border border-gray-300 rounded px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${className}`}
+      className={`block w-full border border-gray-300 rounded px-3 py-1 text-base focus:outline-none focus:ring-2 focus:ring-blue-500 ${className}`}
       {...props}
     />
   )
