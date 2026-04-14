@@ -7,11 +7,12 @@ import {
   updateDocument,
   deleteDocument,
 } from "../firebase/firestore.js";
-import { CATEGORY_OPTIONS } from "../data/categoryData.js";
+import { CATEGORY_OPTIONS } from "../data/categoryData";
 
 const useTransactionStore = create(
   persist(
     (set) => ({
+      categories: [],
       transactions: [],
       budgets: [],
       goals: [],
@@ -22,6 +23,13 @@ const useTransactionStore = create(
       setGoals: (goals) => set({ goals }),
       setContributions: (contributions) => set({ contributions }),
       setEditTransaction: (editTransaction) => set({ editTransaction }),
+      setCategories: (cats) => {
+        const input = cats ?? [];
+        const sorted = [...input].sort((a, b) => b.createdAt - a.createdAt);
+        const extractedCatName = sorted.map((cat) => cat.name);
+
+        set({ categories: [...extractedCatName, ...CATEGORY_OPTIONS] });
+      },
       // Load transactions from firestore
       loadTransactions: async (userUID, type) => {
         try {
@@ -64,8 +72,6 @@ const useTransactionStore = create(
       clearFinanceStore: () => {
         set({ transactions: [], budgets: [], goals: [], contributions: [] });
       },
-
-      CATEGORY_OPTIONS,
     }),
     {
       name: "finances-storage",
@@ -75,8 +81,8 @@ const useTransactionStore = create(
         goals: state.goals,
         contributions: state.contributions,
       }),
-    }
-  )
+    },
+  ),
 );
 
 export default useTransactionStore;

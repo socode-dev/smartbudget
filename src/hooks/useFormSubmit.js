@@ -6,27 +6,15 @@ import { generateCategoryKey } from "../utils/generateKey";
 import { createNotification } from "../firebase/firestore";
 import useCurrencyStore from "../store/useCurrencyStore";
 import { formatAmount } from "../utils/formatAmount";
-
-const getSnakeCaseValue = (value) => {
-  const splitValue = value?.split(" ");
-  const capitalizedValue = splitValue?.map((v) => {
-    if (v === "a" && v.length === 1) return "a";
-    return v.slice(0, 1).toUpperCase() + v.slice(1).toLowerCase();
-  });
-
-  return capitalizedValue?.join(" ");
-};
+import { getSnakeCaseValue } from "../utils/snakeCaseValue";
+import { addDocument } from "../firebase/firestore";
 
 const useFormSubmit = (label, mode) => {
   const forms = useFormContext(label);
   const { reset, handleSubmit } = forms;
 
-  const {
-    editTransaction,
-    addTransactionToStore,
-    updateTransaction,
-    CATEGORY_OPTIONS,
-  } = useTransactionStore();
+  const { editTransaction, addTransactionToStore, updateTransaction } =
+    useTransactionStore();
   const { onCloseModal } = useModalContext();
 
   const transactions = label === "transactions";
@@ -34,9 +22,11 @@ const useFormSubmit = (label, mode) => {
   const goals = label === "goals";
   const contributions = label === "contributions";
 
+  const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
   //Generate unique category key
   const getUniqueCategoryKey = (prefix, name) => {
-    if ((transactions || budgets) && prefix?.toLowerCase() === "other") {
+    if (transactions || budgets) {
       return generateCategoryKey(prefix, name);
     } else if (goals || contributions) {
       return generateCategoryKey("goal", name);
@@ -45,22 +35,12 @@ const useFormSubmit = (label, mode) => {
     }
   };
 
-  // Get transaction type
-  const getTransactionType = (categoryType, type) => {
-    const isCategoryOther = categoryType?.toLowerCase() === "other";
-    if ((transactions || budgets) && isCategoryOther) {
-      return type;
-    } else if (goals || contributions) {
-      return null;
-    } else {
-      return categoryType;
-    }
-  };
-
   // Get Transaction / Budget / Goal name
-  const getName = (categoryType, category, name) => {
-    if ((transactions || budgets) && categoryType !== "other") {
-      return getSnakeCaseValue(category);
+  const getCustomCat = (category, name) => {
+    const categoryValue = category?.trim() || name?.trim() || "";
+
+    if (transactions || budgets) {
+      return getSnakeCaseValue(categoryValue);
     } else if (goals || contributions) {
       return getSnakeCaseValue(name);
     } else {
@@ -68,75 +48,60 @@ const useFormSubmit = (label, mode) => {
     }
   };
 
-  const getCategory = (name, category, categoryType) => {
-    const snakeCaseName = getSnakeCaseValue(name);
-    const snakeCaseCategory = getSnakeCaseValue(category);
-
-    if ((transactions || budgets) && categoryType === "other") {
-      return snakeCaseCategory;
-    } else if (goals || contributions) {
-      return snakeCaseName;
-    } else {
-      return snakeCaseCategory;
-    }
-  };
-
-  // Handle submit form to add transactions, budgets, goals and contributions
-  const onSubmit = async (
-    data,
-    userUID,
-    transactionID,
-    transactionThreshold
-  ) => {
+  // Handle submit form: add transactions, budgets, goals and contributions
+  const onSubmit = (data, userUID, transactionID, transactionThreshold) => {
     const { selectedCurrency } = useCurrencyStore.getState();
-    const categoryType = CATEGORY_OPTIONS.find(
-      (opt) => opt.name === data.category
-    )?.type;
 
-    try {
-      if (!transactions && !budgets && !goals && !contributions) return;
+    if (!transactions && !budgets && !goals && !contributions) return;
 
-      const type = getTransactionType(categoryType, data.type);
+    const type = transactions || budgets ? data.type : null;
+    const categoryOrCustom = data.category?.trim() || data.name?.trim() || "";
 
-      // Create transaction object
-      const transaction = {
-        name: getName(categoryType, data.category, data.name),
-        category: getCategory(data.name, data.category, categoryType),
-        categoryKey: getUniqueCategoryKey(data.category, data.name),
-        amount: data.amount,
-        type: type,
-        date: data.date,
-        description: data.description,
-      };
+    // Create transaction object
+    const transaction = {
+      name: getCustomCat(data.category, data.name),
+      category: getSnakeCaseValue(categoryOrCustom),
+      categoryKey: getUniqueCategoryKey(data.category, data.name),
+      amount: data.amount,
+      type,
+      date: data.date,
+      description: data.description,
+    };
 
-      if (mode !== "add" && editTransaction?.id) {
-        transaction.id = editTransaction.id;
-      }
+    if (mode !== "add" && editTransaction?.id) {
+      transaction.id = editTransaction.id;
+    }
 
-      // Add transaction if mode is add / update edited transaction if mode is edit
-      if (mode === "add") {
-        await addTransactionToStore(userUID, label, transaction);
-      } else if (mode === "edit") {
+    // Close the modal
+    onCloseModal(label);
+
+    // Show toast on success
+    toast.success(
+      `${(label[0].toUpperCase() + label.slice(1)).slice(0, -1)} ${
+        mode === "add" ? "added" : "updated"
+      } successfully`,
+      {
+        duration: 3000,
+        position: "top-center",
+      },
+    );
+    // Reset/Clear the form
+    reset();
+
+    // Run firestore operations off the form submit lifecycle so low-end devices stay seamless
+    const runSync = async () => {
+      if (mode === "edit") {
         await updateTransaction(userUID, label, transactionID, transaction);
+      } else {
+        await addTransactionToStore(userUID, label, transaction);
+
+        if (data.name && (transactions || budgets)) {
+          await addDocument(userUID, "categories", {
+            name: getSnakeCaseValue(data.name),
+          });
+        }
       }
 
-      // Close the modal
-      onCloseModal(label);
-
-      // Show toast on success
-      toast.success(
-        `${(label[0].toUpperCase() + label.slice(1)).slice(0, -1)} ${
-          mode === "add" ? "added" : "updated"
-        } successfully`,
-        {
-          duration: 3000,
-          position: "top-center",
-        }
-      );
-      // Reset/Clear the form
-      reset();
-
-      // if label === "transactions", check if the transaction amount is bigger than the threshold
       if (
         label === "transactions" &&
         type === "expense" &&
@@ -146,21 +111,42 @@ const useFormSubmit = (label, mode) => {
           subject: "Large Expense Alert 🚨",
           message: `You recorded an expense transaction of ${formatAmount(
             data.amount,
-            selectedCurrency
+            selectedCurrency,
           )} for "${
             transaction.category
           }", which is higher than your set threshold of ${formatAmount(
             transactionThreshold,
-            selectedCurrency
+            selectedCurrency,
           )}. Keep an eye on your spending.`,
           type: "transaction",
         });
       }
-    } catch (err) {
-      console.error("Error adding transaction:", err);
-    } finally {
-      return "Transaction concluded";
-    }
+    };
+
+    const syncTask = (async () => {
+      // Retry once to handle low-network scenarios.
+      try {
+        await runSync();
+      } catch {
+        await delay(1200);
+        await runSync();
+      }
+    })();
+
+    syncTask.catch((_) => {
+      toast.error(
+        `Could not sync this ${label.slice(0, -1)} to cloud. Please submit again: "${transaction.category}" (${formatAmount(
+          transaction.amount,
+          selectedCurrency,
+        )}).`,
+        {
+          duration: 5000,
+          position: "top-center",
+        },
+      );
+    });
+
+    return "Transaction queued";
   };
 
   return {

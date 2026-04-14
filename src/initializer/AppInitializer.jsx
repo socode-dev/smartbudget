@@ -1,4 +1,7 @@
-import { initUserListener } from "../firebase/firestoreListener";
+import {
+  initUserListener,
+  subcollectionListener,
+} from "../firebase/firestoreListener";
 import { useEffect } from "react";
 import useTransactionStore from "../store/useTransactionStore";
 import useThresholdStore from "../store/useThresholdStore";
@@ -12,12 +15,13 @@ const AppInitializer = () => {
   const user = useAuthStore((state) => state.currentUser);
   const setThresholds = useThresholdStore((state) => state.setThresholds);
   const transactions = useTransactionStore((state) => state.transactions);
+  const setCategories = useTransactionStore((state) => state.setCategories);
   const budgets = useTransactionStore((state) => state.budgets);
   const goals = useTransactionStore((state) => state.goals);
   const contributions = useTransactionStore((state) => state.contributions);
   const initInsights = useInsightsStore((state) => state.initInsights);
   const generateRuleBasedInsights = useInsightsStore(
-    (state) => state.generateRuleBasedInsights
+    (state) => state.generateRuleBasedInsights,
   );
   const startAuthListener = useAuthStore((state) => state.startAuthListener);
   const stopAuthListener = useAuthStore((state) => state.stopAuthListener);
@@ -52,6 +56,21 @@ const AppInitializer = () => {
     };
   }, [user?.uid]);
 
+  // Listen to transaction categories
+  useEffect(() => {
+    if (!user?.uid) return;
+
+    const unsubscribe = subcollectionListener(
+      user.uid,
+      "categories",
+      setCategories,
+    );
+
+    return () => {
+      unsubscribe();
+    };
+  }, [user?.uid]);
+
   // Generate rule-based insights
   useEffect(() => {
     if (!user) return;
@@ -67,7 +86,7 @@ const AppInitializer = () => {
         transactions,
         budgets,
         goals,
-        contributions
+        contributions,
       );
     }
   }, [user?.uid]);
