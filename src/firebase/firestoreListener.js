@@ -26,13 +26,13 @@ export const initUserListener = (userUID) => {
   const unsubscribeTransactions = subcollectionListener(
     userUID,
     "transactions",
-    setTransactions
+    setTransactions,
   );
 
   const unsubscribeBudgets = subcollectionListener(
     userUID,
     "budgets",
-    setBudgets
+    setBudgets,
   );
 
   const unsubscribeGoals = subcollectionListener(userUID, "goals", setGoals);
@@ -40,13 +40,13 @@ export const initUserListener = (userUID) => {
   const unsubscribeContributions = subcollectionListener(
     userUID,
     "contributions",
-    setContributions
+    setContributions,
   );
 
   const unsubscribeNotif = subcollectionListener(
     userUID,
     "notifications",
-    setNotifications
+    setNotifications,
   );
 
   // Return unsubscribe cleanup for when user logs out

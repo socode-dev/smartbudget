@@ -1,9 +1,9 @@
-import useTransactionStore from "../../store/useTransactionStore";
 import { useTransactionsContext } from "../../context/TransactionsContext";
+import useTransactionStore from "../../store/useTransactionStore";
 
 const Filter = () => {
-  const { CATEGORY_OPTIONS } = useTransactionStore();
   const { filters, setFilters } = useTransactionsContext();
+  const categories = useTransactionStore((state) => state.categories);
 
   return (
     <div className="grid grid-cols-8 items-center gap-3 md:gap-5 mb-6">
@@ -55,9 +55,9 @@ const Filter = () => {
         }
       >
         <option value="all">All Categories</option>
-        {CATEGORY_OPTIONS.map((opt, i) => (
-          <option key={i} value={opt.name}>
-            {opt.name}
+        {categories.map((cat, i) => (
+          <option key={`${cat}_${i}`} value={cat}>
+            {cat}
           </option>
         ))}
       </select>

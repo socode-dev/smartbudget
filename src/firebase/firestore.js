@@ -44,7 +44,7 @@ export const getAllDocuments = async (userUID, collectionName) => {
   try {
     const q = query(
       userColRef(userUID, collectionName),
-      orderBy("createdAt", "desc")
+      orderBy("createdAt", "desc"),
     );
     const snapshot = await getDocs(q);
     return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));

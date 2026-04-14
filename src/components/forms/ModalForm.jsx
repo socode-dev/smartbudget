@@ -5,24 +5,23 @@ import { useRef } from "react";
 import LoadingSpinner from "../ui/LoadingSpinner";
 import useThresholdStore from "../../store/useThresholdStore";
 import useAuthStore from "../../store/useAuthStore";
-import { CATEGORY_OPTIONS } from "../../data/categoryData";
+import useTransactionStore from "../../store/useTransactionStore";
 
 const ModalForm = ({ label, mode }) => {
   const user = useAuthStore((state) => state.currentUser);
-  const formRef = useRef(null);
   const thresholds = useThresholdStore((state) => state.thresholds);
-  const { onCloseModal, transactionID } = useModalContext();
+  const categories = useTransactionStore((state) => state.categories);
   const { onSubmit, handleSubmit } = useFormSubmit(label, mode);
+  const { onCloseModal, transactionID } = useModalContext();
   const forms = useFormContext(label);
   const {
     register,
-    watch,
     setValue,
     reset,
     formState: { errors, isSubmitting },
   } = forms;
 
-  const categoryValue = watch("category");
+  const formRef = useRef(null);
 
   const transactionLabel = label === "transactions";
   const budgetLabel = label === "budgets";
@@ -45,7 +44,12 @@ const ModalForm = ({ label, mode }) => {
   return (
     <form
       onSubmit={handleSubmit((data) =>
-        onSubmit(data, user.uid, txID, thresholds.transactionThreshold ?? 10000)
+        onSubmit(
+          data,
+          user.uid,
+          txID,
+          thresholds.transactionThreshold ?? 10000,
+        ),
       )}
       className="space-y-4"
     >
@@ -61,9 +65,9 @@ const ModalForm = ({ label, mode }) => {
             className="rounded border border-[rgb(var(--color-gray-border))] bg-[rgb(var(--color-bg-card))] outline-none focus:border-[rgb(var(--color-brand))] text-base w-full p-2 cursor-pointer"
           >
             <option value="">Select category</option>
-            {CATEGORY_OPTIONS.map((opt, i) => (
-              <option key={i} value={opt.name}>
-                {opt.name}
+            {categories.map((cat, i) => (
+              <option key={`${cat}_${i}`} value={cat}>
+                {cat}
               </option>
             ))}
           </select>
@@ -75,88 +79,78 @@ const ModalForm = ({ label, mode }) => {
         </div>
       )}
 
-      {/* Goal and budget name for goal and budget */}
-      {(categoryValue?.toLowerCase() === "other" ||
-        goalLabel ||
-        contributionLabel) && (
-        <div>
-          <label
-            htmlFor="name"
-            aria-label="name"
-            className="block text-base font-medium mb-2 after:content-['*'] after:text-red-500 after:ml-0.5"
-          >
-            {budgetLabel
-              ? "Budget Name"
-              : transactionLabel
-              ? "Transaction Name"
-              : "Name"}
-          </label>
-          <input
-            {...register("name")}
-            type="text"
-            id="name"
-            placeholder={`Input ${
-              transactionLabel ? "transaction" : budgetLabel ? "budget" : "goal"
-            } name`}
-            readOnly={contributionLabel}
-            className="rounded border border-[rgb(var(--color-gray-border))] bg-[rgb(var(--color-bg-card))] outline-none focus:border-[rgb(var(--color-brand))] text-base w-full p-2"
-          />
-          {errors.name && (
-            <p className="text-[13px] text-red-500 mt-1">
-              {errors.name.message}
-            </p>
-          )}
-        </div>
-      )}
+      <div>
+        <label
+          htmlFor="name"
+          aria-label="name"
+          className="block text-base font-medium mb-2"
+        >
+          {budgetLabel || transactionLabel ? "Set Custom Category" : "Name"}
+        </label>
+        <input
+          {...register("name")}
+          type="text"
+          id="name"
+          placeholder={
+            transactionLabel || budgetLabel
+              ? "Transportation..."
+              : "Input goal name"
+          }
+          readOnly={contributionLabel}
+          className="rounded border border-[rgb(var(--color-gray-border))] bg-[rgb(var(--color-bg-card))] outline-none focus:border-[rgb(var(--color-brand))] text-base w-full p-2"
+        />
+        {errors.name && (
+          <p className="text-[13px] text-red-500 mt-1">{errors.name.message}</p>
+        )}
+      </div>
 
       {/* Show type radio buttons if category is other */}
-      {categoryValue?.toLowerCase() === "other" &&
-        (transactionLabel || budgetLabel) && (
-          <div className="flex flex-col">
-            <h3 className="text-base font-medium mb-2 after:content-['*'] after:text-red-500 after:ml-0.5">
-              Type
-            </h3>
+      {(transactionLabel || budgetLabel) && (
+        <div className="flex flex-col">
+          <h3 className="text-base font-medium mb-2 after:content-['*'] after:text-red-500 after:ml-0.5">
+            Type
+          </h3>
+          <div className="flex items-center gap-2">
+            {/* Income Radio Button */}
             <div className="flex items-center gap-2">
-              {/* Income Radio Button */}
-              <div className="flex items-center gap-2">
-                <input
-                  {...register("type")}
-                  type="radio"
-                  name="type"
-                  id="income"
-                  value="income"
-                  className="hidden peer"
-                />
-                <label
-                  htmlFor="income"
-                  aria-label="income"
-                  className="text-base border-2 rounded-lg border-[rgb(var(--color-gray-border))] px-4 py-2 peer-checked:border-[rgb(var(--color-brand))] transition cursor-pointer"
-                >
-                  Income
-                </label>
-              </div>
+              <input
+                {...register("type")}
+                type="radio"
+                name="type"
+                id="income"
+                value="income"
+                className="hidden peer"
+              />
+              <label
+                htmlFor="income"
+                aria-label="income"
+                className="text-sm border-3 rounded-lg border-[rgb(var(--color-gray-border))] px-3 py-1.5 peer-checked:border-[rgb(var(--color-brand))] transition cursor-pointer"
+              >
+                Income
+              </label>
+            </div>
 
-              {/* Expense Radio Button */}
-              <div className="flex items-center gap-2">
-                <input
-                  {...register("type")}
-                  type="radio"
-                  name="type"
-                  id="expense"
-                  value="expense"
-                  className="hidden peer"
-                />
-                <label
-                  htmlFor="expense"
-                  aria-label="expense"
-                  className="text-sm border-2 rounded-lg border-[rgb(var(--color-gray-border))] px-4 py-2 peer-checked:border-[rgb(var(--color-brand))] transition cursor-pointer"
-                >
-                  Expense
-                </label>
-              </div>
+            {/* Expense Radio Button */}
+            <div className="flex items-center gap-2">
+              <input
+                {...register("type")}
+                type="radio"
+                name="type"
+                id="expense"
+                value="expense"
+                className="hidden peer"
+              />
+              <label
+                htmlFor="expense"
+                aria-label="expense"
+                className="text-sm border-3 rounded-lg border-[rgb(var(--color-gray-border))] px-3 py-1.5 peer-checked:border-[rgb(var(--color-brand))] transition cursor-pointer"
+              >
+                Expense
+              </label>
             </div>
           </div>
-        )}
+        </div>
+      )}
 
       {/* Amount and Date */}
       <div className="mb-4 grid grid-cols-2 gap-4">
@@ -209,7 +203,6 @@ const ModalForm = ({ label, mode }) => {
       <div>
         <label htmlFor="note" className="block text-base font-medium mb-2">
           {transactionLabel ? "Description" : "Notes"}{" "}
-          {/* <span className="text-[rgb(var(--color-muted))]">(optional)</span> */}
         </label>
         <textarea
           id="note"

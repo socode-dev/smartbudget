@@ -1,8 +1,8 @@
-import { useContext, createContext, useMemo } from "react";
+import { useContext, createContext, useMemo, useRef } from "react";
 import useTransactionStore from "../store/useTransactionStore";
 import { formatAmount } from "../utils/formatAmount";
 import useCurrencyStore from "../store/useCurrencyStore";
-import { categoryColor } from "../data/categoryData";
+import { getRandomColor } from "../utils/randomColor";
 
 const ReportChartContext = createContext();
 
@@ -12,7 +12,7 @@ export const ReportChartProvider = ({ children }) => {
 
   const expenses = useMemo(
     () => transactions?.filter((tx) => tx.type === "expense"),
-    [transactions]
+    [transactions],
   );
 
   const categoryTotals = useMemo(
@@ -22,19 +22,46 @@ export const ReportChartProvider = ({ children }) => {
         acc[cat] = (acc[cat] || 0) + tx.amount;
         return acc;
       }, {}),
-    [expenses]
+    [expenses],
   );
 
   const labels = categoryTotals ? Object.keys(categoryTotals) : [];
   const amounts = categoryTotals ? Object.values(categoryTotals) : [];
+  const colorsRef = useRef({});
   const totalAmount = useMemo(
     () => expenses?.reduce((acc, tx) => acc + tx.amount, 0),
-    [expenses]
+    [expenses],
   );
+  const maxAmount = useMemo(() => Math.max(0, ...amounts), [amounts]);
 
-  const backgroundColor = useMemo(
-    () => labels?.map((label) => categoryColor[label] || "#9CA3AF"),
-    [labels, categoryColor]
+  // Scale chart steps with the largest expense. Example: 10,000 -> 2,000 step, 20,000 -> 5,000 step.
+  const yAxisStepSize = useMemo(() => {
+    if (!maxAmount) return 1000;
+
+    const roughStep = maxAmount / 5;
+    const magnitude = 10 ** Math.floor(Math.log10(roughStep));
+    const normalized = roughStep / magnitude;
+
+    if (normalized <= 1) return magnitude;
+    if (normalized <= 2) return 2 * magnitude;
+    if (normalized <= 5) return 5 * magnitude;
+    return 10 * magnitude;
+  }, [maxAmount]);
+
+  const yAxisMax = useMemo(() => {
+    if (!maxAmount) return yAxisStepSize * 5;
+    return Math.ceil(maxAmount / yAxisStepSize) * yAxisStepSize;
+  }, [maxAmount, yAxisStepSize]);
+
+  const randomColors = useMemo(
+    () =>
+      labels.map((label) => {
+        if (!colorsRef.current[label]) {
+          colorsRef.current[label] = getRandomColor();
+        }
+        return colorsRef.current[label];
+      }),
+    [labels],
   );
 
   const formattedLabels = useMemo(
@@ -45,7 +72,7 @@ export const ReportChartProvider = ({ children }) => {
           : 0;
         return `${label} (${percentage}%)`;
       }),
-    [labels, totalAmount, categoryTotals]
+    [labels, totalAmount, categoryTotals],
   );
 
   // Data for doughnut chart
@@ -55,7 +82,8 @@ export const ReportChartProvider = ({ children }) => {
       {
         label: "Expenses by Category",
         data: amounts,
-        backgroundColor,
+        backgroundColor: randomColors,
+        borderColor: randomColors,
         borderWidth: 1,
       },
     ],
@@ -65,7 +93,7 @@ export const ReportChartProvider = ({ children }) => {
 
   const doughnutChartOptions = {
     responsive: true,
-    cutout: "40%",
+    cutout: "30%",
     plugins: {
       legend: {
         display: true,
@@ -99,7 +127,8 @@ export const ReportChartProvider = ({ children }) => {
       {
         label: "Expenses by Category",
         data: amounts,
-        backgroundColor,
+        backgroundColor: randomColors,
+        borderColor: randomColors,
         borderWidth: 1,
         borderRadius: 50,
         color: "#6b7280",
@@ -111,6 +140,22 @@ export const ReportChartProvider = ({ children }) => {
   // Options for bar chart
   const barChartOptions = {
     responsive: true,
+    scales: {
+      x: {
+        ticks: {
+          color: "#6b7280",
+        },
+      },
+      y: {
+        beginAtZero: true,
+        max: yAxisMax,
+        ticks: {
+          stepSize: yAxisStepSize,
+          color: "#6b7280",
+          callback: (value) => formatAmount(Number(value), selectedCurrency),
+        },
+      },
+    },
     plugins: {
       legend: {
         display: true,
@@ -120,18 +165,6 @@ export const ReportChartProvider = ({ children }) => {
           font: {
             size: 12,
             weight: "400",
-          },
-          scales: {
-            x: {
-              ticks: {
-                color: "#6b7280",
-              },
-            },
-            y: {
-              ticks: {
-                color: "#6b7280",
-              },
-            },
           },
           generateLabels: (chart) => {
             const dataset = chart.data.datasets[0];
