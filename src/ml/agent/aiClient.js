@@ -1,13 +1,11 @@
 export const generateAIResponse = async ({ prompt, model, userId }) => {
 
-
-
   try {
-    const apiUrl = "/api/ai";
+    const baseUrl = import.meta.env.PROD ? "" : "http://localhost:3002";
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 30000);
     
-    const response = await fetch(apiUrl, {
+    const response = await fetch(`${baseUrl}/api/ai`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

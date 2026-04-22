@@ -10,7 +10,6 @@ import { db } from "../firebase/firebase";
 import useInsightsStore from "../store/useInsightsStore";
 import useAuthStore from "../store/useAuthStore";
 import { generateInsight } from "../ml/runInsights";
-import sampleTransactions from "../data/sampleTransactions";
 
 const initializedAIInsightsForUsers = new Set();
 
@@ -109,7 +108,7 @@ const AppInitializer = () => {
 
     const runMLInsights = async () => {
       try {
-        const insights = await generateInsight(uid, sampleTransactions);
+        const insights = await generateInsight(uid, transactions);
         if (cancelled) return;
         
         initializedAIInsightsForUsers.add(uid);
