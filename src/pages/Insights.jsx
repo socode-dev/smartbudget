@@ -5,7 +5,7 @@ import useInsightsStore from "../store/useInsightsStore";
 import InsightCard from "../components/insights/InsightCard";
 import { motion } from "framer-motion";
 import useOnboardingStore from "../store/useOnboardingStore";
-import {normalizeInsight} from "../utils/normalizeinsight";
+import {normalizeInsight} from "../utils/normalizeInsight";
 
 const Insights = () => {
   const isUserEmailVerified = useAuthStore(
