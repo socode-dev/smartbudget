@@ -20,6 +20,9 @@ const useInsightsStore = create(
   persist(
     (set, get) => ({
       insights: [],
+      aiLimitReached: false,
+
+      setAILimitReached: (bool) => set({aiLimitReached: bool}),
 
       // Generation lock to prevent multiple simultaneous insight generation
       isGeneratingInsights: false,
@@ -51,46 +54,45 @@ const useInsightsStore = create(
 
       // Add new insight with expiry (persist all insights to Firestore)
       addInsight: async (uid, insight) => {
-        // Lightweight dedupe: normalize message and look for similar insights in recent window
-        const normalize = (s) =>
-          (s || "")
-            .toLowerCase()
-            .replace(/[^a-z0-9]+/g, " ")
-            .trim();
+        
+        // const normalize = (s) =>
+        //   (s || "")
+        //     .toLowerCase()
+        //     .replace(/[^a-z0-9]+/g, " ")
+        //     .trim();
 
-        const dedupeWindowMs = 60 * 1000; // 2 minutes
-        const now = Date.now();
+        // const dedupeWindowMs = 60 * 1000; // 2 minutes
+        // const now = Date.now();
 
-        const existing = get().insights || [];
-        const normalizedMessage = normalize(
-          insight.message || insight.subject || ""
-        );
+        // const existing = get().insights || [];
+        // const normalizedMessage = normalize(
+        //   insight.message || insight.subject || ""
+        // );
 
-        const isDuplicate = existing.some((ex) => {
-          try {
-            const exCreated =
-              ex.createdAt && ex.createdAt.toMillis
-                ? ex.createdAt.toMillis()
-                : new Date(ex.createdAt).getTime();
-            if (now - exCreated > dedupeWindowMs) return false;
-            return (
-              ex.type === insight.type &&
-              normalize(ex.subject || ex.message || "") === normalizedMessage &&
-              (ex.source || "") === (insight.source || "")
-            );
-          } catch (e) {
-            return false;
-          }
-        });
+        // const isDuplicate = existing.some((ex) => {
+        //   try {
+        //     const exCreated =
+        //       ex.createdAt && ex.createdAt.toMillis
+        //         ? ex.createdAt.toMillis()
+        //         : new Date(ex.createdAt).getTime();
+        //     if (now - exCreated > dedupeWindowMs) return false;
+        //     return (
+        //       ex.type === insight.type &&
+        //       normalize(ex.subject || ex.message || "") === normalizedMessage &&
+        //       (ex.source || "") === (insight.source || "")
+        //     );
+        //   } catch (e) {
+        //     return false;
+        //   }
+        // });
 
-        if (isDuplicate) {
-          // Skip adding duplicate insight
-          return;
-        }
+        // if (isDuplicate) {
+        //   // Skip adding duplicate insight
+        //   return;
+        // }
 
         const insightWithExpiry = {
           ...insight,
-          createdAt: serverTimestamp(),
           expiresAt: Date.now() + EXPIRY_MS,
         };
 
@@ -375,7 +377,6 @@ const useInsightsStore = create(
             new Date(goal.date).getTime() + 2 * 60 * 60 * 1000;
 
           // Suggest starting a monthly contribution if no contribution history after 2 days of adding goal
-          console.log(Date.now() > twoDaysLater);
           if (Date.now() >= twoDaysLater && amountContributed === 0) {
             insights.push({
               id: uuid(),

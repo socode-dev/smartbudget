@@ -10,4 +10,14 @@ export default defineConfig({
     environment: "node",
     include: ["src/tests/**/*.test.js"],
   },
+  assetsInclude: ["**/*.html"],
+  server: {
+    proxy: {
+      '/api': {
+        target: 'http://localhost:3002',
+        changeOrigin: true,
+        secure: false,
+      }
+    }
+  }
 });
