@@ -10,15 +10,20 @@ import { db } from "../firebase/firebase";
 import useInsightsStore from "../store/useInsightsStore";
 import useAuthStore from "../store/useAuthStore";
 import { generateInsight } from "../ml/runInsights";
+import sampleTransactions from "../data/sampleTransactions";
+
+const initializedAIInsightsForUsers = new Set();
 
 const AppInitializer = () => {
   const user = useAuthStore((state) => state.currentUser);
+  const uid = user?.uid;
   const setThresholds = useThresholdStore((state) => state.setThresholds);
   const transactions = useTransactionStore((state) => state.transactions);
   const setCategories = useTransactionStore((state) => state.setCategories);
   const budgets = useTransactionStore((state) => state.budgets);
   const goals = useTransactionStore((state) => state.goals);
   const contributions = useTransactionStore((state) => state.contributions);
+  const addInsight = useInsightsStore((state => state.addInsight));
   const initInsights = useInsightsStore((state) => state.initInsights);
   const generateRuleBasedInsights = useInsightsStore(
     (state) => state.generateRuleBasedInsights,
@@ -31,13 +36,13 @@ const AppInitializer = () => {
     startAuthListener();
 
     return () => stopAuthListener();
-  }, [user?.uid]);
+  }, [startAuthListener, stopAuthListener]);
 
   // Real-time listener for thresholds
   useEffect(() => {
-    if (!user?.uid) return;
+    if (!uid) return;
 
-    const userDocRef = doc(db, "users", user.uid);
+    const userDocRef = doc(db, "users", uid);
 
     const unsubscribeThresholds = onSnapshot(userDocRef, (snapshot) => {
       if (snapshot.exists()) {
@@ -46,34 +51,30 @@ const AppInitializer = () => {
       }
     });
 
-    const unsubscribeUser = initUserListener(user?.uid);
-    const unsubscribeInsights = initInsights(user?.uid);
+    const unsubscribeUser = initUserListener(uid);
+    const unsubscribeInsights = initInsights(uid);
 
     return () => {
       unsubscribeUser();
       unsubscribeInsights();
       unsubscribeThresholds();
     };
-  }, [user?.uid]);
+  }, [uid, initInsights, setThresholds]);
 
   // Listen to transaction categories
   useEffect(() => {
-    if (!user?.uid) return;
+    if (!uid) return;
 
-    const unsubscribe = subcollectionListener(
-      user.uid,
-      "categories",
-      setCategories,
-    );
+    const unsubscribe = subcollectionListener(uid, "categories", setCategories);
 
     return () => {
       unsubscribe();
     };
-  }, [user?.uid]);
+  }, [uid, setCategories]);
 
   // Generate rule-based insights
   useEffect(() => {
-    if (!user) return;
+    if (!uid) return;
 
     if (
       transactions?.length ||
@@ -82,30 +83,54 @@ const AppInitializer = () => {
       contributions?.length
     ) {
       generateRuleBasedInsights(
-        user.uid,
+        uid,
         transactions,
         budgets,
         goals,
         contributions,
       );
     }
-  }, [user?.uid]);
+  }, [
+    uid,
+    transactions,
+    budgets,
+    goals,
+    contributions,
+    generateRuleBasedInsights,
+  ]);
 
-  // Generate ML insights
+  // Generate AI insights
   useEffect(() => {
-    let isMounted = true;
+    if (!uid) return;
+    if (!transactions?.length) return;
+    if (initializedAIInsightsForUsers.has(uid)) return;
 
-    if (!isMounted) return;
-    if (!user?.uid) return;
+    let cancelled = false;
 
-    generateInsight(user.uid, transactions);
+    const runMLInsights = async () => {
+      try {
+        const insights = await generateInsight(uid, sampleTransactions);
+        if (cancelled) return;
+        
+        initializedAIInsightsForUsers.add(uid);
+        
+        for(const ins of insights) {
+          addInsight(uid, ins);
+        }
+      } catch (err) {
+        throw new Error(err);
+      }
+    };
+
+    runMLInsights();
 
     return () => {
-      isMounted = false;
+      cancelled = true;
     };
-  }, [user?.uid]);
-
+  }, [uid, addInsight]);
+  
   return null;
 };
+
 
 export default AppInitializer;

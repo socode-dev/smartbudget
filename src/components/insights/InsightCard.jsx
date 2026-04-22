@@ -1,34 +1,51 @@
 import clsx from "clsx";
-import { insightUIMap } from "../../utils/insightUIMap";
+import {FaLightbulb} from "react-icons/fa6"
 
 const InsightCard = ({ insight }) => {
-  const { actionType, type, actionText, message, severity } = insight;
+  
+  const { actionType, type, category, month, year, actionText, message, severity } = insight;
 
-  const ui = insightUIMap[type] ?? insightUIMap.info;
+  const isHigh = severity === "HIGH";
 
-  const Icon = ui.icon;
+  const severityColor = {
+    LOW: {
+      circleBG: "bg-blue-500",
+      pill: "bg-blue-100 text-blue-600",
+      border: "border-blue-500"
+    },
+    MEDIUM: {
+      circleBG: "bg-amber-400",
+      pill: "bg-amber-100 text-amber-600",
+      border: "border-amber-400"
+    },
+    HIGH: {
+      circleBG: "bg-red-500",
+      pill: "bg-red-100 text-red-600",
+      border: "border-red-500"
+    }
+  }
 
   return (
-    <div className="flex flex-col gap-4 bg-[rgb(var(--color-bg-card))] p-4 rounded-lg shadow border border-[rgb(var(--color-gray-border))]">
-      <div className="flex items-center gap-2">
-        <span
-          className={clsx(
-            "flex items-center justify-center p-2 rounded-full",
-            ui.color
-          )}
-        >
-          <Icon size={24} />
-        </span>
-        <span className="font-semibold">{ui.label}</span>
-        {severity === "high" && (
-          <span className="ml-auto text-red-500 font-medium">High</span>
-        )}
-      </div>
-      <p className="text-base text-[rgb(var(--color-muted))]">{message}</p>
-      <p className="text-base text-[rgb(var(--color-muted))]">
-        <strong>
-          {actionType?.slice(0, 1)?.toUpperCase() + actionType?.slice(1)}:
-        </strong>{" "}
+    <div className={clsx("flex flex-col gap-4 bg-[rgb(var(--color-bg-card))] p-4 shadow-sm border-l-4 rounded-md", severityColor[severity]?.border || severityColor.LOW.border)}>
+
+      <div className="flex items-center gap-2 text-sm font-semibold">
+        
+        <div className={clsx("h-4 min-w-4 rounded-full", severityColor[severity]?.circleBG || severityColor.LOW.circleBG)} />
+        
+        <abbr className="font-semibold">{category}</abbr>
+
+        <abbr>{`${month} ${year}`}</abbr>
+        
+          <abbr className={clsx("ml-auto py-1 px-2.5 font-semibold text-xs uppercase rounded-full", severityColor[severity]?.pill || severityColor.LOW.pill)}>{`${severity || "LOW"} RISK`}</abbr>      </div>
+
+      <hr className="border-[rgb(var(--color-gray-border))]" />
+
+      <p className="text-sm text-[rgb(var(--color-muted))] px-4 py-3 leading-relaxed line-clamp-3">{message}</p>
+
+      <hr className="border-[rgb(var(--color-gray-border))]" />
+
+      <p className="text-sm text-[rgb(var(--color-muted))] bg-gray-50 flex items-start gap-2">
+        <FaLightbulb size={18} className="text-yellow-300/80" />
         <span>{actionText}</span>
       </p>
     </div>

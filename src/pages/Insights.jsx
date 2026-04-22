@@ -5,12 +5,14 @@ import useInsightsStore from "../store/useInsightsStore";
 import InsightCard from "../components/insights/InsightCard";
 import { motion } from "framer-motion";
 import useOnboardingStore from "../store/useOnboardingStore";
+import {normalizeInsight} from "../utils/normalizeinsight";
 
 const Insights = () => {
   const isUserEmailVerified = useAuthStore(
     (state) => state.isUserEmailVerified
   );
   const insights = useInsightsStore((state) => state.insights);
+  const aiLimitReached = useInsightsStore(state => state.aiLimitReached);
 
   const { setCurrentPage, startTourIfNotCompleted } = useOnboardingStore();
 
@@ -42,7 +44,9 @@ const Insights = () => {
     );
   }
 
-  const sortedInsights = insights?.sort((a, b) => a.createdAt - b.createdAt);
+  const normalizedinsights = insights?.map(ins => normalizeInsight(ins));
+
+  const sortedInsights = normalizedinsights?.sort((a, b) => a.createdAt - b.createdAt);
 
   return (
     <motion.main
@@ -61,7 +65,7 @@ const Insights = () => {
       </p>
 
       {/* Empty State */}
-      {!insights.length && (
+      {!sortedInsights?.length && (
         <div
           id="insights-empty-state"
           className="flex justify-center text-center mt-10"
@@ -73,13 +77,36 @@ const Insights = () => {
         </div>
       )}
 
+      {(!!sortedInsights.length && aiLimitReached) && (
+        <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-4 flex flex-col gap-2 mb-10">
+          
+          <div className="flex items-center gap-2">
+            <span>🔒</span>
+            <p className="text-sm font-semibold text-amber-800">
+            AI Insight limit reached
+            </p>
+          </div>
+          
+          <p className="text-sm text-amber-700 leading-relaxed">
+          You've used all 10 of your free AI insights. You'll still get spending
+          alerts below, but without the detailed AI explanation.
+          </p>
+          
+          <button className="self-start text-xs font-semibold text-amber-800
+          border border-amber-300 rounded-full px-3 py-1 mt-1
+          hover:bg-amber-100 transition">
+          Upgrade for more
+          </button>
+        </div>
+      )}
+
       {/* Smart Insights */}
-      {!!insights.length && (
+      {!!sortedInsights?.length && (
         <div
           id="insights-grid"
           className="grid grid-cols-1 md:grid-cols-2 gap-6"
         >
-          {sortedInsights.map((insight) => (
+          {sortedInsights?.map((insight) => (
             <InsightCard key={insight.id} insight={insight} />
           ))}
         </div>
