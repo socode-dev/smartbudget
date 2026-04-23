@@ -104,7 +104,7 @@ const Insights = () => {
       {!!sortedInsights?.length && (
         <div
           id="insights-grid"
-          className="grid grid-cols-1 md:grid-cols-2 gap-6"
+          className="grid grid-cols-1 mdl:grid-cols-2 gap-6"
         >
           {sortedInsights?.map((insight) => (
             <InsightCard key={insight.id} insight={insight} />
