@@ -25,7 +25,6 @@ export const runAnomalyAgent = async (anomaly, userId, {isDemo = false} = {}) =>
       severity: anomaly.risk.level,
       baselineValue: anomaly.signal.baseline_value,
       category: anomaly.category,
-      month: anomaly.signal.month,
       year: new Date().getFullYear(),
       agent: response,
       modelUsed: model
@@ -44,7 +43,6 @@ export const runAnomalyAgent = async (anomaly, userId, {isDemo = false} = {}) =>
       createdAt: new Date(),
       severity: anomaly.risk.level,
       category: anomaly.category,
-      month: anomaly.signal.month,
       year: new Date().getFullYear(),
       baselineValue: anomaly.signal.baseline_value,
       agent: response,

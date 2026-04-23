@@ -24,6 +24,8 @@ export const generateInsight = async (uid, transactions) => {
   for (const anomaly of anomalies) {
     try {
       const result = await triggerAnomalyTransactional(uid, anomaly);
+
+      if(!result.triggered) continue;
       
       if (result.triggered) {
         const anomalyInsight = await runAnomalyAgent(anomaly, uid);

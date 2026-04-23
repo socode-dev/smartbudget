@@ -1,12 +1,17 @@
 import InsightCard from "../insights/InsightCard";
 import useInsightsStore from "../../store/useInsightsStore";
+import {normalizeInsight} from "../../utils/normalizeInsight";
+import clsx from "clsx";
 
 const SmartInsight = () => {
   const insights = useInsightsStore((state) => state.insights);
 
-  const sortedInsights = insights
+  const normalizedinsights = insights?.map(ins => normalizeInsight(ins));
+
+  const sortedInsights = normalizedinsights
     ?.sort((a, b) => a.createdAt - b.createdAt)
     ?.slice(0, 2);
+
 
   return (
     <>
@@ -22,7 +27,7 @@ const SmartInsight = () => {
       )}
 
       {!!insights.length && (
-        <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <section className={clsx("grid grid-cols-1 gap-6", sortedInsights.length > 1 ? "mdl:grid-cols-2" : "mdl:grid-cols-1")}>
           {sortedInsights.map((insight) => (
             <InsightCard key={insight.id} insight={insight} />
           ))}

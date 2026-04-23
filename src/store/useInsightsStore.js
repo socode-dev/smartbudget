@@ -121,7 +121,7 @@ const useInsightsStore = create(
         );
       },
 
-      generateRuleBasedInsights: (
+      /* generateRuleBasedInsights: (
         uid,
         transactions,
         budgets,
@@ -406,7 +406,7 @@ const useInsightsStore = create(
           // addInsight will optimistically add to local state and persist to Firestore
           addInsight(uid, insight);
         });
-      },
+      }, */
 
       clearInsightsStore: () => set({ insights: [] }),
     }),

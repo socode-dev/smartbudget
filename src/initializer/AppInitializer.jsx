@@ -24,9 +24,9 @@ const AppInitializer = () => {
   const contributions = useTransactionStore((state) => state.contributions);
   const addInsight = useInsightsStore((state => state.addInsight));
   const initInsights = useInsightsStore((state) => state.initInsights);
-  const generateRuleBasedInsights = useInsightsStore(
-    (state) => state.generateRuleBasedInsights,
-  );
+  // const generateRuleBasedInsights = useInsightsStore(
+  //   (state) => state.generateRuleBasedInsights,
+  // );
   const startAuthListener = useAuthStore((state) => state.startAuthListener);
   const stopAuthListener = useAuthStore((state) => state.stopAuthListener);
 
@@ -71,32 +71,32 @@ const AppInitializer = () => {
     };
   }, [uid, setCategories]);
 
-  // Generate rule-based insights
-  useEffect(() => {
-    if (!uid) return;
-
-    if (
-      transactions?.length ||
-      budgets?.length ||
-      goals?.length ||
-      contributions?.length
-    ) {
-      generateRuleBasedInsights(
-        uid,
-        transactions,
-        budgets,
-        goals,
-        contributions,
-      );
-    }
-  }, [
-    uid,
-    transactions,
-    budgets,
-    goals,
-    contributions,
-    generateRuleBasedInsights,
-  ]);
+  // // Generate rule-based insights
+  // useEffect(() => {
+  //   if (!uid) return;
+  //
+  //   if (
+  //     transactions?.length ||
+  //     budgets?.length ||
+  //     goals?.length ||
+  //     contributions?.length
+  //   ) {
+  //     generateRuleBasedInsights(
+  //       uid,
+  //       transactions,
+  //       budgets,
+  //       goals,
+  //       contributions,
+  //     );
+  //   }
+  // }, [
+  //   uid,
+  //   transactions,
+  //   budgets,
+  //   goals,
+  //   contributions,
+  //   generateRuleBasedInsights,
+  // ]);
 
   // Generate AI insights
   useEffect(() => {
