@@ -58,6 +58,14 @@ body {
   @apply bg-[rgb(var(--color-bg))] text-[rgb(var(--color-text))] transition-colors duration-100;
 }
 
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
 /* Budget Ring Styles */
 .budget-ring-income {
   width: 60px;

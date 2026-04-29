@@ -25,7 +25,7 @@ export const triggerAnomalyTransactional = async (userId, anomaly) => {
         const existing = snap.data();
         const prevValue = existing.current_value;
         const newValue = anomaly.signal.current_value;
-        const threshold = 0.2;
+        const threshold = 0.5;
         const absoluteThreshold = 10; 
         
         const hasIncreased = prevValue > 0 

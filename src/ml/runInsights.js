@@ -2,9 +2,13 @@ import { detectAnomalies } from "./anomaly/anomalyDetection";
 import { runAnomalyAgent } from "./agent/anomalyAgent";
 // import { getForecastSeverity } from "./getForecastSeverity";
 import useInsightsStore from "../store/useInsightsStore";
-// import useTransactionStore from "../store/useTransactionStore";
+import useTransactionStore from "../store/useTransactionStore";
 import useCurrencyStore from "../store/useCurrencyStore";
 import { triggerAnomalyTransactional } from "./anomaly/triggerAnomaly";
+import { buildBudgetComplianceData } from "./budget/budgetData";
+import { buildBudgetComplaianceAgentPrompt } from "./budget/promptBuilder";
+import { runBudgetAgent } from "./agent/budgetAgent";
+import { triggerBudgetComplianceTransactional } from "./budget/triggerBudget";
 // import { formatAmount } from "../utils/formatAmount";
 
 // Create a module Web Worker for training to keep the main thread responsive
@@ -13,9 +17,10 @@ const createWorker = () =>
 
 export const generateInsight = async (uid, transactions) => {
   const { addInsight } = useInsightsStore.getState();
-  // const { selectedCurrency } = useCurrencyStore.getState();
+  const { budgets } = useTransactionStore.getState();
+  const { selectedCurrency } = useCurrencyStore.getState();
 
-  const processedAnomaly = [];
+  const processedInsights = [];
 
   // Detect anomalies
   const anomalies = detectAnomalies(transactions);
@@ -27,19 +32,36 @@ export const generateInsight = async (uid, transactions) => {
 
       if(!result.triggered) continue;
       
-      if (result.triggered) {
         const anomalyInsight = await runAnomalyAgent(anomaly, uid);
         
-        if (anomalyInsight) {
-          processedAnomaly.push(anomalyInsight);
-        }
+      if (anomalyInsight) {
+        processedInsights.push(anomalyInsight);
       }
     } catch (err) {
       throw new Error(err);
     }
   }
+
+  // Atomically check and trigger budget compliance
+  for(const budget of budgets) {
+    const complianceData = buildBudgetComplianceData(budget, transactions, selectedCurrency); 
+    
+    
+    try {
+      const triggerResult = await triggerBudgetComplianceTransactional(uid, complianceData);
+
+      if(!triggerResult.triggered) continue;
+
+      const budgetInsight = await runBudgetAgent(complianceData, uid);
+
+      if(budgetInsight) processedInsights.push(budgetInsight);
+    } catch (error) {
+      console.error(error)
+    }
+
+  }
   
-  return processedAnomaly;
+  return processedInsights;
 
 
   // // 2) Forecasts - process per category using a worker

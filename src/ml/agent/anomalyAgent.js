@@ -1,13 +1,13 @@
-import { buildAnomalyPrompt } from "./promptBuilder";
+import { buildAnomalyPrompt } from "../anomaly/promptBuilder";
 import { generateAIResponse } from "./aiClient";
 import {selectModel, MODEL_CONFIG} from "./modelRouter";
-import {fallbackInsight} from "./fallback";
+import {fallback} from "../anomaly/fallbackInsight";
 import useInsightsStore from "../../store/useInsightsStore";
 
 export const runAnomalyAgent = async (anomaly, userId, {isDemo = false} = {}) => {
   const {setAILimitReached} = useInsightsStore.getState();
   const prompt = buildAnomalyPrompt(anomaly);
-  const ruleBasedInsight = fallbackInsight(anomaly)
+  const ruleBasedInsight = fallback(anomaly)
   
   let primaryFailed = false;
   let response;

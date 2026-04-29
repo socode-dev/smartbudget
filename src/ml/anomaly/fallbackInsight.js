@@ -1,4 +1,4 @@
-export const fallbackInsight = (anomaly) => {
+export const fallback = (anomaly) => {
     const id = anomaly?.id ?? `anomaly-${Date.now()}`;
     const severity = anomaly?.risk?.level ?? "LOW";
     const baselineValue = anomaly?.signal?.baseline_value ?? 0;
