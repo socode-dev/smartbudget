@@ -64,20 +64,7 @@ const Insights = () => {
         Personalized suggestions, forecasts and savings tips.
       </p>
 
-      {/* Empty State */}
-      {!sortedInsights?.length && (
-        <div
-          id="insights-empty-state"
-          className="flex justify-center text-center mt-10"
-        >
-          <p className="text-lg text-[rgb(var(--color-muted))]">
-            Nothing to show right now. <br />
-            SmartBudget will generate insights as your data grows.
-          </p>
-        </div>
-      )}
-
-      {(!!sortedInsights.length && aiLimitReached) && (
+      {aiLimitReached && (
         <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-4 flex flex-col gap-2 mb-10">
           
           <div className="flex items-center gap-2">
@@ -88,7 +75,7 @@ const Insights = () => {
           </div>
           
           <p className="text-sm text-amber-700 leading-relaxed">
-          You've used all 10 of your free AI insights. You'll still get spending
+          You've used all 20 of your free AI insights. You'll still get spending
           alerts below, but without the detailed AI explanation.
           </p>
           
@@ -99,6 +86,20 @@ const Insights = () => {
           </button>
         </div>
       )}
+
+      {/* Empty State */}
+      {!sortedInsights?.length && (
+        <div
+          id="insights-empty-state"
+          className="flex justify-center text-center mt-14"
+        >
+          <p className="text-lg text-[rgb(var(--color-muted))]">
+            Nothing to show right now. <br />
+            SmartBudget will generate insights as your data grows.
+          </p>
+        </div>
+      )}
+
 
       {/* Smart Insights */}
       {!!sortedInsights?.length && (

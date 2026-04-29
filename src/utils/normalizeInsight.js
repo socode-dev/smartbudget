@@ -1,4 +1,4 @@
-const getInsightDate = (createdAt) => {
+export const getInsightDate = (createdAt) => {
   if (!createdAt) return new Date();
   if (typeof createdAt?.toDate === "function") return createdAt.toDate();
   const date = new Date(createdAt);

@@ -3,7 +3,7 @@ import {formatAmount} from "../../utils/formatAmount";
 
 export const buildAnomalyPrompt = (anomaly) => {
   if(!anomaly.category || !anomaly.signal || !anomaly.context || !anomaly.risk || !anomaly.impact) {
-    throw new Error("Invalid anomaly object: Mising required properties")
+    throw new Error("Invalid anomaly object: Missing required properties")
   }
   const { selectedCurrency } = useCurrencyStore.getState();
   const { category, signal, context, risk, impact } = anomaly;
@@ -26,7 +26,7 @@ Rules:
 - Weekly budget x 4 must never exceed the baseline amount. Baseline is ${formatAmount(signal.baseline_value, selectedCurrency)}/month
 
 Example output:
-{"explanation": "You really went all out for groceries in May. You spent $1000, nearly 3x your usual $300.40 and the highest in recent months.", "suggestion": "Set strict a budget of $75 weekly in June and stick to it, to keep your toatal around your normal $300 for consistency."}
+{"explanation": "You really went all out for groceries in May. You spent $1000, nearly 3x your usual $300.40 and the highest in recent months.", "suggestion": "Set strict a budget of $75 weekly in June and stick to it, to keep your total around your normal $300 for consistency."}
 
 Vary how you construct the explanation and suggestion.
 

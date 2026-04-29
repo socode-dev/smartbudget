@@ -1,4 +1,4 @@
-export const fallbackInsight = (anomaly) => {
+export const fallback = (anomaly) => {
     const id = anomaly?.id ?? `anomaly-${Date.now()}`;
     const severity = anomaly?.risk?.level ?? "LOW";
     const baselineValue = anomaly?.signal?.baseline_value ?? 0;
@@ -18,7 +18,7 @@ export const fallbackInsight = (anomaly) => {
       month,
       year: new Date().getFullYear(),
       agent: {
-          explanation: `Your ${category} spending in  ${month} is ${deviationLabel} compared to your normal pattern and ${impactHint}`,
+          explanation: `Your ${category} spending in ${month} is ${deviationLabel} compared to your normal pattern and ${impactHint}`,
         suggestion: `Try reducing your ${category} spending or setting a limit.`
       }
     }

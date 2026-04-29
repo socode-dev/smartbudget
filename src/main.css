@@ -58,6 +58,26 @@ body {
   @apply bg-[rgb(var(--color-bg))] text-[rgb(var(--color-text))] transition-colors duration-100;
 }
 
+.scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(29, 78, 216) #e5e7eb; /* thumb color | track color */
+}
+
+.scrollbar-thin::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: #e5e7eb; /* Tailwind gray-200 */
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background-color: rgb(29, 78, 216); /* Tailwind indigo-600 */
+  border-radius: 9999px;
+  border: 2px solid #e5e7eb;
+}
+
 /* Budget Ring Styles */
 .budget-ring-income {
   width: 60px;
