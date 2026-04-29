@@ -18,7 +18,7 @@ export const fallback = (anomaly) => {
       month,
       year: new Date().getFullYear(),
       agent: {
-          explanation: `Your ${category} spending in  ${month} is ${deviationLabel} compared to your normal pattern and ${impactHint}`,
+          explanation: `Your ${category} spending in ${month} is ${deviationLabel} compared to your normal pattern and ${impactHint}`,
         suggestion: `Try reducing your ${category} spending or setting a limit.`
       }
     }

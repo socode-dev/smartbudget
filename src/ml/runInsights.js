@@ -1,14 +1,12 @@
+import { triggerAnomalyTransactional } from "./anomaly/triggerAnomaly";
 import { detectAnomalies } from "./anomaly/anomalyDetection";
 import { runAnomalyAgent } from "./agent/anomalyAgent";
+import { triggerBudgetComplianceTransactional } from "./budget/triggerBudget";
+import { buildBudgetComplianceData } from "./budget/budgetData";
+import { runBudgetAgent } from "./agent/budgetAgent";
 // import { getForecastSeverity } from "./getForecastSeverity";
-import useInsightsStore from "../store/useInsightsStore";
 import useTransactionStore from "../store/useTransactionStore";
 import useCurrencyStore from "../store/useCurrencyStore";
-import { triggerAnomalyTransactional } from "./anomaly/triggerAnomaly";
-import { buildBudgetComplianceData } from "./budget/budgetData";
-import { buildBudgetComplaianceAgentPrompt } from "./budget/promptBuilder";
-import { runBudgetAgent } from "./agent/budgetAgent";
-import { triggerBudgetComplianceTransactional } from "./budget/triggerBudget";
 // import { formatAmount } from "../utils/formatAmount";
 
 // Create a module Web Worker for training to keep the main thread responsive
@@ -16,7 +14,6 @@ const createWorker = () =>
   new Worker(new URL("./trainWorker.js", import.meta.url), { type: "module" });
 
 export const generateInsight = async (uid, transactions) => {
-  const { addInsight } = useInsightsStore.getState();
   const { budgets } = useTransactionStore.getState();
   const { selectedCurrency } = useCurrencyStore.getState();
 
@@ -38,7 +35,7 @@ export const generateInsight = async (uid, transactions) => {
         processedInsights.push(anomalyInsight);
       }
     } catch (err) {
-      throw new Error(err);
+      throw err;
     }
   }
 
@@ -55,8 +52,8 @@ export const generateInsight = async (uid, transactions) => {
       const budgetInsight = await runBudgetAgent(complianceData, uid);
 
       if(budgetInsight) processedInsights.push(budgetInsight);
-    } catch (error) {
-      console.error(error)
+    } catch (err) {
+      throw err;
     }
 
   }

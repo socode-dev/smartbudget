@@ -1,10 +1,11 @@
 import {formatAmount} from "../../utils/formatAmount"
 
-export const buildBudgetComplaianceAgentPrompt = (data) => {
+export const buildBudgetComplianceAgentPrompt = (data) => {
 const {category, budget, spending, time, derived} = data;
 const currency = budget.currency;
 
 const statusContext = {
+    ON_TRACK: "The user is managing their budget well. Be positive and encouraging.",
 BORDERLINE: "The user is spending at the same pace as time elapsed. Give a light but clear warning.",
 AT_RISK: "The user is overspending relative to time. Be direct and corrective.",
 EXCEEDED: "The user has exceeded their budget. Be honest, constructive, and forward-looking."

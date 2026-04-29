@@ -79,7 +79,7 @@ export const buildBudgetComplianceData = (budget, transactions, currency) => {
             percent_budget_used: percentBudgetUsed,
             daily_burn_rate: parseFloat(dailyBurnRate.toFixed(2)),
             safe_daily_spend: safeDailySpend,
-            compliance_status: getComplianceStatus(),
+            compliance_status: status,
             risk_level: getRiskLevel(),
             projected_total: projectedTotal
         },

@@ -1,6 +1,8 @@
 import {doc, getDoc, setDoc, runTransaction} from "firebase/firestore";
 import {db} from "../../firebase/firebase"
 
+const ANOMALY_INCREASE_THRESHOLD = 0.5;
+const ANOMALY_ABSOLUTE_THRESHOLD = 10;
 
 export const triggerAnomalyTransactional = async (userId, anomaly) => {
     const key = buildAnomalyKey(anomaly.category, anomaly.signal.month);
@@ -25,8 +27,8 @@ export const triggerAnomalyTransactional = async (userId, anomaly) => {
         const existing = snap.data();
         const prevValue = existing.current_value;
         const newValue = anomaly.signal.current_value;
-        const threshold = 0.5;
-        const absoluteThreshold = 10; 
+        const threshold = ANOMALY_INCREASE_THRESHOLD;
+        const absoluteThreshold = ANOMALY_ABSOLUTE_THRESHOLD; 
         
         const hasIncreased = prevValue > 0 
             ? (newValue - prevValue) / prevValue > threshold
@@ -46,56 +48,6 @@ export const triggerAnomalyTransactional = async (userId, anomaly) => {
         
         return {triggered: shouldTrigger, prevValue, newValue};
     });
-}
-
-export const shouldTriggerAnomaly = async (userId, anomaly) => {
-    const key = buildAnomalyKey(anomaly.category, anomaly.signal.month);
-
-    const ref = doc(db, "users", userId, "detectedAnomalies", key);
-    let snap;
-    try {
-        snap = await getDoc(ref);
-    } catch (error) {
-        console.error("Failed to fetch anomaly document:", error);
-        throw error;
-    }
-
-    if(!snap.exists()) return true;
-    
-    const existing = snap.data();
-
-    const prevValue = existing.current_value;
-    const newValue = anomaly.signal.current_value;
-
-    const threshold = 0.2;
-    const absoluteThreshold = 10; // For cases where prevValue <= 0
-
-    // Calculate increase: percentage-based if prevValue > 0, absolute-based otherwise
-    const hasIncreased = prevValue > 0 
-        ? (newValue - prevValue) / prevValue > threshold
-        : newValue > prevValue && (newValue - prevValue) > absoluteThreshold;
-
-    const severityChanged = existing.risk !== anomaly.risk.level;
-
-    return hasIncreased || severityChanged;
-}
-export const markAnomalyTriggered = async (userId, anomaly) => {
-    const key = buildAnomalyKey(anomaly.category, anomaly.signal.month);
-
-    const ref = doc(db, "users", userId, "detectedAnomalies", key);
-
-    try {
-        await setDoc(ref, {
-        category: anomaly.category,
-        month: anomaly.signal.month,
-        current_value: anomaly.signal.current_value,
-        baseline_value: anomaly.signal.baseline_value,
-        risk: anomaly.risk.level,
-        lastTriggered: Date.now(),
-    })
-    } catch (err) {
-        throw err;
-    }
 }
 
 const buildAnomalyKey = (category, month) => {

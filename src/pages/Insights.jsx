@@ -91,7 +91,7 @@ const Insights = () => {
       {!sortedInsights?.length && (
         <div
           id="insights-empty-state"
-          className="flex justify-center text-center mt-15"
+          className="flex justify-center text-center mt-14"
         >
           <p className="text-lg text-[rgb(var(--color-muted))]">
             Nothing to show right now. <br />

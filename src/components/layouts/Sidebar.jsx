@@ -61,7 +61,7 @@ const Sidebar = () => {
           SB
         </h1>
         {/* Navigation */}
-        <nav className="flex flex-col grow gap-2 mt-12 overflow-y-auto">
+        <nav className="flex flex-col grow gap-2 mt-12 overflow-y-auto scrollbar-thin">
           {navLinks.map((link) => (
             <Link
               key={link.to}

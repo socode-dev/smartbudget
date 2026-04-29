@@ -23,7 +23,8 @@ export const triggerBudgetComplianceTransactional = async (userId, complianceDat
 
         const prevData = snap.data();
 
-        const percentChanged = Math.abs(currentPercent - prevData.percentBudgetUsed) >= 10;
+        const prevPercent = prevData.percentBudgetUsed ?? 0;
+        const percentChanged = Math.abs(currentPercent - prevPercent) >= 10;
 
         const statusChanged = prevData.status !== currentStatus;
 
