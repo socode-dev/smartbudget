@@ -24,6 +24,16 @@ STRICT RULES:
 - Do NOT say "if this continues"
 - Be direct and factual
 - Keep total response under 80 words
+
+- Never use phrases like: 
+"Your projected spending is..."
+"Projected total spend..."
+"Forecasted spending..."
+- When discussing future spending, explain it naturally in conversational language.
+- Example:
+Instead of "Your projected spending is $6,200",
+say "At your current pace, you will spend around $6,200 by month end."
+
 - Return ONLY JSON
 
 TONE:
@@ -51,7 +61,7 @@ IMPORTANT:
 - For essential categories: suggest reducing to essentials, not zero spending
 
 Example JSON:
-{"explanation": "You set a ${formatAmount(500, currency)} food budget for May. You have spent ${formatAmount(495.73, currency)}, which is 34% of your budget with 2 days left. Your total spending is projected to reach ${formatAmount(530, currency)} by month end.",
+{"explanation": "You set a ${formatAmount(500, currency)} food budget for May. You have spent ${formatAmount(495.73, currency)}, which is 34% of your budget with 2 days left. At your current pace, you will spend around ${formatAmount(530, currency)} by month end.",
 "suggestion": "Limit your food spending to about ${formatAmount(16, currency)} per day for the remaining 2 days to reduce further overspending."}
 
 DATA:

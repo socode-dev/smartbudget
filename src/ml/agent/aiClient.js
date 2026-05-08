@@ -30,5 +30,4 @@ export const generateAIResponse = async ({ prompt, model, userId }) => {
 
 } catch (err) {
     throw err;
-  }
-}
+  }}

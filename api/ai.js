@@ -6,19 +6,16 @@ const client = new Client({
 });
 
 export default async function handler(req, res) {
-  if (req.method !== "POST") {
-    return res.status(405).json({ error: "Method not allowed" });
-  }
+  const { prompt, model, userId } = req.body;
+
+  if(!prompt || !userId || !model) {
+    return res.status(400).json({ error: "Missing prompt, userId, or model" });
+  }  
+  let quota = {allowed: true};
+  
   try {
-    const { prompt, model, userId } = req.body;
-
-    if(!prompt || !userId || !model) {
-      return res.status(400).json(({error: "Missing prompt or userId"}))
-    }
-
     const DEV_USER_ID = process.env.DEV_USER_ID;
 
-    let quota = {allowed: true};
 
     if(userId !== DEV_USER_ID) {
     const quota = await consumeQuota(userId);
