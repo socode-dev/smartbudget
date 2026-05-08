@@ -42,12 +42,14 @@ const InsightCard = ({ insight }) => {
 
       <hr className="border-[rgb(var(--color-gray-border))] w-[95%] mx-auto" />
 
-      <p className="h-fit text-sm text-[rgb(var(--color-muted))] px-12 py-3 my-3 leading-relaxed">{message}</p>
+      <p className="grow text-sm text-[rgb(var(--color-muted))] px-12 py-3 my-3 leading-relaxed">{message}</p>
 
       <hr className="border-[rgb(var(--color-gray-border))] w-[95%] mx-auto" />
 
       <p className="text-sm text-[rgb(var(--color-muted))] bg-gray-50 flex items-start gap-4 pl-4 pr-8 py-3 overflow-hidden">
-        <FaLightbulb size={30} className="text-yellow-300/80" />
+        <span className="w-10 h-10 text-yellow-300/80">
+        <FaLightbulb size={18} />
+        </span>
         <span>{actionText}</span>
       </p>
     </div>

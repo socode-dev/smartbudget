@@ -145,7 +145,7 @@ const Login = () => {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="w-full text-base text-center font-medium py-1 rounded-lg shadow bg-[rgb(var(--color-brand))] text-white hover:scale-97 active:scale-103 transition cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full text-base text-center font-medium py-2 rounded-lg shadow bg-[rgb(var(--color-brand))] text-white hover:scale-97 active:scale-103 transition cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isSubmitting ? <LoadingSpinner size={25} /> : "Sign In"}
         </button>

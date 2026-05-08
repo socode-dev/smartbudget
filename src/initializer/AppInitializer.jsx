@@ -117,7 +117,7 @@ const AppInitializer = () => {
           addInsight(uid, ins);
         }
       } catch (err) {
-        throw new Error(err);
+        console.error(err);
       }
     };
 

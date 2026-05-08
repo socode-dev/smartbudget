@@ -7,6 +7,9 @@ import { runBudgetAgent } from "./agent/budgetAgent";
 // import { getForecastSeverity } from "./getForecastSeverity";
 import useTransactionStore from "../store/useTransactionStore";
 import useCurrencyStore from "../store/useCurrencyStore";
+import { buildCashFlowData } from "./forecast/cashFlowData";
+import { runCashFlowAgent } from "./agent/cashFlowAgent";
+import { triggerCashFlowTransactional } from "./forecast/triggerCashFlow";
 // import { formatAmount } from "../utils/formatAmount";
 
 // Create a module Web Worker for training to keep the main thread responsive
@@ -25,9 +28,9 @@ export const generateInsight = async (uid, transactions) => {
   // Atomically check and trigger anomalies
   for (const anomaly of anomalies) {
     try {
-      const result = await triggerAnomalyTransactional(uid, anomaly);
+      const triggerResult = await triggerAnomalyTransactional(uid, anomaly);
 
-      if(!result.triggered) continue;
+      if(!triggerResult.triggered) continue;
       
         const anomalyInsight = await runAnomalyAgent(anomaly, uid);
         
@@ -57,6 +60,21 @@ export const generateInsight = async (uid, transactions) => {
     }
 
   }
+
+  // Trigger cash flow forecast
+    const cashFlowData = buildCashFlowData(transactions, selectedCurrency);
+
+    try {
+      const triggerResult = await triggerCashFlowTransactional(uid, cashFlowData);
+
+      if(cashFlowData.outcome !== "SAFE" && triggerResult.triggered) {
+
+      const cashFlowInsight = await runCashFlowAgent(cashFlowData, uid)
+      if(cashFlowInsight) processedInsights.push(cashFlowInsight);
+      }
+    } catch (err) {
+      throw err
+    }
   
   return processedInsights;
 
