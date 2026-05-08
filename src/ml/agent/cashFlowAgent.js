@@ -22,10 +22,12 @@ export const runCashFlowAgent = async (cashFlowData, userId, {isDemo = false} = 
     
     try {
       const fallbackModel = selectModel({isDemo, primaryFailed: true});
-      const response = await generateAIResponse({ prompt, model: fallbackModel, userId });
+      response = await generateAIResponse({ prompt, model: fallbackModel, userId });
 
       return insightData(cashFlowData, response, fallbackModel);
-    } catch (fallbackError) {
+    
+    } 
+    catch (fallbackError) {
 
       if(fallbackError.code === "AI_LIMIT_REACHED") {
         setAILimitReached(true);
@@ -35,21 +37,20 @@ export const runCashFlowAgent = async (cashFlowData, userId, {isDemo = false} = 
         ...ruleBasedInsight,
         modelUsed: "rule-based"
       }
-    };
+    }
 
   }
 };
 
 
 const insightData = (cashFlowData, response, model) => {
-  let riskLevel;
-
     switch (cashFlowData.outcome) {
         case "RISK":
             riskLevel = "HIGH";
             break;
         case "WARNING":
             riskLevel = "MEDIUM";
+            break;
         default:
             riskLevel = "LOW";
     }

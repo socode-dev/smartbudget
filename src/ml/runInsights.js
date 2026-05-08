@@ -64,6 +64,8 @@ export const generateInsight = async (uid, transactions) => {
   // Trigger cash flow forecast
     const cashFlowData = buildCashFlowData(transactions, selectedCurrency);
 
+    if(!cashFlowData) return processedInsights;
+
     try {
       const triggerResult = await triggerCashFlowTransactional(uid, cashFlowData);
 

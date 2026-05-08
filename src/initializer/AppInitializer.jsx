@@ -117,7 +117,7 @@ const AppInitializer = () => {
           addInsight(uid, ins);
         }
       } catch (err) {
-        console.error(err);
+        useInsightsStore.getState().setInsightError(err.message);
       }
     };
 

@@ -1,4 +1,5 @@
 import { getDaysInMonth, getDate, getMonth, getYear } from "date-fns";
+import {v4 as uuidv4} from "uuid";
 
 export const buildCashFlowData = (transactions, currency) => {
 const now = new Date();
@@ -87,8 +88,11 @@ Math.max(0, totalIncome - projectedTotalSpend).toFixed(2)
 const hasNoIncome = totalIncome === 0;
 
 const getOutcome = () => {
-if (hasNoIncome && totalSpent > 0) {
-return "RISK";
+if (hasNoIncome) {
+  if(totalSpent > 0) {
+    return "RISK"
+  }
+return "SAFE";
 }
 
 const currentRatio = totalSpent / totalIncome;
@@ -116,7 +120,7 @@ return "SAFE";
 const outcome = getOutcome();
 
 return {
-  id: `txn_${Math.random().toString(36).slice(2)}`,
+  id: `txn_${uuidv4()}`,
 period: {
 days_elapsed: todayDate,
 days_remaining: daysRemaining,
@@ -150,5 +154,5 @@ outcome
 const totalAmount = (transactions, type) => {
 return transactions
 .filter((t) => t.type === type)
-.reduce((sum, t) => sum + t.amount, 0);
+.reduce((sum, t) => sum + (typeof t.amount === "number" ? t.amount : 0), 0);
 };

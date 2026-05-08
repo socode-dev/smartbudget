@@ -14,7 +14,7 @@ export const triggerCashFlowTransactional = async (userId, cashFlowData) => {
             transaction.set(ref, {
                 outcome: cashFlowData.outcome,
                 projectedTotalSpend: cashFlowData.forecast.projected_total_spend,
-                projectedRemainingBalace: cashFlowData.forecast.projected_remaining_balance,
+                projectedRemainingBalance: cashFlowData.forecast.projected_remaining_balance,
                 incomeTotal: cashFlowData.income.total,
                 lastTriggered: Date.now(),
             });
@@ -27,27 +27,27 @@ export const triggerCashFlowTransactional = async (userId, cashFlowData) => {
         const outcomeChanged = existing.outcome !== cashFlowData.outcome;
 
         const prevOverspend = Math.abs(existing.projectedRemainingBalace);
-        const newOverspend = Math.abs(cashFlowData.forecast.projectedRemainingBalace);
+        const newOverspend = Math.abs(cashFlowData.forecast.projected_remaining_balance);
 
         const overspendIncreased = newOverspend - prevOverspend > 100;
 
-        const prevRatio = existing.projectedTotalSpend / existing.incomeTotal;
+        const prevRatio = existing.incomeToal > 0 ? existing.projectedTotalSpend / existing.incomeTotal : 0;
 
-        const newRatio = cashFlowData.forecast.projected_total_spend / cashFlowData.forecast.income_total;
+        const newRatio = cashFlowData.forecast.income_total > 0 ? cashFlowData.forecast.projected_total_spend / cashFlowData.forecast.income_total : 0;
 
         const ratioIncreased = newRatio - prevRatio > 0.1
 
         const shouldRemind = cashFlowData.outcome === "WARNING" && Date.now() - existing.lastTriggered > REMINDER_INTERVAL;
 
-        const shouldTrigger = outcomeChanged || overspendIncreased || ratioIncreased || ratioIncreased || shouldRemind;
+        const shouldTrigger = outcomeChanged || overspendIncreased || ratioIncreased || shouldRemind;
 
         if(shouldTrigger) {
             transaction.update(ref, {
                 outcome: cashFlowData.outcome,
                 projectedTotalSpend: cashFlowData.forecast.projected_total_spend,
-                projectedRemainingBalace: cashFlowData.forecast.projected_remaining_balance,
-                incomeTotal: cashFlowData.income.total,
-                lastTriggered: serverTimestamp()
+                projectedRemainingBalance: cashFlowData.forecast.projected_remaining_balance,
+                incomeTotal: cashFlowData.forecast.income_total,
+                lastTriggered: Date.now()
             })
         }
 

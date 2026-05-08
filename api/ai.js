@@ -9,9 +9,8 @@ export default async function handler(req, res) {
   const { prompt, model, userId } = req.body;
 
   if(!prompt || !userId || !model) {
-    return res.status(400).json(({error: "Missing prompt or userId"}))
-  }
-  
+    return res.status(400).json({ error: "Missing prompt, userId, or model" });
+  }  
   let quota = {allowed: true};
   
   try {

@@ -20,8 +20,10 @@ const useInsightsStore = create(
   persist(
     (set, get) => ({
       insights: [],
+      insightError: null,
       aiLimitReached: false,
 
+      setInsightError: (message) => set({insightError: message}),
       setAILimitReached: (bool) => set({aiLimitReached: bool}),
 
       // Generation lock to prevent multiple simultaneous insight generation

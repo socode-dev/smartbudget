@@ -80,7 +80,7 @@ Return ONLY JSON:
 {"explanation": "", "suggestion": ""}
 
 EXAMPLE JSON (Vary how you start and end suggestion):
-{"explanation": "You have earned ${formatAmount(5000, currency)} and spent ${formatAmount(2000, currency)}, leaving a balance of ${formatAmount(3000, currency)}. At your current spending behaviuor, your money will last about 7 days, which means it will not cover the rest of the month.", 
+{"explanation": "You have earned ${formatAmount(5000, currency)} and spent ${formatAmount(2000, currency)}, leaving a balance of ${formatAmount(3000, currency)}. At your current spending behaviour, your money will last about 7 days, which means it will not cover the rest of the month.", 
 "suggestion": "cut your daily spending down to ${formatAmount(115.38, currency)} so your balance can last for the rest of the month."}
 
 Data:
