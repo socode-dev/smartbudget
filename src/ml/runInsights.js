@@ -55,11 +55,12 @@ export const generateInsight = async (uid, transactions) => {
     try {
       const triggerResult = await triggerBudgetComplianceTransactional(uid, complianceData);
 
-      if(!triggerResult.triggered) continue;
+      if(triggerResult.triggered){
 
         const budgetInsight = await runBudgetAgent(complianceData, uid);
 
-      if(budgetInsight) processedInsights.push(budgetInsight);
+        if(budgetInsight) processedInsights.push(budgetInsight);
+      }
     } catch (err) {
       throw err;
     }
@@ -84,7 +85,7 @@ export const generateInsight = async (uid, transactions) => {
     // Trigger financial risk insight
     const financialRiskData = buildFinancialRiskData(anomalies, budgetComplianceList, cashFlowData, transactions);
 
-    if(Boolean(financialRiskData)) {
+    if(financialRiskData) {
       const {score, level} = financialRiskData.risk;
 
       try {

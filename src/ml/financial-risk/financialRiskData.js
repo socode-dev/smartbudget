@@ -1,5 +1,4 @@
-import { getMonth, getYear } from "date-fns";
-import useCurrencyStore from  "../../store/useCurrencyStore";
+import { getMonth, getYear } from "date-fns";        riskScore += Math.min(atRiskBudgets.length * 5, 10);import useCurrencyStore from  "../../store/useCurrencyStore";
 import {v4 as uuidv4} from "uuid";
 
 export const buildFinancialRiskData = (anomalies, budgetComplianceData, cashFlowData, transactions) => {
@@ -15,8 +14,7 @@ export const buildFinancialRiskData = (anomalies, budgetComplianceData, cashFlow
 
     // Budget signals
     const exceededBudgets = budgetComplianceData.filter(b => b.derived.compliance_status === "EXCEEDED");
-    const atRiskBudgets = budgetComplianceData.filter(b => b.derived_compliance_status === "AT_RISK");
-    
+    const atRiskBudgets = budgetComplianceData.filter(b => b.derived.compliance_status === "AT_RISK");    
     const totalBudgets = budgetComplianceData.length;
     
     const budgetComplianceRate = totalBudgets > 0 ? Math.round(((totalBudgets - exceededBudgets.length) / totalBudgets) * 100) : 100; 
