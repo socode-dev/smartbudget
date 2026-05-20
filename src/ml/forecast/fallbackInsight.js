@@ -1,13 +1,14 @@
 import { formatAmount } from "../../utils/formatAmount";
 
-export const fallback = (complianceData) => {
+export const fallback = (cashFlowData) => {
 const {
 income,
 spending,
 forecast,
 outcome,
-period
-} = complianceData;
+period,
+derived
+} = cashFlowData;
 
 const currency = income.currency;
 
@@ -15,7 +16,7 @@ const isEarly = period.days_elapsed < 15;
 
 // EARLY MONTH LOGIC
 if (isEarly) {
-    const {explanation, suggestion} = getEarlyMonthInsight(outcome, spending, income, forecast, period, currency);
+    const {explanation, suggestion} = getEarlyMonthInsight(outcome, spending, income, derived, period, currency);
 
     const insight = getInsightData(explanation, suggestion, outcome, period.month, period.year);
 
@@ -23,7 +24,7 @@ if (isEarly) {
 };
 
 // LATE MONTH LOGIC
-    const {explanation, suggestion} = getLateMonthInsight(outcome, spending, income, forecast, period, currency);
+    const {explanation, suggestion} = getLateMonthInsight(outcome, spending, period, currency);
 
     const insight = getInsightData(explanation, suggestion, outcome, period.month, period.year);
 
@@ -32,7 +33,7 @@ if (isEarly) {
 
 
 
-const getEarlyMonthInsight = (outcome, spending, income, forecast, period, currency) => {
+const getEarlyMonthInsight = (outcome, spending, income, derived, period, currency) => {
     let explanation;
     let suggestion;
     
@@ -60,7 +61,7 @@ const getEarlyMonthInsight = (outcome, spending, income, forecast, period, curre
     return {explanation, suggestion}
 }
 
-const getLateMonthInsight = (outcome, spending, income, forecast, period, currency) => {
+const getLateMonthInsight = (outcome, spending, period, currency) => {
     let explanation;
     let suggestion;
 

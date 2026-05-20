@@ -1,4 +1,4 @@
-import {doc, getDoc, setDoc, runTransaction} from "firebase/firestore";
+import {doc, runTransaction} from "firebase/firestore";
 import {db} from "../../firebase/firebase"
 
 const ANOMALY_INCREASE_THRESHOLD = 0.5;
