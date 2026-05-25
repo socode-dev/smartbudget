@@ -1,13 +1,12 @@
-import { buildAnomalyPrompt } from "../anomaly/promptBuilder";
-import { generateAIResponse } from "./aiClient";
-import {selectModel, MODEL_CONFIG} from "./modelRouter";
-import {fallback} from "../anomaly/fallbackInsight";
-import useInsightsStore from "../../store/useInsightsStore";
+import { buildAnomalyPrompt } from "../prompts/anomaly.js";
+import { generateAIResponse } from "./aiClient.js";
+import {selectModel, MODEL_CONFIG} from "./modelRouter.js";
+import {fallback} from "../fallbacks/anomaly.js";
 
-export const runAnomalyAgent = async (anomaly, userId, {isDemo = false} = {}) => {
-  const {setAILimitReached} = useInsightsStore.getState();
-  const prompt = buildAnomalyPrompt(anomaly);
-  const ruleBasedInsight = fallback(anomaly)
+export const runAnomalyAgent = async ({anomaly, userId, isDemo} = {}) => {
+
+  const prompt = buildAnomalyPrompt({ anomaly });
+  const ruleBasedInsight = fallback({ anomaly })
   
   let primaryFailed = false;
   let response;
@@ -21,7 +20,6 @@ export const runAnomalyAgent = async (anomaly, userId, {isDemo = false} = {}) =>
       id: anomaly.id,
       type: "anomaly",
       actionType: "suggestion",
-      createdAt: new Date(),
       severity: anomaly.risk.level,
       baselineValue: anomaly.signal.baseline_value,
       category: anomaly.category,
@@ -49,9 +47,6 @@ export const runAnomalyAgent = async (anomaly, userId, {isDemo = false} = {}) =>
       modelUsed: fallbackModel
       }    
     } catch (fallbackError) {
-      if(fallbackError.code === "AI_LIMIT_REACHED") {
-        setAILimitReached(true);
-      }
 
         return {
         ...ruleBasedInsight,

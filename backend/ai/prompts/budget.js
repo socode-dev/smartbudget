@@ -1,7 +1,7 @@
-import {formatAmount} from "../../utils/formatAmount"
+import { formatAmount } from "../shared/formatAmount.js";
 
-export const buildBudgetComplianceAgentPrompt = (data) => {
-const {category, budget, spending, time, derived} = data;
+export const buildBudgetComplianceAgentPrompt = ({ complianceData }) => {
+const {category, budget, spending, time, derived} = complianceData;
 const currency = budget.currency;
 
 const statusContext = {
@@ -61,18 +61,18 @@ IMPORTANT:
 - For essential categories: suggest reducing to essentials, not zero spending
 
 Example JSON:
-{"explanation": "You set a ${formatAmount(500, currency)} food budget for May. You have spent ${formatAmount(495.73, currency)}, which is 34% of your budget with 2 days left. At your current pace, you will spend around ${formatAmount(530, currency)} by month end.",
-"suggestion": "Limit your food spending to about ${formatAmount(16, currency)} per day for the remaining 2 days to reduce further overspending."}
+{"explanation": "You set a ${formatAmount({amount: 500, currency})} food budget for May. You have spent ${formatAmount({amount: 495.73, currency})}, which is 34% of your budget with 2 days left. At your current pace, you will spend around ${formatAmount({amount: 530, currency})} by month end.",
+"suggestion": "Limit your food spending to about ${formatAmount({amount: 16, currency})} per day for the remaining 2 days to reduce further overspending."}
 
 DATA:
 Category: ${category}
-Budget: ${formatAmount(budget.amount, currency)} for ${budget.month}
-Spent: ${formatAmount(spending.total_spent, currency)} (${derived.percent_budget_used}% used)
+Budget: ${formatAmount({amount: budget.amount, currency})} for ${budget.month}
+Spent: ${formatAmount({amount: spending.total_spent, currency})} (${derived.percent_budget_used}% used)
 Month progress: ${time.percent_of_month_elapsed}% elapsed
 Days remaining: ${time.days_remaining}
-Projected total: ${formatAmount(derived.projected_total, currency)}
-Safe daily spend: ${formatAmount(derived.safe_daily_spend, currency)}/day
+Projected total: ${formatAmount({amount: derived.projected_total, currency})}
+Safe daily spend: ${formatAmount({amount: derived.safe_daily_spend, currency})}/day
 Status: ${derived.compliance_status}
-Is current month: ${data.time.isCurrentMonth}
+Is current month: ${time.isCurrentMonth}
 `;
 };

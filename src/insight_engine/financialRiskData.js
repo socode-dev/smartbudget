@@ -1,4 +1,5 @@
-import { getMonth, getYear } from "date-fns";        riskScore += Math.min(atRiskBudgets.length * 5, 10);import useCurrencyStore from  "../../store/useCurrencyStore";
+import { getMonth, getYear } from "date-fns";        
+import useCurrencyStore from  "../store/useCurrencyStore";
 import {v4 as uuidv4} from "uuid";
 
 export const buildFinancialRiskData = (anomalies, budgetComplianceData, cashFlowData, transactions) => {
@@ -70,7 +71,7 @@ export const buildFinancialRiskData = (anomalies, budgetComplianceData, cashFlow
 
         // Budget contribution (30points max)
         riskScore += Math.min(exceededBudgets.length * 10, 20);
-        riskScore += Math.min(atRiskBudgets * 5, 10);
+        riskScore += Math.min(atRiskBudgets.length * 5, 10);
 
         // Cash flow contribution (25 points max)
         if(cashFlowOutcome === "RISK") riskScore += 25;

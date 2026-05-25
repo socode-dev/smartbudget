@@ -1,6 +1,7 @@
-import { formatAmount } from "../../utils/formatAmount";
+import { formatAmount } from "../shared/formatAmount.js";
+import {v4 as uuidv4} from "uuid";
 
-export const fallback = (cashFlowData) => {
+export const fallback = ({cashflowData}) => {
 const {
 income,
 spending,
@@ -8,7 +9,7 @@ forecast,
 outcome,
 period,
 derived
-} = cashFlowData;
+} = cashflowData;
 
 const currency = income.currency;
 
@@ -39,7 +40,7 @@ const getEarlyMonthInsight = (outcome, spending, income, derived, period, curren
     
     switch (outcome) {
         case "RISK":
-            explanation = `You have spent ${formatAmount(spending.total_spent, currency)} from your current income of ${formatAmount(income.total, currency)} within ${period.days_elapsed}. If you keep spending at your current pace, your money is not going last through the month.`;
+            explanation = `You have spent ${formatAmount({amount: spending.total_spent, currency})} from your current income of ${formatAmount({amount: income.total, currency})} within ${period.days_elapsed}. If you keep spending at your current pace, your money is not going last through the month.`;
 
             suggestion = `Reduce your daily spending so your balance can last through the rest of the month.`;
     
@@ -67,7 +68,7 @@ const getLateMonthInsight = (outcome, spending, period, currency) => {
 
     switch (outcome) {
         case "RISK":
-            explanation = `You have spent ${formatAmount(spending.total_spent, currency)} against your current income. At your current pace, you will spend more than your current income by the month end.`;
+            explanation = `You have spent ${formatAmount({amount: spending.total_spent, currency})} against your current income. At your current pace, you will spend more than your current income by the month end.`;
 
             suggestion = `Limit your spending per day to reduce further overspending before month end.`;
             
@@ -104,14 +105,14 @@ const getInsightData = (explanation, suggestion, outcome, month, year) => {
     }
 
         return {
-        id: `cash_flow_${Math.random().toString(36).slice(2)}`,
-      type: "cash-flow-forecast",
-      actionType: "suggestion",
-      createdAt: new Date(),
-      severity: riskLevel,
-      category: null,
-      month,
-      year,
-      agent: { explanation, suggestion }
-    }
+            id: cashflowData.id,
+            type: "cashflow",
+            actionType: "suggestion",
+            createdAt: new Date(),
+            severity: riskLevel,
+            category: null,
+            month,
+            year,
+            agent: { explanation, suggestion }
+        }
     }

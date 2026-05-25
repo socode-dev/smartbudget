@@ -1,4 +1,4 @@
-export const fallback = (anomaly) => {
+export const fallback = ({anomaly}) => {
     const id = anomaly?.id ?? `anomaly-${Date.now()}`;
     const severity = anomaly?.risk?.level ?? "LOW";
     const baselineValue = anomaly?.signal?.baseline_value ?? 0;
@@ -11,7 +11,6 @@ export const fallback = (anomaly) => {
         id,
       type: "anomaly",
       actionType: "suggestion",
-      createdAt: new Date(),
       severity,
       baselineValue,
       category,

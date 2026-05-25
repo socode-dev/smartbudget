@@ -1,4 +1,4 @@
-import { formatAmount } from "../../utils/formatAmount";
+import { formatAmount } from "../shared/formatAmount.js";
 
 export const fallback = (complianceData) => {
     const { category, budget, spending, time, derived } = complianceData;
@@ -8,10 +8,10 @@ export const fallback = (complianceData) => {
     const currency = budget.currency;
     const isCurrentMonth = time.is_current_month;
 
-    const budgetAmount = formatAmount(budget.amount, currency);
-    const spent = formatAmount(spending.total_spent, currency);
-    const projected = formatAmount(derived.projected_total, currency);
-    const safeDaily = formatAmount(derived.safe_daily_spend, currency);
+    const budgetAmount = formatAmount({amount: budget.amount, currency});
+    const spent = formatAmount({amount: spending.total_spent, currency});
+    const projected = formatAmount({amount: derived.projected_total, currency});
+    const safeDaily = formatAmount({amount: derived.safe_daily_spend, currency});
 
     let explanation = "";
     let suggestion = "";

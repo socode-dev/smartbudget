@@ -1,5 +1,6 @@
 import {getDaysInMonth, getDate, getMonth, getYear} from "date-fns";
-import {getInsightDate} from "../../utils/normalizeInsight";
+import {getInsightDate} from "../utils/normalizeInsight";
+import {v4 as uuidv4} from "uuid";
 
 export const buildBudgetComplianceData = (budget, transactions, currency) => {
     const now = new Date();
@@ -54,7 +55,7 @@ export const buildBudgetComplianceData = (budget, transactions, currency) => {
     }
 
      return {
-        id: `budget_${Math.random().toString(36).slice(2)}`,
+        id: `budget_${uuidv4()}`,
         category: budget.category,
         budget: {
             amount: budget.amount,

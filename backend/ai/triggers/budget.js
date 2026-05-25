@@ -1,5 +1,5 @@
 import { doc, runTransaction, serverTimestamp } from "firebase/firestore";
-import { db } from "../../firebase/firebase";
+import { db } from "../../../src/firebase/firebase";
 
 export const triggerBudgetComplianceTransactional = async (userId, complianceData) => {
     const key = `${complianceData.category}_${complianceData.budget.month}_${complianceData.budget.year}`;

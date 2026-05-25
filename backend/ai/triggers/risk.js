@@ -1,6 +1,6 @@
 import { getMonth, getYear } from "date-fns";
 import {doc, getDoc, setDoc, runTransaction, serverTimestamp} from "firebase/firestore";
-import {db} from "../../firebase/firebase";
+import {db} from "../../../src/firebase/firebase";
 
 const buildRiskKey = () => {
     const now = new Date();

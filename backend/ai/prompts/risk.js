@@ -1,5 +1,5 @@
-export const buildFinancialRiskPrompt = (data) => {
-const { risk, anomaly_signals, budget_signals, cashflow_signals, historical } = data;
+export const buildFinancialRiskPrompt = ({riskData}) => {
+const { risk, anomaly_signals, budget_signals, cashflow_signals, historical } = riskData;
 
 const riskContext = {
 HIGH: "Strong signs of recurring financial instability. Be calm, direct, and human. Focus on sustainability without sounding alarming.",

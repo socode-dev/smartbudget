@@ -1,15 +1,15 @@
-import { formatAmount } from "../../utils/formatAmount";
+import { formatAmount } from "../shared/formatAmount.js";
 
 const PROJECTION_START_DAY = 15;
 
-export const buildCashFlowAgentPrompt = (data) => {
-const { period, income, spending, forecast, derived, outcome } = data;
+export const buildCashflowAgentPrompt = ({cashflowData}) => {
+const { period, income, spending, forecast, derived, outcome } = cashflowData;
 const currency = income.currency;
 
 const isEarly =
 derived.projection_confidence === "LOW" || period.days_elapsed < PROJECTION_START_DAY;
 
-const balanceContext = spending.current_balance > 0 ? `Current balance: ${formatAmount(spending.current_balance, currency)}` : ""
+const balanceContext = spending.current_balance > 0 ? `Current balance: ${formatAmount({amount: spending.current_balance, currency})}` : ""
 
 return `
 You are a calm, precise financial assistant.
@@ -80,12 +80,12 @@ Return ONLY JSON:
 {"explanation": "", "suggestion": ""}
 
 EXAMPLE JSON (Vary how you start and end suggestion):
-{"explanation": "You have earned ${formatAmount(5000, currency)} and spent ${formatAmount(2000, currency)}, leaving a balance of ${formatAmount(3000, currency)}. At your current spending behaviour, your money will last about 7 days, which means it will not cover the rest of the month.", 
-"suggestion": "cut your daily spending down to ${formatAmount(115.38, currency)} so your balance can last for the rest of the month."}
+{"explanation": "You have earned ${formatAmount({amount: 5000, currency})} and spent ${formatAmount({amount: 2000, currency})}, leaving a balance of ${formatAmount({amount: 3000, currency})}. At your current spending behaviour, your money will last about 7 days, which means it will not cover the rest of the month.", 
+"suggestion": "cut your daily spending down to ${formatAmount({amount: 115.38, currency})} so your balance can last for the rest of the month."}
 
 Data:
-Current income: ${formatAmount(income.total, currency)}
-Spent: ${formatAmount(spending.total_spent, currency)} (${derived.percent_spent}%)
+Current income: ${formatAmount({amount: income.total, currency})}
+Spent: ${formatAmount({amount: spending.total_spent, currency})} (${derived.percent_spent}%)
 ${balanceContext}
 Days remaining: ${period.days_remaining}
 
@@ -99,16 +99,16 @@ forecast.spending_runway_days !== null
 }
 Safe daily spend: ${
 forecast.safe_daily_spend > 0
-? formatAmount(forecast.safe_daily_spend, currency) + "/day"
+? formatAmount({amount: forecast.safe_daily_spend, currency}) + "/day"
 : "Already at risk"
 }
 `
 : `
-Projected spend: ${formatAmount(forecast.projected_total_spend, currency)}
-Projected balance: ${formatAmount(forecast.projected_remaining_balance, currency)}
+Projected spend: ${formatAmount({amount: forecast.projected_total_spend, currency})}
+Projected balance: ${formatAmount({amount: forecast.projected_remaining_balance, currency})}
 Safe daily spend: ${
 forecast.safe_daily_spend > 0
-? formatAmount(forecast.safe_daily_spend, currency) + "/day"
+? formatAmount({amount: forecast.safe_daily_spend, currency}) + "/day"
 : "Already at risk"
 }
 `

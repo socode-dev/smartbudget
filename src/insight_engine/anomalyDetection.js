@@ -1,8 +1,10 @@
 import { parseISO, format } from "date-fns";
-import { getMedian, getMAD, getRiskScore } from "../../utils/stats";
+import { getMedian, getMAD, getRiskScore } from "../utils/stats";
+import useCurrencyStore from "../store/useCurrencyStore";
 
 // Detect unusual monthly spend by category
 export const detectAnomalies = (transactions) => {
+  const {selectedCurrency} = useCurrencyStore.getState();
   const MIN_HISTORY_MONTHS = 4;
   const ROBUST_Z_THRESHOLD = 3;
   const MIN_ABSOLUTE_INCREASE = 50;
@@ -99,6 +101,7 @@ export const detectAnomalies = (transactions) => {
       id: `anomaly_${Math.random().toString(36).slice(2)}`,
       type: "anomaly",
       category,
+      currency: selectedCurrency,
       timestamp: new Date().toISOString(),
 
       risk: {

@@ -1,28 +1,24 @@
-import { buildFinancialRiskPrompt } from "../financial-risk/promptBuilder";
-import { fallback } from "../financial-risk/fallbackInsight";
-import {generateAIResponse} from "./aiClient";
-import {selectModel, MODEL_CONFIG} from "./modelRouter";
-import useInsightsStore from "../../store/useInsightsStore";
-import { serverTimestamp } from "firebase/firestore";
+import { buildFinancialRiskPrompt } from "../prompts/risk.js"
+import { riskFallback } from "../fallbacks/risk.js";
+import { generateAIResponse } from "./aiClient.js";
+import { selectModel } from "./modelRouter.js";
 
-export const runFinancialRiskAgent = async (data, userId, {isDemo = false} = {}) => {
-    const {setAILimitReached} = useInsightsStore.getState();
-    const prompt = buildFinancialRiskPrompt(data);
-    const ruleBasedInsight = fallback(data);
+export const runRiskAgent = async ({riskData, userId, isDemo} = {}) => {
+    const prompt = buildFinancialRiskPrompt({riskData});
+    const ruleBasedInsight = riskFallback({riskData});
 
     let primaryFailed = false;
     let model;
     let response;
     
     const insightData = {
-        id: data.id,
+        id: riskData.id,
         type: "financial-risk",
         actionType: "suggestion",
-        createdAt: serverTimestamp(),
-        severity: data.risk.level,
-        score: data.risk.score,
-        month: data.period.month,
-        year: data.period.year
+        severity: riskData.risk.level,
+        score: riskData.risk.score,
+        month: riskData.period.month,
+        year: riskData.period.year
     }
     
     try {
@@ -48,10 +44,6 @@ export const runFinancialRiskAgent = async (data, userId, {isDemo = false} = {})
             }
 
         } catch (fallbackError) {
-            
-            if(fallbackError.code === "AI_LIMIT_REACHED") {
-                setAILimitReached(true);
-            }
             
             return {
                 ...ruleBasedInsight,

@@ -1,13 +1,12 @@
-import { generateAIResponse } from "./aiClient";
-import {selectModel, MODEL_CONFIG} from "./modelRouter";
-import useInsightsStore from "../../store/useInsightsStore";
-import { buildBudgetComplianceAgentPrompt } from "../budget/promptBuilder";
-import { fallback } from "../budget/fallbackInsight";
+import { generateAIResponse } from "./aiClient.js";
+import {selectModel, MODEL_CONFIG} from "./modelRouter.js";
+import { buildBudgetComplianceAgentPrompt } from "../prompts/budget.js";
+import { fallback } from "../fallbacks/budget.js";
 
-export const runBudgetAgent = async (complianceData, userId, {isDemo = false} = {}) => {
-  const {setAILimitReached} = useInsightsStore.getState();
-  const prompt = buildBudgetComplianceAgentPrompt(complianceData);
-  const ruleBasedInsight = fallback(complianceData);
+export const runBudgetAgent = async ({ complianceData, userId, isDemo} = {}) => {
+
+  const prompt = buildBudgetComplianceAgentPrompt({complianceData});
+  const ruleBasedInsight = fallback({complianceData});
   
   let primaryFailed = false;
   let response;
