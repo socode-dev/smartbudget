@@ -1,5 +1,5 @@
 import { consumeQuota } from "../lib/quota.js";
-import {runFinancialRiskAgent} from "../backend/ai/agents/financialRiskAgent.js"
+import {runRiskAgent} from "../backend/ai/agent/riskAgent.js"
 import {runAnomalyAgent} from "../backend/ai/agents/anomalyAgent.js";
 import {runBudgetAgent} from "../backend/ai/agents/budgetAgent.js";
 import {runCashflowAgent} from "../backend/ai/agents/cashflowAgent.js"

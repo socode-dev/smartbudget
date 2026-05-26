@@ -19,7 +19,7 @@ const isEarly = period.days_elapsed < 15;
 if (isEarly) {
     const {explanation, suggestion} = getEarlyMonthInsight(outcome, spending, income, derived, period, currency);
 
-    const insight = getInsightData(explanation, suggestion, outcome, period.month, period.year);
+    const insight = buildCashflowInsight(cashflowData.id, explanation, suggestion, outcome, period.month, period.year);
 
     return insight;
 };
@@ -27,7 +27,7 @@ if (isEarly) {
 // LATE MONTH LOGIC
     const {explanation, suggestion} = getLateMonthInsight(outcome, spending, period, currency);
 
-    const insight = getInsightData(explanation, suggestion, outcome, period.month, period.year);
+    const insight = buildCashflowInsight(cashflowData.id, explanation, suggestion, outcome, period.month, period.year);
 
     return insight
 };
@@ -90,7 +90,7 @@ const getLateMonthInsight = (outcome, spending, period, currency) => {
         return {explanation, suggestion}
     }
 
-const getInsightData = (explanation, suggestion, outcome, month, year) => {
+const buildCashflowInsight = (id, explanation, suggestion, outcome, month, year) => {
 
     let riskLevel;
 
@@ -100,12 +100,13 @@ const getInsightData = (explanation, suggestion, outcome, month, year) => {
             break;
         case "WARNING":
             riskLevel = "MEDIUM";
+            break;
         default:
             riskLevel = "LOW";
     }
 
         return {
-            id: cashflowData.id,
+            id,
             type: "cashflow",
             actionType: "suggestion",
             createdAt: new Date(),

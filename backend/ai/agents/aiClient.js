@@ -1,7 +1,19 @@
 import dotenv from "dotenv";
-dotenv.config({path: ("./.env.local")});
+
+import { fileURLToPath } from "url";
+import { dirname, join } from "path";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+dotenv.config({ path: join(__dirname, "../../../.env.local") });
 
 import { Client } from "aisuite";
+
+const apiKey = process.env.OPENAI_API_KEY;
+
+if (!apiKey) {
+  throw new Error("OPENAI_API_KEY is required but not found in environment variables");
+}
 
 const client = new Client({
   openai: { apiKey: process.env.OPENAI_API_KEY }

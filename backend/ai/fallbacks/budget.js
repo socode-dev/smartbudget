@@ -3,7 +3,9 @@ import { formatAmount } from "../shared/formatAmount.js";
 export const fallback = (complianceData) => {
     const { category, budget, spending, time, derived } = complianceData;
 
-    if(!category || !budget || !spending || !time || !derived) return;
+    if(!category || !budget || !spending || !time || !derived) {
+      throw new Error("Budget complianceData not complete");
+    };
     
     const currency = budget.currency;
     const isCurrentMonth = time.is_current_month;
@@ -25,7 +27,7 @@ export const fallback = (complianceData) => {
     suggestion = `You stayed within your budget. Maintain this spending pattern next month to stay consistent.`;
     }
 
-    return insightData(category, budget.month, budget.year, derived.risk_level, explanation, suggestion);
+    return buildBudgetInsight(category, budget.month, budget.year, derived.risk_level, explanation, suggestion);
     }
 
     explanation = `You set a ${budgetAmount} ${category.toLowerCase()} budget for ${budget.month}. You have spent ${spent}, which is ${derived.percent_budget_used}% of your budget with ${time.days_remaining} days left. Your total spending is projected to reach ${projected} by month end.`;
@@ -44,15 +46,14 @@ export const fallback = (complianceData) => {
         suggestion = `You are on track. Continue keeping your ${category.toLowerCase()} spending within ${safeDaily} per day.`;
     }
 
-    return insightData(category, budget.month, budget.year, derived.risk_level, explanation, suggestion)
+    return buildBudgetInsight(category, budget.month, budget.year, derived.risk_level, explanation, suggestion)
 }
 
-const insightData = (category, month, year, riskLevel, explanation, suggestion) => {
+const buildBudgetInsight = (category, month, year, riskLevel, explanation, suggestion) => {
   return {
         id: `budget_${Math.random().toString(36).slice(2)}`,
       type: "budget-compliance",
       actionType: "suggestion",
-      createdAt: new Date(),
       severity: riskLevel,
       category,
       month,

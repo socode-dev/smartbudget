@@ -23,7 +23,7 @@ Rules:
 - Be specific, reference numbers naturally and be direct about the impact
 - Make the suggestion actionable and practical (e.g., set a weekly limit, reduce frequency, track spending daily)
 - Reference recent history. Note if this is the highest spend in recent months
-- Weekly budget x 4 must never exceed the baseline amount. Baseline is ${formatAmount({amount: signal.baseline_value, currency})}/month
+- Suggested weekly budget must allow staying within the monthly baseline of ${formatAmount({amount: signal.baseline_value, currency})}. Use weekly amount * 4.33 for monthly projection
 
 Example output:
 {"explanation": "You really went all out for groceries in May. You spent $1000, nearly 3x your usual $300.40 and the highest in recent months.", "suggestion": "Set strict a budget of $75 weekly in June and stick to it, to keep your total around your normal $300 for consistency."}

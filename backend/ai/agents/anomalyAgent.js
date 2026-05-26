@@ -8,7 +8,6 @@ export const runAnomalyAgent = async ({anomaly, userId, isDemo} = {}) => {
   const prompt = buildAnomalyPrompt({ anomaly });
   const ruleBasedInsight = fallback({ anomaly })
   
-  let primaryFailed = false;
   let response;
   
   try {
@@ -16,17 +15,7 @@ export const runAnomalyAgent = async ({anomaly, userId, isDemo} = {}) => {
     response = await generateAIResponse({ prompt, model, userId });
     
 
-      return {
-      id: anomaly.id,
-      type: "anomaly",
-      actionType: "suggestion",
-      severity: anomaly.risk.level,
-      baselineValue: anomaly.signal.baseline_value,
-      category: anomaly.category,
-      year: new Date().getFullYear(),
-      agent: response,
-      modelUsed: model
-      }
+      return buildAnomalyInsight({anomaly, response, model});
 
   } catch (primaryErr) {
 
@@ -34,18 +23,7 @@ export const runAnomalyAgent = async ({anomaly, userId, isDemo} = {}) => {
       const fallbackModel = selectModel({isDemo, primaryFailed: true});
       const response = await generateAIResponse({ prompt, model: fallbackModel, userId });
 
-      return {
-      id: anomaly.id,
-      type: "anomaly",
-      actionType: "suggestion",
-      createdAt: new Date(),
-      severity: anomaly.risk.level,
-      category: anomaly.category,
-      year: new Date().getFullYear(),
-      baselineValue: anomaly.signal.baseline_value,
-      agent: response,
-      modelUsed: fallbackModel
-      }    
+      return buildAnomalyInsight({anomaly, response, model: fallbackModel});
     } catch (fallbackError) {
 
         return {
@@ -56,3 +34,16 @@ export const runAnomalyAgent = async ({anomaly, userId, isDemo} = {}) => {
 
   }
 };
+
+
+const buildAnomalyInsight = ({anomaly, response, model}) => ({
+      id: anomaly.id,
+      type: "anomaly",
+      actionType: "suggestion",
+      severity: anomaly.risk.level,
+      category: anomaly.category,
+      year: new Date().getFullYear(),
+      baselineValue: anomaly.signal.baseline_value,
+      agent: response,
+      modelUsed: model
+      }    )

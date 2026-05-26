@@ -8,7 +8,6 @@ export const runBudgetAgent = async ({ complianceData, userId, isDemo} = {}) => 
   const prompt = buildBudgetComplianceAgentPrompt({complianceData});
   const ruleBasedInsight = fallback({complianceData});
   
-  let primaryFailed = false;
   let response;
   
   try {
@@ -25,9 +24,6 @@ export const runBudgetAgent = async ({ complianceData, userId, isDemo} = {}) => 
 
       return insightData(complianceData, response, fallbackModel);
     } catch (fallbackError) {
-      if(fallbackError.code === "AI_LIMIT_REACHED") {
-        setAILimitReached(true);
-      }
 
         return {
         ...ruleBasedInsight,

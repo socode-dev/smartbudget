@@ -26,12 +26,12 @@ export const triggerCashFlowTransactional = async (userId, cashFlowData) => {
 
         const outcomeChanged = existing.outcome !== cashFlowData.outcome;
 
-        const prevOverspend = Math.abs(existing.projectedRemainingBalace);
+        const prevOverspend = Math.abs(existing.projectedRemainingBalance);
         const newOverspend = Math.abs(cashFlowData.forecast.projected_remaining_balance);
 
         const overspendIncreased = newOverspend - prevOverspend > 100;
 
-        const prevRatio = existing.incomeToal > 0 ? existing.projectedTotalSpend / existing.incomeTotal : 0;
+        const prevRatio = existing.incomeTotal > 0 ? existing.projectedTotalSpend / existing.incomeTotal : 0;
 
         const newRatio = cashFlowData.forecast.income_total > 0 ? cashFlowData.forecast.projected_total_spend / cashFlowData.forecast.income_total : 0;
 
@@ -46,7 +46,7 @@ export const triggerCashFlowTransactional = async (userId, cashFlowData) => {
                 outcome: cashFlowData.outcome,
                 projectedTotalSpend: cashFlowData.forecast.projected_total_spend,
                 projectedRemainingBalance: cashFlowData.forecast.projected_remaining_balance,
-                incomeTotal: cashFlowData.forecast.income_total,
+                incomeTotal: cashFlowData.income.total,
                 lastTriggered: Date.now()
             })
         }

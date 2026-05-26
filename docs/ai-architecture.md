@@ -97,7 +97,7 @@ This allows the system to return useful financial insights even when model execu
 
 ### Backend AI Flow Diagram
 
-![SmartBudget backend AI flow](##)
+![SmartBudget backend AI flow]()
 
 ## Current Architecture Boundary
 

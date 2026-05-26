@@ -33,7 +33,7 @@ export const buildFinancialRiskData = (anomalies, budgetComplianceData, cashFlow
     const currentYear = getYear(now);
 
     // % of income left after spending
-    const savingsRate = cashFlowData.income > 0 ? 
+    const savingsRate = cashFlowData.income.total > 0 ? 
     Math.max(0, Math.round(
         ((cashFlowData.income.total - cashFlowData.spending.total_spent) / cashFlowData.income.total) * 100
     ))
@@ -75,7 +75,7 @@ export const buildFinancialRiskData = (anomalies, budgetComplianceData, cashFlow
 
         // Cash flow contribution (25 points max)
         if(cashFlowOutcome === "RISK") riskScore += 25;
-        else if (cashFlowOutcome === "MEDIUM") riskScore += 15;
+        else if (cashFlowOutcome === "WARNING") riskScore += 15;
 
         // Savings rate contribution (10 points max)
         if(savingsRate < 10) riskScore += 10;
