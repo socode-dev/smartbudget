@@ -1,21 +1,41 @@
 # SmartBudget Overview
 
-SmartBudget is an AI-powered personal finance platform that helps users understand their financial behavior through deterministic analysis and AI-generated explanations.
+SmartBudget is an AI-powered personal finance platform that helps users track financial activity, manage budgets,, monitor spending behaviour and receive personalized financial insights in real time.
 
-The goal is not only to track transactions, but to help users:
+**Users can:**
+- track transactions and expenses
+- create and monitor budgets
+- analyze spending patterns
+- monitor financial health
+- receive AI-assisted financial insights
+
+**The goal is not only to track transactions, but to help users:**
 - understand unusual spending behavior
 - detect financial pressure early
 - improve budget discipline
 - anticipate cash flow problems
 - make clearer financial decisions
 
-SmartBudget keeps financial calculations predictable and controlled while using AI to explain, prioritize, and communicate insights in a more useful way.
+The platform combines deterministic financial analysis with AI-powered explanation systems to help users better understant their financial behaviour.
+
+**Rather than allowing AI to independently determine financial conditions, SmartBudget uses deterministic financial engines to calculate signals such as:**
+- anomalies
+- budget compliance
+- cash flow pressure
+- financial risk
+
+**AI then translate those structured signals into clear, human-readable explanations that helps users understand:**
+- what happened
+- why it matters
+- what acttions they can take
+
+This architecture keeps financial calculations predictable and explainable while still benefiting from AI-driven communication and personalization.
 
 ## Product Vision
 
 SmartBudget is designed to evolve into an intelligent financial operating system that can reason across a user's financial context while preserving trust and explainability.
 
-The long-term direction includes:
+**The long-term direction includes:**
 - contextual financial reasoning
 - adaptive insight prioritization
 - agentic orchestration
@@ -30,7 +50,7 @@ For more detail on how that principle shapes the AI system, see [SmartBudget AI 
 
 SmartBudget uses a hybrid deterministic + AI architecture.
 
-The system is split into two main responsibilities:
+**The system is split into two main responsibilities:**
 - deterministic financial signal generation
 - AI reasoning, explanation, and orchestration
 
@@ -60,8 +80,7 @@ SmartBudget intentionally avoids fully autonomous financial decision-making.
 
 Financial analysis remains deterministic. AI handles reasoning and communication.
 
-This balances:
-
+**This balances:**
 - trust
 - consistency
 - explainability
