@@ -1,63 +1,68 @@
-import { Client } from "aisuite";
 import { consumeQuota } from "../lib/quota.js";
-
-const client = new Client({
-  openai: { apiKey: process.env.OPENAI_API_KEY }
-});
+import {runRiskAgent} from "../backend/ai/agent/riskAgent.js"
+import {runAnomalyAgent} from "../backend/ai/agents/anomalyAgent.js";
+import {runBudgetAgent} from "../backend/ai/agents/budgetAgent.js";
+import {runCashflowAgent} from "../backend/ai/agents/cashflowAgent.js"
 
 export default async function handler(req, res) {
-  const { prompt, model, userId } = req.body;
+const {userId, riskData, anomalies, budgetComplianceList, cashflowData, isDemo} = req.body;
 
-  if(!prompt || !userId || !model) {
-    return res.status(400).json({ error: "Missing prompt, userId, or model" });
-  }  
-  let quota = {allowed: true};
-  
+  if(!userId) {
+    return res.status(400).json({error: "Missing userId"})
+  }
+
   try {
+
+    const insights = [];
+
     const DEV_USER_ID = process.env.DEV_USER_ID;
-
-
-    if(userId !== DEV_USER_ID) {
-    const quota = await consumeQuota(userId);
-    }
+  
+    let quota = {allowed: true};
     
-    if(!quota.allowed) {
+    if(userId !== DEV_USER_ID) {
+    quota = await consumeQuota(userId); 
+    }
+  
+    if (!quota.allowed) {
       return res.status(403).json({
         error: "AI_LIMIT_REACHED",
         message: "You've used all your free AI Insights."
-      })
+      });
     }
-
-    const response = await client.chat.completions.create({
-        model,
-        messages: [
-                    {
-                        role: "system",
-                        content:
-                        "You are a helpful financial assistant that explains spending clearly and simply.",
-                    },
-                    {
-                        role: "user",
-                        content: prompt,
-                        },
-            ],
-        temperature: 0.3,
-        max_tokens: 120,
-    });
-        
-    const text = response?.choices?.[0]?.message?.content;
-
-    if (!text) {
-      throw new Error("Invalid response from AI API");
-    }
-
-    return res.status(200).json({ text });
     
-  } catch (err) {
-    console.error("AI API Error:", err);
+    if(anomalies.length) {
+      for(const anomaly of anomalies) {
+        const anomalyInsight = await runAnomalyAgent({anomaly, userId, isDemo});
+        
+        insights.push(anomalyInsight);
+      }
+    }
+    
+    if(budgetComplianceList.length) {
+      for(const complianceData of budgetComplianceList) {
+        const budgetInsight = await runBudgetAgent({complianceData, userId, isDemo});
+        
+        insights.push(budgetInsight);
+      }
+    }
+    
+    if(cashflowData) {
+      const cashflowInsight = await runCashflowAgent({cashflowData, userId, isDemo});
+      
+      insights.push(cashflowInsight);
+    }
+    
+    if(riskData) {
+      const riskInsight = await runRiskAgent({riskData, userId, isDemo});
 
-    return res.status(500).json({
-      error: "AI request failed",
-    });
+      insights.push(riskInsight);
+    }
+    
+
+    return res.status(200).json({insights});
+
+  } catch (error) {
+    return res.status(500).json({error: "AI_PIPELINE_FAILED", message: error.message})
   }
+
 }

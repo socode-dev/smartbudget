@@ -9,24 +9,17 @@ import { doc, onSnapshot } from "firebase/firestore";
 import { db } from "../firebase/firebase";
 import useInsightsStore from "../store/useInsightsStore";
 import useAuthStore from "../store/useAuthStore";
-import { generateInsight } from "../ml/runInsights";
-
-const initializedAIInsightsForUsers = new Set();
+import { generateInsight } from "../insight_engine/runInsights";
 
 const AppInitializer = () => {
   const user = useAuthStore((state) => state.currentUser);
-  const uid = user?.uid;
+  const userId = user?.uid;
   const setThresholds = useThresholdStore((state) => state.setThresholds);
   const transactions = useTransactionStore((state) => state.transactions);
   const setCategories = useTransactionStore((state) => state.setCategories);
   const budgets = useTransactionStore((state) => state.budgets);
-  const goals = useTransactionStore((state) => state.goals);
-  const contributions = useTransactionStore((state) => state.contributions);
-  const addInsight = useInsightsStore((state => state.addInsight));
   const initInsights = useInsightsStore((state) => state.initInsights);
-  // const generateRuleBasedInsights = useInsightsStore(
-  //   (state) => state.generateRuleBasedInsights,
-  // );
+  
   const startAuthListener = useAuthStore((state) => state.startAuthListener);
   const stopAuthListener = useAuthStore((state) => state.stopAuthListener);
 
@@ -39,9 +32,9 @@ const AppInitializer = () => {
 
   // Real-time listener for thresholds
   useEffect(() => {
-    if (!uid) return;
+    if (!userId) return;
 
-    const userDocRef = doc(db, "users", uid);
+    const userDocRef = doc(db, "users", userId);
 
     const unsubscribeThresholds = onSnapshot(userDocRef, (snapshot) => {
       if (snapshot.exists()) {
@@ -50,83 +43,50 @@ const AppInitializer = () => {
       }
     });
 
-    const unsubscribeUser = initUserListener(uid);
-    const unsubscribeInsights = initInsights(uid);
+    const unsubscribeUser = initUserListener(userId);
+    const unsubscribeInsights = initInsights(userId);
 
     return () => {
       unsubscribeUser();
       unsubscribeInsights();
       unsubscribeThresholds();
     };
-  }, [uid, initInsights, setThresholds]);
+  }, [userId, initInsights, setThresholds]);
 
   // Listen to transaction categories
   useEffect(() => {
-    if (!uid) return;
+    if (!userId) return;
 
-    const unsubscribe = subcollectionListener(uid, "categories", setCategories);
+    const unsubscribe = subcollectionListener(userId, "categories", setCategories);
 
     return () => {
       unsubscribe();
     };
-  }, [uid, setCategories]);
-
-  // // Generate rule-based insights
-  // useEffect(() => {
-  //   if (!uid) return;
-  //
-  //   if (
-  //     transactions?.length ||
-  //     budgets?.length ||
-  //     goals?.length ||
-  //     contributions?.length
-  //   ) {
-  //     generateRuleBasedInsights(
-  //       uid,
-  //       transactions,
-  //       budgets,
-  //       goals,
-  //       contributions,
-  //     );
-  //   }
-  // }, [
-  //   uid,
-  //   transactions,
-  //   budgets,
-  //   goals,
-  //   contributions,
-  //   generateRuleBasedInsights,
-  // ]);
+  }, [userId, setCategories]);
 
   // Generate AI insights
   useEffect(() => {
-    if (!uid) return;
-    if (!transactions?.length) return;
-    if (initializedAIInsightsForUsers.has(uid)) return;
+    if (!userId) return;
+    if (!transactions.length) return;
 
     let cancelled = false;
 
-    const runMLInsights = async () => {
+    const runInsights = async () => {
       try {
-        const insights = await generateInsight(uid, transactions);
-        if (cancelled) return;
-        
-        initializedAIInsightsForUsers.add(uid);
-        
-        for(const ins of insights) {
-          addInsight(uid, ins);
-        }
+        await generateInsight({userId, transactions, budgets});
       } catch (err) {
+        if (cancelled) return;
+        console.log(err);
         useInsightsStore.getState().setInsightError(err.message);
       }
     };
 
-    runMLInsights();
+    runInsights();
 
     return () => {
       cancelled = true;
     };
-  }, [uid, addInsight]);
+  }, [userId, transactions?.length, budgets?.length]);
   
   return null;
 };

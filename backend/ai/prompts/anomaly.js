@@ -1,0 +1,44 @@
+import {formatAmount} from "../shared/formatAmount.js";
+
+export const buildAnomalyPrompt = ({anomaly}) => {
+  
+  if(!anomaly.category || !anomaly.signal || !anomaly.context || !anomaly.risk || !anomaly.impact || !anomaly.currency) {
+    throw new Error("Invalid anomaly object: Missing required properties")
+  }
+
+  const { category, signal, context, risk, impact, currency } = anomaly;
+
+  const percent = Math.abs(signal.deviation_percent);
+
+  const recent = (context.recent_history || []).slice(-3);
+
+  return `
+You are a friendly personal finance assistant helping users manage daily spending. Write like a calm, knowledgeable friend. Never use exclamations or words like "Wow". Be direct and warm.
+
+Explain clearly and briefly in 1-2 sentences and suggest one practical and specific action.
+
+Rules:
+- Use simple, conversational English and avoid vague phrases like "could", "may", or "might" when describing impact. Be direct
+- Avoid formal or corporate phrases like "significant increase", "unprecedented", or "impact your financial balance"
+- Be specific, reference numbers naturally and be direct about the impact
+- Make the suggestion actionable and practical (e.g., set a weekly limit, reduce frequency, track spending daily)
+- Reference recent history. Note if this is the highest spend in recent months
+- Suggested weekly budget must allow staying within the monthly baseline of ${formatAmount({amount: signal.baseline_value, currency})}. Use weekly amount * 4.33 for monthly projection
+
+Example output:
+{"explanation": "You really went all out for groceries in May. You spent $1000, nearly 3x your usual $300.40 and the highest in recent months.", "suggestion": "Set strict a budget of $75 weekly in June and stick to it, to keep your total around your normal $300 for consistency."}
+
+Vary how you construct the explanation and suggestion.
+
+Return ONLY JSON
+
+Data:
+${category} spending in ${signal.month}: ${formatAmount({amount: signal.current_value, currency})} vs usual ${formatAmount({amount: signal.baseline_value, currency})} (+${percent}%)
+
+${context.highest_in_period ? "This is the highest in recent months." : ""}
+
+Impact: ${impact.impact_hint}
+
+Recent: ${recent.map(h => `${h.month}: ${formatAmount({amount: h.total, currency})}`).join(", ")}
+`;
+};
