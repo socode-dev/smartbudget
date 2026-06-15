@@ -42,20 +42,19 @@ export const runOrchestrator = async ({
         riskData
     });
 
-    if(!rawSignals.length) return { insight: null, signals: [] };
+    if(!rawSignals.length) return [];
 
     const scoredSignals = scoreSignals({signals: rawSignals});
 
-    // if (await isTopSignalAlreadyFired({userId, signal: scoredSignals[0]})) {
-    //     return {scoredSignals};
-    // }
+    if (await isTopSignalAlreadyFired({userId, signal: scoredSignals[0]})) {
+        return {scoredSignals};
+    }
 
-    // const eligibleSignals = await filterEligibleSignals({userId, signals: scoredSignals});
+    const eligibleSignals = await filterEligibleSignals({userId, signals: scoredSignals});
 
-    // if(!eligibleSignals.length) return [];
+    if(!eligibleSignals.length) return [];
 
-    // const topCandidateSignals = eligibleSignals.slice(0, 5);
-    const topCandidateSignals = scoredSignals.slice(0, 5);
+    const topCandidateSignals = eligibleSignals.slice(0, 5);
 
     const prompt = buildOrchestrationPrompt({signals: topCandidateSignals});
 
@@ -66,7 +65,7 @@ export const runOrchestrator = async ({
         model = selectModel({isDemo, primaryFailed: false})
         decision = await generateAIResponse({prompt, model, type: "orchestrator"})
     } catch(err) {
-        throw new Error("ORCHESTRATOR_LLM_FAILED:", err);
+        throw new Error("ORCHESTRATOR_LLM_FAILED");
     }
     
     const isValid = validateDecision({decision, signals: topCandidateSignals });
@@ -83,32 +82,26 @@ export const runOrchestrator = async ({
 
     if(!selectedSignal) return [];
 
-    // const reservedSelection = await reserveSelectedSignal({
-    //     userId,
-    //     selectedSignal,
-    //     candidateSignals: topCandidateSignals
-    // });
+    const reservedSelection = await reserveSelectedSignal({
+        userId,
+        selectedSignal,
+        candidateSignals: topCandidateSignals
+    });
 
-    // if(!reservedSelection) return [];
+    if(!reservedSelection) return [];
 
-    // selectedSignal = reservedSelection;
+    selectedSignal = reservedSelection;
 
     const agent = AGENT_MAP[selectedSignal.type];
 
-    if(!agent) {
-        console.error(`No agent registered for signal type: ${selectedSignal.type}`);
-
-        return [];
-    }
+    if(!agent) return [];
 
     let insight;
 
     try {
         insight = await agent({data: selectedSignal.data, userId, isDemo});
     } catch (agentExecutionError) {
-        console.error(`FAILED_AGENT_EXECUTION - ${selectedSignal.type}:`, agentExecutionError);
         await markSignalTriggerFailed({userId, signal: selectedSignal, error: agentExecutionError});
-
         return []
     };
 
@@ -122,21 +115,21 @@ export const runOrchestrator = async ({
         return [];
     }
 
-    // const persisted = await persistInsights({userId, insight});
+    const persisted = await persistInsights({userId, insight});
 
-    // if(!persisted) {
-    //     await markSignalTriggerFailed({
-    //         userId,
-    //         signal: selectedSignal,
-    //         error: new Error("Insight persistence failed")
-    //     });
+    if(!persisted) {
+        await markSignalTriggerFailed({
+            userId,
+            signal: selectedSignal,
+            error: new Error("Insight persistence failed")
+        });
 
-    //     return [];
-    // }
+        return [];
+    }
 
-    // await markSignalTriggered({userId, signal: selectedSignal, insight});
+    await markSignalTriggered({userId, signal: selectedSignal, insight});
 
-    return {insight, signals: scoredSignals};
+    return insight;
 }
 
 const reserveSelectedSignal = async ({userId, selectedSignal, candidateSignals}) => {
