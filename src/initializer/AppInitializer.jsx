@@ -9,7 +9,7 @@ import { doc, onSnapshot } from "firebase/firestore";
 import { db } from "../firebase/firebase";
 import useInsightsStore from "../store/useInsightsStore";
 import useAuthStore from "../store/useAuthStore";
-import { generateInsight } from "../insight_engine/runInsights";
+import { generateInsight } from "../insight_engines/runInsights";
 
 const AppInitializer = () => {
   const user = useAuthStore((state) => state.currentUser);

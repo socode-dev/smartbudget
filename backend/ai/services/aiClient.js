@@ -1,5 +1,4 @@
 import dotenv from "dotenv";
-
 import { fileURLToPath } from "url";
 import { dirname, join } from "path";
 
@@ -8,6 +7,7 @@ const __dirname = dirname(__filename);
 dotenv.config({ path: join(__dirname, "../../../.env.local") });
 
 import { Client } from "aisuite";
+import {SYSTEM_CONTENT} from "../shared/systemContent.js"
 
 const apiKey = process.env.OPENAI_API_KEY;
 
@@ -20,15 +20,18 @@ const client = new Client({
 });
 
 export const generateAIResponse = 
-  async ({ prompt, model }) => {
+  async ({ prompt, model, type }) => {
+
+    if(!SYSTEM_CONTENT[type]) {
+      throw new Error(`Invalid AI type: ${type}. Must be one of: ${Object.keys(SYSTEM_CONTENT).join(', ')}`);
+    }
 
     const response = await client.chat.completions.create({
       model,
       messages: [
         {
           role: "system",
-          content:
-            "You are a helpful financial assistant that explains spending clearly and simply.",
+          content: SYSTEM_CONTENT[type],
         },
         {
           role: "user",
@@ -36,7 +39,7 @@ export const generateAIResponse =
         },
       ],
       temperature: 0.3,
-      max_tokens: 120,
+      max_tokens: 200,
     });
         
     const text = response?.choices?.[0]?.message?.content;

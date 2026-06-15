@@ -4,7 +4,7 @@ import useCurrencyStore from "../store/useCurrencyStore";
 import { detectAnomalies } from "./anomalyDetection";
 import { buildBudgetComplianceData } from "./budgetData";
 import { buildCashFlowData } from "./cashFlowData";
-import {buildFinancialRiskData} from "./financialRiskData";
+import {buildRiskData} from "./riskData";
 
 import { fetchInsight } from "./fetchInsight";
 
@@ -29,14 +29,14 @@ export const generateInsight = async ({ userId, transactions, budgets}) => {
   const cashflowData = buildCashFlowData(transactions, selectedCurrency);
   
     // Build risk data
-    const riskData = buildFinancialRiskData(anomalies, budgetComplianceList, cashflowData, transactions);
+    const riskData = buildRiskData(anomalies, budgetComplianceList, cashflowData, transactions);
 
-    const insights = await fetchInsight({userId, riskData, anomalies, budgetComplianceList, cashflowData });
-    
-    
-    
-  
-  return insights;
-
+    try {
+      const insights = await fetchInsight({userId, riskData, anomalies, budgetComplianceList, cashflowData });
+      
+      console.log(insights)
+    } catch (err) {
+      console.error("Error:", err);
+    }
 
 };
