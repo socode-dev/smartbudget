@@ -7,11 +7,11 @@ export const runCashflowService = async ({data, userId, isDemo = false} = {}) =>
   const prompt = buildCashflowPrompt({ cashflowData: data });
   const ruleBasedInsight = fallback({ cashflowData: data });
   
-  let primaryFailed = false;
   let response;
-  
+  let model;
+
   try {
-    const model = selectModel({isDemo, primaryFailed: false});
+    model = selectModel({isDemo, primaryFailed: false});
     response = await generateAIResponse({ prompt, model, type: "cashflow" });
 
       return insightData(data, response, model);
@@ -19,8 +19,8 @@ export const runCashflowService = async ({data, userId, isDemo = false} = {}) =>
   } catch (primaryErr) {
     
     try {
-      const fallbackModel = selectModel({isDemo, primaryFailed: true});
-      response = await generateAIResponse({ prompt, model: fallbackModel, type: "cashflow" });
+      model = selectModel({isDemo, primaryFailed: true});
+      response = await generateAIResponse({ prompt, model, type: "cashflow" });
 
       return insightData(data, response, fallbackModel);
     

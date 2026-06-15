@@ -10,8 +10,6 @@ export const runAnomalyService = async ({data, userId, isDemo} = {}) => {
   
   let response;
   let model;
-  
-  const systemContent ="You are a helpful financial assistant that explains spending clearly and simply.";
 
   try {
     model = selectModel({isDemo, primaryFailed: false});

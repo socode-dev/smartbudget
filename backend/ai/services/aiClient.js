@@ -22,6 +22,10 @@ const client = new Client({
 export const generateAIResponse = 
   async ({ prompt, model, type }) => {
 
+    if(!SYSTEM_CONTENT[type]) {
+      throw new Error(`Invalid AI type: ${type}. Must be one of: ${Object.keys(SYSTEM_CONTENT).join(', ')}`);
+    }
+
     const response = await client.chat.completions.create({
       model,
       messages: [
@@ -35,7 +39,7 @@ export const generateAIResponse =
         },
       ],
       temperature: 0.3,
-      max_tokens: 120,
+      max_tokens: 200,
     });
         
     const text = response?.choices?.[0]?.message?.content;

@@ -42,7 +42,7 @@ export const runOrchestrator = async ({
         riskData
     });
 
-    if(!rawSignals.length) return [];
+    if(!rawSignals.length) return { insight: null, signals: [] };
 
     const scoredSignals = scoreSignals({signals: rawSignals});
 

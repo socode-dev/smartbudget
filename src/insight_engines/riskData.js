@@ -131,7 +131,7 @@ export const buildRiskData = (anomalies, budgetComplianceData, cashflowData, tra
 
             recurring_pressure: repeatedAnomalyCategory.length >= 2,
 
-            sever_spending_spikes: highAnomalies.length > 0,
+            severe_spending_spikes: highAnomalies.length > 0,
 
             budget_discipline: exceededBudgets.length >= 3 ? "POOR" : exceededBudgets.length >= 1 ? "WEAK" : "GOOD",
 

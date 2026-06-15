@@ -7,7 +7,6 @@ export const runRiskService = async ({data, userId, isDemo} = {}) => {
     const prompt = buildFinancialRiskPrompt({riskData: data});
     const ruleBasedInsight = riskFallback({riskData: data});
 
-    let primaryFailed = false;
     let model;
     let response;
     

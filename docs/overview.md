@@ -70,7 +70,7 @@ AI was later introduced to improve explanation quality, personalization, readabi
 
 As the system grew, the AI layer moved from a single generalized prompt toward specialized AI financial intelligence services. This improved modularity, prompt maintainability, domain isolation, and scalability.
 
-The AI pipeline is now migrating into backend infrastructure so model execution, prompts, fallback logic, and future orchestration can be centralized and secured. For implementation details, see [Backend AI Migration](./AI_ARCHITECTURE.md#backend-ai-migration) and [Current Backend AI Structure](./AI_ARCHITECTURE.md#current-backend-ai-structure).
+The AI pipeline is now migrating into backend infrastructure so model execution, prompts, fallback logic, and future orchestration can be centralized and secured. For implementation details, see [Backend AI Migration](./AI-ARCHITECTURE.md#backend-ai-migration) and [Current Backend AI Structure](./AI-ARCHITECTURE.md#current-backend-ai-structure).
 
 The next major step is orchestration: a coordination layer that reasons across all financial signals, chooses the most relevant insights, and prepares the system for future tool-calling workflows.
 

@@ -21,7 +21,7 @@ export const runBudgetService = async ({ data, userId, isDemo} = {}) => {
     
     try {
       model = selectModel({isDemo, primaryFailed: true});
-      const response = await generateAIResponse({ prompt, model: model, type: "budget" });
+      response = await generateAIResponse({ prompt, model, type: "budget" });
 
       return insightData(data, response, model);
     } catch (fallbackError) {
