@@ -1,6 +1,7 @@
 import { parseISO, format } from "date-fns";
 import { getMedian, getMAD, getRiskScore } from "../utils/stats";
 import useCurrencyStore from "../store/useCurrencyStore";
+import {v4 as uuidv4} from "uuid";
 
 // Detect unusual monthly spend by category
 export const detectAnomalies = (transactions) => {
@@ -98,7 +99,7 @@ export const detectAnomalies = (transactions) => {
     }));
 
     const anomaly = {
-      id: `anomaly_${Math.random().toString(36).slice(2)}`,
+      id: `anomaly_${uuidv4()}`,
       type: "anomaly",
       category,
       currency: selectedCurrency,

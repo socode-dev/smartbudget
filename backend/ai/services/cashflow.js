@@ -1,28 +1,28 @@
 import { generateAIResponse } from "./aiClient.js";
-import {selectModel, MODEL_CONFIG} from "./modelRouter.js";
-import { buildCashflowAgentPrompt } from "../prompts/cashflow.js";
+import {selectModel} from "../shared/modelRouter.js";
+import { buildCashflowPrompt } from "../prompts/cashflow.js";
 import { fallback } from "../fallbacks/cashflow.js";
 
-export const runCashflowAgent = async ({cashflowData, userId, isDemo = false} = {}) => {
-  const prompt = buildCashflowAgentPrompt({ cashflowData });
-  const ruleBasedInsight = fallback({ cashflowData });
+export const runCashflowService = async ({data, userId, isDemo = false} = {}) => {
+  const prompt = buildCashflowPrompt({ cashflowData: data });
+  const ruleBasedInsight = fallback({ cashflowData: data });
   
   let primaryFailed = false;
   let response;
   
   try {
     const model = selectModel({isDemo, primaryFailed: false});
-    response = await generateAIResponse({ prompt, model, userId });
+    response = await generateAIResponse({ prompt, model, type: "cashflow" });
 
-      return insightData(cashflowData, response, model);
+      return insightData(data, response, model);
 
   } catch (primaryErr) {
     
     try {
       const fallbackModel = selectModel({isDemo, primaryFailed: true});
-      response = await generateAIResponse({ prompt, model: fallbackModel, userId });
+      response = await generateAIResponse({ prompt, model: fallbackModel, type: "cashflow" });
 
-      return insightData(cashflowData, response, fallbackModel);
+      return insightData(data, response, fallbackModel);
     
     } 
     catch (fallbackError) {

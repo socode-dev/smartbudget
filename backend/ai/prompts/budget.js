@@ -1,6 +1,6 @@
 import { formatAmount } from "../shared/formatAmount.js";
 
-export const buildBudgetComplianceAgentPrompt = ({ complianceData }) => {
+export const buildBudgetCompliancePrompt = ({ complianceData }) => {
 const {category, budget, spending, time, derived} = complianceData;
 const currency = budget.currency;
 
@@ -73,6 +73,6 @@ Days remaining: ${time.days_remaining}
 Projected total: ${formatAmount({amount: derived.projected_total, currency})}
 Safe daily spend: ${formatAmount({amount: derived.safe_daily_spend, currency})}/day
 Status: ${derived.compliance_status}
-Is current month: ${time.isCurrentMonth}
+Is current month: ${time.is_current_month}
 `;
 };

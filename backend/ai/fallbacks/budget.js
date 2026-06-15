@@ -1,6 +1,6 @@
 import { formatAmount } from "../shared/formatAmount.js";
 
-export const fallback = (complianceData) => {
+export const fallback = ({complianceData}) => {
     const { category, budget, spending, time, derived } = complianceData;
 
     if(!category || !budget || !spending || !time || !derived) {

@@ -1,31 +1,81 @@
-export const riskFallback = ({riskData}) => {
-    
-    return {
-        id: riskData.id,
-        type: "financial-risk",
-        actionType: "suggestion",
-        severity: riskData.risk.level,
-        score: riskData.risk.score,
-        month: riskData.period.month,
-        year: riskData.period.year,
+export const riskFallback = ({ riskData }) => {
+const {
+risk,
+period,
+financial_facts,
+} = riskData;
 
-        agent: {
-            explanation: (() => {
-                if (riskData.risk.level === "HIGH") {
-                return "Your recent financial activity points to serious instability. Repeated overspending, unusual spending spikes, and ongoing strain on your current income are all showing up at the same time. This is not a one-off situation.";
-                }
-                return "Your recent financial activity shows growing pressure on your finances. Spending is rising faster than your current income can comfortably support.";
-            })(),
-
-            suggestion: (() => {
-                if (riskData.historical.is_spending_increasing) {
-                return "Make it a habit to review your spending every week before it compounds. Catching pressure early is more effective than reacting after the month ends.";
-                }
-                if (riskData.budget_signals.exceeded_count > 0) {
-                return "Before spending in any category this week, check whether you have already exceeded or are close to your budget for it. Building that check into your routine will reduce financial pressure over time.";
-                }
-                return "Focus on keeping a consistent portion of your current income unspent each month. Even a small buffer builds financial stability over time.";
-            })()
-        },
-};
+const explanation = (() => {
+if (
+!financial_facts.has_active_income &&
+financial_facts.spending_trend === "INCREASING"
+) {
+return "Your spending has continued to grow while no active income has been recorded recently. If this pattern continues, maintaining the same level of spending may become harder over time.";
 }
+
+if (
+financial_facts.spending_pressure === "HIGH" &&
+financial_facts.recurring_pressure
+) {
+return "Spending pressure has been appearing repeatedly rather than as a one-time event. Patterns like this can become difficult to sustain if they continue unchecked.";
+}
+
+if (
+financial_facts.budget_discipline === "POOR"
+) {
+return "Recent spending patterns suggest that financial plans are becoming harder to stay within, making it more difficult to maintain consistency over time.";
+}
+
+if (
+financial_facts.spending_trend === "INCREASING"
+) {
+return "Your spending has been moving upward over time. While that may not create immediate problems, it can reduce financial flexibility if it continues.";
+}
+
+return "Your finances show signs of growing pressure that are worth paying attention to before they become harder to manage.";
+})();
+
+const suggestion = (() => {
+if (
+!financial_facts.has_active_income &&
+financial_facts.spending_trend === "INCREASING"
+) {
+return "Reviewing recent spending increases may help create more room and flexibility going forward.";
+}
+
+if (
+financial_facts.budget_discipline === "POOR"
+) {
+return "Checking spending against your plans more frequently can help prevent small issues from becoming larger ones.";
+}
+
+if (
+financial_facts.spending_trend === "INCREASING"
+) {
+return "Keeping spending closer to recent historical levels may make your finances easier to sustain.";
+}
+
+return "Regular financial reviews can help you spot pressure early and make adjustments before it grows.";
+})();
+
+return {
+id: riskData.id,
+
+type: "financial-risk",
+
+actionType: "suggestion",
+
+severity: risk.level,
+
+score: risk.score,
+
+month: period.month,
+
+year: period.year,
+
+agent: {
+explanation,
+suggestion,
+},
+};
+};

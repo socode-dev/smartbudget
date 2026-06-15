@@ -2,7 +2,7 @@ import { formatAmount } from "../shared/formatAmount.js";
 
 const PROJECTION_START_DAY = 15;
 
-export const buildCashflowAgentPrompt = ({cashflowData}) => {
+export const buildCashflowPrompt = ({cashflowData}) => {
 const { period, income, spending, forecast, derived, outcome } = cashflowData;
 const currency = income.currency;
 
@@ -61,7 +61,7 @@ Rules:
     • Sometimes start with remaining balance
     • Sometimes start with a warning about what will happen
 - Combine sentences naturally instead of listing facts one by one.
-- Avoid sounding like a report. Sound like you are explaining to a person.
+- Avoid sounding like a report or budgetting advisor. Sound like you are explaining to a person.
 
 - Replace technical terms with simple explanations:
     • Do NOT use "runway"
