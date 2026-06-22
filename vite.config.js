@@ -8,7 +8,7 @@ export default defineConfig({
   test: {
     globals: true,
     environment: "node",
-    include: ["src/tests/**/*.test.js"],
+    include: ["src/tests/**/*.test.js", "backend/tests/**/*.test.js"],
   },
   server: {
     proxy: {
