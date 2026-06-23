@@ -1,6 +1,6 @@
 # SmartBudget AI Architecture
 
-This document explains the AI-specific architecture in detail. For the concise product and system overview, see [SmartBudget Overview](./overview.md).
+This document explains the AI-specific architecture in detail. For the concise product and system overview, see [SmartBudget Overview](./OVERVIEW.md).
 
 ## Introduction
 
