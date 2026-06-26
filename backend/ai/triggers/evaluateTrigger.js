@@ -26,6 +26,14 @@ export const evaluateTrigger = ({ existing, trigger, now }) => {
     }
 
     if (existing.fingerprint === trigger.fingerprint && existing.status === "fired") {
+        const financialRiskReminderDue = trigger.type === "financial-risk" &&
+            ["MEDIUM", "HIGH"].includes(currentRiskLevel({ trigger })) &&
+            now - (existing.lastTriggeredAtMs ?? 0) >= REMINDER_INTERVAL_MS;
+
+        if (financialRiskReminderDue) {
+            return { allowed: true, reason: "FINANCIAL_RISK_REMINDER" };
+        }
+
         return { allowed: false, reason: "ALREADY_FIRED" };
     }
 
@@ -83,4 +91,8 @@ const evaluateByType = ({ existing, trigger, now }) => {
     }
 
     return { allowed: false, reason: "UNKNOWN_SIGNAL_TYPE" };
+};
+
+const currentRiskLevel = ({ trigger }) => {
+    return String(trigger.snapshot?.level ?? "").toUpperCase();
 };

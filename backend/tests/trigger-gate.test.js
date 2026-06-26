@@ -287,4 +287,24 @@ describe("trigger gate", () => {
 
     expect(result).toEqual({ allowed: false, reason: "ALREADY_FIRED" });
   });
+
+  it("allows financial-risk reminders after the reminder interval expires", () => {
+    const now = Date.now();
+    const result = evaluateTrigger({
+      existing: {
+        status: "fired",
+        fingerprint: "risk-same",
+        lastTriggeredAtMs: now - REMINDER_INTERVAL_MS - 1,
+        snapshot: { level: "HIGH", score: 87 },
+      },
+      trigger: {
+        type: "financial-risk",
+        fingerprint: "risk-same",
+        snapshot: { level: "HIGH", score: 87 },
+      },
+      now,
+    });
+
+    expect(result).toEqual({ allowed: true, reason: "FINANCIAL_RISK_REMINDER" });
+  });
 });
