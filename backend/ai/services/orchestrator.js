@@ -1,13 +1,9 @@
 import { normalizeSignals } from "../orchestrator/normalizeSignals.js";
-import { buildOrchestrationPrompt } from "../prompts/orchestrator.js";
-import { generateAIResponse } from "./aiClient.js";
-import {validateDecision} from "../orchestrator/validateDecision.js";
-import {fallback} from "../fallbacks/orchestratorSelection.js";
 import {persistInsights} from "../orchestrator/persistInsights.js";
 import {scoreSignals} from "../orchestrator/scoreSignals.js"
-import {selectModel} from "../shared/modelRouter.js";
+import { evaluateAttentionGate } from "../orchestrator/attentionGate.js";
+import { saveAttentionState } from "../orchestrator/attentionState.js";
 import {
-    checkSignalEligibility,
     filterEligibleSignals,
     markSignalTriggered,
     markSignalTriggerFailed,
@@ -45,56 +41,64 @@ export const runOrchestrator = async ({
     if(!rawSignals.length) return [];
 
     const scoredSignals = scoreSignals({signals: rawSignals});
+    const topSignal = scoredSignals[0];
 
-    if (await isTopSignalAlreadyFired({userId, signal: scoredSignals[0]})) {
-        return {scoredSignals};
+    const attentionDecision = await evaluateAttentionGate({
+        userId,
+        topSignal,
+        scoredSignals
+    });
+
+    if(!attentionDecision.allowed) {
+        return {
+            insight: null,
+            scoredSignals,
+            reason: attentionDecision.reason
+        };
     }
 
-    const eligibleSignals = await filterEligibleSignals({userId, signals: scoredSignals});
+    const selectedCandidate = scoredSignals.find(signal => signal.id === attentionDecision.signalId) || topSignal;
+    const eligibleSignals = await filterEligibleSignals({userId, signals: [selectedCandidate]});
 
-    if(!eligibleSignals.length) return [];
+    if(!eligibleSignals.length) {
+        return {
+            insight: null,
+            reason: "NO_ELIGIBLE_SIGNAL"
+        }
+    } ;
 
-    const topCandidateSignals = eligibleSignals.slice(0, 5);
-
-    const prompt = buildOrchestrationPrompt({signals: topCandidateSignals});
-
-    let decision = null;
-    let model;
-
-    try {
-        model = selectModel({isDemo, primaryFailed: false})
-        decision = await generateAIResponse({prompt, model, type: "orchestrator"})
-    } catch(err) {
-        throw new Error("ORCHESTRATOR_LLM_FAILED");
-    }
-    
-    const isValid = validateDecision({decision, signals: topCandidateSignals });
-    
-    let selectedSignal;
-
-    if(isValid) {
-        selectedSignal = topCandidateSignals.find(signal => signal.id === decision.selectedSignalId);
-    }
+    let selectedSignal = eligibleSignals[0];
 
     if(!selectedSignal) {
-        selectedSignal = fallback({signals: topCandidateSignals});
-    }
-
-    if(!selectedSignal) return [];
+        return {
+            insight: null,
+            reason: "NO_SELECTED_SIGNAL"
+        }
+    };
 
     const reservedSelection = await reserveSelectedSignal({
         userId,
         selectedSignal,
-        candidateSignals: topCandidateSignals
+        candidateSignals: eligibleSignals
     });
 
-    if(!reservedSelection) return [];
+    if(!reservedSelection) {
+        return {
+            insight: null,
+            reason: "NO_RESERVED_SELECTION"
+        }
+    };
 
     selectedSignal = reservedSelection;
 
     const agent = AGENT_MAP[selectedSignal.type];
 
-    if(!agent) return [];
+    if(!agent) {
+        return {
+            insight: null,
+            reason: "SPECIALISED_AGENT_NOT_FOUND"
+        }
+    };
 
     let insight;
 
@@ -102,7 +106,10 @@ export const runOrchestrator = async ({
         insight = await agent({data: selectedSignal.data, userId, isDemo});
     } catch (agentExecutionError) {
         await markSignalTriggerFailed({userId, signal: selectedSignal, error: agentExecutionError});
-        return []
+        return {
+            insight: null,
+            reason: "AGENT_EXECUTION_FAILED"
+        }
     };
 
     if(!insight) {
@@ -112,7 +119,10 @@ export const runOrchestrator = async ({
             error: new Error("Agent returned no insight")
         });
 
-        return [];
+        return {
+            insight: null, 
+            reason: "AGENT_RETURNED_NO_INSIGHT"
+        };
     }
 
     const persisted = await persistInsights({userId, insight});
@@ -124,12 +134,16 @@ export const runOrchestrator = async ({
             error: new Error("Insight persistence failed")
         });
 
-        return [];
+        return {
+            insight: insight || null,
+            reason: "INSIGHT_PERSISTENCE_FAILED"
+        };
     }
 
     await markSignalTriggered({userId, signal: selectedSignal, insight});
+    await saveAttentionState({userId, signal: selectedSignal, scoredSignals, insight});
 
-    return insight;
+    return {insight, scoredSignals, reason: attentionDecision.reason};
 }
 
 const reserveSelectedSignal = async ({userId, selectedSignal, candidateSignals}) => {
@@ -147,11 +161,4 @@ const reserveSelectedSignal = async ({userId, selectedSignal, candidateSignals})
     }
 
     return null;
-}
-
-const isTopSignalAlreadyFired = async ({userId, signal} = {}) => {
-    if (!userId || !signal?.type) return false;
-
-    const eligibility = await checkSignalEligibility({userId, signal});
-    return eligibility.allowed === false && eligibility.reason === "ALREADY_FIRED";
 }
