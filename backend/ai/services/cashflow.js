@@ -54,8 +54,6 @@ const insightData = (cashflowData, response, model) => {
   return {
     id: cashflowData.id,
       type: "cashflow",
-      actionType: "suggestion",
-      createdAt: new Date(),
       category: null,
       severity: riskLevel,
       month: cashflowData.period.month,

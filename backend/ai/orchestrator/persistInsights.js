@@ -1,6 +1,6 @@
 import {db, FieldValue} from "../../../lib/firebaseAdmin.js";
 
-const EXPIRY_MS = 2 * 24 * 60 * 60 * 1000;
+const EXPIRY_MS = 7 * 24 * 60 * 60 * 1000;
 
 export const persistInsights = async ({userId, insight}) => {
     if(!insight) return false;
@@ -17,6 +17,7 @@ export const persistInsights = async ({userId, insight}) => {
 const addInsight = async ({userId, insight}) => {
     const insightWithExpiry = {
         ...insight,
+        status: "ACTIVE",
         createdAt: FieldValue.serverTimestamp(),
         expiresAt: Date.now() + EXPIRY_MS,
     } 

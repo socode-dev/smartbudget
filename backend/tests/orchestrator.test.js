@@ -180,7 +180,7 @@ describe("orchestrator", () => {
 
     const result = await runPipeline();
 
-    expect(result).toEqual([]);
+    expect(result).toEqual({ insight: null, reason: "NO_ELIGIBLE_SIGNAL" });
     expect(generateAIResponse).not.toHaveBeenCalled();
   });
 
@@ -205,7 +205,7 @@ describe("orchestrator", () => {
 
     const result = await runPipeline();
 
-    expect(result).toEqual([]);
+    expect(result).toEqual({ insight: null, reason: "AGENT_EXECUTION_FAILED" });
     expect(markSignalTriggerFailed).toHaveBeenCalledTimes(1);
     expect(markSignalTriggered).not.toHaveBeenCalled();
   });
@@ -215,7 +215,10 @@ describe("orchestrator", () => {
 
     const result = await runPipeline();
 
-    expect(result).toEqual([]);
+    expect(result).toEqual({
+      insight: expect.objectContaining({ id: "risk-jun", type: "financial-risk" }),
+      reason: "INSIGHT_PERSISTENCE_FAILED",
+    });
     expect(markSignalTriggerFailed).toHaveBeenCalledTimes(1);
     expect(markSignalTriggered).not.toHaveBeenCalled();
   });
@@ -228,7 +231,7 @@ describe("orchestrator", () => {
     expect(reserveSignalTrigger).toHaveBeenCalledTimes(1);
     expect(runAnomalyService).not.toHaveBeenCalled();
     expect(runRiskService).not.toHaveBeenCalled();
-    expect(result).toEqual([]);
+    expect(result).toEqual({ insight: null, reason: "NO_RESERVED_SELECTION" });
   });
 
   it("passes demo mode through to agent services without writing in demo runs", async () => {
