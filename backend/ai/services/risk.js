@@ -41,7 +41,6 @@ const insightData = (data, response, model) => {
     return {
         id: data.id,
         type: "financial-risk",
-        actionType: "suggestion",
         severity: data.risk.level,
         score: data.risk.score,
         month: data.period.month,

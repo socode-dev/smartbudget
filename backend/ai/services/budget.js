@@ -40,8 +40,6 @@ const insightData = (data, response, model) => {
   return {
     id: data.id,
       type: "budget-compliance",
-      actionType: "suggestion",
-      createdAt: new Date(),
       severity: data.derived.risk_level,
       category: data.category,
       year: data.budget.year,

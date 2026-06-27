@@ -37,13 +37,12 @@ export const runAnomalyService = async ({data, userId, isDemo} = {}) => {
 
 
 const insightData = (anomaly, response, model) => ({
-      id: anomaly.id,
-      type: "anomaly",
-      actionType: "suggestion",
-      severity: anomaly.risk.level,
-      category: anomaly.category,
-      year: new Date().getFullYear(),
-      baselineValue: anomaly.signal.baseline_value,
-      agent: response,
-      modelUsed: model
-      }    )
+  id: anomaly.id,
+  type: "anomaly",
+  severity: anomaly.risk.level,
+  category: anomaly.category,
+  year: new Date().getFullYear(),
+  baselineValue: anomaly.signal.baseline_value,
+  agent: response,
+  modelUsed: model
+});
