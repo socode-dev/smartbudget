@@ -1,6 +1,7 @@
 import { Navigate } from "react-router-dom";
 import useAuthStore from "../store/useAuthStore";
 import AnimatedLoader from "../components/ui/AnimatedLoader";
+import { isDemoUser } from "../demo/useDemoMode";
 
 const ProtectedRoute = ({ children }) => {
   const user = useAuthStore((state) => state.currentUser);
@@ -14,7 +15,7 @@ const ProtectedRoute = ({ children }) => {
     );
   }
 
-  if (!user) {
+  if (!user || isDemoUser(user)) {
     return <Navigate to="/login" replace />;
   }
 

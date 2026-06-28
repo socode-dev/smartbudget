@@ -4,8 +4,10 @@ import { useOverviewContext } from "../../context/OverviewContext";
 import { useRef, useState } from "react";
 import { useDropdownClose } from "../../hooks/useDropdownClose";
 import Export from "../ui/Export";
+import { showDemoReadOnlyToast, useDemoMode } from "../../demo/useDemoMode";
 
 const QuickActions = () => {
+  const isDemoMode = useDemoMode();
   const exportRef = useRef(null);
   const { handleCSVExport, handlePDFExport } = useOverviewContext();
   const { onOpenModal } = useModalContext();
@@ -16,11 +18,23 @@ const QuickActions = () => {
   const handleExportToggle = () => setIsExportOpen((prev) => !prev);
 
   const exportCSV = () => {
+    if (isDemoMode) {
+      showDemoReadOnlyToast();
+      setIsExportOpen(false);
+      return;
+    }
+
     handleCSVExport();
     setIsExportOpen(false);
   };
 
   const exportPDF = () => {
+    if (isDemoMode) {
+      showDemoReadOnlyToast();
+      setIsExportOpen(false);
+      return;
+    }
+
     handlePDFExport();
     setIsExportOpen(false);
   };
@@ -35,7 +49,7 @@ const QuickActions = () => {
       {/* Action Buttons */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 justify-between gap-4 mt-10">
         <button
-          onClick={() => onOpenModal("transactions", "add")}
+          onClick={() => isDemoMode ? showDemoReadOnlyToast() : onOpenModal("transactions", "add")}
           className="bg-green-600 hover:bg-green-700  text-white text-base  px-4 py-2 rounded-lg shadow-md transition cursor-pointer flex justify-center items-center gap-2"
         >
           <FiPlus className="text-lg" />
@@ -43,7 +57,7 @@ const QuickActions = () => {
         </button>
 
         <button
-          onClick={() => onOpenModal("budgets")}
+          onClick={() => isDemoMode ? showDemoReadOnlyToast() : onOpenModal("budgets")}
           className="bg-[rgb(var(--color-brand-deep))] hover:bg-[rgb(var(--color-brand))]  text-white text-base px-4 py-2 rounded-lg shadow-md transition cursor-pointer flex justify-center items-center gap-2"
         >
           <FiTarget className="text-lg" />
@@ -51,7 +65,7 @@ const QuickActions = () => {
         </button>
 
         <button
-          onClick={() => onOpenModal("goals")}
+          onClick={() => isDemoMode ? showDemoReadOnlyToast() : onOpenModal("goals")}
           className="bg-[rgb(var(--color-brand-deep))] hover:bg-[rgb(var(--color-brand))]  text-white text-base px-4 py-2 rounded-lg shadow-md transition cursor-pointer flex justify-center items-center gap-2"
         >
           <FiTarget className="text-lg" />

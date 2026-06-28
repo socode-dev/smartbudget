@@ -149,6 +149,13 @@ const Login = () => {
         >
           {isSubmitting ? <LoadingSpinner size={25} /> : "Sign In"}
         </button>
+
+        <Link
+          to="/demo"
+          className="mt-3 block w-full rounded-lg border-2 border-[rgb(var(--color-brand))] px-4 py-2 text-center text-base font-medium text-[rgb(var(--color-brand))] transition hover:bg-[rgb(var(--color-status-bg-blue))]"
+        >
+          Explore Demo
+        </Link>
       </form>
 
       <section className="w-11/12 flex flex-col gap-3 mt-6">

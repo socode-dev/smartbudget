@@ -15,11 +15,14 @@ import { checkGoalThreshold } from "../utils/checkGoalThreshold";
 import useThresholdStore from "../store/useThresholdStore";
 import { scheduleThresholdCheck } from "../utils/scheduleThresholdCheck";
 import useAuthStore from "../store/useAuthStore";
+import { isDemoUser, showDemoReadOnlyToast, useDemoMode } from "../demo/useDemoMode";
 
 const GoalsContext = createContext();
 
 export const GoalsProvider = ({ children }) => {
+  const isDemoMode = useDemoMode();
   const user = useAuthStore((state) => state.currentUser);
+  const isDemoSession = isDemoMode || isDemoUser(user);
   const thresholds = useThresholdStore((state) => state.thresholds);
   const goals = useTransactionStore((state) => state.goals);
   const contributions = useTransactionStore((state) => state.contributions);
@@ -58,11 +61,21 @@ export const GoalsProvider = ({ children }) => {
 
   // Open contribution modal
   const handleAddContribution = (id, label, name) => {
+    if (isDemoMode) {
+      showDemoReadOnlyToast();
+      return;
+    }
+
     onOpenModal(label, "add", { goalId: id, goalName: name });
   };
 
   // Handler for goal editing
   const handleEditGoal = (id) => {
+    if (isDemoMode) {
+      showDemoReadOnlyToast();
+      return;
+    }
+
     handleEdit(
       id,
       "goals",
@@ -88,6 +101,8 @@ export const GoalsProvider = ({ children }) => {
   const contributionCounts = contributions?.length;
 
   useEffect(() => {
+    if (isDemoSession) return;
+
     // if (!currentUser?.uid || goalCounts === 0) return;
     let mounted = true;
     let lastRunKey = null;
@@ -117,7 +132,7 @@ export const GoalsProvider = ({ children }) => {
     return () => {
       mounted = false;
     };
-  }, [user?.uid, goalCounts, contributionCounts]);
+  }, [isDemoSession, user?.uid, goalCounts, contributionCounts]);
 
   const filteredGoals = useMemo(
     () =>
@@ -135,6 +150,11 @@ export const GoalsProvider = ({ children }) => {
   // Handler to delete goal and its contributions(if any)
   const deleteGoalAndContribution = useCallback(
     (id, key) => {
+      if (isDemoMode) {
+        showDemoReadOnlyToast();
+        return;
+      }
+
       const goalContributions = contributions?.filter(
         (contribution) => contribution.categoryKey === key
       );
@@ -154,7 +174,7 @@ export const GoalsProvider = ({ children }) => {
         toast.success("Goal deleted successfuly", { duration: 3000 });
       }, 500);
     },
-    [contributions]
+    [contributions, isDemoMode, deleteTransaction, user?.uid]
   );
 
   return (
@@ -162,7 +182,7 @@ export const GoalsProvider = ({ children }) => {
       value={{
         goals,
         filteredGoals,
-        onOpenModal,
+        onOpenModal: isDemoMode ? showDemoReadOnlyToast : onOpenModal,
         searchName,
         setSearchName,
         getAmountSaved,

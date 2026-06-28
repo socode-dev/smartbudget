@@ -5,8 +5,10 @@ import { useGoalsContext } from "../context/GoalsContext";
 import Cards from "../components/goals/Cards";
 import { motion } from "framer-motion";
 import useOnboardingStore from "../store/useOnboardingStore";
+import { showDemoReadOnlyToast, useDemoMode } from "../demo/useDemoMode";
 
 const Goals = () => {
+  const isDemoMode = useDemoMode();
   const { goals, filteredGoals, onOpenModal, searchName, setSearchName } =
     useGoalsContext();
 
@@ -41,7 +43,7 @@ const Goals = () => {
 
         {filteredGoals.length > 0 && (
           <button
-            onClick={() => onOpenModal("goals", "add")}
+            onClick={() => isDemoMode ? showDemoReadOnlyToast() : onOpenModal("goals", "add")}
             className="bg-[rgb(var(--color-brand-deep))] hover:bg-[rgb(var(--color-brand))] transition cursor-pointer text-white px-4 py-2 rounded-md text-xl"
           >
             <FaPlus />
@@ -83,7 +85,7 @@ const Goals = () => {
 
           <button
             id="add-first-goal-btn"
-            onClick={() => onOpenModal("goals", "add")}
+            onClick={() => isDemoMode ? showDemoReadOnlyToast() : onOpenModal("goals", "add")}
             className=" bg-blue-500 hover:bg-blue-600 transition cursor-pointer text-white px-4 py-2 rounded-md text-base flex items-center gap-2"
           >
             <FaPlus className="text-lg" />

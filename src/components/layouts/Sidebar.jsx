@@ -12,6 +12,7 @@ import {
 import clsx from "clsx";
 import { useMainContext } from "../../context/MainContext";
 import useAuthStore from "../../store/useAuthStore";
+import { getDemoPath, useDemoMode } from "../../demo/useDemoMode";
 
 const navLinks = [
   { to: "/", icon: FaTachometerAlt, label: "Overview" },
@@ -24,6 +25,7 @@ const navLinks = [
 
 const Sidebar = () => {
   const location = useLocation();
+  const isDemoMode = useDemoMode();
   const userName = useAuthStore((state) => state.userName);
   const { isSidebarOpen, handleSidebarClose } = useMainContext();
   const [hovered, setHovered] = useState(false);
@@ -65,13 +67,13 @@ const Sidebar = () => {
           {navLinks.map((link) => (
             <Link
               key={link.to}
-              to={link.to}
+              to={isDemoMode ? getDemoPath(link.to) : link.to}
               onClick={handleSidebarClose}
               aria-label={link.label}
               className={clsx(
                 "relative group flex items-center gap-3 px-2 py-2 rounded-lg hover:bg-[rgb(var(--color-brand-deep))] hover:text-white transition-colors text-[rgb(var(--color-muted))] text-base",
                 expanded ? "justify-start pl-3" : "justify-center",
-                location.pathname === link.to
+                location.pathname === (isDemoMode ? getDemoPath(link.to) : link.to)
                   ? "bg-[rgb(var(--color-status-bg-blue))] text-blue-600"
                   : ""
               )}

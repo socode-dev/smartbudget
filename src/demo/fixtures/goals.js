@@ -1,0 +1,77 @@
+export const demoGoals = [
+  {
+    id: "demo-goal-emergency",
+    name: "Emergency Liquidity Buffer",
+    categoryKey: "goal:emergency-liquidity-buffer",
+    amount: 5000,
+    date: "2026-12-31",
+    createdAt: new Date("2026-01-05T10:00:00").getTime(),
+  },
+  {
+    id: "demo-goal-inventory",
+    name: "Shop Inventory Restock",
+    categoryKey: "goal:shop-inventory-restock",
+    amount: 3200,
+    date: "2026-09-30",
+    createdAt: new Date("2026-02-07T10:00:00").getTime(),
+  },
+  {
+    id: "demo-goal-school",
+    name: "School Fees Reserve",
+    categoryKey: "goal:school-fees-reserve",
+    amount: 1800,
+    date: "2026-08-15",
+    createdAt: new Date("2026-03-12T10:00:00").getTime(),
+  },
+];
+
+export const demoContributions = [
+  {
+    id: "demo-contribution-emergency-jan",
+    name: "Emergency Liquidity Buffer",
+    categoryKey: "goal:emergency-liquidity-buffer",
+    amount: 550,
+    date: "2026-01-28",
+    createdAt: new Date("2026-01-28T11:00:00").getTime(),
+  },
+  {
+    id: "demo-contribution-emergency-mar",
+    name: "Emergency Liquidity Buffer",
+    categoryKey: "goal:emergency-liquidity-buffer",
+    amount: 700,
+    date: "2026-03-28",
+    createdAt: new Date("2026-03-28T11:00:00").getTime(),
+  },
+  {
+    id: "demo-contribution-emergency-may",
+    name: "Emergency Liquidity Buffer",
+    categoryKey: "goal:emergency-liquidity-buffer",
+    amount: 650,
+    date: "2026-05-28",
+    createdAt: new Date("2026-05-28T11:00:00").getTime(),
+  },
+  {
+    id: "demo-contribution-inventory-feb",
+    name: "Shop Inventory Restock",
+    categoryKey: "goal:shop-inventory-restock",
+    amount: 900,
+    date: "2026-02-20",
+    createdAt: new Date("2026-02-20T11:00:00").getTime(),
+  },
+  {
+    id: "demo-contribution-inventory-apr",
+    name: "Shop Inventory Restock",
+    categoryKey: "goal:shop-inventory-restock",
+    amount: 850,
+    date: "2026-04-20",
+    createdAt: new Date("2026-04-20T11:00:00").getTime(),
+  },
+  {
+    id: "demo-contribution-school-may",
+    name: "School Fees Reserve",
+    categoryKey: "goal:school-fees-reserve",
+    amount: 950,
+    date: "2026-05-18",
+    createdAt: new Date("2026-05-18T11:00:00").getTime(),
+  },
+];

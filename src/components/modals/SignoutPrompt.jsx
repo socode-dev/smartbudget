@@ -2,8 +2,12 @@ import { useMainContext } from "../../context/MainContext";
 import { doSignOut } from "../../firebase/auth";
 import useAuthStore from "../../store/useAuthStore";
 import Dialog from "../ui/Dialog";
+import { useNavigate } from "react-router-dom";
+import { useDemoMode } from "../../demo/useDemoMode";
 
 const SignoutPrompt = () => {
+  const isDemoMode = useDemoMode();
+  const navigate = useNavigate();
   const setCurrentUser = useAuthStore((state) => state.setCurrentUser);
   const setUserName = useAuthStore((state) => state.setUserName);
   const { isSignoutPromptOpen, handleSignoutPromptClose } = useMainContext();
@@ -12,6 +16,12 @@ const SignoutPrompt = () => {
 
   const onSignOut = () => {
     handleSignoutPromptClose();
+
+    if (isDemoMode) {
+      navigate("/login");
+      return;
+    }
+
     doSignOut();
 
     setTimeout(() => {
@@ -40,7 +50,7 @@ const SignoutPrompt = () => {
           onClick={onSignOut}
           className="px-4 py-2 font-medium text-sm text-white bg-red-600 hover:bg-red-700 rounded transition cursor-pointer"
         >
-          Yes, Log Out
+          {isDemoMode ? "Exit Demo" : "Yes, Log Out"}
         </button>
       </div>
     </Dialog>

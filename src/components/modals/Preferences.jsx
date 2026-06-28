@@ -7,8 +7,10 @@ import toast from "react-hot-toast";
 import LoadingSpinner from "../ui/LoadingSpinner";
 import useAuthStore from "../../store/useAuthStore";
 import Dialog from "../ui/Dialog";
+import { showDemoReadOnlyToast, useDemoMode } from "../../demo/useDemoMode";
 
 const Preferences = () => {
+  const isDemoMode = useDemoMode();
   const user = useAuthStore((state) => state.currentUser);
   const thresholds = useThresholdStore((state) => state.thresholds);
   const updateThresholds = useThresholdStore((state) => state.updateThresholds);
@@ -19,6 +21,11 @@ const Preferences = () => {
   if (!isPreferencesOpen) return null;
 
   const onSubmit = async (data) => {
+    if (isDemoMode) {
+      showDemoReadOnlyToast();
+      return;
+    }
+
     try {
       if (user?.uid) {
         await updateThresholds(user.uid, data);

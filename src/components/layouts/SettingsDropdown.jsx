@@ -7,8 +7,10 @@ import { useMainContext } from "../../context/MainContext";
 import CurrencyDropdown from "./CurrencyDropdown";
 import { useOverviewContext } from "../../context/OverviewContext";
 import Export from "../ui/Export";
+import { showDemoReadOnlyToast, useDemoMode } from "../../demo/useDemoMode";
 
 const SettingsDropdown = () => {
+  const isDemoMode = useDemoMode();
   const theme = useThemeStore((state) => state.theme);
   const toggleTheme = useThemeStore((state) => state.toggleTheme);
   const selectedCurrency = useCurrencyStore((state) => state.selectedCurrency);
@@ -25,11 +27,23 @@ const SettingsDropdown = () => {
   if (!isSettingsOpen) return null;
 
   const exportCSV = () => {
+    if (isDemoMode) {
+      showDemoReadOnlyToast();
+      setIsExportOpen(false);
+      return;
+    }
+
     handleCSVExport();
     setIsExportOpen(false);
   };
 
   const exportPDF = () => {
+    if (isDemoMode) {
+      showDemoReadOnlyToast();
+      setIsExportOpen(false);
+      return;
+    }
+
     handlePDFExport();
     setIsExportOpen(false);
   };

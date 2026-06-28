@@ -11,11 +11,14 @@ import useTransactionStore from "../store/useTransactionStore";
 import { useDropdownClose } from "../hooks/useDropdownClose";
 import useCurrencyStore from "../store/useCurrencyStore";
 import useAuthStore from "../store/useAuthStore";
+import { isDemoUser, useDemoMode } from "../demo/useDemoMode";
 
 const MainContext = createContext();
 
 export const MainProvider = ({ children }) => {
+  const isDemoMode = useDemoMode();
   const user = useAuthStore((state) => state.currentUser);
+  const isDemoSession = isDemoMode || isDemoUser(user);
   const loadTransactions = useTransactionStore(
     (state) => state.loadTransactions
   );
@@ -95,6 +98,8 @@ export const MainProvider = ({ children }) => {
 
   // Load all transactions, budgets, goals on mount
   useEffect(() => {
+    if (isDemoSession) return;
+
     let isMounted = true;
 
     // Fetch all currencies
@@ -124,7 +129,7 @@ export const MainProvider = ({ children }) => {
     return () => {
       isMounted = false;
     };
-  }, [user]);
+  }, [isDemoSession, user, fetchCurrencies, loadNotifications, loadTransactions]);
 
   // Close sidebar on resize
   useEffect(() => {

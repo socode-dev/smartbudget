@@ -12,8 +12,11 @@ import SidebarSkeleton from "../components/skeletons/SidebarSkeleton";
 import useAuthStore from "../store/useAuthStore";
 import WelcomeModal from "../components/modals/WelcomeModal";
 import TourJoyride from "../components/ui/TourJoyride";
+import DemoBadge from "../demo/DemoBadge";
+import { useDemoMode } from "../demo/useDemoMode";
 
 const MainLayout = () => {
+  const isDemoMode = useDemoMode();
   const user = useAuthStore((state) => state.currentUser);
   const isUserEmailVerified = useAuthStore(
     (state) => state.isUserEmailVerified
@@ -27,7 +30,8 @@ const MainLayout = () => {
       <Toaster />
 
       <WelcomeModal />
-      <TourJoyride />
+      {!isDemoMode && <TourJoyride />}
+      {isDemoMode && <DemoBadge />}
 
       {/* Sign out confirmation dialog */}
       <SignoutPrompt />
@@ -53,7 +57,7 @@ const MainLayout = () => {
         </LazyWrapper>
         <main className="bg-[rgb(var(--color-bg))] overflow-y-auto grow transition-all duration-200 lg:pt-0 pt-14 scrollbar-thin">
           {/* Display under header if user email is not verified */}
-          {!isUserEmailVerified && (
+          {!isDemoMode && !isUserEmailVerified && (
             <div className="w-full mx-auto mt-2 lg:mt-0 px-6 py-3 shadow bg-[rgb(var(--color-bg-card))] border-t-2 border-[rgb(var(--color-brand-deep))] flex justify-between items-center gap-5">
               <p className="text-[rgb(var(--color-muted))] text-sm">
                 Your account is not verified. Resend link to verify.
