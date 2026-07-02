@@ -6,8 +6,10 @@ import { formatAmount } from "../../utils/formatAmount";
 import useTransactionStore from "../../store/useTransactionStore";
 import useAuthStore from "../../store/useAuthStore";
 import ResponsiveTable from "../ui/ResponsiveTable";
+import { showDemoReadOnlyToast, useDemoMode } from "../../demo/useDemoMode";
 
 const TransactionTable = () => {
+  const isDemoMode = useDemoMode();
   const user = useAuthStore((state) => state.currentUser);
   const deleteTransaction = useTransactionStore(
     (state) => state.deleteTransaction
@@ -59,9 +61,14 @@ const TransactionTable = () => {
         <HiOutlinePencil className="text-base" />
       </button>
       <button
-        onClick={() =>
-          deleteTransaction(user.uid, "transactions", transaction.id)
-        }
+        onClick={() => {
+          if (isDemoMode) {
+            showDemoReadOnlyToast();
+            return;
+          }
+
+          deleteTransaction(user.uid, "transactions", transaction.id);
+        }}
         title="Delete transaction"
         aria-label="Delete transaction"
         className="cursor-pointer text-red-500 transition hover:text-red-600"

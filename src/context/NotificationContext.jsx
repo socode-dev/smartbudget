@@ -6,10 +6,12 @@ import {
 } from "../firebase/firestore";
 import useNotificationStore from "../store/useNotificationStore";
 import useAuthStore from "../store/useAuthStore";
+import { showDemoReadOnlyToast, useDemoMode } from "../demo/useDemoMode";
 
 const NotificationContext = createContext();
 
 export const NotificationProvider = ({ children }) => {
+  const isDemoMode = useDemoMode();
   const user = useAuthStore((state) => state.currentUser);
   const setNotifications = useNotificationStore(
     (state) => state.setNotifications
@@ -20,6 +22,12 @@ export const NotificationProvider = ({ children }) => {
   const onOpenDialog = async (notification) => {
     if (!notification) return;
     setNotificationId(notification.id);
+
+    if (isDemoMode) {
+      setOpenNotificationDialog(true);
+      return;
+    }
+
     const data = {
       ...notification,
       read: true,
@@ -43,6 +51,11 @@ export const NotificationProvider = ({ children }) => {
   };
 
   const handleDelete = async (id) => {
+    if (isDemoMode) {
+      showDemoReadOnlyToast();
+      return;
+    }
+
     await deleteDocument(user?.uid, "notifications", id);
 
     // Refetch all notifications to ensure sync

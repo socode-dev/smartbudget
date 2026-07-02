@@ -5,8 +5,10 @@ import { FaPlus } from "react-icons/fa";
 import Cards from "../components/budgets/Cards";
 import { motion } from "framer-motion";
 import useOnboardingStore from "../store/useOnboardingStore";
+import { showDemoReadOnlyToast, useDemoMode } from "../demo/useDemoMode";
 
 const Budgets = () => {
+  const isDemoMode = useDemoMode();
   const { budgets, filteredBudgets, searchName, setSearchName, onOpenModal } =
     useBudgetsContext();
 
@@ -41,7 +43,7 @@ const Budgets = () => {
 
         {filteredBudgets.length > 0 && (
           <button
-            onClick={() => onOpenModal("budgets", "add")}
+            onClick={() => isDemoMode ? showDemoReadOnlyToast() : onOpenModal("budgets", "add")}
             className="bg-[rgb(var(--color-brand-deep))] hover:[rgb(var(--color-brand))] transition cursor-pointer text-white px-4 py-2 rounded-md text-xl"
           >
             <FaPlus />
@@ -81,7 +83,7 @@ const Budgets = () => {
 
           <button
             id="add-first-budget-btn"
-            onClick={() => onOpenModal("budgets", "add")}
+            onClick={() => isDemoMode ? showDemoReadOnlyToast() : onOpenModal("budgets", "add")}
             className="bg-[rgb(var(--color-brand-deep))] hover:bg-[rgb(var(--color-brand))] transition cursor-pointer text-white px-4 py-2 rounded-md text-base flex items-center mx-auto gap-2"
           >
             <FaPlus />

@@ -10,9 +10,12 @@ import { db } from "../firebase/firebase";
 import useInsightsStore from "../store/useInsightsStore";
 import useAuthStore from "../store/useAuthStore";
 import { generateInsight } from "../insight_engines/runInsights";
+import { isDemoUser, useDemoMode } from "../demo/useDemoMode";
 
 const AppInitializer = () => {
+  const isDemoMode = useDemoMode();
   const user = useAuthStore((state) => state.currentUser);
+  const isDemoSession = isDemoMode || isDemoUser(user);
   const userId = user?.uid;
   const setThresholds = useThresholdStore((state) => state.setThresholds);
   const transactions = useTransactionStore((state) => state.transactions);
@@ -25,13 +28,16 @@ const AppInitializer = () => {
 
   // Auth listener
   useEffect(() => {
+    if (isDemoSession) return;
+
     startAuthListener();
 
     return () => stopAuthListener();
-  }, [startAuthListener, stopAuthListener]);
+  }, [isDemoSession, startAuthListener, stopAuthListener]);
 
   // Real-time listener for thresholds
   useEffect(() => {
+    if (isDemoSession) return;
     if (!userId) return;
 
     const userDocRef = doc(db, "users", userId);
@@ -51,10 +57,11 @@ const AppInitializer = () => {
       unsubscribeInsights();
       unsubscribeThresholds();
     };
-  }, [userId, initInsights, setThresholds]);
+  }, [isDemoSession, userId, initInsights, setThresholds]);
 
   // Listen to transaction categories
   useEffect(() => {
+    if (isDemoSession) return;
     if (!userId) return;
 
     const unsubscribe = subcollectionListener(userId, "categories", setCategories);
@@ -62,18 +69,19 @@ const AppInitializer = () => {
     return () => {
       unsubscribe();
     };
-  }, [userId, setCategories]);
+  }, [isDemoSession, userId, setCategories]);
 
   // Generate AI insights
   useEffect(() => {
+    if (isDemoSession) return;
     if (!userId) return;
-    if (!transactions.length) return;
+    if (!(transactions ?? []).length) return;
 
     let cancelled = false;
 
     const runInsights = async () => {
       try {
-        await generateInsight({userId, transactions, budgets});
+        await generateInsight({userId, transactions: transactions ?? [], budgets: budgets ?? []});
       } catch (err) {
         if (cancelled) return;
         console.log(err);
@@ -86,7 +94,7 @@ const AppInitializer = () => {
     return () => {
       cancelled = true;
     };
-  }, [userId, transactions?.length, budgets?.length]);
+  }, [isDemoSession, userId, transactions?.length, budgets?.length]);
   
   return null;
 };

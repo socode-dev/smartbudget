@@ -15,6 +15,7 @@ import BudgetSkeleton from "../components/skeletons/BudgetSkeleton";
 import GoalSkeleton from "../components/skeletons/GoalSkeleton";
 import ReportSkeleton from "../components/skeletons/ReportSkeleton";
 import InsightSkeleton from "../components/skeletons/InsightSkeleton";
+import DemoInitializer from "../demo/DemoInitializer";
 
 const Overview = lazy(() => import("../pages/Overview"));
 const Transactions = lazy(() => import("../pages/Transactions"));
@@ -46,6 +47,66 @@ const AppRoutes = () => {
             </PublicRoute>
           }
         />
+      </Route>
+
+      {/* Demo routes */}
+      <Route
+        path="/demo"
+        element={
+          <DemoInitializer>
+            <MainLayout />
+          </DemoInitializer>
+        }
+      >
+        <Route
+          index
+          element={
+            <LazyWrapper loadingFallback={<OverviewSkeleton />}>
+              <Overview />
+            </LazyWrapper>
+          }
+        />
+        <Route
+          path="transactions"
+          element={
+            <LazyWrapper loadingFallback={<TransactionSkeleton />}>
+              <Transactions />
+            </LazyWrapper>
+          }
+        />
+        <Route
+          path="budgets"
+          element={
+            <LazyWrapper loadingFallback={<BudgetSkeleton />}>
+              <Budgets />
+            </LazyWrapper>
+          }
+        />
+        <Route
+          path="goals"
+          element={
+            <LazyWrapper loadingFallback={<GoalSkeleton />}>
+              <Goals />
+            </LazyWrapper>
+          }
+        />
+        <Route
+          path="insights"
+          element={
+            <LazyWrapper loadingFallback={<InsightSkeleton />}>
+              <Insights />
+            </LazyWrapper>
+          }
+        />
+        <Route
+          path="reports"
+          element={
+            <LazyWrapper loadingFallback={<ReportSkeleton />}>
+              <Reports />
+            </LazyWrapper>
+          }
+        />
+        <Route path="notifications" element={<Notifications />} />
       </Route>
 
       {/* Main routes */}

@@ -11,10 +11,12 @@ import { transactionTotal } from "../utils/transactionTotal";
 import { handleEdit } from "../utils/handleEdit";
 import { useFormContext } from "./FormContext";
 import { useModalContext } from "./ModalContext";
+import { showDemoReadOnlyToast, useDemoMode } from "../demo/useDemoMode";
 
 const TransactionsContext = createContext();
 
 export const TransactionsProvider = ({ children }) => {
+  const isDemoMode = useDemoMode();
   const { onOpenModal, setTransactionID } = useModalContext();
   const transactions = useTransactionStore((state) => state.transactions);
   const setEditTransaction = useTransactionStore(
@@ -127,6 +129,11 @@ export const TransactionsProvider = ({ children }) => {
     setCurrentPage((prev) => Math.min(prev + 1, totalPages));
 
   const handleEditTransaction = useCallback((id) => {
+    if (isDemoMode) {
+      showDemoReadOnlyToast();
+      return;
+    }
+
     handleEdit(
       id,
       "transactions",
@@ -136,7 +143,7 @@ export const TransactionsProvider = ({ children }) => {
       setEditTransaction
     );
     setTransactionID(id);
-  }, []);
+  }, [isDemoMode, onOpenModal, setEditTransaction, setTransactionID, setValue]);
 
   const value = {
     sortedTransactions,

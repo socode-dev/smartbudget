@@ -10,8 +10,10 @@ import useCurrencyStore from "../store/useCurrencyStore";
 import { formatAmount } from "../utils/formatAmount";
 import { motion } from "framer-motion";
 import useOnboardingStore from "../store/useOnboardingStore";
+import { showDemoReadOnlyToast, useDemoMode } from "../demo/useDemoMode";
 
 const Transactions = () => {
+  const isDemoMode = useDemoMode();
   const { onOpenModal } = useModalContext();
   const transactions = useTransactionStore((state) => state.transactions);
   const selectedCurrency = useCurrencyStore((state) => state.selectedCurrency);
@@ -54,7 +56,7 @@ const Transactions = () => {
 
         {transactions?.length > 0 && (
           <button
-            onClick={() => onOpenModal("transactions", "add")}
+            onClick={() => isDemoMode ? showDemoReadOnlyToast() : onOpenModal("transactions", "add")}
             title="Add transaction"
             aria-label="Add transaction"
             className="bg-green-500 hover:bg-green-600 transition cursor-pointer text-white px-4 py-2 rounded-md text-xl"
@@ -130,7 +132,7 @@ const Transactions = () => {
 
           <button
             id="add-first-transaction-btn"
-            onClick={() => onOpenModal("transactions", "add")}
+            onClick={() => isDemoMode ? showDemoReadOnlyToast() : onOpenModal("transactions", "add")}
             className="mt-8 mx-auto bg-green-500 hover:bg-green-600 transition cursor-pointer text-white px-4 py-2 rounded-md text-base flex items-center gap-2"
           >
             <FaPlus className="text-lg" />

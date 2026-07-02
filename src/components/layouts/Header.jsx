@@ -8,9 +8,11 @@ import { useNavigate } from "react-router-dom";
 import { useMainContext } from "../../context/MainContext";
 import HeaderSkeleton from "../skeletons/HeaderSkeleton";
 import useAuthStore from "../../store/useAuthStore";
+import { getDemoPath, useDemoMode } from "../../demo/useDemoMode";
 
 const Header = () => {
   const navigate = useNavigate();
+  const isDemoMode = useDemoMode();
   const userName = useAuthStore((state) => state.userName);
   const notifications = useNotificationStore((state) => state.notifications);
   const {
@@ -42,7 +44,7 @@ const Header = () => {
       </div>
 
       <button
-        onClick={() => navigate("/")}
+        onClick={() => navigate(isDemoMode ? getDemoPath("/") : "/")}
         className="text-lg md:text-xl grow font-semibold text-[rgb(var(--color-muted))] text-left ml-4 cursor-pointer"
       >
         Dashboard
@@ -54,7 +56,7 @@ const Header = () => {
         <button
           id="notifications"
           className="relative flex p-2 bg-[rgb(var(--color-bg))] border border-[rgb(var(--color-status-bg-blue))] rounded-lg shadow text-[rgb(var(--color-brand))] hover:text-[rgb(var(--color-brand-hover)] transition cursor-pointer"
-          onClick={() => navigate("/notifications")}
+          onClick={() => navigate(isDemoMode ? getDemoPath("/notifications") : "/notifications")}
           type="button"
         >
           <FaRegBell className="text-lg" />

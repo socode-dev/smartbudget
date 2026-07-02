@@ -7,8 +7,10 @@ import { useReportContext } from "../context/ReportContext";
 import ScrollToTop from "../layout/ScrollToTop";
 import { motion } from "framer-motion";
 import useOnboardingStore from "../store/useOnboardingStore";
+import { showDemoReadOnlyToast, useDemoMode } from "../demo/useDemoMode";
 
 const Reports = () => {
+  const isDemoMode = useDemoMode();
   const { expenses, handleCSVExport, handlePDFExport } = useReportContext();
 
   const { setCurrentPage, startTourIfNotCompleted } = useOnboardingStore();
@@ -71,7 +73,7 @@ const Reports = () => {
             className="flex justify-end mt-10 gap-4 sm:gap-6 md:gap-8 lg:gap-10"
           >
             <button
-              onClick={handleCSVExport}
+              onClick={() => isDemoMode ? showDemoReadOnlyToast() : handleCSVExport()}
               type="button"
               className="flex items-center gap-2 px-3 py-1.5 rounded-lg shadow-md border border-green-200 bg-green-50 hover:bg-green-100 transition text-green-800 font-medium text-base focus:outline-none focus:ring-2 focus:ring-green-300 cursor-pointer"
             >
@@ -79,7 +81,7 @@ const Reports = () => {
               <span>CSV</span>
             </button>
             <button
-              onClick={handlePDFExport}
+              onClick={() => isDemoMode ? showDemoReadOnlyToast() : handlePDFExport()}
               type="button"
               className="flex items-center gap-2 px-3 py-1.5 rounded-lg shadow-md border border-red-200 bg-red-50 hover:bg-red-100 transition text-red-800 font-medium text-base focus:outline-none focus:ring-2 focus:ring-red-300 cursor-pointer"
             >

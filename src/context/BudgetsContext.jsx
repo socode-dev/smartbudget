@@ -14,11 +14,14 @@ import { checkBudgetThreshold } from "../utils/checkBudgetThreshold";
 import useThresholdStore from "../store/useThresholdStore";
 import { scheduleThresholdCheck } from "../utils/scheduleThresholdCheck";
 import useAuthStore from "../store/useAuthStore";
+import { isDemoUser, showDemoReadOnlyToast, useDemoMode } from "../demo/useDemoMode";
 
 const BudgetsContext = createContext();
 
 export const BudgetsProvider = ({ children }) => {
+  const isDemoMode = useDemoMode();
   const user = useAuthStore((state) => state.currentUser);
+  const isDemoSession = isDemoMode || isDemoUser(user);
   const thresholds = useThresholdStore((state) => state.thresholds);
   const [searchName, setSearchName] = useState("");
   const { onOpenModal, setTransactionID } = useModalContext();
@@ -54,6 +57,8 @@ export const BudgetsProvider = ({ children }) => {
   const transactionCounts = transactions?.length;
 
   useEffect(() => {
+    if (isDemoSession) return;
+
     // if (!currentUser?.uid || budgetCounts === 0) return;
     let mounted = true;
     let lastRunKey = null;
@@ -82,9 +87,14 @@ export const BudgetsProvider = ({ children }) => {
     return () => {
       mounted = false;
     };
-  }, [user?.uid, budgets, transactions]);
+  }, [isDemoSession, user?.uid, budgets, transactions]);
 
   const handleEditBudget = (id) => {
+    if (isDemoMode) {
+      showDemoReadOnlyToast();
+      return;
+    }
+
     handleEdit(
       id,
       "budgets",
@@ -97,6 +107,11 @@ export const BudgetsProvider = ({ children }) => {
   };
 
   const handleDeleteBudget = (id) => {
+    if (isDemoMode) {
+      showDemoReadOnlyToast();
+      return;
+    }
+
     deleteTransaction(user.uid, "budgets", id);
   };
 
@@ -120,7 +135,7 @@ export const BudgetsProvider = ({ children }) => {
         searchName,
         setSearchName,
         getProgressBackground,
-        onOpenModal,
+        onOpenModal: isDemoMode ? showDemoReadOnlyToast : onOpenModal,
         handleEditBudget,
         handleDeleteBudget,
       }}
