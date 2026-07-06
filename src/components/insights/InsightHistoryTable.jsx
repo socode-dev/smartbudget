@@ -150,16 +150,16 @@ const InsightHistoryTable = ({ histories = [] }) => {
 };
 
 const severityClass = (severity) => {
-  if (severity === "HIGH") return "bg-red-100 text-red-600";
-  if (severity === "MEDIUM") return "bg-amber-100 text-amber-600";
+  if (severity === "HIGH") return "bg-[rgb(var(--color-status-bg-red))] text-red-500";
+  if (severity === "MEDIUM") return "bg-[rgb(var(--color-status-bg-amber))] text-amber-500";
 
-  return "bg-blue-100 text-blue-600";
+  return "bg-[rgb(var(--color-status-bg-blue))] text-blue-500";
 };
 
 const statusClass = (status) => {
   return status === "ACTIVE"
-    ? "bg-green-100 text-green-700"
-    : "bg-gray-100 text-gray-600";
+    ? "bg-[rgb(var(--color-status-bg-green))] text-green-600"
+    : "bg-[rgb(var(--color-status-bg-gray))] text-gray-500";
 };
 
 const toDate = (value) => {

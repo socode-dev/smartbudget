@@ -16,7 +16,7 @@ const Cards = () => {
   } = useGoalsContext();
 
   return (
-    <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+    <section id="goal-cards" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
       {/* Emergency Fund */}
       {filteredGoals.map((goal) => {
         const goalTargetAmount = goal.amount;

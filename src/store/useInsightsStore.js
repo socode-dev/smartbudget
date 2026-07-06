@@ -35,7 +35,9 @@ const useInsightsStore = create(
               history.push(formatInsightHistory({ data, expired }));
 
               if (data.status !== "EXPIRED") {
-                await updateDocument(uid, "insights", document.id, {status: "EXPIRED"});
+                await updateDocument(uid, "insights", document.id, {
+                  status: "EXPIRED",
+                });
               }
             } else {
               const activeInsight = { id: document.id, ...data, status: "ACTIVE" };

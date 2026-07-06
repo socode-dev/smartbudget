@@ -10,17 +10,17 @@ const InsightCard = ({ insight }) => {
   const severityColor = {
     LOW: {
       circleBG: "bg-blue-500",
-      pill: "bg-blue-100 text-blue-600",
+      pill: "bg-[rgb(var(--color-status-bg-blue))] text-blue-500",
       border: "border-blue-500"
     },
     MEDIUM: {
       circleBG: "bg-amber-400",
-      pill: "bg-amber-100 text-amber-600",
+      pill: "bg-[rgb(var(--color-status-bg-amber))] text-amber-500",
       border: "border-amber-400"
     },
     HIGH: {
       circleBG: "bg-red-500",
-      pill: "bg-red-100 text-red-600",
+      pill: "bg-[rgb(var(--color-status-bg-red))] text-red-500",
       border: "border-red-500"
     }
   }
@@ -46,7 +46,7 @@ const InsightCard = ({ insight }) => {
 
       <hr className="border-[rgb(var(--color-gray-border))] w-[95%] mx-auto" />
 
-      <p className="text-sm text-[rgb(var(--color-muted))] bg-gray-50 flex items-start gap-4 pl-4 pr-8 py-3 overflow-hidden">
+      <p className="text-sm text-[rgb(var(--color-muted))] bg-[rgb(--color-gray-bg)] flex items-start gap-4 pl-4 pr-8 py-3 overflow-hidden">
         <span className="w-10 h-10 text-yellow-300/80">
         <FaLightbulb size={18} />
         </span>

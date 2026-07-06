@@ -11,6 +11,7 @@ import {normalizeInsight} from "../utils/normalizeInsight";
 const INSIGHTS_PER_PAGE = 4;
 
 const Insights = () => {
+  const userId = useAuthStore((state) => state.currentUser?.uid);
   const isUserEmailVerified = useAuthStore(
     (state) => state.isUserEmailVerified
   );
@@ -28,11 +29,11 @@ const Insights = () => {
     if (!isUserEmailVerified) return;
 
     const timer = setTimeout(() => {
-      startTourIfNotCompleted("insights");
+      startTourIfNotCompleted("insights", userId);
     }, 500);
 
     return () => clearTimeout(timer);
-  }, [setOnboardingPage, startTourIfNotCompleted, isUserEmailVerified]);
+  }, [setOnboardingPage, startTourIfNotCompleted, isUserEmailVerified, userId]);
 
   useEffect(() => {
     setCurrentPage(1);
@@ -85,7 +86,7 @@ const Insights = () => {
         Personalized suggestions, forecasts and savings tips.
       </p>
 
-      <div className="mb-8 flex flex-wrap items-center gap-2">
+      <div id="insights-tabs" className="mb-8 flex flex-wrap items-center gap-2">
         <button
           type="button"
           onClick={() => setActiveView("insights")}

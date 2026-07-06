@@ -8,9 +8,11 @@ import ScrollToTop from "../layout/ScrollToTop";
 import { motion } from "framer-motion";
 import useOnboardingStore from "../store/useOnboardingStore";
 import { showDemoReadOnlyToast, useDemoMode } from "../demo/useDemoMode";
+import useAuthStore from "../store/useAuthStore";
 
 const Reports = () => {
   const isDemoMode = useDemoMode();
+  const userId = useAuthStore((state) => state.currentUser?.uid);
   const { expenses, handleCSVExport, handlePDFExport } = useReportContext();
 
   const { setCurrentPage, startTourIfNotCompleted } = useOnboardingStore();
@@ -19,11 +21,11 @@ const Reports = () => {
     setCurrentPage("reports");
     // Start tour if not completed when navigating to reports page
     const timer = setTimeout(() => {
-      startTourIfNotCompleted("reports");
+      startTourIfNotCompleted("reports", userId);
     }, 500);
 
     return () => clearTimeout(timer);
-  }, [setCurrentPage, startTourIfNotCompleted]);
+  }, [setCurrentPage, startTourIfNotCompleted, userId]);
 
   return (
     <motion.main
@@ -34,10 +36,12 @@ const Reports = () => {
       className="px-5 md:px-10 py-8"
     >
       <ScrollToTop />
-      <h2 className="text-3xl md:text-4xl font-semibold mb-2">Reports</h2>
-      <p className="text-base text-[rgb(var(--color-muted))] mb-10">
-        Review, analyze, and export your financial history.
-      </p>
+      <section id="reports-header">
+        <h2 className="text-3xl md:text-4xl font-semibold mb-2">Reports</h2>
+        <p className="text-base text-[rgb(var(--color-muted))] mb-10">
+          Review, analyze, and export your financial history.
+        </p>
+      </section>
 
       {/* Charts */}
       {expenses.length > 0 ? (

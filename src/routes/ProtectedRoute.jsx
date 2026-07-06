@@ -1,6 +1,6 @@
 import { Navigate } from "react-router-dom";
 import useAuthStore from "../store/useAuthStore";
-import AnimatedLoader from "../components/ui/AnimatedLoader";
+import AuthLoadingScreen from "../components/ui/AuthLoadingScreen";
 import { isDemoUser } from "../demo/useDemoMode";
 
 const ProtectedRoute = ({ children }) => {
@@ -8,11 +8,7 @@ const ProtectedRoute = ({ children }) => {
   const loading = useAuthStore((state) => state.loading);
 
   if (loading) {
-    return (
-      <div className="h-screen w-screen flex items-center justify-center">
-        <AnimatedLoader />
-      </div>
-    );
+    return <AuthLoadingScreen />;
   }
 
   if (!user || isDemoUser(user)) {

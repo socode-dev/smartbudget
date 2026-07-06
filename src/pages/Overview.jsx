@@ -24,22 +24,11 @@ const Overview = () => {
 
   const {
     setCurrentPage,
-    startTourIfNotCompleted,
-    hasCompletedOnboarding,
-    tourActive,
   } = useOnboardingStore();
 
   useEffect(() => {
     setCurrentPage("overview");
-    // Start overview tour automatically for new users when they first login
-    if (user && hasCompletedOnboarding && tourActive) {
-      const timer = setTimeout(() => {
-        startTourIfNotCompleted("overview");
-      }, 1000);
-
-      return () => clearTimeout(timer);
-    }
-  }, [setCurrentPage, startTourIfNotCompleted, user, hasCompletedOnboarding]);
+  }, [setCurrentPage]);
 
   if (
     !user &&

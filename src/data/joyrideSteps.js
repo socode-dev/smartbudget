@@ -1,151 +1,58 @@
-// Overview page steps - comprehensive tour for new users
+const step = (target, content) => ({
+  target,
+  content,
+  disableBeacon: true,
+});
+
 export const overviewSteps = [
-  {
-    target: "#notifications",
-    content:
-      "Stay updated with your financial progress with In-app notifications.",
-    disableBeacon: true,
-  },
-  {
-    target: "#settings",
-    content:
-      "Adjust your app settings here. Set your preferred theme, currency, preferences for thresholds and export all your data.",
-    disableBeacon: true,
-  },
-  {
-    target: "#total-income",
-    content:
-      "This shows your total income for the current month. Keep track of all money coming in.",
-    disableBeacon: true,
-  },
-  {
-    target: "#total-expenses",
-    content:
-      "Here's your total spending for the month. Monitor this to stay within your budget.",
-    disableBeacon: true,
-  },
-  {
-    target: "#net-balance",
-    content: "Your net balance shows if you're spending more than you earn.",
-    disableBeacon: true,
-  },
-  {
-    target: "#budget-usage",
-    content:
-      "Track how much of your budget you've used. Try to stay under 100% to meet your goals.",
-    disableBeacon: true,
-  },
-  {
-    target: "#financial-charts",
-    content:
-      "Visual charts help you understand your spending patterns and budget distribution.",
-    disableBeacon: true,
-  },
-  {
-    target: "#smart-insights",
-    content:
-      "Get AI-powered insights and recommendations to improve your financial health.",
-    disableBeacon: true,
-  },
-  {
-    target: "#budget-overview",
-    content:
-      "Detailed breakdown of your income and expense budgets with progress tracking.",
-    disableBeacon: true,
-  },
-  {
-    target: "#quick-actions",
-    content:
-      "Quick access to add transactions, set budgets, create goals, and export your data.",
-    disableBeacon: true,
-  },
+  step("#notifications", "Notifications surface important account, budget, goal, and insight updates."),
+  step("#settings", "Use settings to adjust theme, currency, alert thresholds, preferences, and exports."),
+  step("#total-income", "Total Income summarizes money received across the selected financial activity."),
+  step("#total-expenses", "Total Expenses shows spending so you can quickly spot pressure on cashflow."),
+  step("#net-balance", "Net Balance compares income against expenses and shows whether the customer is ahead or behind."),
+  step("#budget-usage", "Budget Usage tracks how much planned spending has already been consumed."),
+  step("#financial-charts", "Financial Overview visualizes income, expenses, and budget movement over time."),
+  step("#smart-insights", "Smart Insights highlights the most important financial signals SmartBudget has generated."),
+  step("#budget-overview", "Budget Overview breaks down income and expense budget progress."),
+  step("#quick-actions", "Quick Actions gives fast access to common workflows like entries, budgets, goals, and exports."),
 ];
 
-// Transactions page steps - focus on empty state and key buttons
 export const transactionsSteps = [
-  {
-    target: "#transactions-empty-state",
-    content:
-      "This is where all your transactions will appear. Start by adding your first expense or income.",
-    disableBeacon: true,
-  },
-  {
-    target: "#add-first-transaction-btn",
-    content:
-      "Click here to add your first transaction. You can record both income and expenses.",
-    disableBeacon: true,
-  },
+  step("#transactions-header", "Transactions is the customer activity ledger for income and expense records."),
+  step("#transactions-filters", "Use filters to narrow activity by description, category, type, or date range."),
+  step("#transactions-list", "The transaction list shows each record with date, category, amount, and available actions."),
+  step("#transactions-summary", "The summary totals income, expenses, balance, and net position for the current view."),
+  step("#transactions-empty-state", "When there is no activity yet, this empty state guides the first transaction entry."),
+  step("#add-first-transaction-btn", "This starts the first income or expense record."),
 ];
 
-// Budgets page steps - focus on empty state and key actions
 export const budgetsSteps = [
-  {
-    target: "#budgets-empty-state",
-    content:
-      "Set spending limits for different categories to stay on track with your financial goals.",
-    disableBeacon: true,
-  },
-  {
-    target: "#add-first-budget-btn",
-    content:
-      "Create your first budget by setting a spending limit for a category like groceries or entertainment.",
-    disableBeacon: true,
-  },
+  step("#budgets-header", "Budgets define the planned limits SmartBudget uses to measure spending discipline."),
+  step("#budgets-search", "Search helps find a specific category budget quickly."),
+  step("#budget-cards", "Budget cards show limits, used amounts, remaining balances, and progress by category."),
+  step("#budgets-empty-state", "When no budgets exist, this page prompts the first category limit."),
+  step("#add-first-budget-btn", "This starts the first budget setup."),
 ];
 
-// Goals page steps - focus on empty state and goal creation
 export const goalsSteps = [
-  {
-    target: "#goals-empty-state",
-    content:
-      "Set financial goals to save for things that matter to you - vacation, emergency fund, or a new car.",
-    disableBeacon: true,
-  },
-  {
-    target: "#add-first-goal-btn",
-    content:
-      "Create your first savings goal. Set a target amount and deadline to stay motivated.",
-    disableBeacon: true,
-  },
+  step("#goals-header", "Goals track savings targets and long-term customer commitments."),
+  step("#goals-search", "Search helps find a specific savings goal."),
+  step("#goal-cards", "Goal cards show targets, saved amounts, due dates, and contribution progress."),
+  step("#goals-empty-state", "When no goals exist, this empty state guides the first savings target."),
+  step("#add-first-goal-btn", "This starts the first goal setup."),
 ];
 
-// Insights page steps - focus on empty state and understanding insights
 export const insightsSteps = [
-  {
-    target: "#insights-empty-state",
-    content:
-      "SmartBudget analyzes your spending patterns to provide personalized insights and recommendations.",
-    disableBeacon: true,
-  },
-  {
-    target: "#insights-grid",
-    content:
-      "Your AI-powered insights will appear here, helping you make better financial decisions.",
-    disableBeacon: true,
-  },
+  step("#insights-tabs", "Switch between active insights and the history of previous insight records."),
+  step("#insights-grid", "Active insights show the current financial signals that need attention."),
+  step("#insights-empty-state", "When no insight is available, SmartBudget is waiting for enough financial activity."),
 ];
 
-// Reports page steps - focus on empty state and export features
 export const reportsSteps = [
-  {
-    target: "#reports-empty-state",
-    content:
-      "Generate detailed reports and charts to analyze your spending patterns over time.",
-    disableBeacon: true,
-  },
-  {
-    target: "#reports-charts",
-    content:
-      "Visual charts show your spending trends and category breakdowns for better understanding.",
-    disableBeacon: true,
-  },
-  {
-    target: "#export-buttons",
-    content:
-      "Export your financial data as CSV or PDF files for record keeping or sharing with advisors.",
-    disableBeacon: true,
-  },
+  step("#reports-header", "Reports summarize financial behavior for review and presentation."),
+  step("#reports-charts", "Charts show spending trends and category concentration."),
+  step("#export-buttons", "Exports create CSV or PDF reports when working with live data."),
+  step("#reports-empty-state", "When there are no expenses, reports will appear after spending activity is available."),
 ];
 
-// Legacy export for backward compatibility
 export const steps = overviewSteps;

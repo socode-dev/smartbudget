@@ -26,10 +26,24 @@ export const addDocument = async (userID, collectionName, data) => {
 };
 
 export const updateDocument = async (userID, collectionName, itemUID, data) => {
-  return await updateDoc(doc(db, "users", userID, collectionName, itemUID), {
-    ...data,
-    updatedAt: serverTimestamp(),
-  });
+  if (!userID || !collectionName || !itemUID) {
+    return { ok: false, reason: "MISSING_UPDATE_TARGET" };
+  }
+
+  try {
+    await updateDoc(doc(db, "users", userID, collectionName, itemUID), {
+      ...data,
+      updatedAt: serverTimestamp(),
+    });
+
+    return { ok: true };
+  } catch (err) {
+    if (err?.code === "not-found") {
+      return { ok: false, reason: "DOCUMENT_NOT_FOUND" };
+    }
+
+    throw err;
+  }
 };
 
 export const deleteDocument = async (userUID, collectionName, dataID) => {

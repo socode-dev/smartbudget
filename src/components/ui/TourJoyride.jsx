@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import Joyride from "react-joyride";
 import useOnboardingStore from "../../store/useOnboardingStore";
+import useAuthStore from "../../store/useAuthStore";
 import {
   overviewSteps,
   transactionsSteps,
@@ -11,14 +12,17 @@ import {
 } from "../../data/joyrideSteps";
 
 const TourJoyride = () => {
+  const userId = useAuthStore((state) => state.currentUser?.uid);
   const tourActive = useOnboardingStore((state) => state.tourActive);
   const currentPage = useOnboardingStore((state) => state.currentPage);
   const stopTour = useOnboardingStore((state) => state.stopTour);
+  const disableTourForUser = useOnboardingStore(
+    (state) => state.disableTourForUser
+  );
 
-  // State to force Joyride restart when page changes
+  
   const [joyrideKey, setJoyrideKey] = useState(0);
 
-  // Reset Joyride when page changes and tour is active
   useEffect(() => {
     if (tourActive) {
       setJoyrideKey((prev) => prev + 1);
@@ -27,7 +31,6 @@ const TourJoyride = () => {
 
   if (!tourActive) return null;
 
-  // Get steps based on current page
   const getStepsForPage = (page) => {
     switch (page) {
       case "overview":
@@ -47,7 +50,12 @@ const TourJoyride = () => {
     }
   };
 
-  const currentSteps = getStepsForPage(currentPage);
+  const currentSteps = getStepsForPage(currentPage).filter((step) => {
+    if (typeof document === "undefined") return true;
+    return Boolean(document.querySelector(step.target));
+  });
+
+  if (!currentSteps.length) return null;
 
   return (
     <Joyride
@@ -60,8 +68,13 @@ const TourJoyride = () => {
       disableOverlayClose
       hideCloseButton
       callback={(data) => {
-        const { status, type } = data;
-        if (["finished", "skipped"].includes(status)) {
+        const { status } = data;
+        if (status === "skipped") {
+          disableTourForUser(userId);
+          return;
+        }
+
+        if (status === "finished") {
           stopTour();
         }
       }}
