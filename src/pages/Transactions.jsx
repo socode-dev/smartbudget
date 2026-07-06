@@ -11,9 +11,11 @@ import { formatAmount } from "../utils/formatAmount";
 import { motion } from "framer-motion";
 import useOnboardingStore from "../store/useOnboardingStore";
 import { showDemoReadOnlyToast, useDemoMode } from "../demo/useDemoMode";
+import useAuthStore from "../store/useAuthStore";
 
 const Transactions = () => {
   const isDemoMode = useDemoMode();
+  const userId = useAuthStore((state) => state.currentUser?.uid);
   const { onOpenModal } = useModalContext();
   const transactions = useTransactionStore((state) => state.transactions);
   const selectedCurrency = useCurrencyStore((state) => state.selectedCurrency);
@@ -31,11 +33,11 @@ const Transactions = () => {
     setCurrentPage("transactions");
     // Start tour if not completed when navigating to transactions page
     const timer = setTimeout(() => {
-      startTourIfNotCompleted("transactions");
+      startTourIfNotCompleted("transactions", userId);
     }, 500); // Small delay to ensure page is rendered
 
     return () => clearTimeout(timer);
-  }, [setCurrentPage, startTourIfNotCompleted]);
+  }, [setCurrentPage, startTourIfNotCompleted, userId]);
 
   return (
     <motion.main
@@ -46,7 +48,7 @@ const Transactions = () => {
       className="px-5 md:px-10 py-8"
     >
       <ScrollToTop />
-      <section className="flex items-center justify-between gap-8 mb-6">
+      <section id="transactions-header" className="flex items-center justify-between gap-8 mb-6">
         <div className="flex flex-col gap-5">
           <h2 className="text-3xl md:text-4xl font-semibold">Transactions</h2>
           <p className="text-base text-[rgb(var(--color-muted))]">
@@ -68,7 +70,7 @@ const Transactions = () => {
 
       {/* Filter Row (Search by note, date range and category) */}
       {transactions?.length > 0 && (
-        <div>
+        <div id="transactions-filters">
           <Filter />
         </div>
       )}
@@ -76,10 +78,12 @@ const Transactions = () => {
       {sortedTransactions?.length > 0 && (
         <>
           {/* Transaction Table */}
-          <TransactionTable />
+          <div id="transactions-list">
+            <TransactionTable />
+          </div>
 
           {/* Amount Summary */}
-          <section className="w-fit grid grid-cols-2 md:grid-cols-4 items-center text-[12px] mt-8 gap-x-8 gap-y-4">
+          <section id="transactions-summary" className="w-fit grid grid-cols-2 md:grid-cols-4 items-center text-[12px] mt-8 gap-x-8 gap-y-4">
             <p className="text-[rgb(var(--color-muted))] text-sm font-medium">
               Total Income:{" "}
               <span className="font-semibold text-green-500 text-base">

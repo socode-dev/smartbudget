@@ -13,7 +13,6 @@ import {
 } from "../firebase/auth";
 import { doc, setDoc, getDoc, serverTimestamp } from "firebase/firestore";
 import { getAuthErrorMessage } from "../utils/authErrorrs";
-import { getUserName } from "../utils/getUserName";
 import {
   createWelcomeNotification,
   createNotification,
@@ -25,7 +24,6 @@ import useTransactionStore from "./useTransactionStore";
 import useNotificationStore from "./useNotificationStore";
 import useCurrencyStore from "./useCurrencyStore";
 import useInsightsStore from "./useInsightsStore";
-import useOnboardingStore from "./useOnboardingStore";
 import toast from "react-hot-toast";
 
 const emailVerificationEmail = {
@@ -33,6 +31,38 @@ const emailVerificationEmail = {
   message:
     'To complete your SmartBudget registration and unlock all features, please verify your email address. To receive a new verification link, please click on the "Resend" bottun on the top of the page. A new verification link will be sent to the email you provided during sign-up. Kindly check your inbox(or spam). Once you click the verification link, your account will be fully activated and ready to help you manage your finances smarter.',
   type: "System",
+};
+
+const emptyUserName = { initials: "", fullName: "" };
+
+const getProfileFromUserDoc = (data, authUser) => {
+  const displayNameParts = authUser?.displayName?.split(" ") ?? [];
+
+  return {
+    firstName:
+      data?.profile?.firstName ?? data?.firstName ?? displayNameParts[0] ?? "",
+    lastName:
+      data?.profile?.lastName ?? data?.lastName ?? displayNameParts[1] ?? "",
+    email: data?.profile?.email ?? data?.email ?? authUser?.email ?? "",
+  };
+};
+
+const formatUserName = (profile) => ({
+  initials: `${profile.firstName?.[0] ?? ""}${profile.lastName?.[0] ?? ""}`,
+  fullName: `${profile.firstName ?? ""} ${profile.lastName ?? ""}`.trim(),
+});
+
+const getUserDocWithRetry = async (uid, attempts = 3) => {
+  const userDocRef = doc(db, "users", uid);
+
+  for (let attempt = 0; attempt < attempts; attempt += 1) {
+    const userDocSnap = await getDoc(userDocRef);
+    if (userDocSnap.exists() || attempt === attempts - 1) {
+      return userDocSnap;
+    }
+
+    await new Promise((resolve) => setTimeout(resolve, 250));
+  }
 };
 
 export const useAuthStore = create((set, get) => ({
@@ -71,35 +101,30 @@ export const useAuthStore = create((set, get) => ({
     if (get()._authUnsubscribe) return;
 
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      set({ loading: true });
+
       if (user) {
-        set({
-          currentUser: { uid: user.uid, email: user.email },
-        });
-        const userDocRef = doc(db, "users", user?.uid);
-        const userDocSnap = await getDoc(userDocRef);
+        try {
+          const userDocSnap = await getUserDocWithRetry(user.uid);
+          const data = userDocSnap?.exists() ? userDocSnap.data() : {};
+          const profile = getProfileFromUserDoc(data, user);
 
-        if (userDocSnap.exists()) {
-          const data = userDocSnap.data();
-          const profile = data.profile ?? {};
-
-          set((state) => ({
-            currentUser: { ...state.currentUser, ...profile },
-          }));
-
-          const { userInitials, userFirstName, userLastName } =
-            getUserName(data);
           useThresholdStore.getState().setThresholds(data.thresholds ?? null);
           set({
-            userName: {
-              initials: userInitials,
-              fullName: `${userFirstName} ${userLastName}`,
-            },
+            currentUser: { uid: user.uid, ...profile },
+            userName: formatUserName(profile),
+            userLoggedIn: true,
+            isUserEmailVerified: user.emailVerified,
           });
-        } else {
-          set({ currentUser: { uid: user.uid } });
+        } catch (err) {
+          console.error(err);
+          set({
+            currentUser: { uid: user.uid, email: user.email },
+            userName: emptyUserName,
+            userLoggedIn: true,
+            isUserEmailVerified: user.emailVerified,
+          });
         }
-
-        set({ userLoggedIn: true, isUserEmailVerified: user.emailVerified });
       } else {
         // sign out: clear local stores + localStorage
         const storageItems = [
@@ -108,9 +133,8 @@ export const useAuthStore = create((set, get) => ({
           "insights-storage",
           "thresholds-storage",
           "currency-storage",
-          "onboarding-storage",
         ];
-        set({ currentUser: null, userLoggedIn: false });
+        set({ currentUser: null, userLoggedIn: false, userName: emptyUserName });
 
         storageItems.forEach((item) => localStorage.removeItem(item));
 
@@ -120,7 +144,6 @@ export const useAuthStore = create((set, get) => ({
         useNotificationStore.getState().clearNotificationStore?.();
         useThresholdStore.getState().clearThresholdStore?.();
         useCurrencyStore.getState().clearCurrencyStore?.();
-        useOnboardingStore.getState().resetTours?.();
       }
 
       set({ loading: false });
@@ -141,26 +164,25 @@ export const useAuthStore = create((set, get) => ({
   // wrapper handlers, call those wrappers and then call these methods
   onLogin: async (data) => {
     try {
+      set({ loading: true });
       const userCredential = await doSignUserWithEmailAndPassword(
         data.email,
         data.password
       );
       const user = userCredential.user;
 
-      const userDocRef = doc(db, "users", user.uid);
-      const userDocSnap = await getDoc(userDocRef);
+      const userDocSnap = await getUserDocWithRetry(user.uid);
 
       if (userDocSnap.exists()) {
-        set({ currentUser: { uid: user.uid, ...userDocSnap.data() } });
+        const docData = userDocSnap.data();
+        const profile = getProfileFromUserDoc(docData, user);
 
-        const { userInitials, userFirstName, userLastName } = getUserName(
-          userDocSnap.data()
-        );
         set({
-          userName: {
-            initials: userInitials,
-            fullName: `${userFirstName} ${userLastName}`,
-          },
+          currentUser: { uid: user.uid, ...profile },
+          userName: formatUserName(profile),
+          userLoggedIn: true,
+          isUserEmailVerified: user.emailVerified,
+          loading: false,
         });
 
         if (!user.emailVerified) {
@@ -172,6 +194,7 @@ export const useAuthStore = create((set, get) => ({
     } catch (err) {
       console.error(err);
       set({ onLoginErr: getAuthErrorMessage(err) });
+      set({ loading: false });
       setTimeout(() => set({ onLoginErr: null }), 10000);
     }
   },

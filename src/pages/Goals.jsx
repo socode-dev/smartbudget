@@ -6,9 +6,11 @@ import Cards from "../components/goals/Cards";
 import { motion } from "framer-motion";
 import useOnboardingStore from "../store/useOnboardingStore";
 import { showDemoReadOnlyToast, useDemoMode } from "../demo/useDemoMode";
+import useAuthStore from "../store/useAuthStore";
 
 const Goals = () => {
   const isDemoMode = useDemoMode();
+  const userId = useAuthStore((state) => state.currentUser?.uid);
   const { goals, filteredGoals, onOpenModal, searchName, setSearchName } =
     useGoalsContext();
 
@@ -18,11 +20,11 @@ const Goals = () => {
     setCurrentPage("goals");
     // Start tour if not completed when navigating to goals page
     const timer = setTimeout(() => {
-      startTourIfNotCompleted("goals");
+      startTourIfNotCompleted("goals", userId);
     }, 500);
 
     return () => clearTimeout(timer);
-  }, [setCurrentPage, startTourIfNotCompleted]);
+  }, [setCurrentPage, startTourIfNotCompleted, userId]);
 
   return (
     <motion.main
@@ -33,7 +35,7 @@ const Goals = () => {
       className="px-5 md:px-10 py-8"
     >
       <ScrollToTop />
-      <section className="flex justify-between items-start gap-8 mb-6">
+      <section id="goals-header" className="flex justify-between items-start gap-8 mb-6">
         <div>
           <h2 className="text-3xl md:text-4xl font-semibold mb-2">Goals</h2>
           <p className="text-base text-[rgb(var(--color-muted))] mb-6">
@@ -54,6 +56,7 @@ const Goals = () => {
       {/* Search bar to search goal by name */}
       {goals?.length > 0 && (
         <input
+          id="goals-search"
           type="text"
           placeholder="Search by name..."
           className="w-full mx-auto mb-10 rounded border border-[rgb(var(--color-gray-border))] bg-[rgb(var(--color-bg-card))] outline-none focus:border-[rgb(var(--color-brand))] transition text-sm p-2"

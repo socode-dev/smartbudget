@@ -6,9 +6,11 @@ import Cards from "../components/budgets/Cards";
 import { motion } from "framer-motion";
 import useOnboardingStore from "../store/useOnboardingStore";
 import { showDemoReadOnlyToast, useDemoMode } from "../demo/useDemoMode";
+import useAuthStore from "../store/useAuthStore";
 
 const Budgets = () => {
   const isDemoMode = useDemoMode();
+  const userId = useAuthStore((state) => state.currentUser?.uid);
   const { budgets, filteredBudgets, searchName, setSearchName, onOpenModal } =
     useBudgetsContext();
 
@@ -18,11 +20,11 @@ const Budgets = () => {
     setCurrentPage("budgets");
     // Start tour if not completed when navigating to budgets page
     const timer = setTimeout(() => {
-      startTourIfNotCompleted("budgets");
+      startTourIfNotCompleted("budgets", userId);
     }, 500);
 
     return () => clearTimeout(timer);
-  }, [setCurrentPage, startTourIfNotCompleted]);
+  }, [setCurrentPage, startTourIfNotCompleted, userId]);
 
   return (
     <motion.main
@@ -33,7 +35,7 @@ const Budgets = () => {
       className="px-5 md:px-10 py-8"
     >
       <ScrollToTop />
-      <section className="w-full flex items-start justify-between gap-8 mb-6">
+      <section id="budgets-header" className="w-full flex items-start justify-between gap-8 mb-6">
         <div className="w-full">
           <h2 className="text-3xl md:text-4xl font-semibold mb-2">Budgets</h2>
           <p className="text-base text-[rgb(var(--color-muted))] mb-4">
@@ -53,6 +55,7 @@ const Budgets = () => {
 
       {budgets.length > 0 && (
         <input
+          id="budgets-search"
           type="text"
           placeholder="Search by name..."
           className="w-full mx-auto mb-6 rounded border border-[rgb(var(--color-gray-border))] bg-[rgb(var(--color-bg-card))] outline-none focus:border-[rgb(var(--color-brand))] transition text-sm p-2"
