@@ -50,7 +50,7 @@ const activeRiskEpisode = overrides => ({
       Food: { value: 181, percent: 181, severity: "HIGH" },
     },
     cashflowOutcome: "RISK",
-    cashflowSnapshot: { outcome: "RISK", percentSpent: 467 },
+    cashflowSnapshot: { outcome: "RISK", percentSpent: 467, hasNoIncome: false, totalSpent: 1400 },
   },
   ...overrides,
 });
@@ -147,6 +147,42 @@ describe("attention gate", () => {
       allowed: true,
       reason: "SUPPORTING_SIGNAL_WORSENED",
       signalId: "anomaly-entertainment-jun",
+    });
+  });
+
+  it("allows a financial-risk episode when no-income cashflow spending increases", () => {
+    expect(evaluateAttentionDecision({
+      activeEpisode: activeRiskEpisode({
+        coveredSignals: {
+          ...activeRiskEpisode().coveredSignals,
+          cashflowOutcome: "RISK",
+          cashflowSnapshot: {
+            outcome: "RISK",
+            percentSpent: 0,
+          },
+        },
+      }),
+      topSignal: financialRiskSignal(),
+      scoredSignals: [
+        financialRiskSignal(),
+        {
+          id: "cashflow-jun",
+          type: "cashflow",
+          severity: "RISK",
+          urgencyScore: 40,
+          data: {
+            period: { month: "Jun", year: "2026" },
+            outcome: "RISK",
+            derived: { percent_spent: 0, has_no_income: true },
+            spending: { total_spent: 1500 },
+          },
+        },
+      ],
+      now: 2000,
+    })).toEqual({
+      allowed: true,
+      reason: "SUPPORTING_SIGNAL_WORSENED",
+      signalId: "cashflow-jun",
     });
   });
 

@@ -3,6 +3,7 @@ import {persistInsights} from "../orchestrator/persistInsights.js";
 import {scoreSignals} from "../orchestrator/scoreSignals.js"
 import { evaluateAttentionGate } from "../orchestrator/attentionGate.js";
 import { saveAttentionState } from "../orchestrator/attentionState.js";
+import { runAgentWithFallback } from "../orchestrator/agentExecution.js";
 import {
     filterEligibleSignals,
     markSignalTriggered,
@@ -103,12 +104,17 @@ export const runOrchestrator = async ({
     let insight;
 
     try {
-        insight = await agent({data: selectedSignal.data, userId, isDemo});
-    } catch (agentExecutionError) {
-        await markSignalTriggerFailed({userId, signal: selectedSignal, error: agentExecutionError});
+        insight = await runAgentWithFallback({
+            agent,
+            selectedSignal,
+            userId,
+            isDemo
+        });
+    } catch (fallbackExecutionError) {
+        await markSignalTriggerFailed({userId, signal: selectedSignal, error: fallbackExecutionError});
         return {
             insight: null,
-            reason: "AGENT_EXECUTION_FAILED"
+            reason: "FALLBACK_EXECUTION_FAILED"
         }
     };
 

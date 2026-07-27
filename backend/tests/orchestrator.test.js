@@ -125,10 +125,10 @@ describe("orchestrator", () => {
       reason: "Systemic pressure is highest.",
       priority: "high",
     });
-    runRiskService.mockResolvedValue({ id: "risk-jun", type: "financial-risk", agent: { explanation: "Risk insight" } });
-    runAnomalyService.mockResolvedValue({ id: "anomaly-food", type: "anomaly", agent: { explanation: "Anomaly insight" } });
-    runBudgetService.mockResolvedValue({ id: "budget-food", type: "budget", agent: { explanation: "Budget insight" } });
-    runCashflowService.mockResolvedValue({ id: "cashflow-jun", type: "cashflow", agent: { explanation: "Cashflow insight" } });
+    runRiskService.mockResolvedValue({ id: "risk-jun", type: "financial-risk", agent: { explanation: "Risk insight", suggestion: "Risk suggestion" } });
+    runAnomalyService.mockResolvedValue({ id: "anomaly-food", type: "anomaly", agent: { explanation: "Anomaly insight", suggestion: "Anomaly suggestion" } });
+    runBudgetService.mockResolvedValue({ id: "budget-food", type: "budget", agent: { explanation: "Budget insight", suggestion: "Budget suggestion" } });
+    runCashflowService.mockResolvedValue({ id: "cashflow-jun", type: "cashflow", agent: { explanation: "Cashflow insight", suggestion: "Cashflow suggestion" } });
   });
 
   it("runs only the top attention-approved signal", async () => {
@@ -200,14 +200,75 @@ describe("orchestrator", () => {
     expect(runRiskService).toHaveBeenCalledTimes(1);
   });
 
-  it("marks the trigger failed and returns no insight when the agent throws", async () => {
+  it("persists a local fallback insight when the agent throws", async () => {
     runRiskService.mockRejectedValueOnce(new Error("agent failed"));
 
     const result = await runPipeline();
 
-    expect(result).toEqual({ insight: null, reason: "AGENT_EXECUTION_FAILED" });
-    expect(markSignalTriggerFailed).toHaveBeenCalledTimes(1);
-    expect(markSignalTriggered).not.toHaveBeenCalled();
+    expect(result.insight).toMatchObject({
+      id: "risk-jun",
+      type: "financial-risk",
+      isFallback: true,
+      fallbackReason: "agent failed",
+      modelUsed: "rule-based",
+      agent: {
+        explanation: expect.any(String),
+        suggestion: expect.any(String),
+      },
+    });
+    expect(persistInsights).toHaveBeenCalledWith({
+      userId: "user-orchestrator",
+      insight: expect.objectContaining({ id: "risk-jun", isFallback: true }),
+    });
+    expect(markSignalTriggered).toHaveBeenCalledTimes(1);
+    expect(markSignalTriggerFailed).not.toHaveBeenCalled();
+  });
+
+  it("persists a local fallback insight when the agent times out", async () => {
+    vi.useFakeTimers();
+    runRiskService.mockImplementationOnce(() => new Promise(() => {}));
+
+    const resultPromise = runPipeline();
+
+    await vi.advanceTimersByTimeAsync(25000);
+    const result = await resultPromise;
+
+    expect(result.insight).toMatchObject({
+      id: "risk-jun",
+      type: "financial-risk",
+      isFallback: true,
+      fallbackReason: "AI provider timed out",
+      modelUsed: "rule-based",
+      agent: {
+        explanation: expect.any(String),
+        suggestion: expect.any(String),
+      },
+    });
+    expect(persistInsights).toHaveBeenCalledWith({
+      userId: "user-orchestrator",
+      insight: expect.objectContaining({ id: "risk-jun", isFallback: true }),
+    });
+    expect(markSignalTriggered).toHaveBeenCalledTimes(1);
+    expect(markSignalTriggerFailed).not.toHaveBeenCalled();
+
+    vi.useRealTimers();
+  });
+
+  it("persists a local fallback insight when the agent returns malformed output", async () => {
+    runRiskService.mockResolvedValueOnce({ id: "risk-jun", type: "financial-risk", agent: { explanation: "Risk insight" } });
+
+    const result = await runPipeline();
+
+    expect(result.insight).toMatchObject({
+      id: "risk-jun",
+      type: "financial-risk",
+      isFallback: true,
+      fallbackReason: "AI output malformed",
+      modelUsed: "rule-based",
+    });
+    expect(persistInsights).toHaveBeenCalledTimes(1);
+    expect(markSignalTriggered).toHaveBeenCalledTimes(1);
+    expect(markSignalTriggerFailed).not.toHaveBeenCalled();
   });
 
   it("marks the trigger failed and returns no insight when persistence fails", async () => {
@@ -249,7 +310,7 @@ describe("orchestrator", () => {
       reason: "Systemic pressure is highest.",
       priority: "high",
     });
-    runRiskService.mockResolvedValue({ id: "risk-jun", type: "financial-risk" });
+    runRiskService.mockResolvedValue({ id: "risk-jun", type: "financial-risk", agent: { explanation: "Risk insight", suggestion: "Risk suggestion" } });
 
     await runPipeline({ isDemo: false });
     expect(runRiskService).toHaveBeenCalledWith(expect.objectContaining({ isDemo: false }));

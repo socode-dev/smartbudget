@@ -99,6 +99,7 @@ export const buildAttentionSnapshot = ({ signal } = {}) => {
             outcome: data.outcome ?? signal.severity ?? null,
             percentSpent: data.derived?.percent_spent ?? 0,
             hasNoIncome: Boolean(data.derived?.has_no_income),
+            totalSpent: data.spending?.total_spent ?? 0,
         };
     }
 
@@ -160,6 +161,8 @@ export const buildCoveredSignals = ({ signal, scoredSignals = [] } = {}) => {
         cashflowSnapshot: cashflow ? {
             outcome: cashflow.data?.outcome ?? cashflow.severity ?? null,
             percentSpent: cashflow.data?.derived?.percent_spent ?? 0,
+            hasNoIncome: Boolean(cashflow.data?.derived?.has_no_income),
+            totalSpent: cashflow.data?.spending?.total_spent ?? 0,
         } : null,
     };
 };

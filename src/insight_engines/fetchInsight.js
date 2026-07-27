@@ -5,7 +5,7 @@ export const fetchInsight = async ({ userId, riskData, anomalies, budgetComplian
     // console.log({anomalies, budgetComplianceList, cashflowData, riskData});
 
     try {
-        const response = await fetch(`${baseUrl}/api/ai/orchestrator`, {
+        const response = await fetch(`/api/ai/orchestrator`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"

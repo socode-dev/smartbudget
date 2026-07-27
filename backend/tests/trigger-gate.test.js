@@ -270,6 +270,36 @@ describe("trigger gate", () => {
     expect(result).toEqual({ allowed: true, reason: "CASHFLOW_RUNWAY_DROPPED" });
   });
 
+  it("allows cashflow re-fire when no-income spending increases materially", () => {
+    const result = evaluateTrigger({
+      existing: {
+        status: "fired",
+        fingerprint: "cashflow-old",
+        snapshot: {
+          outcome: "RISK",
+          percentSpent: 0,
+          hasNoIncome: true,
+          totalSpent: 300,
+          spendingRunway: null,
+        },
+      },
+      trigger: {
+        type: "cashflow",
+        fingerprint: "cashflow-new",
+        snapshot: {
+          outcome: "RISK",
+          percentSpent: 0,
+          hasNoIncome: true,
+          totalSpent: 1500,
+          spendingRunway: null,
+        },
+      },
+      now: Date.now(),
+    });
+
+    expect(result).toEqual({ allowed: true, reason: "CASHFLOW_NO_INCOME_SPENDING_INCREASED" });
+  });
+
   it("blocks unchanged anomaly snapshots after cooldown", () => {
     const result = evaluateTrigger({
       existing: {
