@@ -57,6 +57,7 @@ export const TRIGGER_BUILDERS = {
             projectedTotalSpend: nullableNumber(data.forecast?.projected_total_spend),
             projectedRemainingBalance: nullableNumber(data.forecast?.projected_remaining_balance),
             currentBalance: toNumber(data.spending?.current_balance),
+            totalSpent: toNumber(data.spending?.total_spent),
             incomeTotal: toNumber(data.income?.total),
         };
 

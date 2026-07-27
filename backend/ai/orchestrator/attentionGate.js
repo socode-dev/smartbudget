@@ -4,6 +4,7 @@ import {
     ANOMALY_INCREASE_THRESHOLD,
     BUDGET_PERCENT_THRESHOLD,
     CASHFLOW_PERCENT_THRESHOLD,
+    hasNoIncomeSpendingIncrease,
 } from "../triggers/utils.js";
 
 export const ATTENTION_COOLDOWN_MS = 24 * 60 * 60 * 1000;
@@ -72,6 +73,14 @@ export const evaluateAttentionDecision = ({
         }
 
         return { allowed: false, reason: "SUPPRESSED_BY_SYSTEMIC_RISK" };
+    }
+
+    if (
+        topSignal.type === "cashflow" &&
+        isCoveredByEpisode({ signal: topSignal, activeEpisode }) &&
+        isCoveredSignalWorse({ signal: topSignal, activeEpisode })
+    ) {
+        return { allowed: true, reason: "CASHFLOW_NO_INCOME_SPENDING_INCREASED", signalId: topSignal.id };
     }
 
     if (isCoveredByEpisode({ signal: topSignal, activeEpisode })) {
@@ -187,7 +196,17 @@ const isCoveredSignalWorse = ({ signal, activeEpisode }) => {
     }
 
     if (signal.type === "cashflow") {
-        const previousValue = covered.cashflowSnapshot?.percentSpent;
+        const previousCashflow = covered.cashflowSnapshot ?? {};
+        const noIncomeSpendingIncreased = hasNoIncomeSpendingIncrease({
+            previousHasNoIncome: previousCashflow.hasNoIncome ?? isLegacyNoIncomeCashflowSnapshot(previousCashflow),
+            currentHasNoIncome: signal.data?.derived?.has_no_income,
+            previousSpent: previousCashflow.totalSpent,
+            currentSpent: signal.data?.spending?.total_spent,
+        });
+
+        if (noIncomeSpendingIncreased) return true;
+
+        const previousValue = previousCashflow.percentSpent;
         const currentValue = Number(signal.data?.derived?.percent_spent ?? 0);
 
         return hasAbsoluteIncrease({
@@ -240,6 +259,13 @@ const isCashflowWorse = ({ previousCashflow, currentCashflow }) => {
     const current = SEVERITY_RANK[String(currentCashflow ?? "").toUpperCase()] ?? 0;
 
     return current > previous;
+};
+
+const isLegacyNoIncomeCashflowSnapshot = snapshot => {
+    return (
+        String(snapshot?.outcome ?? "").toUpperCase() === "RISK" &&
+        Number(snapshot?.percentSpent ?? 0) === 0
+    );
 };
 
 const isDifferentPeriod = ({ activePeriod, currentPeriod }) => {

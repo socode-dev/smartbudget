@@ -4,12 +4,13 @@ import {
     ANOMALY_ABSOLUTE_THRESHOLD, 
     ANOMALY_INCREASE_THRESHOLD, 
     BUDGET_PERCENT_THRESHOLD, 
-    CASHFLOW_PERCENT_THRESHOLD, 
+    CASHFLOW_PERCENT_THRESHOLD,
     CASHFLOW_RUNWAY_DROP_THRESHOLD,
     REMINDER_INTERVAL_MS, 
     RISK_SCORE_THRESHOLD,
     toNumber,
-    isMeaningfulRunwayDrop
+    isMeaningfulRunwayDrop,
+    hasNoIncomeSpendingIncrease
 } from "./utils.js";
 
 export const evaluateTrigger = ({ existing, trigger, now }) => {
@@ -69,11 +70,18 @@ const evaluateByType = ({ existing, trigger, now }) => {
     if (trigger.type === "cashflow") {
         const percentChanged = toNumber(current.percentSpent) - toNumber(previous.percentSpent) >= CASHFLOW_PERCENT_THRESHOLD;
         const runwayDropped = isMeaningfulRunwayDrop(previous.spendingRunway, current.spendingRunway);
+        const noIncomeSpendingIncreased = hasNoIncomeSpendingIncrease({
+            previousHasNoIncome: previous.hasNoIncome,
+            currentHasNoIncome: current.hasNoIncome,
+            previousSpent: previous.totalSpent,
+            currentSpent: current.totalSpent,
+        });
         const reminderDue = ["WARNING", "RISK"].includes(current.outcome) &&
             now - (existing.lastTriggeredAtMs ?? 0) >= REMINDER_INTERVAL_MS;
 
         if (previous.outcome !== current.outcome) return { allowed: true, reason: "CASHFLOW_OUTCOME_CHANGED" };
         if (previous.hasNoIncome !== current.hasNoIncome) return { allowed: true, reason: "INCOME_STATE_CHANGED" };
+        if (noIncomeSpendingIncreased) return { allowed: true, reason: "CASHFLOW_NO_INCOME_SPENDING_INCREASED" };
         if (percentChanged) return { allowed: true, reason: "CASHFLOW_PRESSURE_INCREASED" };
         if (runwayDropped) return { allowed: true, reason: "CASHFLOW_RUNWAY_DROPPED" };
         if (reminderDue) return { allowed: true, reason: "CASHFLOW_REMINDER" };

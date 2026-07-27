@@ -9,6 +9,7 @@ export const ANOMALY_ABSOLUTE_THRESHOLD = 10;
 export const BUDGET_PERCENT_THRESHOLD = 10;
 export const CASHFLOW_PERCENT_THRESHOLD = 10;
 export const CASHFLOW_RUNWAY_DROP_THRESHOLD = 3;
+export const CASHFLOW_NO_INCOME_SPENDING_THRESHOLD = 100;
 export const RISK_SCORE_THRESHOLD = 10;
 
 export const toTrigger = ({ type, keyParts, snapshot }) => {
@@ -38,6 +39,20 @@ export const isMeaningfulRunwayDrop = (previousRunway, currentRunway) => {
     if (current > 7) return false;
 
     return previous - current >= CASHFLOW_RUNWAY_DROP_THRESHOLD;
+};
+
+export const hasNoIncomeSpendingIncrease = ({
+    previousHasNoIncome,
+    currentHasNoIncome,
+    previousSpent,
+    currentSpent
+}) => {
+    if (!previousHasNoIncome || !currentHasNoIncome) return false;
+
+    const previous = toNumber(previousSpent);
+    const current = toNumber(currentSpent);
+
+    return current - previous >= CASHFLOW_NO_INCOME_SPENDING_THRESHOLD;
 };
 
 const toKeyPart = value => {

@@ -32,3 +32,4 @@ server.js
 
 .vercel
 .env*.local
+.env*

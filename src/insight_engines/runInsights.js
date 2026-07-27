@@ -11,12 +11,10 @@ import { fetchInsight } from "./fetchInsight";
 export const generateInsight = async ({ userId, transactions, budgets}) => {
   const { selectedCurrency } = useCurrencyStore.getState();
 
-  
-  // Detect anomalies
   const anomalies = detectAnomalies(transactions);
   
   const budgetComplianceList = [];
-  // Build budget compliance
+  
   for(const budget of budgets) {
     const complianceData = buildBudgetComplianceData(budget, transactions, selectedCurrency); 
 
@@ -25,10 +23,8 @@ export const generateInsight = async ({ userId, transactions, budgets}) => {
     
   }
   
-  // Build cash flow forecast data
   const cashflowData = buildCashFlowData(transactions, selectedCurrency);
   
-    // Build risk data
     const riskData = buildRiskData(anomalies, budgetComplianceList, cashflowData, transactions);
 
     try {
