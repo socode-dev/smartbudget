@@ -28,9 +28,8 @@ export const generateInsight = async ({ userId, transactions, budgets}) => {
     const riskData = buildRiskData(anomalies, budgetComplianceList, cashflowData, transactions);
 
     try {
-      const insights = await fetchInsight({userId, riskData, anomalies, budgetComplianceList, cashflowData });
+      await fetchInsight({userId, riskData, anomalies, budgetComplianceList, cashflowData });
       
-      console.log(insights)
     } catch (err) {
       console.error("Error:", err);
     }
