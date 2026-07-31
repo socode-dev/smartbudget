@@ -2,6 +2,7 @@ import { fallback as anomalyFallback } from "../fallbacks/anomaly.js";
 import { fallback as budgetFallback } from "../fallbacks/budget.js";
 import { fallback as cashflowFallback } from "../fallbacks/cashflow.js";
 import { riskFallback } from "../fallbacks/risk.js";
+import { logAIAgentRun } from "../telemetry/logger.js";
 
 export const AGENT_TIMEOUT_MS = 25000;
 
@@ -17,21 +18,60 @@ export const runAgentWithFallback = async ({
     selectedSignal,
     userId,
     isDemo,
+    runId,
+    telemetryContext = {},
     timeoutMs = AGENT_TIMEOUT_MS
 }) => {
+    const startedAtMs = Date.now();
+
     try {
-        return await runAgentWithTimeout({
+        const insight = await runAgentWithTimeout({
             agent,
             selectedSignal,
             userId,
             isDemo,
             timeoutMs
         });
+
+        await logAIAgentRun({
+            ...telemetryContext,
+            userId,
+            runId,
+            agentType: selectedSignal.type,
+            selectedSignalId: selectedSignal.id,
+            durationMs: Date.now() - startedAtMs,
+            status: "success",
+            timedOut: false,
+            schemaValid: true,
+            usedFallback: false,
+            modelUsed: insight?.modelUsed ?? null,
+        });
+
+        return insight;
     } catch (agentExecutionError) {
-        return buildFallbackInsight({
+
+        const fallbackInsight = buildFallbackInsight({
             selectedSignal,
             error: agentExecutionError
         });
+
+        await logAIAgentRun({
+            ...telemetryContext,
+            userId,
+            runId,
+            agentType: selectedSignal.type,
+            selectedSignalId: selectedSignal.id,
+            durationMs: Date.now() - startedAtMs,
+            status: "fallback",
+            timedOut: agentExecutionError.code === "AI_PROVIDER_TIMEOUT",
+            schemaValid: agentExecutionError.code === "AI_OUTPUT_MALFORMED" ? false : null,
+            usedFallback: true,
+            fallbackReason: agentExecutionError.message ?? "Agent execution failed",
+            modelUsed: fallbackInsight?.modelUsed ?? "rule-based",
+            error: agentExecutionError,
+        });
+
+        return fallbackInsight;
     }
 };
 
@@ -40,7 +80,9 @@ const runAgentWithTimeout = async ({ agent, selectedSignal, userId, isDemo, time
 
     const timeoutPromise = new Promise((_, reject) => {
         timeoutId = setTimeout(() => {
-            reject(new Error("AI provider timed out"));
+            const error = new Error("AI provider timed out");
+            error.code = "AI_PROVIDER_TIMEOUT"
+            reject(error);
         }, timeoutMs);
     });
 
@@ -51,7 +93,9 @@ const runAgentWithTimeout = async ({ agent, selectedSignal, userId, isDemo, time
         ]);
 
         if (!isValidInsight(insight)) {
-            throw new Error("AI output malformed");
+            const error = new Error("AI output malformed");
+            error.code = "AI_OUTPUT_MALFORMED";
+            throw error;
         }
 
         return insight;

@@ -8,8 +8,14 @@ import {
     filterEligibleSignals,
     markSignalTriggered,
     markSignalTriggerFailed,
-    reserveSignalTrigger
 } from "../orchestrator/triggerGate.js";
+import { reserveSelectedSignal } from "../orchestrator/reserveSignal.js";
+import {
+    buildTelemetryContext,
+    createTelemetryRunId,
+    logAIPipelineRun,
+    logInsightEvent
+} from "../telemetry/logger.js"
 
 import {runAnomalyService} from "./anomaly.js";
 import {runBudgetService} from "./budget.js";
@@ -31,6 +37,10 @@ export const runOrchestrator = async ({
     riskData,
     isDemo
  }) => {
+    const runId = createTelemetryRunId();
+    const startedAtMs = Date.now();
+
+    const telemetryContext = buildTelemetryContext({userId, isDemo})
 
     const rawSignals = normalizeSignals({
         anomalies, 
@@ -39,7 +49,22 @@ export const runOrchestrator = async ({
         riskData
     });
 
-    if(!rawSignals.length) return [];
+    if(!rawSignals.length) {
+        await logAIPipelineRun({
+            ...telemetryContext,
+            userId,
+            runId,
+            status: "blocked",
+            reason: "NO_RAW_SIGNALS",
+            durationMs: Date.now() - startedAtMs,
+            rawSignalCount: 0,
+            scoredSignalCount: 0,
+            attentionAllowed: false,
+            persisted: false,
+        });
+
+        return [];
+    };
 
     const scoredSignals = scoreSignals({signals: rawSignals});
     const topSignal = scoredSignals[0];
@@ -51,6 +76,26 @@ export const runOrchestrator = async ({
     });
 
     if(!attentionDecision.allowed) {
+        await logAIPipelineRun({
+            ...telemetryContext,
+            userId,
+            runId,
+            status: "blocked",
+            reason: attentionDecision.reason,
+            durationMs: Date.now() - startedAtMs,
+
+            rawSignalCount: rawSignals.length,
+            scoredSignalCount: scoredSignals.length,
+            topSignalType: topSignal?.type ?? null,
+            topSignalId: topSignal?.id ?? null,
+            topSignalScore: topSignal?.urgencyScore ?? null,
+
+            attentionAllowed: false,
+            attentionReason: attentionDecision.reason,
+
+            persisted: false,
+        })
+
         return {
             insight: null,
             scoredSignals,
@@ -62,6 +107,30 @@ export const runOrchestrator = async ({
     const eligibleSignals = await filterEligibleSignals({userId, signals: [selectedCandidate]});
 
     if(!eligibleSignals.length) {
+        await logAIPipelineRun({
+            ...telemetryContext,
+            userId,
+            runId, 
+            status: "blocked",
+            reason: "NO_ELIGIBLE_SIGNAL",
+            durationMs: Date.now() - startedAtMs,
+
+            rawSignalCount: rawSignals.length,
+            scoredSignalCount: scoredSignals.length,
+            topSignalType: topSignal?.type ?? null,
+            topSignalId: topSignal?.id ?? null,
+            topSignalScore: topSignal?.urgencyScore ?? null,
+            
+            selectedSignalType: selectedCandidate?.type ?? null,
+            selectedSignalId: selectedCandidate?.id ?? null,
+
+            attentionAllowed: true,
+            attentionReason: attentionDecision.reason,
+
+            triggerEligible: false,
+            persisted: false,
+        });
+
         return {
             insight: null,
             reason: "NO_ELIGIBLE_SIGNAL"
@@ -84,6 +153,31 @@ export const runOrchestrator = async ({
     });
 
     if(!reservedSelection) {
+        await logAIPipelineRun({
+            ...telemetryContext,
+            userId,
+            runId,
+            status: "blocked",
+            reason: "NO_RESERVED_SELECTION",
+            durationMs: Date.now() - startedAtMs,
+
+            rawSignalCount: rawSignals.length,
+            scoredSignalCount: scoredSignals.length,
+            topSignalType: topSignal?.type ?? null,
+            topSignalId: topSignal?.id ?? null,
+            topSignalScore: topSignal?.urgencyScore ?? null,
+
+            selectedSignalType: selectedSignal?.type ?? null,
+            selectedSignalId: selectedSignal?.id ?? null,
+
+            attentionAllowed: true,
+            attentionReason: attentionDecision.reason,
+
+            triggerEligible: true,
+            reservationAllowed: false,
+            persisted: false,
+        });
+
         return {
             insight: null,
             reason: "NO_RESERVED_SELECTION"
@@ -108,7 +202,9 @@ export const runOrchestrator = async ({
             agent,
             selectedSignal,
             userId,
-            isDemo
+            isDemo,
+            runId,
+            telemetryContext
         });
     } catch (fallbackExecutionError) {
         await markSignalTriggerFailed({userId, signal: selectedSignal, error: fallbackExecutionError});
@@ -134,6 +230,40 @@ export const runOrchestrator = async ({
     const persisted = await persistInsights({userId, insight});
 
     if(!persisted) {
+        await logAIPipelineRun({
+            ...telemetryContext,
+            userId, 
+            runId,
+            status: "failed",
+            reason: "INSIGHT_PERSISTENCE_FAILED",
+            durationMs: Date.now() - startedAtMs,
+
+            rawSignalCount: rawSignals.length,
+            scoredSignalCount: scoredSignals.length,
+            topSignalType: topSignal?.type ?? null,
+            topSignalId: topSignal?.id ?? null,
+            topSignalScore: topSignal?.urgencyScore ?? null,
+
+            selectedSignalType: selectedSignal?.type ?? null,
+            selectedSignalId: selectedSignal?.id ?? null,
+
+
+            attentionAllowed: true,
+            attentionReason: attentionDecision.reason,
+
+            triggerEligible: true,
+            reservationAllowed: true,
+
+            persisted: false,
+            usedFallback: Boolean(insight?.isFallback),
+            insightId: insight?.id ?? null,
+            insightType: insight?.type ?? null,
+            severity: insight?.severity ?? selectedSignal?.severity ?? null,
+
+
+            error: new Error("Insight persistence failed"),
+        });
+
         await markSignalTriggerFailed({
             userId,
             signal: selectedSignal,
@@ -146,25 +276,53 @@ export const runOrchestrator = async ({
         };
     }
 
+    await logInsightEvent({
+        ...telemetryContext,
+        userId,
+        runId,
+        eventType: "INSIGHT_GENERATED",
+        insightId: insight?.id ?? null,
+        insightType: insight?.type ?? null,
+        selectedSignalId: selectedSignal?.id ?? null,
+        selectedSignalType: selectedSignal?.type ?? null,
+        severity: insight.severity ?? selectedSignal?.severity ?? null,
+        isFallback: Boolean(insight?.isFallback),
+        modelUsed: insight?.modelUsed ?? null,
+        reason: attentionDecision.reason,
+    });
+
     await markSignalTriggered({userId, signal: selectedSignal, insight});
     await saveAttentionState({userId, signal: selectedSignal, scoredSignals, insight});
 
+    await logAIPipelineRun({
+        ...telemetryContext,
+        userId,
+        runId,
+        status: insight?.isFallback ? "fallback" :"success",
+        reason: attentionDecision.reason,
+        durationMs: Date.now() - startedAtMs,
+
+        rawSignalCount: rawSignals.length,
+        scoredSignalCount: scoredSignals.length,
+        topSignalType: topSignal?.type ?? null,
+        topSignalId: topSignal?.id ?? null,
+        topSignalScore: topSignal?.urgencyScore ?? null,
+
+        selectedSignalType: selectedSignal?.type ?? null,
+        selectedSignalId: selectedSignal?.id ?? null, 
+
+        attentionAllowed: true,
+        attentionReason: attentionDecision.reason,
+
+        triggerEligible: true,
+        reservationAllowed: true,
+
+        persisted: true,
+        usedFallback: Boolean(insight?.isFallback),
+        insightId: insight?.id ?? null,
+        insightType: insight?.type ?? null,
+        severity: insight?.severity ?? selectedSignal?.severity ?? null,
+    });
+
     return {insight, scoredSignals, reason: attentionDecision.reason};
-}
-
-const reserveSelectedSignal = async ({userId, selectedSignal, candidateSignals}) => {
-    const orderedSignals = [
-        selectedSignal,
-        ...candidateSignals.filter(signal => signal.id !== selectedSignal.id)
-    ];
-
-    for (const signal of orderedSignals) {
-        const reservation = await reserveSignalTrigger({userId, signal});
-
-        if(reservation.allowed) {
-            return signal;
-        }
-    }
-
-    return null;
 }

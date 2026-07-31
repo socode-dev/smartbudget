@@ -9,7 +9,10 @@ vi.mock("../ai/orchestrator/triggerGate.js", () => ({
   filterEligibleSignals: vi.fn(),
   markSignalTriggered: vi.fn(),
   markSignalTriggerFailed: vi.fn(),
-  reserveSignalTrigger: vi.fn(),
+}));
+
+vi.mock("../ai/orchestrator/reserveSignal.js", () => ({
+  reserveSelectedSignal: vi.fn(),
 }));
 
 vi.mock("../ai/orchestrator/persistInsights.js", () => ({
@@ -40,14 +43,29 @@ vi.mock("../ai/services/risk.js", () => ({
   runRiskService: vi.fn(),
 }));
 
+vi.mock("../ai/telemetry/logger.js", () => ({
+  buildTelemetryContext: vi.fn(({ userId, isDemo }) => ({
+    userId,
+    institutionId: null,
+    pilotId: null,
+    cohortId: null,
+    isDemo: Boolean(isDemo),
+    environment: "test",
+  })),
+  createTelemetryRunId: vi.fn(() => "run-test"),
+  logAIAgentRun: vi.fn(() => Promise.resolve(true)),
+  logAIPipelineRun: vi.fn(() => Promise.resolve(true)),
+  logInsightEvent: vi.fn(() => Promise.resolve(true)),
+}));
+
 import { runOrchestrator } from "../ai/services/orchestrator.js";
 import { generateAIResponse } from "../ai/services/aiClient.js";
 import {
   filterEligibleSignals,
   markSignalTriggered,
   markSignalTriggerFailed,
-  reserveSignalTrigger,
 } from "../ai/orchestrator/triggerGate.js";
+import { reserveSelectedSignal } from "../ai/orchestrator/reserveSignal.js";
 import { evaluateAttentionGate } from "../ai/orchestrator/attentionGate.js";
 import { saveAttentionState } from "../ai/orchestrator/attentionState.js";
 import { persistInsights } from "../ai/orchestrator/persistInsights.js";
@@ -55,6 +73,11 @@ import { runAnomalyService } from "../ai/services/anomaly.js";
 import { runBudgetService } from "../ai/services/budget.js";
 import { runCashflowService } from "../ai/services/cashflow.js";
 import { runRiskService } from "../ai/services/risk.js";
+import {
+  logAIAgentRun,
+  logAIPipelineRun,
+  logInsightEvent,
+} from "../ai/telemetry/logger.js";
 
 const anomaly = {
   id: "anomaly-food",
@@ -117,7 +140,7 @@ describe("orchestrator", () => {
     evaluateAttentionGate.mockResolvedValue({ allowed: true, reason: "NO_ACTIVE_EPISODE" });
     saveAttentionState.mockResolvedValue(true);
     filterEligibleSignals.mockImplementation(async ({ signals }) => signals);
-    reserveSignalTrigger.mockResolvedValue({ allowed: true });
+    reserveSelectedSignal.mockImplementation(async ({ selectedSignal }) => selectedSignal);
     persistInsights.mockResolvedValue(true);
     generateAIResponse.mockResolvedValue({
       selectedSignalId: "risk-jun",
@@ -191,6 +214,13 @@ describe("orchestrator", () => {
     expect(persistInsights).toHaveBeenCalledTimes(1);
     expect(markSignalTriggered).toHaveBeenCalledTimes(1);
     expect(saveAttentionState).toHaveBeenCalledTimes(1);
+    expect(logInsightEvent).toHaveBeenCalledTimes(1);
+    expect(logAIPipelineRun).toHaveBeenCalledWith(expect.objectContaining({
+      runId: "run-test",
+      status: "success",
+      persisted: true,
+      selectedSignalId: "risk-jun",
+    }));
   });
 
   it("preserves deterministic engine output for the selected top signal", async () => {
@@ -222,6 +252,12 @@ describe("orchestrator", () => {
     });
     expect(markSignalTriggered).toHaveBeenCalledTimes(1);
     expect(markSignalTriggerFailed).not.toHaveBeenCalled();
+    expect(logAIAgentRun).toHaveBeenCalledWith(expect.objectContaining({
+      runId: "run-test",
+      status: "fallback",
+      usedFallback: true,
+      selectedSignalId: "risk-jun",
+    }));
   });
 
   it("persists a local fallback insight when the agent times out", async () => {
@@ -285,11 +321,16 @@ describe("orchestrator", () => {
   });
 
   it("returns no insight when the top signal reservation loses a race", async () => {
-    reserveSignalTrigger.mockResolvedValueOnce({ allowed: false, reason: "ALREADY_RESERVED" });
+    reserveSelectedSignal.mockResolvedValueOnce(null);
 
     const result = await runPipeline();
 
-    expect(reserveSignalTrigger).toHaveBeenCalledTimes(1);
+    expect(reserveSelectedSignal).toHaveBeenCalledTimes(1);
+    expect(reserveSelectedSignal).toHaveBeenCalledWith({
+      userId: "user-orchestrator",
+      selectedSignal: expect.objectContaining({ id: "risk-jun" }),
+      candidateSignals: [expect.objectContaining({ id: "risk-jun" })],
+    });
     expect(runAnomalyService).not.toHaveBeenCalled();
     expect(runRiskService).not.toHaveBeenCalled();
     expect(result).toEqual({ insight: null, reason: "NO_RESERVED_SELECTION" });
@@ -302,7 +343,7 @@ describe("orchestrator", () => {
     vi.clearAllMocks();
     evaluateAttentionGate.mockResolvedValue({ allowed: true, reason: "NO_ACTIVE_EPISODE" });
     filterEligibleSignals.mockImplementation(async ({ signals }) => signals);
-    reserveSignalTrigger.mockResolvedValue({ allowed: true });
+    reserveSelectedSignal.mockImplementation(async ({ selectedSignal }) => selectedSignal);
     persistInsights.mockResolvedValue(true);
     generateAIResponse.mockResolvedValue({
       selectedSignalId: "risk-jun",
