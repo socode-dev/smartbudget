@@ -8,7 +8,6 @@ export const buildRiskData = (anomalies, budgetComplianceData, cashflowData, tra
     const anomalyCount = anomalies.length;
     const highAnomalies = anomalies.filter(a => a.risk.level === "HIGH");
     const mediumAnomalies = anomalies.filter(a => a.risk.level === "MEDIUM");
-    const maxAnomalyScore = anomalyCount > 0 ? Math.max(...anomalies.map(a => a.risk.score)) : 0;
 
     const repeatedAnomalyCategory = anomalies.filter(a => a.context.highest_in_period).map(a => a.category);
 
@@ -21,11 +20,9 @@ export const buildRiskData = (anomalies, budgetComplianceData, cashflowData, tra
     const cashFlowOutcome = cashflowData.outcome;
     const percentSpent = cashflowData.derived.percent_spent;
     const projectionConfidence = cashflowData.derived.projection_confidence;
-    const spendingRunwayDays = cashflowData.forecast.spending_runway_days ?? 0;
     const hasNoIncome = cashflowData.derived.has_no_income;
 
     const now = new Date();
-    const currentMonth = getMonth(now);
     const currentYear = getYear(now);
 
     const savingsRate = cashflowData.income.total > 0 ? 

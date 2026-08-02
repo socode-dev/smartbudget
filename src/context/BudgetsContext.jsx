@@ -3,7 +3,6 @@ import {
   useContext,
   useState,
   useMemo,
-  useCallback,
   useEffect,
 } from "react";
 import useTransactionStore from "../store/useTransactionStore";
@@ -79,15 +78,24 @@ export const BudgetsProvider = ({ children }) => {
           budgetThreshold80,
           budgetThreshold100
         );
-      } else {
-        console.log("Skipping duplicate budget-check run");
       }
     }
 
     return () => {
       mounted = false;
     };
-  }, [isDemoSession, user?.uid, budgets, transactions]);
+  }, 
+  [
+    isDemoSession, 
+    user?.uid, 
+    budgets, 
+    transactions,
+    transactionCounts, 
+    budgetCounts, 
+    budgetThreshold50, 
+    budgetThreshold80, 
+    budgetThreshold100
+  ]);
 
   const handleEditBudget = (id) => {
     if (isDemoMode) {

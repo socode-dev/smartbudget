@@ -1,0 +1,29 @@
+name: Main Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: production-${{github.ref}}
+  cancel-in-progress: true
+
+jobs:
+  run-lint:
+    uses: ./.github/workflows/lint.yml
+
+  run-tests:
+    uses: ./.github/workflows/vitest.yml
+
+  run-deploy:
+    needs: 
+      - run-lint 
+      - run-tests
+
+    uses: ./.github/workflows/deploy.yml
+    
+    secrets:
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}

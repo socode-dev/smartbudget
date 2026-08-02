@@ -53,7 +53,7 @@ export const ReportProvider = ({ children }) => {
 
     // Sort by amount descending
     return tableData?.sort((a, b) => b.Amount - a.Amount);
-  }, [expenses]);
+  }, [expenses, selectedCurrency]);
 
   // Handler for exporting via CSV
   const handleCSVExport = useCallback(() => {

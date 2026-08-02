@@ -1,0 +1,17 @@
+name: PR Checks
+
+on:
+    pull_request:
+        branches:
+            - main
+
+concurrency:
+    group: pr-${{github.ref}}
+    cancel-in-progress: true
+
+jobs:
+    lint:
+        uses: ./.github/workflows/lint.yml
+
+    test:
+        uses: ./.github/workflows/vitest.yml

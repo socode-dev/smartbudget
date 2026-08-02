@@ -98,36 +98,34 @@ export const MainProvider = ({ children }) => {
 
   // Load all transactions, budgets, goals on mount
   useEffect(() => {
-    if (isDemoSession) return;
+    if (isDemoSession || !user?.uid) return;
 
-    let isMounted = true;
+    const currentUserId = user.uid;
+    let isCancelled = false;
 
-    // Fetch all currencies
-    fetchCurrencies();
-
-    // Fetch user's data
     const fetchUserData = async () => {
-      if (!user?.uid) return;
 
       try {
-        // Load all transactions, budgets, goals and contributions
         const types = ["transactions", "budgets", "goals", "contributions"];
-        types.forEach(async (label) => {
-          await loadTransactions(user.uid, label);
-        });
 
-        // Load notifications
-        await loadNotifications(user.uid);
+        await Promise.all([
+          fetchCurrencies(),
+          loadNotifications(currentUserId),
+          ...types.map(label => loadTransactions(currentUserId, label))
+        ])
+
+        if (isCancelled) return;
       } catch (err) {
-        console.log(err);
+        if(!isCancelled) {
+          console.log("Error loading user financial data:", err);
+        }
       }
     };
 
     fetchUserData();
 
-    // Cleanup to avoid memory leaks
     return () => {
-      isMounted = false;
+      isCancelled = true;
     };
   }, [isDemoSession, user, fetchCurrencies, loadNotifications, loadTransactions]);
 

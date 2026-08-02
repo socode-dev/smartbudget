@@ -1,5 +1,4 @@
 import {getDaysInMonth, getDate, getMonth, getYear} from "date-fns";
-import {getInsightDate} from "../utils/normalizeInsight";
 import {v4 as uuidv4} from "uuid";
 
 export const buildBudgetComplianceData = (budget, transactions, currency) => {

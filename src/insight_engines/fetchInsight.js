@@ -1,8 +1,6 @@
 export const fetchInsight = async ({ userId, riskData, anomalies, budgetComplianceList, cashflowData }) => {
-    const baseUrl = import.meta.env.PROD ? "" : "http://localhost:3002";
     // const controller = new AbortController();
     // const timeoutId = setTimeout(() => controller.abort(), 5000);
-    // console.log({anomalies, budgetComplianceList, cashflowData, riskData});
 
     try {
         const response = await fetch(`/api/ai/orchestrator`, {

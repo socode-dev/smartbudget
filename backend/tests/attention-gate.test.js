@@ -1,4 +1,25 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+
+vi.mock("../ai/orchestrator/attentionState.js", () => ({
+  getActiveAttentionState: vi.fn(),
+  getSignalPeriod: vi.fn(({ signal }) => {
+    const period = signal?.data?.period;
+    if (period) return period;
+
+    const monthLabel =
+      signal?.data?.signal?.month ||
+      signal?.data?.derived?.month ||
+      signal?.orchestrationContext?.month;
+
+    if (typeof monthLabel === "string" && monthLabel.includes(",")) {
+      const [year, month] = monthLabel.split(",").map(value => value.trim());
+      return { month, year };
+    }
+
+    return null;
+  }),
+}));
+
 import {
   ATTENTION_COOLDOWN_MS,
   evaluateAttentionDecision,

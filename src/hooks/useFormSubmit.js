@@ -133,7 +133,7 @@ const useFormSubmit = (label, mode) => {
       }
     })();
 
-    syncTask.catch((_) => {
+    syncTask.catch(() => {
       toast.error(
         `Could not sync this ${label.slice(0, -1)} to cloud. Please submit again: "${transaction.category}" (${formatAmount(
           transaction.amount,

@@ -16,15 +16,21 @@ import {
 } from "./fixtures/index.js";
 
 const deterministicAnomalies = anomalies =>
-  anomalies.map(({ id, timestamp, ...anomaly }) => ({
-    ...anomaly,
-    risk: { ...anomaly.risk },
-    signal: { ...anomaly.signal },
-    context: { ...anomaly.context },
-    impact: { ...anomaly.impact },
-    recommendation: { ...anomaly.recommendation },
-    meta: { ...anomaly.meta },
-  }));
+  anomalies.map(anomaly => {
+    const deterministicAnomaly = { ...anomaly };
+    delete deterministicAnomaly.id;
+    delete deterministicAnomaly.timestamp;
+
+    return {
+      ...deterministicAnomaly,
+      risk: { ...deterministicAnomaly.risk },
+      signal: { ...deterministicAnomaly.signal },
+      context: { ...deterministicAnomaly.context },
+      impact: { ...deterministicAnomaly.impact },
+      recommendation: { ...deterministicAnomaly.recommendation },
+      meta: { ...deterministicAnomaly.meta },
+    };
+  });
 
 const latestMonthLabel = "2026, Jun";
 

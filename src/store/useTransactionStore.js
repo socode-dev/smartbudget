@@ -38,8 +38,6 @@ const useTransactionStore = create(
         } catch (err) {
           console.error("Error loading transactions:", err);
           toast.error("Failed to load transactions. Please try again.");
-        } finally {
-          return "Loading transactions completed";
         }
       },
 

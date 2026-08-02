@@ -94,7 +94,7 @@ const AppInitializer = () => {
     return () => {
       cancelled = true;
     };
-  }, [isDemoSession, userId, transactions?.length, budgets?.length]);
+  }, [isDemoSession, userId, transactions, budgets]);
   
   return null;
 };

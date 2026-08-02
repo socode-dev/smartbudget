@@ -3,6 +3,7 @@ import { getUserThresholds } from "../firebase/firestore";
 import { doc, setDoc } from "firebase/firestore";
 import { db } from "../firebase/firebase";
 import { persist } from "zustand/middleware";
+import { toast } from "react-hot-toast";
 
 const useThresholdStore = create(
   persist(
@@ -18,8 +19,6 @@ const useThresholdStore = create(
         } catch (err) {
           console.error("Error loading notifications:", err);
           toast.error("Failed to load user thresholds. Please try again.");
-        } finally {
-          return "Loading user thresholds completed";
         }
       },
 
