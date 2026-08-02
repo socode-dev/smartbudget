@@ -140,7 +140,7 @@ export const OverviewProvider = ({ children }) => {
   // get total budget used
   const totalBudgetUsed = useMemo(
     () => getTotalBudgetSpent(transactions, budgets, "all"),
-    [getTotalBudgetSpent, transactions, budgets]
+    [transactions, budgets]
   );
 
   const budgetUsagePercentage = Math.ceil(
@@ -168,11 +168,11 @@ export const OverviewProvider = ({ children }) => {
 
   const incomeBudgetAchieved = useMemo(
     () => getTotalBudgetSpent(transactions, budgets, "income"),
-    [getTotalBudgetSpent, transactions, budgets]
+    [transactions, budgets]
   );
   const expensesBudgetSpent = useMemo(
     () => getTotalBudgetSpent(transactions, budgets, "expense"),
-    [getTotalBudgetSpent, transactions, budgets]
+    [transactions, budgets]
   );
 
   // Calculate total income budget percentage and the remaining/extra budget balance
@@ -208,7 +208,7 @@ export const OverviewProvider = ({ children }) => {
           )}`,
         };
       }),
-    [sortedTransactions]
+    [sortedTransactions, selectedCurrency]
   );
 
   // Handler for exporting via CSV

@@ -1,5 +1,5 @@
 export const buildFinancialRiskPrompt = ({ riskData }) => {
-const { risk, financial_facts, signals } = riskData;
+const { financial_facts, signals } = riskData;
 
 const highAnomalyCount = signals?.anomaly_signals?.high_count || 0;
 const exceededBudgetCount = signals?.budget_signals?.exceeded_count || 0;
@@ -7,8 +7,6 @@ const totalBudgets = exceededBudgetCount +
 (signals?.budget_signals?.at_risk_count || 0);
 const complianceRate = signals?.budget_signals?.compliance_rate ?? 0;
 const spendingIncreasing = signals?.historical?.is_spending_increasing;
-const hasNoIncome = !financial_facts?.has_active_income;
-const budgetDiscipline = financial_facts?.budget_discipline;
 const spendingPressure = financial_facts?.spending_pressure;
 const recurringPressure = financial_facts?.recurring_pressure;
 const isSystemicCrisis = financial_facts?.is_systemic_crisis;
@@ -314,108 +312,4 @@ Return ONLY valid JSON.
 
 {"explanation": "", "suggestion": ""}
 `;
-
-// return `
-// You are a personal finance advisor giving honest, direct feedback.
-
-// ${isSystemicCrisis ? `
-// IMPORTANT: This user is experiencing systemic financial pressure across multiple areas at the same time.
-
-// Multiple important problems are happening at the same time.
-
-// Your explanation must cover:
-// - unusual increases in spending
-// - failed spending limits
-// - cashflow or income pressure when present
-
-// Explain how these problems are connected.
-// Do not describe them as separate events.
-// ` : ""}
-
-// Your job is to explain what is happening with this user's overall finances and what it means going forward.
-
-// Capture the full picture. Do not focus on one thing in isolation.
-
-// Financial situation:
-// - Severe spending spikes detected: ${highAnomalyCount}
-// - Budgets completely exceeded: ${exceededBudgetCount} out of ${totalBudgets || exceededBudgetCount}
-// - Budget compliance rate: ${complianceRate}%
-// - Spending trend: ${spendingIncreasing ? "accelerating month over month" : "stable"}
-// - Spending pressure level: ${spendingPressure}
-// - Recurring pressure across multiple areas: ${recurringPressure}
-// - Active income this month: ${financial_facts.has_active_income}
-// - Income consistency: ${financial_facts.income_consistency}
-// - Budget discipline: ${budgetDiscipline}
-// - Overall financial stability: ${financial_facts.financial_stability}
-
-// Rules:
-// - Never mention scores, percentages, category names, or internal system terms
-// - Never use the words "anomaly", "budget compliance", "signal", or "metric"
-// - Never say "significant financial pressure" - describe what is actually happening instead
-// - Never say "risking future stability" - be specific about the consequence
-// - Never say "financial situation will become increasingly challenging"
-// - Never say "regain cntrol"
-// - Never suggest tracking spending - the user is already using a finance app
-// - Never say "consider" in the suggestion. Be direct.
-// - Never say "reassess your priorities" or "sustainable plan"
-
-// - Speak like a trusted advisor who sees the full picture
-// - Be direct and calm. Honest but not alarming.
-// - Capture the combined weight of what is happening, not just one symptom
-// - Maximum 70 words for explanation
-// - Maximum 30 words for suggestion
-// - Suggestion must address the root behavioral pattern
-// - Suggestion must feel like a natural next step, not a command
-// - Do not assume the user's intentions, plans,or golas.
-// - Describe only what the data shows.
-
-// Language rules:
-
-// - Use simple everyday English.
-// - Use short sentences.
-// - Write at approximately an 8th-grade reading level.
-// - Prefer common words over financial terminology.
-// - Explain things as if speaking to someone with no finance background.
-// - Vary how you construct each explanation and suggestion
-
-// Avoid words such as:
-
-// financial stability
-// financial pressure
-// spending habits
-// financial plans
-// expenditure
-// optimize
-// sustainable
-// budget discipline
-
-// Use simpler alternatives instead.
-
-// Do not repeat information already implied.
-
-// Bad:
-// "Spending went above budget."
-// "You did not stick to your limits."
-
-// Good:
-// Combine related facts into a single explanation.
-
-
-// Before writing the explanation:
-
-// 1. Identify the strongest financial signals.
-// 2. Explain how those signals are connected.
-// 3. Explain the most immediate consequence.
-
-// If multiple important signals exist, do not focus on one and ignore the others.
-
-// When cashflow risk exists, explain it directly.
-// Make clear when money is leaving faster than it is coming in.
-// Do not hide cashflow problems behind general language.
-
-// The suggestion should address behavior, not create another budget or mention anything llimit.
-
-// Return ONLY valid JSON:
-// {"explanation": "", "suggestion": ""}
-// `;
 };

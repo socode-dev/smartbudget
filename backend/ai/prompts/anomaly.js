@@ -2,11 +2,11 @@ import {formatAmount} from "../shared/formatAmount.js";
 
 export const buildAnomalyPrompt = ({anomaly}) => {
   
-  if(!anomaly.category || !anomaly.signal || !anomaly.context || !anomaly.risk || !anomaly.impact || !anomaly.currency) {
+  if(!anomaly.category || !anomaly.signal || !anomaly.context || !anomaly.impact || !anomaly.currency) {
     throw new Error("Invalid anomaly object: Missing required properties")
   }
 
-  const { category, signal, context, risk, impact, currency } = anomaly;
+  const { category, signal, context, impact, currency } = anomaly;
 
   const percent = Math.abs(signal.deviation_percent);
 

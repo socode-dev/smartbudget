@@ -3,7 +3,7 @@ import { riskFallback } from "../fallbacks/risk.js";
 import { generateAIResponse } from "./aiClient.js";
 import { selectModel } from "../shared/modelRouter.js";
 
-export const runRiskService = async ({data, userId, isDemo} = {}) => {
+export const runRiskService = async ({data, isDemo} = {}) => {
     const prompt = buildFinancialRiskPrompt({riskData: data});
     const ruleBasedInsight = riskFallback({riskData: data});
 
@@ -16,7 +16,7 @@ export const runRiskService = async ({data, userId, isDemo} = {}) => {
         
         return insightData(data, response, model)
         
-    } catch(err) {
+    } catch {
         
         try {
             model = selectModel({isDemo, primaryFailed: true});
@@ -24,7 +24,7 @@ export const runRiskService = async ({data, userId, isDemo} = {}) => {
 
             return insightData(data, response, model);
 
-        } catch (fallbackError) {
+        } catch {
             
             return {
                 ...ruleBasedInsight,

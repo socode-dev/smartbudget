@@ -3,7 +3,7 @@ import {selectModel} from "../shared/modelRouter.js";
 import { buildCashflowPrompt } from "../prompts/cashflow.js";
 import { fallback } from "../fallbacks/cashflow.js";
 
-export const runCashflowService = async ({data, userId, isDemo = false} = {}) => {
+export const runCashflowService = async ({data, isDemo = false} = {}) => {
   const prompt = buildCashflowPrompt({ cashflowData: data });
   const ruleBasedInsight = fallback({ cashflowData: data });
   
@@ -16,16 +16,16 @@ export const runCashflowService = async ({data, userId, isDemo = false} = {}) =>
 
       return insightData(data, response, model);
 
-  } catch (primaryErr) {
+  } catch {
     
     try {
       model = selectModel({isDemo, primaryFailed: true});
       response = await generateAIResponse({ prompt, model, type: "cashflow" });
 
-      return insightData(data, response, fallbackModel);
+      return insightData(data, response, model);
     
     } 
-    catch (fallbackError) {
+    catch {
 
         return {
         ...ruleBasedInsight,

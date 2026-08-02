@@ -25,13 +25,16 @@ export const ReportChartProvider = ({ children }) => {
     [expenses],
   );
 
-  const labels = categoryTotals ? Object.keys(categoryTotals) : [];
-  const amounts = categoryTotals ? Object.values(categoryTotals) : [];
+  const labels = useMemo(
+    () => categoryTotals ? Object.keys(categoryTotals) : [],
+    [categoryTotals]);
+  const amounts = useMemo(
+    () => categoryTotals ? Object.values(categoryTotals) : [],
+    [categoryTotals]);
   const colorsRef = useRef({});
   const totalAmount = useMemo(
     () => expenses?.reduce((acc, tx) => acc + tx.amount, 0),
-    [expenses],
-  );
+    [expenses]);
   const maxAmount = useMemo(() => Math.max(0, ...amounts), [amounts]);
 
   // Scale chart steps with the largest expense. Example: 10,000 -> 2,000 step, 20,000 -> 5,000 step.

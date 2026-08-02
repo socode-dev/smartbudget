@@ -1,11 +1,9 @@
 import { formatAmount } from "../shared/formatAmount.js";
-import {v4 as uuidv4} from "uuid";
 
 export const fallback = ({cashflowData}) => {
 const {
 income,
 spending,
-forecast,
 outcome,
 period,
 derived

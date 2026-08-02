@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { getAllDocuments } from "../firebase/firestore";
 import { persist } from "zustand/middleware";
+import { toast } from "react-hot-toast";
 
 const useNotificationStore = create(
   persist(
@@ -22,8 +23,6 @@ const useNotificationStore = create(
         } catch (err) {
           console.error("Error loading notifications:", err);
           toast.error("Failed to load notifications. Please try again.");
-        } finally {
-          return "Loading notifications completed";
         }
       },
 

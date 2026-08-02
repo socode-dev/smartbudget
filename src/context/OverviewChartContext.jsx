@@ -41,7 +41,7 @@ export const OverviewChartProvider = ({ children }) => {
         );
         return totalMonthlyIncome;
       }),
-    [transactions]
+    [transactions, months]
   );
 
   const monthlyExpenses = useMemo(
@@ -58,7 +58,7 @@ export const OverviewChartProvider = ({ children }) => {
         );
         return totalMonthlyExpenses;
       }),
-    [transactions]
+    [transactions, months]
   );
 
   // Combine all values into one array to get max
@@ -85,6 +85,7 @@ export const OverviewChartProvider = ({ children }) => {
       break;
     case maxValue > 5000:
       stepSize = 1000;
+      break;
     default:
       stepSize = 500;
   }

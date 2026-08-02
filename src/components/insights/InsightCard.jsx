@@ -3,9 +3,7 @@ import {FaLightbulb} from "react-icons/fa6"
 
 const InsightCard = ({ insight }) => {
   
-  const { actionType, type, category, month, year, actionText, message, severity } = insight;
-
-  const isHigh = severity === "HIGH";
+  const { category, month, year, actionText, message, severity } = insight;
 
   const severityColor = {
     LOW: {

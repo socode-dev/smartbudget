@@ -3,7 +3,7 @@ import {selectModel} from "../shared/modelRouter.js";
 import { buildBudgetCompliancePrompt } from "../prompts/budget.js";
 import { fallback } from "../fallbacks/budget.js";
 
-export const runBudgetService = async ({ data, userId, isDemo} = {}) => {
+export const runBudgetService = async ({ data, isDemo} = {}) => {
 
   const prompt = buildBudgetCompliancePrompt({complianceData: data});
   const ruleBasedInsight = fallback({complianceData: data});
@@ -17,14 +17,14 @@ export const runBudgetService = async ({ data, userId, isDemo} = {}) => {
 
       return insightData(data, response, model);
 
-  } catch (primaryErr) {
+  } catch {
     
     try {
       model = selectModel({isDemo, primaryFailed: true});
       response = await generateAIResponse({ prompt, model, type: "budget" });
 
       return insightData(data, response, model);
-    } catch (fallbackError) {
+    } catch {
 
         return {
         ...ruleBasedInsight,

@@ -3,7 +3,7 @@ import { generateAIResponse } from "./aiClient.js";
 import {selectModel} from "../shared/modelRouter.js";
 import {fallback} from "../fallbacks/anomaly.js";
 
-export const runAnomalyService = async ({data, userId, isDemo} = {}) => {
+export const runAnomalyService = async ({data, isDemo} = {}) => {
 
   const prompt = buildAnomalyPrompt({ anomaly: data });
   const ruleBasedInsight = fallback({ anomaly: data })
@@ -17,15 +17,15 @@ export const runAnomalyService = async ({data, userId, isDemo} = {}) => {
 
       return insightData(data, response, model);
 
-  } catch (primaryErr) {
-
+  } catch {
+    
     try {
       model = selectModel({isDemo, primaryFailed: true});
       response = await generateAIResponse({ prompt, model, type: "anomaly" });
 
       return insightData(data, response, model);
-    } catch (fallbackError) {
-
+    } catch {
+        
         return {
         ...ruleBasedInsight,
         modelUsed: "rule-based"

@@ -57,7 +57,12 @@ export const GoalsProvider = ({ children }) => {
     return () => {
       reset();
     };
-  }, [contributionModalState.open, contributionModalState.meta?.name]);
+  }, 
+  [
+    contributionModalState.open, 
+    contributionModalState.meta?.name, 
+    contributionModalState.meta.goalName
+  ]);
 
   // Open contribution modal
   const handleAddContribution = (id, label, name) => {
@@ -103,7 +108,6 @@ export const GoalsProvider = ({ children }) => {
   useEffect(() => {
     if (isDemoSession) return;
 
-    // if (!currentUser?.uid || goalCounts === 0) return;
     let mounted = true;
     let lastRunKey = null;
 
@@ -124,15 +128,23 @@ export const GoalsProvider = ({ children }) => {
           goalThreshold80,
           goalThreshold100
         );
-      } else {
-        console.log("Skipping duplicate budget-check run");
       }
     }
 
     return () => {
       mounted = false;
     };
-  }, [isDemoSession, user?.uid, goalCounts, contributionCounts]);
+  }, 
+  [
+    isDemoSession, 
+    user?.uid,
+    goals, 
+    goalCounts, 
+    contributionCounts,
+    goalThreshold50, 
+    goalThreshold80, 
+    goalThreshold100
+  ]);
 
   const filteredGoals = useMemo(
     () =>
