@@ -4,8 +4,5 @@
       "source": "/((?!api/|src/|@vite/|@react-refresh|node_modules/|@fs/|favicon\\.png|og-image\\.jpg).*)",
       "destination": "/index.html"
     }
-  ],
-  "git": {
-    "deploymentEnabled": false
-  } 
+  ]
 }
