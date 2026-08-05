@@ -1,114 +1,142 @@
-# 💰 SmartBudget
+# SmartBudget
 
-SmartBudget is a production-grade personal finance web app built for users
-who want more than a transaction log. It combines statistical anomaly
-detection, AI-powered interpretation, and TensorFlow.js forecasting to help
-users understand their spending behavior, stay on budget, and make smarter
-financial decisions.
+SmartBudget is a personal finance web app for tracking transactions, budgets, goals, reports, and AI-assisted financial insights.
 
-Built with React, Firebase, and an AI agent layer that communicates insights
-in plain, actionable language.
+The app combines deterministic financial engines with a backend AI pipeline. The deterministic engines calculate financial signals, while AI explains the most important signal in clear language.
 
----
+## View Live
 
-🚀 **[Live Demo](https://smartbudget-beta.vercel.app/)**
-
----
+[https://smartbudget-beta.vercel.app/](https://smartbudget-beta.vercel.app/)
 
 ## Features
 
-### Core Finance Tools
-- **Dashboard** — Complete snapshot of income, expenses, budgets, and goals
-at a glance
-- **Transactions** — Log, view, filter, and manage income and expenses
-- **Budgets** — Per-category budgets with proactive overspending alerts
-- **Goals** — Financial goals with time-based progress tracking
-- **Reports** — Interactive charts with PDF and CSV export
+- Transaction tracking for income and expenses
+- Budget creation and progress monitoring
+- Goal tracking with contributions
+- Reports with charts and export tools
+- Smart insight cards
+- Insight history
+- Demo mode with seeded data
+- Realtime Firestore updates
+- Firebase Authentication
+- Backend AI orchestration through Vercel API routes
 
-### Smart Insights Engine
-SmartBudget has a two-layer insight system:
+## AI Insight Flow
 
-**Rule-based insights**
-Proactive alerts for budget thresholds, spending patterns, and goal progress.
+```mermaid
+flowchart TD
+  A[Transactions and budgets] --> B[Frontend deterministic engines]
+  B --> C[Anomaly, budget, cashflow, and risk signals]
+  C --> D[/api/ai/orchestrator]
+  D --> E[Quota check]
+  E --> F[Backend orchestrator]
+  F --> G[Attention gate]
+  G --> H[Trigger gate and reservation]
+  H --> I[Specialist AI agent]
+  I --> J{Valid response?}
+  J -->|yes| K[Persist insight]
+  J -->|timeout or malformed| L[Local fallback insight]
+  L --> K
+  K --> M[Firestore]
+  M --> N[Realtime UI]
+```
 
-**AI-powered insights**
-- Anomaly detection using Median Absolute Deviation (MAD) to flag
-statistically unusual spending per category
-- An AI agent interprets each anomaly and returns a specific explanation
-and actionable suggestion in plain language
-- TensorFlow.js forecasting model predicts next month's spending per category
-- Multi-model fallback chain: primary model → fallback model → rule-based
-insight, ensuring users always receive an insight regardless of API
-availability
-- Per-user insight quota system to manage API usage responsibly
+## Tech Stack
 
-### User Experience
-- Real-time data sync powered by Firestore listeners
-- In-app notifications for transaction, budget, and goal thresholds
-- Per-user isolated data with Firebase security rules
-- Custom spending categories with real-time UI updates
-- Skeleton loaders, page transitions, and modal animations
-- Lazy loading and SEO-friendly setup
+- React
+- Vite
+- Tailwind CSS
+- Zustand
+- Firebase Auth
+- Firestore
+- Firebase Admin
+- Vercel Serverless Functions
+- OpenAI-compatible AI client via `aisuite`
+- Chart.js
+- Framer Motion
+- Vitest
+- ESLint
 
----
+## Project Structure
 
-## ⚒️ Tech Stack
+```text
+smartbudget/
+  .github/
+    workflows/
+      lint.yml
+      vitest.yml
+  api/
+    ai/
+      orchestrator.js
+  backend/
+    ai/
+      fallbacks/
+      orchestrator/
+      prompts/
+      services/
+      shared/
+      telemetry/
+      triggers/
+    tests/
+  docs/
+    ai-architecture.md
+    backend-ai-telemetry.md
+    overview.md
+    TESTING.md
+  lib/
+    firebaseAdmin.js
+    quota.js
+  public/
+  src/
+    components/
+    context/
+    data/
+    demo/
+    firebase/
+    hooks/
+    initializer/
+    insight_engines/
+    layout/
+    pages/
+    routes/
+    schema/
+    store/
+    tests/
+    utils/
+    App.jsx
+    main.css
+    main.jsx
+  index.html
+  package.json
+  vercel.json
+  vite.config.js
+```
 
-- **Frontend**: React, Zustand, TailwindCSS, Framer Motion
-- **State Management**: Zustand
-- **Backend**: Firebase (Firestore, Auth)
-- **AI Agent**: OpenAI GTP-4o-mini (primary), GPT-4o (fallback)
-- **ML/AI**: TensorFlow.js(anomaly detection + forecasting)
-- **Charts**: Chart.js
-- **API Layer** Vercel Serverless Functions
-- **Testing**: Vitest
-- **Build Tool**: Vite
+## Backend AI Areas
 
----
+- `api/ai/orchestrator.js` receives AI requests.
+- `backend/ai/services/orchestrator.js` coordinates the pipeline.
+- `backend/ai/orchestrator/` contains scoring, attention, trigger, reservation, persistence, and agent execution helpers.
+- `backend/ai/services/` contains specialist agents.
+- `backend/ai/prompts/` contains prompt builders.
+- `backend/ai/fallbacks/` contains local fallback insights.
+- `backend/ai/telemetry/` records pipeline, agent, and insight metrics.
 
-## 📂 Project Structure
+## Documentation
 
--public/
--api/             # AI API
--lib/             # Firebase Admin setup + Quota tracking(server-side)
--src/
-----components/   # Reusable UI Components
-----context/      # React Context providers
-----data/         # Static and sample data
-----firebase/     # Firebase config and listeners(client-side)
-----hooks/        # Custom hooks
-----initializer/  # App-level initializer
-----layout/       # Page layout component
-----ml/           # AI agents, anomaly detection, forecasting
-----pages/        # Route-level page components
-----routes/       # Route definitions
-----schema/       # Validation schemas
-----store/        # Zustand stores
-----tests/        # Unit and integration test
-----utils/        # Utility functions
-----App.jsx
-----main.css
-----main.jsx
--index.html
+- [SmartBudget Overview](./docs/overview.md)
+- [AI Architecture](./docs/ai-architecture.md)
+- [Backend AI Telemetry](./docs/backend-ai-telemetry.md)
+- [Testing](./docs/testing.md)
 
----
+## Scripts
 
-## Architecture Notes
-
-SmartBudget is designed with production constraints in mind:
-
-- **Data isolation** — Each user's data is scoped and protected via
-Firestore security rules
-- **Anomaly deduplication** — Detected anomalies are stored transactionally
-to prevent duplicate API calls on the same data
-- **Cost management** — API calls are gated by a per-user quota system.
-Users on the free tier receive a fixed number of AI insights. Rule-based
-fallback ensures uninterrupted experience when quota is reached
-- **Resilient AI pipeline** — If the primary model fails, the system
-automatically retries with the fallback model before defaulting to
-rule-based insights
-
----
+```bash
+npm run dev
+npm run build
+npm run lint
+npm test
+```
 
 ## Status
 

@@ -1,183 +1,186 @@
 # SmartBudget AI Architecture
 
-This document explains the AI-specific architecture in detail. For the concise product and system overview, see [SmartBudget Overview](./OVERVIEW.md).
+SmartBudget uses a hybrid AI architecture: deterministic engines calculate financial facts, and AI explains the most important fact in clear language.
 
-## Introduction
+For the product-level summary, see [SmartBudget Overview](./overview.md). For telemetry, see [Backend AI Telemetry](./backend-ai-telemetry.md).
 
-SmartBudget uses a hybrid AI architecture that combines deterministic financial analysis with AI-powered reasoning and communication.
+## Core Idea
 
-**The platform separates:**
-- financial signal generation
-- AI interpretation, explanation, and orchestration
+AI does not decide financial truth in SmartBudget.
 
-AI improves explanation quality, readability, personalization, and financial communication, but it does not determine financial truth. The system calculates financial conditions first, then AI explains and prioritizes them.
+The app first calculates structured signals from user data:
 
-**This improves:**
-- reliability
-- predictability
-- explainability
-- maintainability
+- anomaly signals
+- budget compliance signals
+- cashflow signals
+- financial risk signals
 
-## Specialized AI Agents
+The backend AI pipeline then decides which signal deserves attention, runs the right specialist agent, validates the result, persists the insight, and lets the UI update in real time.
 
-**The AI architecture is divided into domain-specific agents:**
-- anomaly agent
-- budget compliance agent
-- cash flow agent
-- financial risk agent
+## Current Architecture
 
-**Each agent:**
-- focuses on one financial domain
-- receives structured financial data
-- generates structured insight output
+```mermaid
+flowchart TD
+  A[Transactions and budgets] --> B[Frontend deterministic engines]
+  B --> C[Anomalies]
+  B --> D[Budget compliance]
+  B --> E[Cashflow data]
+  B --> F[Financial risk data]
 
-This keeps prompt engineering isolated, reduces cross-domain complexity, and makes the system easier to scale.
+  C --> G[Vercel API: /api/ai/orchestrator]
+  D --> G
+  E --> G
+  F --> G
 
-## Initial AI Architecture
+  G --> H[Quota check]
+  H --> I[Backend orchestrator]
+  I --> J[Normalize signals]
+  J --> K[Score signals]
+  K --> L[Attention gate]
+  L --> M[Trigger gate and reservation]
+  M --> N[Selected specialist agent]
 
-**Initially:**
-- prompts lived close to frontend logic
-- AI requests were triggered from the frontend
-- Vercel serverless functions handled model requests
+  N --> O[AI client and model router]
+  O --> P{Valid agent insight?}
+  P -->|yes| Q[Persist insight]
+  P -->|timeout or malformed| R[Local fallback insight]
+  R --> Q
 
-The frontend generated financial signals, built prompts, called the AI gateway, and persisted insights.
+  Q --> S[Firestore: users/{userId}/insights]
+  S --> T[Realtime listener]
+  T --> U[Insight cards and history UI]
 
-This worked early on, but it became harder to maintain as the number of financial domains and prompts grew.
+  I --> V[Telemetry]
+  N --> V
+  Q --> V
+```
 
-## Backend AI Migration
+## Main Backend Layers
 
-As SmartBudget evolved, the AI system moved into backend infrastructure.
+### API Route
 
-**The migration introduced:**
-- centralized AI execution
-- backend-owned prompts
-- reusable AI utilities
-- shared model routing
-- deterministic fallback systems
-- isolated agent pipelines
+```text
+api/ai/orchestrator.js
+```
 
-This improved security, maintainability, scalability, orchestration readiness, and latency control.
+Receives the frontend signal payload, checks user quota, and calls the backend orchestrator.
 
-## Current Backend AI Structure
+### Orchestrator
 
-The backend AI system is organized into modular layers.
+```text
+backend/ai/services/orchestrator.js
+backend/ai/orchestrator/
+```
 
-### Agents
+The orchestrator coordinates the AI pipeline. It normalizes signals, scores them, checks attention state, checks trigger eligibility, reserves one signal, runs one specialist agent, persists the result, updates attention state, and logs telemetry.
 
-The agents layer contains specialized AI agents, AI client utilities, and model routing logic.
+### Specialist Agents
 
-**Examples:**
-- `runAnomalyAgent`
-- `runBudgetAgent`
-- `runCashflowAgent`
-- `runRiskAgent`
+```text
+backend/ai/services/anomaly.js
+backend/ai/services/budget.js
+backend/ai/services/cashflow.js
+backend/ai/services/risk.js
+```
 
-### Prompts
+Each agent handles one domain. This keeps prompts smaller and makes fallback behavior easier to reason about.
 
-Each agent owns its prompt builder. This keeps domain instructions focused and makes prompt iteration safer.
+### Prompts and Fallbacks
 
-### Fallbacks
+```text
+backend/ai/prompts/
+backend/ai/fallbacks/
+```
 
-Each agent includes deterministic fallback logic.
+Prompts generate AI explanations. Fallbacks provide local rule-based insight text when the AI provider fails, times out, or returns malformed output.
 
-**Fallbacks can be used when:**
+### Shared AI Utilities
 
-- AI requests fail
-- quota limits are reached
-- model execution fails
+```text
+backend/ai/services/aiClient.js
+backend/ai/shared/modelRouter.js
+backend/ai/shared/systemContent.js
+backend/ai/shared/formatAmount.js
+```
 
-This allows the system to return useful financial insights even when model execution is unavailable.
+These files handle model calls, model selection, shared system instructions, and formatting helpers.
 
-### Backend AI Flow Diagram
+## Orchestration Flow
 
-<p align="center">
-  <img src="./assets/backend-ai-flow.png" alt="SmartBudget backend AI flow" width="760">
-</p>
+```mermaid
+flowchart TD
+  A[runOrchestrator] --> B[Create telemetry run ID]
+  B --> C[Normalize incoming signals]
+  C --> D{Any raw signals?}
+  D -->|no| E[Log blocked run: NO_RAW_SIGNALS]
+  D -->|yes| F[Score signals]
 
-## Current Architecture Boundary
+  F --> G[Evaluate attention gate]
+  G --> H{Attention allowed?}
+  H -->|no| I[Log blocked run and return null insight]
+  H -->|yes| J[Pick selected candidate]
 
-The frontend still generates financial signals.
+  J --> K[Filter trigger-eligible signal]
+  K --> L{Eligible?}
+  L -->|no| M[Log blocked run: NO_ELIGIBLE_SIGNAL]
+  L -->|yes| N[Reserve selected signal]
 
-**Examples:**
-- anomaly detection
-- budget compliance
-- cash flow data
-- financial risk data
+  N --> O{Reservation won?}
+  O -->|no| P[Log blocked run: NO_RESERVED_SELECTION]
+  O -->|yes| Q[Run specialist agent with timeout]
 
-These signals are passed into backend AI pipelines. This staged migration avoids destabilizing the system while backend orchestration is being developed.
+  Q --> R{Agent result valid?}
+  R -->|yes| S[Use agent insight]
+  R -->|timeout or malformed| T[Use local fallback insight]
 
-## Orchestration Layer
+  S --> U[Persist insight]
+  T --> U
+  U --> V{Persisted?}
+  V -->|no| W[Mark trigger failed and log failure]
+  V -->|yes| X[Log insight event]
+  X --> Y[Mark trigger fired]
+  Y --> Z[Save attention state]
+  Z --> AA[Log pipeline success or fallback]
+```
 
-The next major architectural layer is the orchestrator.
+## Safety Rails
 
-**The orchestrator reasons across multiple financial signals and determines:**
+SmartBudget uses several guardrails before an insight reaches the UI:
 
-- which insights matter most
-- which insights should be suppressed
-- whether an insight is useful enough to persist
-- which financial agent should be called first
+- quota checks before the AI pipeline runs
+- attention gate to avoid repeating unchanged episodes
+- trigger gate to avoid duplicate insight firing
+- reservation transaction to prevent race-condition duplicates
+- agent timeout to avoid hanging provider calls
+- runtime schema validation for `agent.explanation` and `agent.suggestion`
+- local fallback insight when AI fails
+- Firestore persistence check before marking a trigger as fired
 
-The orchestrator acts as the intelligence coordination layer of SmartBudget.
+## Attention State
 
-## Planned Orchestrator Flow
+Attention state remembers the active financial episode for a user. If the same issue is still unchanged, the orchestrator blocks another insight. If the issue worsens, a new material signal appears, or cooldown expires, the orchestrator can generate another insight.
 
-1. Frontend signal engines generate financial signals such as anomalies, budget compliance, cash flow, and risk score.
-2. The orchestrator receives and normalizes those signals.
-3. The orchestrator scores signal importance.
-4. Weak signals are suppressed before agent execution.
-5. Redundant signals are suppressed to avoid duplicate insights.
-6. The orchestrator selects the most relevant specialized agent.
-7. The selected agent generates a candidate insight.
-8. The orchestrator evaluates whether the insight is actionable and clear.
-9. Weak outputs are retried only up to a maximum retry count.
-10. If the retry limit is reached, the AI loop exits and falls back to a rule-based insight.
-11. Valid insights are prioritized, persisted to Firestore, and displayed in the SmartBudget UI through the Firestore listener.
+This keeps the insight feed useful instead of noisy.
 
-This architecture enables adaptive prioritization and iterative evaluation while preventing infinite retry loops and runaway API costs.
+## Telemetry
 
-### Orchestration Flow Diagram
+The AI pipeline logs:
 
-<p align="center">
-  <img src="./assets/orchestration-flow.png" alt="SmartBudget orchestration flow" width="760">
-</p>
+- full pipeline runs
+- selected agent runs
+- generated insight events
 
-The diagram follows the planned orchestration path from financial signals through signal scoring, suppression, agent selection, candidate insight generation, quality evaluation, prioritization, Firestore persistence, and UI updates. The retry branch should be implemented with a maximum retry count; once that limit is reached, the system exits the AI retry loop and uses a rule-based fallback.
+Telemetry is used to measure reliability, latency, fallback rate, blocked reasons, and insight volume during pilots.
 
-## Future Direction and Improvements
+## Current Direction
 
-The current AI infrastructure uses Node.js and serverless functions because that keeps the system close to the frontend, fast to iterate on, and simple to deploy while the insight pipeline is still evolving.
+The architecture is growing toward an institution-ready pilot system. The current focus is:
 
-The long-term direction is to move the advanced AI layer toward agentic orchestration. In that model, specialized financial agents become callable tools, and the orchestrator decides which tool to use based on the user's financial signals, insight history, and current context.
+- reliable backend orchestration
+- deterministic financial signals
+- safe AI explanations
+- local fallbacks
+- measurable telemetry
+- real-time insight delivery
 
-**This future architecture would allow SmartBudget to:**
-
-- select the most relevant agent dynamically
-- evaluate insight quality before persistence
-- retry weak outputs or use deterministic fallbacks
-- suppress redundant or low-value insights
-- reason across historical financial behavior
-- prioritize insights based on urgency and usefulness
-
-As orchestration becomes more complex, a Python-based AI service may become a better fit for the advanced AI runtime. Python has stronger ecosystem support for workflow graphs, evaluation pipelines, memory systems, machine learning integration, and orchestration frameworks such as LangChain, LangGraph, and CrewAI.
-
-**The migration should happen gradually:**
-
-1. stabilize the current backend agent pipelines
-2. complete the orchestration architecture
-3. isolate the orchestration runtime from the core app backend
-4. move advanced AI workflows into Python services when the complexity justifies it
-
-The goal is to evolve SmartBudget from isolated AI insight generation into coordinated financial intelligence, while keeping deterministic financial signal engines responsible for calculating financial facts.
-
-## Core Architecture Philosophy
-
-SmartBudget intentionally avoids fully autonomous financial decision-making.
-
-**Instead:**
-
-- financial analysis remains deterministic
-- AI handles reasoning and communication
-
-This balances trust, adaptability, reliability, personalization, and scalability.
-
-For financial products, predictability is more important than unrestricted autonomy.
+The long-term path can still move toward deeper agentic orchestration, but only after the current deterministic and telemetry foundations are stable.
