@@ -1,75 +1,98 @@
 # SmartBudget Backend AI Telemetry
 
-This document explains the backend telemetry used to measure SmartBudget's AI pipeline during pilot trials.
+SmartBudget telemetry records how the backend AI pipeline behaves during real usage and pilot trials.
 
-For the broader AI system, see [SmartBudget AI Architecture](./ai-architecture.md).
+For the wider AI flow, see [SmartBudget AI Architecture](./ai-architecture.md).
 
 ## Purpose
 
-Telemetry gives SmartBudget measurable proof of how the AI system behaves in real usage.
+Telemetry helps answer simple but important questions:
 
-It answers questions such as:
+- Did the AI pipeline run?
+- Did it succeed, fail, fallback, or get blocked?
+- Which gate blocked it?
+- Did the agent time out?
+- Was the AI output malformed?
+- Was an insight persisted?
+- How long did the run take?
 
-- Did the AI pipeline run successfully?
-- Was the run blocked by the attention or trigger gate?
-- Did the agent finish normally, time out, or use fallback text?
-- Was an insight generated and persisted?
-- How long did the pipeline and agent take?
-- How many high, medium, or low severity insights were generated?
+This gives SmartBudget evidence of reliability, safety, and insight activity for institution pilots.
 
-This is important for institution pilots because the institution needs to see reliability, fallback behavior, and risk-signal activity before trusting the system with a larger user base.
+## Telemetry Architecture
 
-## Main Events
+```mermaid
+flowchart TD
+  A[Frontend signal engines] --> B[Vercel API route]
+  B --> C[Backend orchestrator]
 
-The telemetry system currently records three event categories.
+  C --> D[logAIPipelineRun]
+  C --> E[runAgentWithFallback]
+  E --> F[logAIAgentRun]
+  C --> G[Persist insight]
+  G --> H[logInsightEvent]
+
+  D --> I[writeTelemetryEvent]
+  F --> I
+  H --> I
+
+  I --> J[User raw event]
+  I --> K{institutionId exists?}
+  K -->|yes| L[Institution raw mirror]
+  K -->|no| M[Skip mirror]
+
+  I --> N[Global daily shard]
+  I --> O{institutionId and pilotId exist?}
+  O -->|yes| P[Institution pilot daily shard]
+  O -->|no| Q[Skip pilot shard]
+```
+
+## Event Types
 
 ### `aiPipelineRuns`
 
-Records one full orchestrator run.
+One full orchestrator run.
 
-It tracks:
+Tracks:
 
-- run status: `success`, `fallback`, `failed`, or `blocked`
-- orchestration reason, such as `NO_ACTIVE_EPISODE` or `ACTIVE_EPISODE_UNCHANGED`
-- raw and scored signal counts
-- selected signal type and ID
-- attention gate result
+- status: `success`, `fallback`, `failed`, or `blocked`
+- reason
+- duration
+- signal counts
+- selected signal
+- attention result
 - trigger and reservation result
 - persistence result
 - fallback usage
-- total pipeline duration
 
 ### `aiAgentRuns`
 
-Records the selected AI agent execution.
+One selected specialist agent run.
 
-It tracks:
+Tracks:
 
 - agent type
-- agent duration
+- duration
 - timeout status
 - schema validity
 - fallback usage
 - fallback reason
 - model used
-- execution error, when available
-
-This is the main event for measuring AI safety and fallback reliability.
+- error, when available
 
 ### `insightEvents`
 
-Records generated insight events.
+One generated insight event.
 
-The current backend event type is:
+Current event:
 
 ```text
 INSIGHT_GENERATED
 ```
 
-It tracks:
+Tracks:
 
 - insight ID and type
-- selected signal type and ID
+- selected signal
 - severity
 - fallback status
 - model used
@@ -77,89 +100,60 @@ It tracks:
 
 ## Firestore Paths
 
-Telemetry is stored in raw event paths and daily aggregate paths.
-
 ### User Raw Events
-
-Detailed user-level records for debugging and audit.
 
 ```text
 users/{userId}/telemetry/{category}/events/{eventId}
 ```
 
-Examples:
-
-```text
-users/{userId}/telemetry/aiPipelineRuns/events/{runId}
-users/{userId}/telemetry/aiAgentRuns/events/{agentRunId}
-users/{userId}/telemetry/insightEvents/events/{eventId}
-```
+Used for debugging and user-level audit trails.
 
 ### Institution Raw Mirrors
-
-Written only when `institutionId` exists.
 
 ```text
 institutions/{institutionId}/{category}/{eventId}
 ```
 
-These make institution-level review easier without scanning every user path.
+Written only when `institutionId` exists.
 
 ### Global Daily Metrics
-
-Used for platform-wide admin metrics.
 
 ```text
 globalMetrics/daily/records/{dateKey}__{category}/shards/{shardId}
 ```
 
-Example:
-
-```text
-globalMetrics/daily/records/2026-07-31__aiPipelineRuns/shards/42
-```
+Used for platform-wide reporting.
 
 ### Institution Pilot Daily Metrics
-
-Written only when both `institutionId` and `pilotId` exist.
 
 ```text
 institutions/{institutionId}/pilots/{pilotId}/dailyMetrics/{dateKey}__{category}/shards/{shardId}
 ```
 
-These support pilot dashboards without scanning raw telemetry events.
+Written only when both `institutionId` and `pilotId` exist.
 
-## Write Flow
+## Sharding
 
-```mermaid
-flowchart TD
-  A[Pipeline, agent, or insight logger] --> B[writeTelemetryEvent]
-  B --> C[Write user raw event]
-  B --> D{institutionId exists?}
-  D -->|yes| E[Write institution mirror]
-  D -->|no| F[Skip mirror]
-  B --> G[Build daily aggregate patch]
-  G --> H[Write global shard]
-  G --> I{institutionId and pilotId exist?}
-  I -->|yes| J[Write institution pilot shard]
-  I -->|no| K[Skip pilot aggregate]
-  G --> L[Queue global daily shard]
-  E --> M[Commit batch]
-  G --> M
-  K --> M
-  L --> M
-  M --> N{Commit success?}
-  N -->|yes| O[Return true]
-  N -->|no| P[Log TELEMETRY_WRITE_FAILED and return false]
+Daily metrics use deterministic sharding.
+
+```text
+100 shards
 ```
 
-All queued telemetry writes are committed in one Firestore batch. If the batch fails, the error is logged and the AI pipeline continues.
+The shard is chosen by hashing the event ID. This spreads writes across many documents and reduces the chance of a hot Firestore document during high activity.
 
-## Daily Metrics
+Dashboard reads should load all shards for a date/category and sum the counters.
 
-Daily metrics are counters used by future dashboards.
+```mermaid
+flowchart LR
+  A[eventId] --> B[Hash eventId]
+  B --> C[Select shard 0-99]
+  C --> D[Increment metric counters]
+```
 
-### Pipeline Metrics
+## Key Daily Counters
+
+Pipeline counters include:
 
 ```text
 totalPipelineRuns
@@ -170,8 +164,6 @@ blockedPipelineRuns
 totalPipelineDurationMs
 persistedInsights
 fallbackInsights
-rawSignalsSeen
-scoredSignalsSeen
 attentionAllowedRuns
 attentionBlockedRuns
 triggerEligibleRuns
@@ -180,16 +172,7 @@ reservationAllowedRuns
 reservationBlockedRuns
 ```
 
-Useful dashboard values:
-
-- average pipeline latency
-- pipeline success rate
-- fallback rate
-- blocked run rate
-- persistence rate
-- attention and trigger block rates
-
-### Agent Metrics
+Agent counters include:
 
 ```text
 totalAgentRuns
@@ -201,14 +184,7 @@ malformedAgentRuns
 totalAgentDurationMs
 ```
 
-Useful dashboard values:
-
-- average agent latency
-- timeout rate
-- fallback rate
-- malformed output rate
-
-### Insight Metrics
+Insight counters include:
 
 ```text
 totalInsightEvents
@@ -219,84 +195,69 @@ mediumSeverityInsights
 lowSeverityInsights
 ```
 
-Useful dashboard values:
+## Dashboard Strategy
 
-- total generated insights
-- fallback insight share
-- high, medium, and low severity distribution
+Use aggregate shards for charts and summaries.
 
-## Sharding
+Use raw events only for detailed investigation.
 
-Daily aggregate metrics use deterministic sharding.
+This keeps dashboard reads fast while preserving raw records for debugging.
 
-Current shard count:
+## Decisions and Tradeoffs
 
-```text
-100 shards
-```
+### Raw Events and Aggregates
 
-The shard is selected from the event ID using a hash. This spreads writes across many documents while keeping shard selection predictable.
+SmartBudget stores both raw telemetry events and daily aggregate metrics.
 
-Without sharding, every run for the same day and category would update the same document. That can create a Firestore hot document during high activity. With sharding, writes are spread across smaller metric documents.
+Raw events are useful when investigating one user, one agent run, or one failed pipeline. Aggregates are better for dashboards because the dashboard does not need to scan many raw event documents just to calculate totals.
 
-Dashboard reads should read all shard documents for the date/category and sum the counters.
+The tradeoff is extra writes. Each telemetry event can write the raw event plus aggregate counters. This is acceptable for pilot scale because it makes reporting faster and easier to trust.
 
-```mermaid
-flowchart LR
-  A[Telemetry eventId] --> B[Hash eventId]
-  B --> C[Pick shard 0-99]
-  C --> D[Increment daily metric shard]
-```
+### User Paths and Institution Paths
 
-## Dashboard Read Strategy
-
-Use aggregate paths for charts and summaries.
-
-Read global metrics from:
+User telemetry stays under:
 
 ```text
-globalMetrics/daily/records/{dateKey}__{category}/shards
+users/{userId}/telemetry/{category}/events/{eventId}
 ```
 
-Read pilot metrics from:
+Institution mirrors are written only when `institutionId` exists.
 
-```text
-institutions/{institutionId}/pilots/{pilotId}/dailyMetrics/{dateKey}__{category}/shards
-```
+This keeps normal user telemetry simple while still supporting institution-level review during pilots.
 
-Then sum the fields across the shard documents.
+The tradeoff is duplicated data when institution context exists. The benefit is that institution reporting does not need to scan every user path.
 
-Use raw event paths only for debugging, audit trails, or detailed investigation.
+### Daily Metrics Instead of Only Collection Group Queries
 
-## Pilot Context
+Firestore collection group queries can read across many user telemetry paths, but they still depend on raw event records.
 
-Telemetry supports these optional fields:
+Daily metrics are stored separately so dashboards can read small counter documents instead of recalculating everything from raw events.
 
-```text
-institutionId
-pilotId
-cohortId
-```
+The tradeoff is that aggregate fields must be maintained carefully. The benefit is predictable dashboard performance.
 
-They can be `null` for normal app usage. During institution pilots, they allow metrics to be grouped by institution, pilot, and selected user cohort.
+### Sharded Counters
 
-## Tradeoffs
+Daily metric writes are sharded across 100 documents.
 
-The current design intentionally writes more than one record for some events.
+This avoids sending every write for the same date/category into one Firestore document.
 
-The benefit is faster dashboard reads and easier institution-level reporting.
+The tradeoff is that dashboard reads must sum multiple shard documents. This is a reasonable tradeoff because reading 100 small shard documents is more predictable than risking a hot document during high activity.
 
-The cost is extra Firestore writes, especially when institution and pilot IDs exist. For a controlled 500-1,000 user pilot, this is acceptable because it avoids expensive dashboard queries across many user subcollections.
+### Atomic Batch Writes
 
-SmartBudget keeps raw events as the source of truth and uses daily aggregates for fast reporting.
+Telemetry writes use a Firestore batch.
+
+If the raw event, institution mirror, or aggregate update fails, the batch does not partially commit.
+
+The tradeoff is all-or-nothing behavior. The benefit is consistency: dashboards do not show metrics that cannot be traced back to a matching raw event.
 
 ## Failure Behavior
 
-Telemetry should never break insight generation.
+Telemetry must not break insight generation.
 
 `writeTelemetryEvent` catches write errors, logs `TELEMETRY_WRITE_FAILED`, and returns `false`.
 
-The Firestore batch is atomic. If one write in the batch fails, none of the queued telemetry writes are committed. This avoids partial metrics where one path updates but another does not.
+The Firestore batch is atomic. If one telemetry write in the batch fails, none of the queued telemetry writes are committed.
 
 ## Implementation Files
 
@@ -308,15 +269,16 @@ backend/ai/services/orchestrator.js
 backend/ai/orchestrator/agentExecution.js
 ```
 
-`logger.js` exposes the logging functions.
+## Current Direction
 
-```text
-createTelemetryRunId
-buildTelemetryContext
-logAIPipelineRun
-logAIAgentRun
-logInsightEvent
-```
+This telemetry layer is built for pilot reporting first. The next step is to grow it into a stronger institution reporting system.
 
-`writeTelemetryEvent.js` handles Firestore writes, aggregate patches, sharding, and failure handling.
+Planned enhancements include:
 
+- weekly or monthly rollups
+- insight view/dismiss events
+- retention cleanup rules
+- BigQuery export
+- institution repayment/default metrics
+
+These are not blockers for the current pipeline. They are the next reporting features needed as pilots mature and the dashboard starts answering broader institution questions.

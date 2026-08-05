@@ -1,88 +1,102 @@
 # SmartBudget Overview
 
-SmartBudget is an AI-powered personal finance platform that helps users track financial activity, manage budgets,, monitor spending behaviour and receive personalized financial insights in real time.
+SmartBudget is a personal finance web app that helps users track transactions, manage budgets, monitor goals, and receive real-time financial insights.
 
-**Users can:**
-- track transactions and expenses
-- create and monitor budgets
-- analyze spending patterns
-- monitor financial health
-- receive AI-assisted financial insights
+It combines deterministic financial analysis with AI-powered explanation. The system calculates financial facts first, then AI explains the most important issue in simple language.
 
-**The goal is not only to track transactions, but to help users:**
-- understand unusual spending behavior
-- detect financial pressure early
-- improve budget discipline
-- anticipate cash flow problems
-- make clearer financial decisions
+## What SmartBudget Does
 
-The platform combines deterministic financial analysis with AI-powered explanation systems to help users better understant their financial behaviour.
+Users can:
 
-**Rather than allowing AI to independently determine financial conditions, SmartBudget uses deterministic financial engines to calculate signals such as:**
+- track income and expenses
+- create category budgets
+- monitor financial goals
+- view reports and charts
+- receive smart insight cards
+- review active and historical insights
+
+The goal is not only to show numbers. SmartBudget helps users understand spending behavior, budget pressure, cashflow issues, and overall financial risk.
+
+## Current System
+
+```mermaid
+flowchart TD
+  A[User data in Firestore] --> B[Frontend app]
+  B --> C[Deterministic insight engines]
+  C --> D[Anomalies]
+  C --> E[Budget compliance]
+  C --> F[Cashflow]
+  C --> G[Financial risk]
+
+  D --> H[Vercel AI API]
+  E --> H
+  F --> H
+  G --> H
+
+  H --> I[Backend AI orchestrator]
+  I --> J[Attention and trigger gates]
+  J --> K[Specialist AI agent]
+  K --> L[Validated insight or local fallback]
+  L --> M[Firestore insights]
+  M --> N[Realtime UI update]
+```
+
+## AI Principle
+
+SmartBudget does not let AI invent financial conditions.
+
+Deterministic engines calculate:
+
 - anomalies
 - budget compliance
-- cash flow pressure
+- cashflow pressure
 - financial risk
 
-**AI then translate those structured signals into clear, human-readable explanations that helps users understand:**
-- what happened
-- why it matters
-- what acttions they can take
+AI then explains those signals and suggests a practical next step.
 
-This architecture keeps financial calculations predictable and explainable while still benefiting from AI-driven communication and personalization.
+This keeps the system more predictable, testable, and easier to trust.
 
-## Product Vision
+## Backend AI Pipeline
 
-SmartBudget is designed to evolve into an intelligent financial operating system that can reason across a user's financial context while preserving trust and explainability.
+The backend AI pipeline now includes:
 
-**The long-term direction includes:**
-- contextual financial reasoning
-- adaptive insight prioritization
-- agentic orchestration
-- long-term behavioral understanding
-- proactive financial guidance
+- Vercel API route for AI requests
+- quota checks
+- backend orchestrator
+- attention gate
+- trigger gate
+- signal reservation
+- specialist agents
+- runtime output validation
+- timeout fallback
+- Firestore persistence
+- telemetry
 
-The core principle is that AI should support financial understanding, not independently decide financial truth.
+For details, see [SmartBudget AI Architecture](./ai-architecture.md).
 
-For more detail on how that principle shapes the AI system, see [SmartBudget AI Architecture](./AI-ARCHITECTURE.md#core-architecture-philosophy).
+## Telemetry
 
-## System Architecture
+SmartBudget records AI pipeline telemetry so pilot behavior can be measured.
 
-SmartBudget uses a hybrid deterministic + AI architecture.
+It tracks:
 
-**The system is split into two main responsibilities:**
-- deterministic financial signal generation
-- AI reasoning, explanation, and orchestration
+- successful runs
+- blocked runs
+- fallback usage
+- agent timeouts
+- malformed AI outputs
+- generated insights
+- pipeline and agent duration
 
-Financial signal engines analyze transaction and budget data to produce structured signals such as anomalies, budget compliance, cash flow projections, and financial risk scores.
+For details, see [Backend AI Telemetry](./backend-ai-telemetry.md).
 
-Specialized AI Financial Intelligence Services then turn those structured signals into clear, user-friendly insights and recommendations. Each intelligence service focuses on one financial domain, such as anomalies, budgets, cash flow, or overall financial risk. For the detailed AI services breakdown, see [Specialized AI Financial Intelligence Services](./AI-ARCHITECTURE.md#specialized-ai-financial-intelligence-services).
+## Direction
 
-An orchestration layer is being developed to evaluate signals across domains, prioritize the most useful insights, suppress redundant insights, and decide which outputs should be shown to users. For the planned orchestration flow, see [Planned Orchestrator Flow](./AI-ARCHITECTURE.md#planned-orchestrator-flow).
+SmartBudget is growing toward a more institution-ready system with safer AI execution, measurable reliability, and clearer backend boundaries.
 
-For the detailed AI pipeline, specialized AI services responsibilities, backend structure, fallback behavior, and planned orchestration flow, see [SmartBudget AI Architecture](./AI-ARCHITECTURE.md).
+The core design remains the same:
 
-## Architecture Evolution
-
-SmartBudget started as a rule-based insight system where insights were generated directly from frontend logic and persisted through the app state and Firestore.
-
-AI was later introduced to improve explanation quality, personalization, readability, and user engagement. Importantly, AI was added after deterministic signal generation rather than replacing it.
-
-As the system grew, the AI layer moved from a single generalized prompt toward specialized AI financial intelligence services. This improved modularity, prompt maintainability, domain isolation, and scalability.
-
-The AI pipeline is now migrating into backend infrastructure so model execution, prompts, fallback logic, and future orchestration can be centralized and secured. For implementation details, see [Backend AI Migration](./AI-ARCHITECTURE.md#backend-ai-migration) and [Current Backend AI Structure](./AI-ARCHITECTURE.md#current-backend-ai-structure).
-
-The next major step is orchestration: a coordination layer that reasons across all financial signals, chooses the most relevant insights, and prepares the system for future tool-calling workflows.
-
-## Core Principle
-
-SmartBudget intentionally avoids fully autonomous financial decision-making.
-
-Financial analysis remains deterministic. AI handles reasoning and communication.
-
-**This balances:**
-- trust
-- consistency
-- explainability
-- personalization
-- scalability
+- deterministic engines calculate financial truth
+- AI explains and communicates
+- fallbacks protect the user experience
+- telemetry proves how the system behaves
