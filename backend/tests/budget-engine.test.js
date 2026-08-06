@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { buildBudgetComplianceData } from "../insight_engines/budgetData.js";
+import { buildBudgetComplianceData } from "../financial-signals/budget.js";
 import {
   budget,
   budgetAt200User,
@@ -18,15 +18,15 @@ describe("budget engine", () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date(fixedSystemDate));
 
-    const result = buildBudgetComplianceData(
-      exceedingBudgetsUser.budgets[0],
-      exceedingBudgetsUser.transactions,
-      exceedingBudgetsUser.currency
-    );
+    const result = buildBudgetComplianceData({
+      budget: exceedingBudgetsUser.budgets[0],
+      transactions: exceedingBudgetsUser.transactions,
+      currency: "NGN"
+    });
 
     expect(result).toMatchObject({
       category: "Food",
-      budget: { amount: 500, currency: "USD" },
+      budget: { amount: 500, currency: "NGN" },
       spending: { total_spent: 500, transaction_count: 2 },
       derived: {
         percent_budget_used: 100,
@@ -42,11 +42,11 @@ describe("budget engine", () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date(fixedSystemDate));
 
-    const result = buildBudgetComplianceData(
-      exceedingBudgetsUser.budgets[0],
-      exceedingBudgetsUser.transactions,
-      exceedingBudgetsUser.currency
-    );
+    const result = buildBudgetComplianceData({
+      budget: exceedingBudgetsUser.budgets[0],
+      transactions: exceedingBudgetsUser.transactions,
+      currency: "NGN"
+    });
 
     expect(result.derived.percent_budget_used).toBe(100);
     expect(result.derived.compliance_status).toBe("EXCEEDED");
@@ -58,11 +58,11 @@ describe("budget engine", () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date("2026-06-30T12:00:00.000Z"));
 
-    const result = buildBudgetComplianceData(
-      budgetAt99User.budgets[0],
-      budgetAt99User.transactions,
-      budgetAt99User.currency
-    );
+    const result = buildBudgetComplianceData({
+      budget: budgetAt99User.budgets[0],
+      transactions: budgetAt99User.transactions,
+      currency: "NGN"
+    });
 
     expect(result.derived.percent_budget_used).toBe(99);
     expect(result.derived.compliance_status).toBe("ON_TRACK");
@@ -74,11 +74,11 @@ describe("budget engine", () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date(fixedSystemDate));
 
-    const result = buildBudgetComplianceData(
-      budgetAt200User.budgets[0],
-      budgetAt200User.transactions,
-      budgetAt200User.currency
-    );
+    const result = buildBudgetComplianceData({
+      budget: budgetAt200User.budgets[0],
+      transactions: budgetAt200User.transactions,
+      currency: "NGN"
+    });
 
     expect(result.derived.percent_budget_used).toBe(200);
     expect(result.derived.compliance_status).toBe("EXCEEDED");
@@ -91,11 +91,11 @@ describe("budget engine", () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date(fixedSystemDate));
 
-    const result = buildBudgetComplianceData(
-      edgeCaseUsers.onlyIncome.budgets[0],
-      edgeCaseUsers.onlyIncome.transactions,
-      edgeCaseUsers.onlyIncome.currency
-    );
+    const result = buildBudgetComplianceData({
+      budget: edgeCaseUsers.onlyIncome.budgets[0],
+      transactions: edgeCaseUsers.onlyIncome.transactions,
+      currency: "NGN"
+    });
 
     expect(result.spending.total_spent).toBe(0);
     expect(result.derived.percent_budget_used).toBe(0);
@@ -108,11 +108,11 @@ describe("budget engine", () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date(fixedSystemDate));
 
-    const result = buildBudgetComplianceData(
-      budgetNoSpendingUser.budgets[0],
-      budgetNoSpendingUser.transactions,
-      budgetNoSpendingUser.currency
-    );
+    const result = buildBudgetComplianceData({
+      budget: budgetNoSpendingUser.budgets[0],
+      transactions: budgetNoSpendingUser.transactions,
+      currency: "NGN"
+    });
 
     expect(result.spending.total_spent).toBe(0);
     expect(result.derived.compliance_status).toBe("ON_TRACK");
@@ -133,18 +133,18 @@ describe("budget engine", () => {
     vi.setSystemTime(new Date(fixedSystemDate));
 
     expect(() =>
-      buildBudgetComplianceData(
-        budget({ id: "budget-travel", category: "Travel", amount: 300 }),
-        edgeCaseUsers.onlyExpenses.transactions,
-        edgeCaseUsers.onlyExpenses.currency
-      )
+      buildBudgetComplianceData({
+        budget: budget({ id: "budget-travel", category: "Travel", amount: 300 }),
+        transactions: edgeCaseUsers.onlyExpenses.transactions,
+        currency: "NGN"
+      })
     ).not.toThrow();
 
-    const result = buildBudgetComplianceData(
-      budget({ id: "budget-travel", category: "Travel", amount: 300 }),
-      edgeCaseUsers.onlyExpenses.transactions,
-      edgeCaseUsers.onlyExpenses.currency
-    );
+    const result = buildBudgetComplianceData({
+      budget: budget({ id: "budget-travel", category: "Travel", amount: 300 }),
+      transactions: edgeCaseUsers.onlyExpenses.transactions,
+      currency: "NGN"
+    });
 
     expect(result.spending.total_spent).toBe(0);
     expect(result.derived.compliance_status).toBe("ON_TRACK");
@@ -155,7 +155,11 @@ describe("budget engine", () => {
   it("handles a deleted budget by removing that category from compliance evaluation", () => {
     const budgetsAfterDelete = exceedingBudgetsUser.budgets.filter(budget => budget.category !== "Food");
     const results = budgetsAfterDelete.map(budget =>
-      buildBudgetComplianceData(budget, exceedingBudgetsUser.transactions, exceedingBudgetsUser.currency)
+      buildBudgetComplianceData({
+        budget, 
+        transactions: exceedingBudgetsUser.transactions, 
+        currency: "NGN"
+      })
     );
 
     expect(results).toEqual([]);
@@ -166,7 +170,11 @@ describe("budget engine", () => {
     vi.setSystemTime(new Date(fixedSystemDate));
 
     const results = multipleBudgetUser.budgets.map(budget =>
-      buildBudgetComplianceData(budget, multipleBudgetUser.transactions, multipleBudgetUser.currency)
+      buildBudgetComplianceData({
+        budget, 
+        transactions: multipleBudgetUser.transactions, 
+        currency: "NGN"
+      })
     );
 
     expect(results).toHaveLength(3);
@@ -185,7 +193,11 @@ describe("budget engine", () => {
       budget({ id: "budget-food-loose", category: "Food", amount: 800 }),
     ];
     const results = duplicateBudgets.map(budget =>
-      buildBudgetComplianceData(budget, exceedingBudgetsUser.transactions, exceedingBudgetsUser.currency)
+      buildBudgetComplianceData({
+        budget, 
+        transactions: exceedingBudgetsUser.transactions, 
+        currency: "NGN"
+      })
     );
 
     expect(results).toHaveLength(2);
@@ -200,11 +212,11 @@ describe("budget engine", () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date(fixedSystemDate));
 
-    const result = buildBudgetComplianceData(
-      futureBudgetUser.budgets[0],
-      futureBudgetUser.transactions,
-      futureBudgetUser.currency
-    );
+    const result = buildBudgetComplianceData({
+      budget: futureBudgetUser.budgets[0],
+      transactions: futureBudgetUser.transactions,
+      currency: "NGN"
+    });
 
     expect(result.spending.total_spent).toBe(0);
     expect(result.time.is_current_month).toBe(false);
@@ -216,11 +228,11 @@ describe("budget engine", () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date(fixedSystemDate));
 
-    const result = buildBudgetComplianceData(
-      previousMonthBudgetUser.budgets[0],
-      previousMonthBudgetUser.transactions,
-      previousMonthBudgetUser.currency
-    );
+    const result = buildBudgetComplianceData({
+      budget: previousMonthBudgetUser.budgets[0],
+      transactions: previousMonthBudgetUser.transactions,
+      currency: "NGN"
+    });
 
     expect(result.spending.total_spent).toBe(650);
     expect(result.spending.transaction_count).toBe(1);

@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { buildCashFlowData } from "../insight_engines/cashFlowData.js";
+import { buildCashflowData } from "../financial-signals/cashflow.js";
 import {
   cashflowBreakEvenUser,
   cashflowRiskUser,
@@ -46,7 +46,7 @@ describe("cashflow engine", () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date(fixedSystemDate));
 
-    const result = buildCashFlowData(normalUser.transactions, normalUser.currency);
+    const result = buildCashflowData({ transactions: normalUser.transactions, currency: "NGN"});
 
     expect(result.outcome).toBe("SAFE");
     expect(result.income.total).toBe(4200);
@@ -61,7 +61,7 @@ describe("cashflow engine", () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date(fixedSystemDate));
 
-    const result = buildCashFlowData(cashflowRiskUser.transactions, cashflowRiskUser.currency);
+    const result = buildCashflowData({ transactions: cashflowRiskUser.transactions, currency: "NGN" });
 
     expect(result.outcome).toBe("RISK");
     expect(result.derived.percent_spent).toBe(98);
@@ -84,7 +84,7 @@ describe("cashflow engine", () => {
       ],
     };
 
-    const result = buildCashFlowData(warningUser.transactions, warningUser.currency);
+    const result = buildCashflowData({ transactions: warningUser.transactions, currency: "NGN" });
 
     expect(result.forecast.projected_total_spend).toBeGreaterThanOrEqual(3400);
     expect(result.outcome).toBe("WARNING");
@@ -98,7 +98,7 @@ describe("cashflow engine", () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date(fixedSystemDate));
 
-    const result = buildCashFlowData(noIncomeUser.transactions, noIncomeUser.currency);
+    const result = buildCashflowData({ transactions: noIncomeUser.transactions, currency: "NGN" });
 
     expect(result.derived.has_no_income).toBe(true);
     expect(result.outcome).toBe("RISK");
@@ -112,7 +112,7 @@ describe("cashflow engine", () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date(fixedSystemDate));
 
-    const result = buildCashFlowData(edgeCaseUsers.emptyTransactions.transactions, edgeCaseUsers.emptyTransactions.currency);
+    const result = buildCashflowData({ transactions: edgeCaseUsers.emptyTransactions.transactions, currency: "NGN" });
 
     expect(result.income.total).toBe(0);
     expect(result.spending.total_spent).toBe(0);
@@ -127,7 +127,7 @@ describe("cashflow engine", () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date(fixedSystemDate));
 
-    const result = buildCashFlowData(incomeAfterSpendingUser.transactions, incomeAfterSpendingUser.currency);
+    const result = buildCashflowData({ transactions: incomeAfterSpendingUser.transactions, currency: "NGN" });
 
     expect(result.income.total).toBe(3500);
     expect(result.spending.total_spent).toBe(1600);
@@ -141,7 +141,7 @@ describe("cashflow engine", () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date(fixedSystemDate));
 
-    const result = buildCashFlowData(multipleIncomeSourcesUser.transactions, multipleIncomeSourcesUser.currency);
+    const result = buildCashflowData({ transactions: multipleIncomeSourcesUser.transactions, currency: "NGN" });
 
     expect(result.income.total).toBe(4350);
     expect(result.spending.total_spent).toBe(700);
@@ -154,7 +154,7 @@ describe("cashflow engine", () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date(fixedSystemDate));
 
-    const result = buildCashFlowData(monthIsolationUser.transactions, monthIsolationUser.currency);
+    const result = buildCashflowData({ transactions: monthIsolationUser.transactions, currency: "NGN" });
 
     expect(result.income.total).toBe(4000);
     expect(result.spending.total_spent).toBe(400);
@@ -168,7 +168,7 @@ describe("cashflow engine", () => {
     vi.setSystemTime(new Date(fixedSystemDate));
 
     const runs = Array.from({ length: 3 }, () =>
-      buildCashFlowData(normalUser.transactions, normalUser.currency)
+      buildCashflowData({ transactions: normalUser.transactions, currency: "NGN" })
     );
 
     const normalize = result => ({ ...result, id: "stable-id" });
@@ -183,10 +183,10 @@ describe("cashflow engine", () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date(fixedSystemDate));
 
-    const result = buildCashFlowData(
-      cashflowWithFutureTransactionsUser.transactions,
-      cashflowWithFutureTransactionsUser.currency
-    );
+    const result = buildCashflowData({
+      transactions: cashflowWithFutureTransactionsUser.transactions,
+      currency: "NGN"
+    });
 
     expect(result.income.total).toBe(4000);
     expect(result.spending.total_spent).toBe(400);
@@ -199,7 +199,7 @@ describe("cashflow engine", () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date(fixedSystemDate));
 
-    const result = buildCashFlowData(cashflowBreakEvenUser.transactions, cashflowBreakEvenUser.currency);
+    const result = buildCashflowData({ transactions: cashflowBreakEvenUser.transactions, currency: "NGN" });
 
     expect(result.income.total).toBe(4000);
     expect(result.spending.total_spent).toBe(4000);
@@ -223,7 +223,7 @@ describe("cashflow engine", () => {
       ],
     };
 
-    const result = buildCashFlowData(overspendUser.transactions, overspendUser.currency);
+    const result = buildCashflowData({ transactions: overspendUser.transactions, currency: "NGN" });
 
     expect(result.spending.total_spent).toBeGreaterThan(result.income.total);
     expect(result.outcome).toBe("RISK");

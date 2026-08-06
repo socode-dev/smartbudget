@@ -1,9 +1,7 @@
 import { getMonth, getYear } from "date-fns";        
-import useCurrencyStore from  "../store/useCurrencyStore";
 import {v4 as uuidv4} from "uuid";
 
-export const buildRiskData = (anomalies, budgetComplianceData, cashflowData, transactions) => {
-    const {selectedCurrency: currency} = useCurrencyStore.getState();
+export const buildRiskData = ({ anomalies, budgetCompliance, cashflowData, transactions, currency }) => {
 
     const anomalyCount = anomalies.length;
     const highAnomalies = anomalies.filter(a => a.risk.level === "HIGH");
@@ -11,9 +9,9 @@ export const buildRiskData = (anomalies, budgetComplianceData, cashflowData, tra
 
     const repeatedAnomalyCategory = anomalies.filter(a => a.context.highest_in_period).map(a => a.category);
 
-    const exceededBudgets = budgetComplianceData.filter(b => b.derived.compliance_status === "EXCEEDED");
-    const atRiskBudgets = budgetComplianceData.filter(b => b.derived.compliance_status === "AT_RISK");    
-    const totalBudgets = budgetComplianceData.length;
+    const exceededBudgets = budgetCompliance.filter(b => b.derived.compliance_status === "EXCEEDED");
+    const atRiskBudgets = budgetCompliance.filter(b => b.derived.compliance_status === "AT_RISK");    
+    const totalBudgets = budgetCompliance.length;
     
     const budgetComplianceRate = totalBudgets > 0 ? Math.round(((totalBudgets - exceededBudgets.length) / totalBudgets) * 100) : 100; 
 

@@ -1,5 +1,5 @@
-import { generateCategoryKey } from "../../utils/generateKey.js";
-import { getSnakeCaseValue } from "../../utils/snakeCaseValue.js";
+import { generateCategoryKey } from "../../../src/utils/generateKey.js";
+import { getSnakeCaseValue } from "../../../src/utils/snakeCaseValue.js";
 
 export const fixedSystemDate = "2026-06-15T12:00:00.000Z";
 

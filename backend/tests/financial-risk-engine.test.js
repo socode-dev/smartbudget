@@ -1,8 +1,8 @@
 import { describe, expect, it, vi } from "vitest";
-import { detectAnomalies } from "../insight_engines/anomalyDetection.js";
-import { buildBudgetComplianceData } from "../insight_engines/budgetData.js";
-import { buildCashFlowData } from "../insight_engines/cashFlowData.js";
-import { buildRiskData } from "../insight_engines/riskData.js";
+import { detectAnomalies } from "../financial-signals/anomaly.js";
+import { buildBudgetComplianceData } from "../financial-signals/budget.js";
+import { buildCashflowData } from "../financial-signals/cashflow.js";
+import { buildRiskData } from "../financial-signals/risk.js";
 import {
   buildMultiCategorySpikeUser,
   cashflowRiskUser,
@@ -13,8 +13,10 @@ import {
   threeCategoryOverspendingUser,
 } from "./fixtures/index.js";
 
+const currency = "NGN";
+
 const complianceFor = user =>
-  user.budgets.map(budget => buildBudgetComplianceData(budget, user.transactions, user.currency));
+  user.budgets.map(budget => buildBudgetComplianceData({ budget, transactions: user.transactions, currency }));
 
 const highAnomaly = (id, category = "Food", deviation = 260) => ({
   id,
@@ -41,12 +43,13 @@ describe("financial risk engine", () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date(fixedSystemDate));
 
-    const risk = buildRiskData(
-      detectAnomalies(normalUser.transactions),
-      complianceFor(normalUser),
-      buildCashFlowData(normalUser.transactions, normalUser.currency),
-      normalUser.transactions
-    );
+    const risk = buildRiskData({
+      anomalies: detectAnomalies({ transactions: normalUser.transactions, currency }),
+      budgetCompliance: complianceFor(normalUser),
+      cashflowData: buildCashflowData({ transactions: normalUser.transactions, currency }),
+      transactions: normalUser.transactions,
+      currency
+    });
 
     expect(risk).toBeNull();
 
@@ -65,12 +68,13 @@ describe("financial risk engine", () => {
       ],
     };
 
-    const risk = buildRiskData(
-      detectAnomalies(user.transactions),
-      complianceFor(user),
-      buildCashFlowData(cashflowRiskUser.transactions, cashflowRiskUser.currency),
-      user.transactions
-    );
+    const risk = buildRiskData({
+      anomalies: detectAnomalies({ transactions: user.transactions, currency }),
+      budgetCompliance: complianceFor(user),
+      cashflowData: buildCashflowData({ transactions: cashflowRiskUser.transactions, currency }),
+      transactions: user.transactions,
+      currency
+    });
 
     expect(risk.risk.level).toBe("HIGH");
     expect(risk.financial_facts.is_systemic_crisis).toBe(true);
@@ -82,16 +86,17 @@ describe("financial risk engine", () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date(fixedSystemDate));
 
-    const risk = buildRiskData(
-      [
+    const risk = buildRiskData({
+      anomalies: [
         highAnomaly("high-1", "Food", 320),
         highAnomaly("high-2", "Food", 300),
         highAnomaly("high-3", "Food", 280),
       ],
-      [exceededBudgetCompliance("budget-food", "Food", 110)],
-      buildCashFlowData(cashflowRiskUser.transactions, cashflowRiskUser.currency),
-      cashflowRiskUser.transactions
-    );
+      budgetCompliance: [exceededBudgetCompliance("budget-food", "Food", 110)],
+      cashflowData: buildCashflowData({ transactions: cashflowRiskUser.transactions, currency }),
+      transactions: cashflowRiskUser.transactions,
+      currency
+    });
 
     expect(risk).not.toBeNull();
     expect(risk.risk.score).toBeLessThan(80);
@@ -105,12 +110,13 @@ describe("financial risk engine", () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date(fixedSystemDate));
 
-    const risk = buildRiskData(
-      [highAnomaly("high-anomaly-food")],
-      complianceFor(normalUser),
-      buildCashFlowData(normalUser.transactions, normalUser.currency),
-      normalUser.transactions
-    );
+    const risk = buildRiskData({
+      anomalies: [highAnomaly("high-anomaly-food")],
+      budgetCompliance: complianceFor(normalUser),
+      cashflowData: buildCashflowData({ transactions: normalUser.transactions, currency }),
+      transactions: normalUser.transactions,
+      currency
+    });
 
     expect(risk).toBeNull();
     expect(risk?.financial_facts?.is_systemic_crisis).not.toBe(true);
@@ -122,12 +128,13 @@ describe("financial risk engine", () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date(fixedSystemDate));
 
-    const risk = buildRiskData(
-      [],
-      complianceFor(normalUser),
-      buildCashFlowData(cashflowRiskUser.transactions, cashflowRiskUser.currency),
-      cashflowRiskUser.transactions
-    );
+    const risk = buildRiskData({
+      anomalies: [],
+      budgetCompliance: complianceFor(normalUser),
+      cashflowData: buildCashflowData({ transactions: cashflowRiskUser.transactions, currency }),
+      transactions: cashflowRiskUser.transactions,
+      currency
+    });
 
     expect(risk).toBeNull();
 
@@ -138,12 +145,13 @@ describe("financial risk engine", () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date(fixedSystemDate));
 
-    const risk = buildRiskData(
-      [],
-      complianceFor(exceedingBudgetsUser),
-      buildCashFlowData(normalUser.transactions, normalUser.currency),
-      exceedingBudgetsUser.transactions
-    );
+    const risk = buildRiskData({
+      anomalies: [],
+      budgetCompliance: complianceFor(exceedingBudgetsUser),
+      cashflowData: buildCashflowData({ transactions: normalUser.transactions, currency }),
+      transactions: exceedingBudgetsUser.transactions,
+      currency
+    });
 
     expect(risk?.risk?.level ?? "LOW").not.toBe("HIGH");
     expect(risk?.financial_facts?.is_systemic_crisis ?? false).toBe(false);
@@ -155,22 +163,25 @@ describe("financial risk engine", () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date(fixedSystemDate));
 
-    const anomalyOnly = buildRiskData(
-      [highAnomaly("high-anomaly-food")],
-      complianceFor(normalUser),
-      buildCashFlowData(normalUser.transactions, normalUser.currency),
-      normalUser.transactions
-    );
-    const anomalyWithCashflowRisk = buildRiskData(
-      [
+    const anomalyOnly = buildRiskData({
+      anomalies: [highAnomaly("high-anomaly-food")],
+      budgetCompliance: complianceFor(normalUser),
+      cashflowData: buildCashflowData({ transactions: normalUser.transactions, currency }),
+      transactions: normalUser.transactions,
+      currency
+    });
+
+    const anomalyWithCashflowRisk = buildRiskData({
+      anomalies: [
         highAnomaly("high-anomaly-food-1", "Food", 260),
         highAnomaly("high-anomaly-food-2", "Food", 250),
         highAnomaly("high-anomaly-food-3", "Food", 240),
       ],
-      complianceFor(normalUser),
-      buildCashFlowData(cashflowRiskUser.transactions, cashflowRiskUser.currency),
-      cashflowRiskUser.transactions
-    );
+      budgetCompliance: complianceFor(normalUser),
+      cashflowData: buildCashflowData({ transactions: cashflowRiskUser.transactions, currency }),
+      transactions: cashflowRiskUser.transactions,
+      currency
+    });
 
     expect(anomalyOnly).toBeNull();
     expect(anomalyWithCashflowRisk?.risk?.level).toBe("MEDIUM");
@@ -183,12 +194,13 @@ describe("financial risk engine", () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date(fixedSystemDate));
 
-    const risk = buildRiskData(
-      [highAnomaly("high-anomaly-food"), highAnomaly("high-anomaly-shopping", "Shopping")],
-      complianceFor(normalUser),
-      buildCashFlowData(cashflowRiskUser.transactions, cashflowRiskUser.currency),
-      normalUser.transactions
-    );
+    const risk = buildRiskData({
+      anomalies: [highAnomaly("high-anomaly-food"), highAnomaly("high-anomaly-shopping", "Shopping")],
+      budgetCompliance: complianceFor(normalUser),
+      cashflowData: buildCashflowData({ transactions: cashflowRiskUser.transactions, currency }),
+      transactions: normalUser.transactions,
+      currency
+    });
 
     expect(risk?.financial_facts?.is_systemic_crisis).not.toBe(true);
 
@@ -199,18 +211,22 @@ describe("financial risk engine", () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date(fixedSystemDate));
 
-    const mild = buildRiskData(
-      [highAnomaly("high-anomaly-food")],
-      complianceFor(normalUser),
-      buildCashFlowData(cashflowRiskUser.transactions, cashflowRiskUser.currency),
-      cashflowRiskUser.transactions
-    );
-    const worse = buildRiskData(
-      [highAnomaly("high-anomaly-food"), highAnomaly("high-anomaly-shopping", "Shopping")],
-      complianceFor(exceedingBudgetsUser),
-      buildCashFlowData(cashflowRiskUser.transactions, cashflowRiskUser.currency),
-      cashflowRiskUser.transactions
-    );
+    const mild = buildRiskData({
+      anomalies: [highAnomaly("high-anomaly-food")],
+      budgetCompliance: complianceFor(normalUser),
+      cashflowData: buildCashflowData({ transactions: cashflowRiskUser.transactions, currency }),
+      transactions: cashflowRiskUser.transactions,
+      currency
+    });
+
+    const worse = buildRiskData({
+      anomalies: [highAnomaly("high-anomaly-food"), highAnomaly("high-anomaly-shopping", "Shopping")],
+      budgetCompliance: complianceFor(exceedingBudgetsUser),
+      cashflowData: buildCashflowData({ transactions: cashflowRiskUser.transactions, currency }),
+      transactions: cashflowRiskUser.transactions,
+      currency
+    });
+
     const systemicUser = {
       ...buildMultiCategorySpikeUser(3),
       budgets: [
@@ -218,12 +234,13 @@ describe("financial risk engine", () => {
         budget({ id: "budget-shopping", category: "Shopping", amount: 200 }),
       ],
     };
-    const crisis = buildRiskData(
-      detectAnomalies(systemicUser.transactions),
-      complianceFor(systemicUser),
-      buildCashFlowData(cashflowRiskUser.transactions, cashflowRiskUser.currency),
-      systemicUser.transactions
-    );
+    const crisis = buildRiskData({
+      anomalies: detectAnomalies({ transactions: systemicUser.transactions, currency }),
+      budgetCompliance: complianceFor(systemicUser),
+      cashflowData: buildCashflowData({ transactions: cashflowRiskUser.transactions, currency }),
+      transactions: systemicUser.transactions,
+      currency
+    });
 
     expect(riskScoreOrZero(worse)).toBeGreaterThanOrEqual(riskScoreOrZero(mild));
     expect(riskScoreOrZero(crisis)).toBeGreaterThanOrEqual(riskScoreOrZero(worse));
@@ -240,12 +257,13 @@ describe("financial risk engine", () => {
       highAnomaly(`anomaly-${index}`, `Category ${index}`, 220)
     );
 
-    const risk = buildRiskData(
-      manyAnomalies,
-      [exceededBudgetCompliance("budget-food", "Food", 120)],
-      buildCashFlowData(cashflowRiskUser.transactions, cashflowRiskUser.currency),
-      exceedingBudgetsUser.transactions
-    );
+    const risk = buildRiskData({
+      anomalies: manyAnomalies,
+      budgetCompliance: [exceededBudgetCompliance("budget-food", "Food", 120)],
+      cashflowData: buildCashflowData({ transactions: cashflowRiskUser.transactions, currency }),
+      transactions: exceedingBudgetsUser.transactions,
+      currency
+    });
 
     expect(risk.financial_facts.spending_pressure).toBe("HIGH");
     expect(risk.financial_facts.severe_spending_spikes).toBe(true);

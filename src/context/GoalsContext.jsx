@@ -60,8 +60,7 @@ export const GoalsProvider = ({ children }) => {
   }, 
   [
     contributionModalState.open, 
-    contributionModalState.meta?.name, 
-    contributionModalState.meta.goalName
+    contributionModalState.meta?.name
   ]);
 
   // Open contribution modal

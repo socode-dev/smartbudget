@@ -2,13 +2,13 @@
 
 SmartBudget uses a hybrid AI architecture: deterministic engines calculate financial facts, and AI explains the most important fact in clear language.
 
-For the product-level summary, see [SmartBudget Overview](./overview.md). For telemetry, see [Backend AI Telemetry](./backend-ai-telemetry.md).
+For the product-level summary, see [SmartBudget Overview](./overview.md). For deterministic signal details, see [Financial Signals](./financial-signals.md). For telemetry, see [Backend AI Telemetry](./backend-ai-telemetry.md).
 
 ## Core Idea
 
 AI does not decide financial truth in SmartBudget.
 
-The app first calculates structured signals from user data:
+The backend first calculates structured signals from user data:
 
 - anomaly signals
 - budget compliance signals
@@ -21,19 +21,19 @@ The backend AI pipeline then decides which signal deserves attention, runs the r
 
 ```mermaid
 flowchart TD
-  A[Transactions and budgets] --> B[Frontend deterministic engines]
-  B --> C[Anomalies]
-  B --> D[Budget compliance]
-  B --> E[Cashflow data]
-  B --> F[Financial risk data]
+  A[Frontend UI] --> B[Vercel API: /api/insights/run]
+  B --> C[Load transactions and budgets from Firestore]
+  C --> D[Backend financial signal engines]
+  D --> E[Anomalies]
+  D --> F[Budget compliance]
+  D --> G[Cashflow data]
+  D --> H[Financial risk data]
 
-  C --> G[Vercel API: /api/ai/orchestrator]
-  D --> G
-  E --> G
-  F --> G
+  E --> I[Backend orchestrator]
+  F --> I
+  G --> I
+  H --> I
 
-  G --> H[Quota check]
-  H --> I[Backend orchestrator]
   I --> J[Normalize signals]
   J --> K[Score signals]
   K --> L[Attention gate]
@@ -63,7 +63,18 @@ flowchart TD
 api/ai/orchestrator.js
 ```
 
-Receives the frontend signal payload, checks user quota, and calls the backend orchestrator.
+`api/insights/run.js` is the frontend-facing route. It receives `userId`, `currency`, and `isDemo`, loads transactions and budgets from Firestore, runs backend financial signal engines, and passes the resulting signals into the orchestrator.
+
+`api/ai/orchestrator.js` remains the lower-level AI route for direct orchestrator execution.
+
+### Financial Signals
+
+```text
+backend/financial-signals/
+backend/userData/loadFinancialData.js
+```
+
+The financial signal layer is now backend-owned. It reads user transactions and budgets, then builds anomaly, budget, cashflow, and risk data before AI orchestration begins.
 
 ### Orchestrator
 

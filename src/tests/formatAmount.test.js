@@ -35,8 +35,8 @@ describe("formatAmount", () => {
 
   it("handles very small decimal amounts", () => {
     expect(formatAmount(0.01, "USD")).toBe("$0.01");
-    expect(formatAmount(0.001, "USD")).toBe("$0.00"); // Rounds to 2 decimal places
-    expect(formatAmount(0.005, "USD")).toBe("$0.01"); // Rounds up
+    expect(formatAmount(0.001, "USD")).toBe("$0.00");
+    expect(formatAmount(0.005, "USD")).toBe("$0.01");
   });
 
   it("handles zero amounts", () => {
@@ -62,7 +62,7 @@ describe("formatAmount", () => {
   });
 
   it("handles currencies with different decimal place conventions", () => {
-    expect(formatAmount(123.45, "JPY")).toBe("¥123.45");
+    expect(formatAmount(123.45, "JPY")).toBe("￥123.45");
     expect(formatAmount(123.45, "USD")).toBe("$123.45");
   });
 });

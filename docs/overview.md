@@ -2,6 +2,8 @@
 
 SmartBudget is a personal finance web app that helps users track transactions, manage budgets, monitor goals, and receive real-time financial insights.
 
+For deeper details, see [Financial Signals](./financial-signals.md), [SmartBudget AI Architecture](./ai-architecture.md), [Backend AI Telemetry](./backend-ai-telemetry.md), and [SmartBudget Testing](./TESTING.md).
+
 It combines deterministic financial analysis with AI-powered explanation. The system calculates financial facts first, then AI explains the most important issue in simple language.
 
 ## What SmartBudget Does
@@ -21,19 +23,18 @@ The goal is not only to show numbers. SmartBudget helps users understand spendin
 
 ```mermaid
 flowchart TD
-  A[User data in Firestore] --> B[Frontend app]
-  B --> C[Deterministic insight engines]
-  C --> D[Anomalies]
-  C --> E[Budget compliance]
-  C --> F[Cashflow]
-  C --> G[Financial risk]
+  A[Frontend UI] --> B[POST /api/insights/run]
+  B --> C[Backend loads Firestore transactions and budgets]
+  C --> D[Backend financial signal engines]
+  D --> E[Anomalies]
+  D --> F[Budget compliance]
+  D --> G[Cashflow]
+  D --> H[Financial risk]
 
-  D --> H[Vercel AI API]
-  E --> H
-  F --> H
-  G --> H
-
-  H --> I[Backend AI orchestrator]
+  E --> I[Backend AI orchestrator]
+  F --> I
+  G --> I
+  H --> I
   I --> J[Attention and trigger gates]
   J --> K[Specialist AI agent]
   K --> L[Validated insight or local fallback]
@@ -72,7 +73,7 @@ The backend AI pipeline now includes:
 - Firestore persistence
 - telemetry
 
-For details, see [SmartBudget AI Architecture](./ai-architecture.md).
+For details, see [SmartBudget AI Architecture](./ai-architecture.md) and [Financial Signals](./financial-signals.md).
 
 ## Telemetry
 

@@ -1,7 +1,7 @@
 // List of currency codes and their locales
-const CURRENCY_SYMBOLS = {
+export const CURRENCY_SYMBOLS = {
   USD: "en-US", // US Dollar
-  EUR: "de-DE", // Euro
+  EUR: "en-US", // Euro
   GBP: "en-GB", // British Pound
   NGN: "en-NG", // Nigerian Naira
   JPY: "ja-JP", // Japanese Yen
@@ -151,7 +151,4 @@ const CURRENCY_SYMBOLS = {
   XPD: "en-US", // Palladium (troy ounce)
   BTC: "en-US", // Bitcoin
   ETH: "en-US", // Ethereum
-  // Add more as needed
 };
-
-export default CURRENCY_SYMBOLS;

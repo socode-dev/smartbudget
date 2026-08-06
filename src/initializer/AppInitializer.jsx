@@ -3,24 +3,28 @@ import {
   subcollectionListener,
 } from "../firebase/firestoreListener";
 import { useEffect } from "react";
+import useAuthStore from "../store/useAuthStore";
 import useTransactionStore from "../store/useTransactionStore";
 import useThresholdStore from "../store/useThresholdStore";
+import useInsightsStore from "../store/useInsightsStore";
+import useCurrencyStore from "../store/useCurrencyStore";
 import { doc, onSnapshot } from "firebase/firestore";
 import { db } from "../firebase/firebase";
-import useInsightsStore from "../store/useInsightsStore";
-import useAuthStore from "../store/useAuthStore";
-import { generateInsight } from "../insight_engines/runInsights";
+import { runInsightPipeline } from "../api/insights";
 import { isDemoUser, useDemoMode } from "../demo/useDemoMode";
 
 const AppInitializer = () => {
   const isDemoMode = useDemoMode();
+  
   const user = useAuthStore((state) => state.currentUser);
-  const isDemoSession = isDemoMode || isDemoUser(user);
   const userId = user?.uid;
-  const setThresholds = useThresholdStore((state) => state.setThresholds);
-  const transactions = useTransactionStore((state) => state.transactions);
+  
+  const isDemoSession = isDemoMode || isDemoUser(user);
+  
   const setCategories = useTransactionStore((state) => state.setCategories);
-  const budgets = useTransactionStore((state) => state.budgets);
+
+  const setThresholds = useThresholdStore((state) => state.setThresholds);
+  
   const initInsights = useInsightsStore((state) => state.initInsights);
   
   const startAuthListener = useAuthStore((state) => state.startAuthListener);
@@ -71,30 +75,36 @@ const AppInitializer = () => {
     };
   }, [isDemoSession, userId, setCategories]);
 
-  // Generate AI insights
+  // Generate insights
   useEffect(() => {
     if (isDemoSession) return;
     if (!userId) return;
-    if (!(transactions ?? []).length) return;
-
+    
     let cancelled = false;
 
     const runInsights = async () => {
+      const selectedCurrency = useCurrencyStore.getState().selectedCurrency;
+  
       try {
-        await generateInsight({userId, transactions: transactions ?? [], budgets: budgets ?? []});
+        await runInsightPipeline({ 
+          userId, 
+          currency: selectedCurrency, 
+          isDemo: false
+        });
       } catch (err) {
         if (cancelled) return;
-        console.log(err);
-        useInsightsStore.getState().setInsightError(err.message);
-      }
-    };
 
-    runInsights();
+        console.error(err)
+        useInsightsStore.getState().setInsightError(err.message)
+      }
+  }
+
+  runInsights();
 
     return () => {
       cancelled = true;
-    };
-  }, [isDemoSession, userId, transactions, budgets]);
+    }
+  }, [isDemoSession, userId]);
   
   return null;
 };
