@@ -4,16 +4,16 @@ import { buildBudgetCompliancePrompt } from "../ai/prompts/budget.js";
 import { buildCashflowPrompt } from "../ai/prompts/cashflow.js";
 import { buildFinancialRiskPrompt } from "../ai/prompts/risk.js";
 import { buildOrchestrationPrompt } from "../ai/prompts/orchestrator.js";
-import { buildCashFlowData } from "../../src/insight_engines/cashFlowData.js";
-import { buildBudgetComplianceData } from "../../src/insight_engines/budgetData.js";
+import { buildCashflowData } from "../financial-signals/cashflow.js";
+import { buildBudgetComplianceData } from "../financial-signals/budget.js";
 import {
   cashflowRiskUser,
   exceedingBudgetsUser,
   fixedSystemDate,
   normalUser,
   oneCategoryOverspendingUser,
-} from "../../src/tests/fixtures/index.js";
-import { assertPromptSanitized } from "../../src/tests/fixtures/fixture-validators.js";
+} from "./fixtures/index.js";
+import { assertPromptSanitized } from "./fixtures/fixture-validators.js";
 
 const fullRiskData = isSystemicCrisis => ({
   risk: { score: isSystemicCrisis ? 88 : 52, level: isSystemicCrisis ? "HIGH" : "MEDIUM" },
@@ -57,6 +57,8 @@ const minimalRiskData = () => ({
   },
 });
 
+const currency = "NGN";
+
 describe("prompt builders", () => {
   it("includes systemic crisis instructions only when systemic crisis is present", () => {
     const crisisPrompt = buildFinancialRiskPrompt({ riskData: fullRiskData(true) });
@@ -91,10 +93,10 @@ describe("prompt builders", () => {
     vi.setSystemTime(new Date(fixedSystemDate));
 
     const riskPrompt = buildCashflowPrompt({
-      cashflowData: buildCashFlowData(cashflowRiskUser.transactions, cashflowRiskUser.currency),
+      cashflowData: buildCashflowData({ transactions: cashflowRiskUser.transactions, currency }),
     });
     const safePrompt = buildCashflowPrompt({
-      cashflowData: buildCashFlowData(normalUser.transactions, normalUser.currency),
+      cashflowData: buildCashflowData({ transactions: normalUser.transactions, currency }),
     });
 
     expect(riskPrompt).toContain("Current income:");
@@ -139,11 +141,11 @@ describe("prompt builders", () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date(fixedSystemDate));
 
-    const compliance = buildBudgetComplianceData(
-      exceedingBudgetsUser.budgets[0],
-      exceedingBudgetsUser.transactions,
-      exceedingBudgetsUser.currency
-    );
+    const compliance = buildBudgetComplianceData({
+      budget: exceedingBudgetsUser.budgets[0],
+      transactions: exceedingBudgetsUser.transactions,
+      currency
+    });
     const prompt = buildBudgetCompliancePrompt({ complianceData: compliance });
 
     expect(prompt).toContain("Category: Food");
@@ -181,14 +183,14 @@ describe("prompt builders", () => {
     vi.setSystemTime(new Date(fixedSystemDate));
 
     const cashflowPrompt = buildCashflowPrompt({
-      cashflowData: buildCashFlowData(oneCategoryOverspendingUser.transactions, oneCategoryOverspendingUser.currency),
+      cashflowData: buildCashflowData({ transactions: oneCategoryOverspendingUser.transactions, currency }),
     });
     const budgetPrompt = buildBudgetCompliancePrompt({
-      complianceData: buildBudgetComplianceData(
-        exceedingBudgetsUser.budgets[0],
-        exceedingBudgetsUser.transactions,
-        exceedingBudgetsUser.currency
-      ),
+      complianceData: buildBudgetComplianceData({
+        budget: exceedingBudgetsUser.budgets[0],
+        transactions: exceedingBudgetsUser.transactions,
+        currency
+      }),
     });
 
     expect(cashflowPrompt).toContain("Return ONLY JSON");

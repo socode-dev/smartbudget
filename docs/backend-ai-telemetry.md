@@ -2,7 +2,7 @@
 
 SmartBudget telemetry records how the backend AI pipeline behaves during real usage and pilot trials.
 
-For the wider AI flow, see [SmartBudget AI Architecture](./ai-architecture.md).
+For the wider AI flow, see [SmartBudget AI Architecture](./ai-architecture.md). For the deterministic facts that feed the pipeline, see [Financial Signals](./financial-signals.md).
 
 ## Purpose
 
@@ -22,28 +22,29 @@ This gives SmartBudget evidence of reliability, safety, and insight activity for
 
 ```mermaid
 flowchart TD
-  A[Frontend signal engines] --> B[Vercel API route]
-  B --> C[Backend orchestrator]
+  A[Frontend calls /api/insights/run] --> B[Backend loads Firestore data]
+  B --> C[Backend financial signal engines]
+  C --> D[Backend orchestrator]
 
-  C --> D[logAIPipelineRun]
-  C --> E[runAgentWithFallback]
-  E --> F[logAIAgentRun]
-  C --> G[Persist insight]
-  G --> H[logInsightEvent]
+  D --> E[logAIPipelineRun]
+  D --> F[runAgentWithFallback]
+  F --> G[logAIAgentRun]
+  D --> H[Persist insight]
+  H --> I[logInsightEvent]
 
-  D --> I[writeTelemetryEvent]
-  F --> I
-  H --> I
+  E --> J[writeTelemetryEvent]
+  G --> J
+  I --> J
 
-  I --> J[User raw event]
-  I --> K{institutionId exists?}
-  K -->|yes| L[Institution raw mirror]
-  K -->|no| M[Skip mirror]
+  J --> K[User raw event]
+  J --> L{institutionId exists?}
+  L -->|yes| M[Institution raw mirror]
+  L -->|no| N[Skip mirror]
 
-  I --> N[Global daily shard]
-  I --> O{institutionId and pilotId exist?}
-  O -->|yes| P[Institution pilot daily shard]
-  O -->|no| Q[Skip pilot shard]
+  J --> O[Global daily shard]
+  J --> P{institutionId and pilotId exist?}
+  P -->|yes| Q[Institution pilot daily shard]
+  P -->|no| R[Skip pilot shard]
 ```
 
 ## Event Types

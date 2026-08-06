@@ -42,13 +42,12 @@ const AnimatedLoader = ({ size = 120, stroke = 10 }) => {
 
         <g
           className="animated-loader__group"
-          transform={`translate(${center}, ${center})`}
         >
           {/* Outer arc */}
           <circle
             className="arc arc--outer"
-            cx={0}
-            cy={0}
+            cx={center}
+            cy={center}
             r={radiusOuter}
             fill="none"
             stroke="url(#outerGradient)"
@@ -64,8 +63,8 @@ const AnimatedLoader = ({ size = 120, stroke = 10 }) => {
           {/* Middle arc */}
           <circle
             className="arc arc--mid"
-            cx={0}
-            cy={0}
+            cx={center}
+            cy={center}
             r={radiusMid}
             fill="none"
             stroke="url(#midGradient)"
@@ -81,8 +80,8 @@ const AnimatedLoader = ({ size = 120, stroke = 10 }) => {
           {/* Inner arc */}
           <circle
             className="arc arc--inner"
-            cx={0}
-            cy={0}
+            cx={center}
+            cy={center}
             r={radiusInner}
             fill="none"
             stroke="url(#innerGradient)"
@@ -110,7 +109,8 @@ const AnimatedLoader = ({ size = 120, stroke = 10 }) => {
         }
 
         .animated-loader__group{
-          transform-origin: center center;
+          transform-box: fill-box;
+          transform-origin: center;
           animation: rotateGroup 1.4s linear infinite, pulseGroup 3s ease-in-out infinite;
         }
 

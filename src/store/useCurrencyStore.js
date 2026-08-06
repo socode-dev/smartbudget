@@ -6,8 +6,8 @@ const useCurrencyStore = create(
   persist(
     (set) => ({
       currencies: [],
-      selectedCurrency: "USD",
-      currencySymbol: "$",
+      selectedCurrency: "NGN",
+      currencySymbol: "₦",
       setSelectedCurrency: (currency) => set({ selectedCurrency: currency }),
       setCurrencySymbol: (symbol) => set({ currencySymbol: symbol }),
 

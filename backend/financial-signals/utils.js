@@ -1,6 +1,6 @@
 export const getMedian = (arr) => {
   if (!arr || arr.length === 0) {
-    return NaN; // or throw new Error('Cannot compute median of empty array')
+    return NaN;
   }
   const sorted = [...arr].sort((a, b) => a - b);
   const mid = Math.floor(sorted.length / 2);

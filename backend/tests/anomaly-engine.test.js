@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { detectAnomalies } from "../insight_engines/anomalyDetection.js";
+import { detectAnomalies } from "../financial-signals/anomaly.js";
 import {
   buildMultiCategorySpikeUser,
   edgeCaseUsers,
@@ -28,7 +28,6 @@ const deterministicAnomalies = anomalies =>
       context: { ...deterministicAnomaly.context },
       impact: { ...deterministicAnomaly.impact },
       recommendation: { ...deterministicAnomaly.recommendation },
-      meta: { ...deterministicAnomaly.meta },
     };
   });
 
@@ -36,7 +35,7 @@ const latestMonthLabel = "2026, Jun";
 
 describe("anomaly engine", () => {
   it("returns an anomaly signal when one category spikes above real history", () => {
-    const result = detectAnomalies(oneCategoryOverspendingUser.transactions);
+    const result = detectAnomalies({transactions: oneCategoryOverspendingUser.transactions, currency: "NGN"});
 
     expect(result).toHaveLength(1);
     expect(result[0]).toMatchObject({
@@ -49,12 +48,11 @@ describe("anomaly engine", () => {
         deviation_percent: 80,
         month: latestMonthLabel,
       },
-      meta: { source: "anomaly_engine" },
     });
   });
 
   it("captures the boundary where at least two high anomalies exist", () => {
-    const result = detectAnomalies(threeCategoryOverspendingUser.transactions);
+    const result = detectAnomalies({ transactions: threeCategoryOverspendingUser.transactions, currency: "NGN" });
     const highAnomalies = result.filter(anomaly => anomaly.risk.level === "HIGH");
 
     expect(highAnomalies.length).toBeGreaterThanOrEqual(2);
@@ -62,18 +60,18 @@ describe("anomaly engine", () => {
 
   it.each([2, 3, 5, 10])("detects %i independent category anomalies when each category spikes", count => {
     const user = buildMultiCategorySpikeUser(count);
-    const result = detectAnomalies(user.transactions);
+    const result = detectAnomalies({ transactions: user.transactions, currency: "NGN" });
 
     expect(result.length).toBe(count);
     expect(new Set(result.map(anomaly => anomaly.category)).size).toBe(count);
   });
 
   it("never flags stable monthly spending as an anomaly", () => {
-    expect(detectAnomalies(steadySpendingUser.transactions)).toEqual([]);
+    expect(detectAnomalies({ transactions: steadySpendingUser.transactions, currency: "NGN" })).toEqual([]);
   });
 
   it("uses only prior months as baseline and never compares June against itself", () => {
-    const result = detectAnomalies(oneCategoryOverspendingUser.transactions)[0];
+    const result = detectAnomalies({ transactions: oneCategoryOverspendingUser.transactions, currency: "NGN" })[0];
 
     expect(result.signal.month).toBe(latestMonthLabel);
     expect(result.context.months_analyzed).toBe(5);
@@ -82,8 +80,8 @@ describe("anomaly engine", () => {
   });
 
   it("assigns HIGH severity for extreme spikes and MEDIUM for moderate spikes", () => {
-    const high = detectAnomalies(oneCategoryOverspendingUser.transactions)[0];
-    const medium = detectAnomalies(mediumSeverityAnomalyUser.transactions);
+    const high = detectAnomalies({ transactions: oneCategoryOverspendingUser.transactions, currency: "NGN"})[0];
+    const medium = detectAnomalies({ transactions: mediumSeverityAnomalyUser.transactions, currency: "NGN" });
 
     expect(high.risk.level).toBe("HIGH");
     expect(high.signal.intensity).toBe("extreme");
@@ -93,7 +91,7 @@ describe("anomaly engine", () => {
   });
 
   it("isolates a Food spike from Transport, Shopping, and Rent baselines", () => {
-    const result = detectAnomalies(independentCategorySpikeUser.transactions);
+    const result = detectAnomalies({ transactions: independentCategorySpikeUser.transactions, currency: "NGN" });
 
     expect(result).toHaveLength(1);
     expect(result[0].category).toBe("Food");
@@ -103,28 +101,28 @@ describe("anomaly engine", () => {
   });
 
   it("does not flag a brand-new category with no historical baseline", () => {
-    expect(detectAnomalies(newCategoryUser.transactions)).toEqual([]);
+    expect(detectAnomalies({ transactions: newCategoryUser.transactions, currency: "NGN"})).toEqual([]);
   });
 
   it("refuses to emit a signal when only two months of history exist", () => {
-    expect(detectAnomalies(sparseHistoryTwoMonthUser.transactions)).toEqual([]);
-    expect(detectAnomalies(limitedHistoryUser.transactions)).toEqual([]);
+    expect(detectAnomalies({ transactions: sparseHistoryTwoMonthUser.transactions, currency: "NGN" })).toEqual([]);
+    expect(detectAnomalies({ transactions: limitedHistoryUser.transactions, currency: "NGN" })).toEqual([]);
   });
 
   it("does not treat refunds as spending spikes", () => {
-    expect(detectAnomalies(refundUser.transactions)).toEqual([]);
+    expect(detectAnomalies({ transactions: refundUser.transactions, currency: "NGN" })).toEqual([]);
   });
 
   it("returns no anomaly for empty transactions", () => {
-    expect(detectAnomalies(edgeCaseUsers.emptyTransactions.transactions)).toEqual([]);
+    expect(detectAnomalies({ transactions: edgeCaseUsers.emptyTransactions.transactions, currency: "NGN" })).toEqual([]);
   });
 
   it("ignores invalid dates instead of producing a false signal", () => {
-    expect(detectAnomalies(edgeCaseUsers.invalidDates.transactions)).toEqual([]);
+    expect(detectAnomalies({ transactions: edgeCaseUsers.invalidDates.transactions, currency: "NGN" })).toEqual([]);
   });
 
   it("does not create duplicate anomaly signals for persistent high spending", () => {
-    const result = detectAnomalies(persistentSpikeUser.transactions);
+    const result = detectAnomalies({ transactions: persistentSpikeUser.transactions, currency: "NGN"});
 
     expect(result.length).toBeLessThanOrEqual(1);
     expect(new Set(result.map(anomaly => anomaly.category)).size).toBe(result.length);
@@ -132,7 +130,7 @@ describe("anomaly engine", () => {
 
   it("returns deterministic financial anomaly content for the same dataset", () => {
     const runs = Array.from({ length: 3 }, () =>
-      deterministicAnomalies(detectAnomalies(oneCategoryOverspendingUser.transactions))
+      deterministicAnomalies(detectAnomalies({ transactions: oneCategoryOverspendingUser.transactions, currency: "NGN" }))
     );
 
     expect(runs[1]).toEqual(runs[0]);

@@ -25,7 +25,9 @@ const CurrencyDropdown = () => {
   return (
     <div className="absolute right-0 top-full mt-1 w-56 max-h-60 overflow-y-auto bg-[rgb(var(--color-gray-bg-settings))] border border-[rgb(var(--color-gray-border))] rounded shadow z-70">
       <ul>
-        {currencies.map((code) => (
+        {currencies
+        .sort((a, b) => getCurrencyName(a).localeCompare(getCurrencyName(b)))
+        .map((code) => (
           <li
             key={code}
             className={clsx(

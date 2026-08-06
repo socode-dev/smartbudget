@@ -1,7 +1,7 @@
 import {getDaysInMonth, getDate, getMonth, getYear} from "date-fns";
 import {v4 as uuidv4} from "uuid";
 
-export const buildBudgetComplianceData = (budget, transactions, currency) => {
+export const buildBudgetComplianceData = ({ budget, transactions, currency }) => {
     const now = new Date();
     const budgetDate = new Date(budget.date);
 

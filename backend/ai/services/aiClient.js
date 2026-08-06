@@ -1,10 +1,10 @@
-import dotenv from "dotenv";
-import { fileURLToPath } from "url";
-import { dirname, join } from "path";
+// import dotenv from "dotenv";
+// import { fileURLToPath } from "url";
+// import { dirname, join } from "path";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-dotenv.config({ path: join(__dirname, "../../../.env.local") });
+// const __filename = fileURLToPath(import.meta.url);
+// const __dirname = dirname(__filename);
+// dotenv.config({ path: join(__dirname, "../../../.env.local") });
 
 import { Client } from "aisuite";
 import {SYSTEM_CONTENT} from "../shared/systemContent.js"
