@@ -48,19 +48,19 @@ const Login = () => {
 
       {/* Display authentication error if there is any */}
       {microsoftErr && (
-        <p className="max-w-11/12 bg-[rgb(var(--color-status-bg-red))] px-4 py-2 rounded text-red-600 text-sm mb-2">
+        <p role="alert" className="max-w-11/12 bg-[rgb(var(--color-status-bg-red))] px-4 py-2 rounded text-red-600 text-sm mb-2">
           {microsoftErr}
         </p>
       )}
 
       {googleErr && (
-        <p className="max-w-11/12 bg-[rgb(var(--color-status-bg-red))] px-4 py-2 rounded text-red-600 text-sm mb-2">
+        <p role="alert" className="max-w-11/12 bg-[rgb(var(--color-status-bg-red))] px-4 py-2 rounded text-red-600 text-sm mb-2">
           {googleErr}
         </p>
       )}
 
       {onLoginErr && (
-        <p className="bg-[rgb(var(--color-status-bg-red))] px-4 py-2 rounded text-red-600 text-sm mb-2">
+        <p role="alert" className="bg-[rgb(var(--color-status-bg-red))] px-4 py-2 rounded text-red-600 text-sm mb-2">
           {onLoginErr}
         </p>
       )}
@@ -81,12 +81,14 @@ const Login = () => {
               {...register("email")}
               type="email"
               id="email"
+              aria-invalid={errors.email ? "true" : "false"}
+              aria-describedby={errors.email ? "email-error" : undefined}
               placeholder="Enter your email"
-              className="w-full text-base text-[rgb(var(--color-muted))] px-4 py-2 rounded-lg border-2 border-[rgb(var(--color-gray-border))] outline-none focus:border-[rgb(var(--color-brand))] transition"
+              className="w-full text-base text-[rgb(var(--color-muted))] px-4 py-2 rounded-lg border-2 border-[rgb(var(--color-gray-border))] outline-none focus:border-[rgb(var(--color-brand))] focus:ring-2 focus:ring-[rgb(var(--color-brand))] focus:ring-offset-2 transition"
             />
           </div>
           {errors.email && (
-            <p className="text-[12px] text-red-600 mt-1">
+            <p role="alert" id="email-error" className="text-[12px] text-red-600 mt-1">
               {errors.email.message}
             </p>
           )}
@@ -105,17 +107,24 @@ const Login = () => {
                 {...register("password")}
                 type={revealPassword ? "text" : "password"}
                 id="loginPassword"
+                aria-invalid={errors.password ? "true" : "false"}
+                aria-describedby={errors.password ? "password-error" : undefined}
                 placeholder="Enter your password"
-                className="w-full text-base text-[rgb(var(--color-muted))] px-4 py-2 rounded-lg border-2 border-[rgb(var(--color-gray-border))] outline-none focus:border-[rgb(var(--color-brand))] transition"
+                className="w-full text-base text-[rgb(var(--color-muted))] px-4 py-2 rounded-lg border-2 border-[rgb(var(--color-gray-border))] outline-none focus:border-[rgb(var(--color-brand))] focus:ring-2 focus:ring-[rgb(var(--color-brand))] focus:ring-offset-2 transition"
               />
-              <Icon
-                onClick={togglePasswordReveal}
-                className="text-lg text-gray-400 absolute top-[50%] -translate-y-[50%] right-2 cursor-pointer"
-              />
+
+              <button 
+              type="button"
+              onClick={togglePasswordReveal}
+              aria-label={revealPassword ? "Show password" : "Hide password"}
+              className="text-lg text-gray-400 absolute top-[50%] -translate-y-[50%] right-2 cursor-pointer"
+              >
+                <Icon aria-hidden="true" />
+              </button>
             </div>
           </div>
           {errors.password && (
-            <p className="text-[12px] text-red-600 mt-1">
+            <p role="alert" id="password-error" className="text-[12px] text-red-600 mt-1">
               {errors.password.message}
             </p>
           )}
@@ -136,6 +145,7 @@ const Login = () => {
 
           <Link
             to="/forgot-password"
+            aria-label="Reset password"
             className="text-sm text-[rgb(var(--color-brand))]"
           >
             Forget password?
@@ -145,6 +155,8 @@ const Login = () => {
         <button
           type="submit"
           disabled={isSubmitting}
+          aria-label="Sign in"
+          aria-busy={isSubmitting}
           className="w-full text-base text-center font-medium py-2 rounded-lg shadow bg-[rgb(var(--color-brand))] text-white hover:scale-97 active:scale-103 transition cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isSubmitting ? <LoadingSpinner size={25} /> : "Sign In"}
@@ -152,6 +164,7 @@ const Login = () => {
 
         <Link
           to="/demo"
+          aria-current="page"
           className="mt-3 block w-full rounded-lg border-2 border-[rgb(var(--color-brand))] px-4 py-2 text-center text-base font-medium text-[rgb(var(--color-brand))] transition hover:bg-[rgb(var(--color-status-bg-blue))]"
         >
           Explore Demo
@@ -164,19 +177,20 @@ const Login = () => {
         <fieldset className="w-full flex gap-4">
           {/* Google login */}
           <button
+            aria-label="Sign in with google"
             onClick={() => onGoogleSignIn(getThresholdsValue(getValues))}
             className="w-1/2 px-4 py-2 flex items-center justify-center gap-3 border-2 border-[rgb(var(--color-gray-border))] hover:bg-[rgb(var(--color-gray-bg))] transition rounded-lg text-base text-[rgb(var(--color-muted))] font-medium cursor-pointer"
           >
-            <FaGoogle />
+            <FaGoogle aria-hidden="true" />
             <span>Google</span>
           </button>
 
-          {/* Apple login */}
           <button
+            aria-label="Sign in with microsoft"
             onClick={() => onMicrosoftSignIn(getThresholdsValue(getValues))}
             className="w-1/2 px-4 py-2 flex items-center justify-center gap-3 border-2 border-[rgb(var(--color-gray-border))] hover:bg-[rgb(var(--color-gray-bg))] transition rounded-lg text-base text-[rgb(var(--color-muted))] font-medium cursor-pointer"
           >
-            <FaMicrosoft />
+            <FaMicrosoft aria-hidden="true" />
             <span>Microsoft</span>
           </button>
         </fieldset>
@@ -186,6 +200,7 @@ const Login = () => {
         Don't have an account?{" "}
         <Link
           to="/signup"
+          aria-current="page"
           className="text-[rgb(var(--color-brand))] font-medium"
         >
           Sign up

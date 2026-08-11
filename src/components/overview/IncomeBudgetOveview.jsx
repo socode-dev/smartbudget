@@ -53,6 +53,8 @@ const IncomeBudgetOverview = () => {
       <div className="bg-[rgb(var(--color-bg-card))] rounded-lg shadow p-4 flex flex-col gap-4">
         <div className="relative group flex items-center gap-4 cursor-default w-fit overflow-x-visible">
           <span
+            role="img" 
+            aria-label={`Income budget: ${Math.ceil(budgetPercent)}} of ${formatAmount(totalIncomeBudget, selectedCurrency)} goal reached`} 
             style={dynamicIncomeRingBG}
             className="budget-ring-income"
           ></span>

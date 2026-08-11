@@ -30,17 +30,16 @@ const Sidebar = () => {
   const { isSidebarOpen, handleSidebarClose } = useMainContext();
   const [hovered, setHovered] = useState(false);
 
-  // Sidebar expanded if hovered (desktop) or open (mobile)
   const expanded = hovered || isSidebarOpen;
 
   return (
     <aside className="w-fit">
       {/* Overlay for mobile */}
       {isSidebarOpen && (
-        <div
-          role="button"
+        <button
+          type="button"
           className={clsx(
-            "fixed inset-0 bg-black/20 z-60 lg:hidden transition-opacity duration-200",
+            "fixed inset-0 bg-black/50 z-60 lg:hidden transition-opacity duration-200",
             isSidebarOpen ? "block" : "hidden"
           )}
           onClick={handleSidebarClose}
@@ -59,9 +58,9 @@ const Sidebar = () => {
         aria-label="Sidebar navigation"
       >
         {/* Logo */}
-        <h1 className=" bg-blue-700 rounded-lg flex items-center justify-center text-white font-bold text-xl md:text-2xl py-1.5">
+        <h2 className=" bg-[rgb(var(--color-brand-deep))] rounded-lg flex items-center justify-center text-white font-bold text-xl md:text-2xl py-1.5">
           SB
-        </h1>
+        </h2>
         {/* Navigation */}
         <nav className="flex flex-col grow gap-2 mt-12 overflow-y-auto scrollbar-thin">
           {navLinks.map((link) => (
@@ -69,6 +68,7 @@ const Sidebar = () => {
               key={link.to}
               to={isDemoMode ? getDemoPath(link.to) : link.to}
               onClick={handleSidebarClose}
+              aria-current={location.pathname === link.to ? "page" : undefined}
               aria-label={link.label}
               className={clsx(
                 "relative group flex items-center gap-3 px-2 py-2 rounded-lg hover:bg-[rgb(var(--color-brand-deep))] hover:text-white transition-colors text-[rgb(var(--color-muted))] text-base",
@@ -78,8 +78,8 @@ const Sidebar = () => {
                   : ""
               )}
             >
-              <link.icon className="text-lg" />
-              {/* Label: show if expanded (sidebar open or hovered) */}
+              <link.icon aria-hidden="true" className="text-lg" />
+              
               <span
                 className={clsx(
                   "transition-all duration-200",
@@ -92,10 +92,9 @@ const Sidebar = () => {
           ))}
         </nav>
 
-        {/* User Info */}
         <div
           className={clsx(
-            "flex items-center bg-[rgb(var(--color-brand))] text-white gap-2 px-4 rounded-lg py-2",
+            "flex items-center bg-[rgb(var(--color-brand-deep))] text-white gap-2 px-4 rounded-lg py-2",
             expanded ? "justify-start" : "justify-center"
           )}
         >

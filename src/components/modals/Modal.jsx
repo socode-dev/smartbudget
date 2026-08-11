@@ -4,7 +4,7 @@ import Dialog from "../ui/Dialog";
 const Modal = ({ label, title, description, mode }) => {
   return (
     <Dialog ariaLabel={`${mode}-${label}`}>
-      <section className="">
+      <section className="h-fit mt-38">
         <h2 className="text-2xl md:text-3xl font-semibold mb-1">{title}</h2>
         <p className="text-base text-[rgb(var(--color-muted))] mb-6">
           {description}

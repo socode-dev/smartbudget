@@ -62,7 +62,7 @@ const ModalForm = ({ label, mode }) => {
           <select
             ref={formRef}
             {...register("category")}
-            className="rounded border border-[rgb(var(--color-gray-border))] bg-[rgb(var(--color-bg-card))] outline-none focus:border-[rgb(var(--color-brand))] text-base w-full p-2 cursor-pointer"
+            className="rounded border border-[rgb(var(--color-gray-border))] bg-[rgb(var(--color-bg-card))] outline-none focus:border-[rgb(var(--color-brand))] focus:ring-2 focus:ring-[rgb(var(--color-brand))] focus:ring-offset-2 text-base w-full p-2 cursor-pointer"
           >
             <option value="">Select category</option>
             {categories.map((cat, i) => (
@@ -72,7 +72,7 @@ const ModalForm = ({ label, mode }) => {
             ))}
           </select>
           {errors.category && (
-            <p className="text-[13px] text-red-500 mt-1">
+            <p role="alert" className="text-[13px] text-red-500 mt-1">
               {errors.category.message}
             </p>
           )}
@@ -97,10 +97,10 @@ const ModalForm = ({ label, mode }) => {
               : "Input goal name"
           }
           readOnly={contributionLabel}
-          className="rounded border border-[rgb(var(--color-gray-border))] bg-[rgb(var(--color-bg-card))] outline-none focus:border-[rgb(var(--color-brand))] text-base w-full p-2"
+          className="rounded border border-[rgb(var(--color-gray-border))] bg-[rgb(var(--color-bg-card))] outline-none focus:border-[rgb(var(--color-brand))] focus:ring-2 focus:ring-[rgb(var(--color-brand))] focus:ring-offset-2 text-base w-full p-2"
         />
         {errors.name && (
-          <p className="text-[13px] text-red-500 mt-1">{errors.name.message}</p>
+          <p role="alert" className="text-[13px] text-red-500 mt-1">{errors.name.message}</p>
         )}
       </div>
 
@@ -124,7 +124,7 @@ const ModalForm = ({ label, mode }) => {
               <label
                 htmlFor="income"
                 aria-label="income"
-                className="text-sm border-3 rounded-lg border-[rgb(var(--color-gray-border))] px-3 py-1.5 peer-checked:border-[rgb(var(--color-brand))] transition cursor-pointer"
+                className="text-sm border-3 rounded-lg border-[rgb(var(--color-gray-border))] px-3 py-1.5 peer-checked:border-[rgb(var(--color-brand))] peer-checked:focus:ring-2 peer-checked:focus:ring-[rgb(var(--color-brand))] peer-checked:focus:ring-offset-2 transition cursor-pointer"
               >
                 Income
               </label>
@@ -143,7 +143,7 @@ const ModalForm = ({ label, mode }) => {
               <label
                 htmlFor="expense"
                 aria-label="expense"
-                className="text-sm border-3 rounded-lg border-[rgb(var(--color-gray-border))] px-3 py-1.5 peer-checked:border-[rgb(var(--color-brand))] transition cursor-pointer"
+                className="text-sm border-3 rounded-lg border-[rgb(var(--color-gray-border))] px-3 py-1.5 peer-checked:border-[rgb(var(--color-brand))] peer-checked:focus:ring-2 peer-checked:focus:ring-[rgb(var(--color-brand))] peer-checked:focus:ring-offset-2 transition cursor-pointer"
               >
                 Expense
               </label>
@@ -166,12 +166,12 @@ const ModalForm = ({ label, mode }) => {
             {...register("amount")}
             type="number"
             id="amount"
-            className="rounded border border-[rgb(var(--color-gray-border))] bg-[rgb(var(--color-bg-card))] outline-none focus:border-[rgb(var(--color-brand))] text-base w-full p-2 cursor-pointer"
+            className="rounded border border-[rgb(var(--color-gray-border))] bg-[rgb(var(--color-bg-card))] outline-none focus:border-[rgb(var(--color-brand))] focus:ring-2 focus:ring-[rgb(var(--color-brand))] focus:ring-offset-2 text-base w-full p-2 cursor-pointer"
             placeholder="0.00"
             step="0.01"
           />
           {errors.amount && (
-            <p className="text-[13px] text-red-500 mt-1">
+            <p role="alert" className="text-[13px] text-red-500 mt-1">
               {errors.amount.message}
             </p>
           )}
@@ -189,10 +189,10 @@ const ModalForm = ({ label, mode }) => {
             {...register("date")}
             type="date"
             id="date"
-            className="rounded border border-[rgb(var(--color-gray-border))] bg-[rgb(var(--color-bg-card))] outline-none focus:border-[rgb(var(--color-brand))] text-base w-full p-2 cursor-pointer"
+            className="rounded border border-[rgb(var(--color-gray-border))] bg-[rgb(var(--color-bg-card))] outline-none focus:border-[rgb(var(--color-brand))] focus:ring-2 focus:ring-[rgb(var(--color-brand))] focus:ring-offset-2 text-base w-full p-2 cursor-pointer"
           />
           {errors.date && (
-            <p className="text-[13px] text-red-500 mt-1">
+            <p role="alert" className="text-[13px] text-red-500 mt-1">
               {errors.date.message}
             </p>
           )}
@@ -206,13 +206,13 @@ const ModalForm = ({ label, mode }) => {
         </label>
         <textarea
           id="note"
-          className="rounded border border-[rgb(var(--color-gray-border))] bg-[rgb(var(--color-bg-card))] outline-none focus:border-[rgb(var(--color-brand))] text-base w-full p-2 resize-none"
+          className="rounded border border-[rgb(var(--color-gray-border))] bg-[rgb(var(--color-bg-card))] outline-none focus:border-[rgb(var(--color-brand))] focus:ring-2 focus:ring-[rgb(var(--color-brand))] focus:ring-offset-2 text-base w-full p-2 resize-none"
           rows={3}
           placeholder={transactionLabel ? "Short description" : "Short notes"}
           {...register("description")}
         />
         {errors.description && (
-          <p className="text-[13px] text-red-500 mt-1">
+          <p role="alert" className="text-[13px] text-red-500 mt-1">
             {errors.description.message}
           </p>
         )}
@@ -221,14 +221,18 @@ const ModalForm = ({ label, mode }) => {
       <footer className="flex justify-end gap-2">
         <button
           type="button"
-          className="text-[rgb(var(--color-muted))] border border-[rgb(var(--color-gray-bg))]  cursor-pointer px-4 py-2 rounded-md text-base transition"
           onClick={onClose}
+          aria-label={`close ${transactionLabel} form`}
+          className="text-[rgb(var(--color-muted))] border border-[rgb(var(--color-gray-bg))]  cursor-pointer px-4 py-2 rounded-md text-base transition"
         >
           Cancel
         </button>
+
         <button
           type="submit"
           disabled={isSubmitting}
+          aria-busy={isSubmitting}
+          aria-label={`submit ${transactionLabel} form`}
           className="w-3/5 bg-[rgb(var(--color-brand))] text-white hover:bg-[rgb(var(--color-brand-hover))] transition cursor-pointer px-4 py-2 rounded-md text-base font-medium disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isSubmitting ? <LoadingSpinner size={25} /> : `${submitPrefix}`}

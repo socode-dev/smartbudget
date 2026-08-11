@@ -19,7 +19,7 @@ const Reports = () => {
 
   useEffect(() => {
     setCurrentPage("reports");
-    // Start tour if not completed when navigating to reports page
+    
     const timer = setTimeout(() => {
       startTourIfNotCompleted("reports", userId);
     }, 500);
@@ -77,19 +77,22 @@ const Reports = () => {
             className="flex justify-end mt-10 gap-4 sm:gap-6 md:gap-8 lg:gap-10"
           >
             <button
-              onClick={() => isDemoMode ? showDemoReadOnlyToast() : handleCSVExport()}
               type="button"
+              aria-label="Export report in CSV"
+              onClick={() => isDemoMode ? showDemoReadOnlyToast() : handleCSVExport()}
               className="flex items-center gap-2 px-3 py-1.5 rounded-lg shadow-md border border-green-200 bg-green-50 hover:bg-green-100 transition text-green-800 font-medium text-base focus:outline-none focus:ring-2 focus:ring-green-300 cursor-pointer"
             >
-              <FaFileCsv className="text-2xl" />
+              <FaFileCsv aria-hidden="true" className="text-2xl" />
               <span>CSV</span>
             </button>
+
             <button
-              onClick={() => isDemoMode ? showDemoReadOnlyToast() : handlePDFExport()}
               type="button"
+              aria-label="Export report in PDF"
+              onClick={() => isDemoMode ? showDemoReadOnlyToast() : handlePDFExport()}
               className="flex items-center gap-2 px-3 py-1.5 rounded-lg shadow-md border border-red-200 bg-red-50 hover:bg-red-100 transition text-red-800 font-medium text-base focus:outline-none focus:ring-2 focus:ring-red-300 cursor-pointer"
             >
-              <FaFilePdf className="text-2xl" />
+              <FaFilePdf aria-hidden="true" className="text-2xl" />
               <span>PDF</span>
             </button>
           </section>

@@ -48,6 +48,7 @@ const Signup = () => {
       className="w-full max-w-[650px] h-auto px-2 py-8 flex flex-col items-center mx-auto"
     >
       <ScrollToTop />
+
       <h2 className="text-3xl md:text-4xl text-[rgb(var(--color-brand))] text-center font-medium tracking-wide">
         Create an Account
       </h2>
@@ -57,19 +58,19 @@ const Signup = () => {
 
       {/* Display authentication error if there is any */}
       {onSignupErr && (
-        <p className="max-w-11/12 bg-[rgb(var(--color-status-bg-red))] px-4 py-2 rounded text-red-600 text-sm mb-2">
+        <p role="alert" className="max-w-11/12 bg-[rgb(var(--color-status-bg-red))] px-4 py-2 rounded text-red-600 text-sm mb-2">
           {onSignupErr}
         </p>
       )}
 
       {microsoftErr && (
-        <p className="max-w-11/12 bg-[rgb(var(--color-status-bg-red))] px-4 py-2 rounded text-red-600 text-sm mb-2">
+        <p role="alert" className="max-w-11/12 bg-[rgb(var(--color-status-bg-red))] px-4 py-2 rounded text-red-600 text-sm mb-2">
           {microsoftErr}
         </p>
       )}
 
       {googleErr && (
-        <p className="max-w-11/12 bg-[rgb(var(--color-status-bg-red))] px-4 py-2 rounded text-red-600 text-sm mb-2">
+        <p role="alert" className="max-w-11/12 bg-[rgb(var(--color-status-bg-red))] px-4 py-2 rounded text-red-600 text-sm mb-2">
           {googleErr}
         </p>
       )}
@@ -84,21 +85,23 @@ const Signup = () => {
         <fieldset>
           <div className="flex flex-col gap-1">
             <label
-              htmlFor="first-name"
+              htmlFor="firstName"
               className="text-base text-[rgb(var(--color-muted))] font-medium after:content-['*'] after:text-red-500 after:ml-0.5"
             >
               First Name
             </label>
             <input
               {...register("firstName")}
-              type="firstName"
+              type="text"
               id="firstName"
+              aria-invalid={errors.firstName ? "true" : "false"}
+              aria-describedby={errors.firstName ? "first-name-error" : undefined}
               placeholder="Enter your first name"
-              className="w-full text-base text-[rgb(var(--color-muted))] px-4 py-2 rounded-lg border-2 border-[rgb(var(--color-gray-border))] outline-none focus:border-[rgb(var(--color-brand))] transition"
+              className="w-full text-base text-[rgb(var(--color-muted))] px-4 py-2 rounded-lg border-2 border-[rgb(var(--color-gray-border))] outline-none focus:border-[rgb(var(--color-brand))] focus:ring-2 focus:ring-[rgb(var(--color-brand))] focus:ring-offset-2 transition"
             />
           </div>
           {errors.firstName && (
-            <p className="text-sm text-red-600 mt-1">
+            <p role="alert" id="first-name-error" className="text-sm text-red-600 mt-1">
               {errors.firstName.message}
             </p>
           )}
@@ -108,21 +111,23 @@ const Signup = () => {
         <fieldset>
           <div className="flex flex-col gap-1">
             <label
-              htmlFor="last-name"
+              htmlFor="lastName"
               className="text-base text-[rgb(var(--color-muted))] font-medium after:content-['*'] after:text-red-500 after:ml-0.5"
             >
               Last Name
             </label>
             <input
               {...register("lastName")}
-              type="lastName"
-              id="last-name"
+              type="text"
+              id="lastName"
+              aria-invalid={errors.lastName ? "true" : "false"}
+              aria-describedby={errors.lastName ? "last-name-error" : undefined}
               placeholder="Enter your last name"
-              className="w-full text-base text-[rgb(var(--color-muted))] px-4 py-2 rounded-lg border-2 border-[rgb(var(--color-gray-border))] outline-none focus:border-[rgb(var(--color-brand))] transition"
+              className="w-full text-base text-[rgb(var(--color-muted))] px-4 py-2 rounded-lg border-2 border-[rgb(var(--color-gray-border))] outline-none focus:border-[rgb(var(--color-brand))] focus:ring-2 focus:ring-[rgb(var(--color-brand))] focus:ring-offset-2 transition"
             />
           </div>
           {errors.lastName && (
-            <p className="text-sm text-red-600 mt-1">
+            <p role="alert" id="last-name-error" className="text-sm text-red-600 mt-1">
               {errors.lastName.message}
             </p>
           )}
@@ -141,12 +146,14 @@ const Signup = () => {
               {...register("email")}
               type="email"
               id="email"
+              aria-invalid={errors.email ? "true" : "false"}
+              aria-describedby={errors.email ? "email-error" : undefined}
               placeholder="Enter your email"
-              className="w-full text-base text-[rgb(var(--color-muted))] px-4 py-2 rounded-lg border-2 border-[rgb(var(--color-gray-border))] outline-none focus:border-[rgb(var(--color-brand))] transition"
+              className="w-full text-base text-[rgb(var(--color-muted))] px-4 py-2 rounded-lg border-2 border-[rgb(var(--color-gray-border))] outline-none focus:border-[rgb(var(--color-brand))] focus:ring-2 focus:ring-[rgb(var(--color-brand))] focus:ring-offset-2 transition"
             />
           </div>
           {errors.email && (
-            <p className="text-sm text-red-600 mt-1">{errors.email.message}</p>
+            <p role="alert" id="email-error" className="text-sm text-red-600 mt-1">{errors.email.message}</p>
           )}
         </fieldset>
 
@@ -164,17 +171,24 @@ const Signup = () => {
                 {...register("password")}
                 type={revealPassword.password ? "text" : "password"}
                 id="password"
+                aria-invalid={errors.password ? "true" : "false"}
+                aria-describedby={errors.password ? "password-error" : undefined}
                 placeholder="Enter password"
-                className="w-full text-base text-[rgb(var(--color-muted))] px-4 py-2 rounded-lg border-2 border-[rgb(var(--color-gray-border))] outline-none focus:border-[rgb(var(--color-brand))] transition"
+                className="w-full text-base text-[rgb(var(--color-muted))] px-4 py-2 rounded-lg border-2 border-[rgb(var(--color-gray-border))] outline-none focus:border-[rgb(var(--color-brand))] focus:ring-2 focus:ring-[rgb(var(--color-brand))] focus:ring-offset-2 transition"
               />
-              <Icon.password
+
+              <button
+                type="button"
+                aria-label={revealPassword.password ? "Show password" : "Hide password"}
                 onClick={() => togglePasswordReveal("password")}
                 className="text-lg text-gray-400 absolute top-[50%] -translate-y-[50%] right-2 cursor-pointer"
-              />
+              >
+                <Icon.password aria-hidden="true" />
+              </button>
             </div>
           </div>
           {errors.password && (
-            <p className="text-sm text-red-600 mt-1">
+            <p role="alert" id="password-error" className="text-sm text-red-600 mt-1">
               {errors.password.message}
             </p>
           )}
@@ -184,7 +198,7 @@ const Signup = () => {
         <fieldset className="col-span-full sm:col-span-1">
           <div className="flex flex-col gap-1">
             <label
-              htmlFor="confirm-password"
+              htmlFor="confirmPassword"
               className="text-base text-[rgb(var(--color-muted))] font-medium after:content-['*'] after:text-red-500 after:ml-0.5"
             >
               Confirm Password
@@ -193,18 +207,25 @@ const Signup = () => {
               <input
                 {...register("confirmPassword")}
                 type={revealPassword.confirmPassword ? "text" : "password"}
-                id="confirm-password"
+                id="confirmPassword"
+                aria-invalid={errors.confirmPassword ? "true" : "false"}
+                aria-describedby={errors.confirmPassword ? "confirm-password-error" : undefined}
                 placeholder="Confirm password"
-                className="w-full text-base text-[rgb(var(--color-muted))] px-4 py-2 rounded-lg border-2 border-[rgb(var(--color-gray-border))] outline-none focus:border-[rgb(var(--color-brand))] transition"
+                className="w-full text-base text-[rgb(var(--color-muted))] px-4 py-2 rounded-lg border-2 border-[rgb(var(--color-gray-border))] outline-none focus:border-[rgb(var(--color-brand))] focus:ring-2 focus:ring-[rgb(var(--color-brand))] focus:ring-offset-2 transition"
               />
-              <Icon.confirmPassword
+
+              <button 
+                type="button"
+                aria-label={revealPassword.confirmPassword ? "Show confirm password" : "Hide confirm password"}
                 onClick={() => togglePasswordReveal("confirmPassword")}
                 className="text-lg text-gray-400 absolute top-[50%] -translate-y-[50%] right-2 cursor-pointer"
-              />
+              >
+                <Icon.confirmPassword aria-hidden="true" />
+              </button>
             </div>
           </div>
           {errors.confirmPassword && (
-            <p className="text-sm text-red-600">
+            <p role="alert" id="confirm-password-error" className="text-sm text-red-600">
               {errors.confirmPassword.message}
             </p>
           )}
@@ -214,6 +235,7 @@ const Signup = () => {
         <button
           type="submit"
           disabled={isSubmitting}
+          aria-busy={isSubmitting}
           className="col-span-full mt-6 text-base font-medium text-center py-2 rounded-lg shadow bg-[rgb(var(--color-brand))] text-white hover:scale-97
           active:scale-103 disabled:opacity-50 disabled:cursor-not-allowed transition cursor-pointer"
         >
@@ -222,6 +244,7 @@ const Signup = () => {
 
         <Link
           to="/demo"
+          aria-current="page"
           className="col-span-full mt-3 rounded-lg border-2 border-[rgb(var(--color-brand))] px-4 py-2 text-center text-base font-medium text-[rgb(var(--color-brand))] transition hover:bg-[rgb(var(--color-status-bg-blue))]"
         >
           Explore Demo
@@ -234,20 +257,24 @@ const Signup = () => {
         <fieldset className="w-full flex gap-4">
           {/* Google sign up */}
           <button
+            type="button"
+            aria-label="Signup with google"
             onClick={() => onGoogleSignIn(getThresholdsValue(getValues))}
             className="w-1/2 px-4 py-2 flex items-center justify-center gap-4 border-2 border-[rgb(var(--color-gray-border))] hover:bg-[rgb(var(--color-gray-bg))] transition rounded-lg text-base text-[rgb(var(--color-muted))] font-medium cursor-pointer"
           >
-            <FaGoogle />
+            <FaGoogle aria-hidden="true" />
             <span>Google</span>
           </button>
 
           {/* Microsoft sign up */}
           <button
+            type="button"
+            aria-label="Signup with microsoft"
             onClick={() => onMicrosoftSignIn(getThresholdsValue(getValues))}
             className="w-1/2 px-4 py-2 flex items-center justify-center gap-4 border-2 border-[rgb(var(--color-gray-border))] rounded-lg text-base text-[rgb(var(--color-muted))] hover:bg-[rgb(var(--color-gray-bg))] transition font-medium cursor-pointer"
           >
-            <FaMicrosoft />
-            <span>Microsoft</span>
+            <FaMicrosoft aria-hidden="true" />
+            <span aria-hidden="true">Microsoft</span>
           </button>
         </fieldset>
       </section>
@@ -256,6 +283,7 @@ const Signup = () => {
         Already have an account?{" "}
         <Link
           to="/login"
+          aria-current="page"
           className="text-[rgb(var(--color-brand))] font-medium"
         >
           Log in

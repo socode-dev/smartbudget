@@ -2,8 +2,8 @@ import clsx from "clsx";
 
 const Export = ({ isExportOpen, exportCSV, exportPDF }) => {
   return (
-    <div
-      role="button"
+    <menu
+      id="export-menu"
       className={clsx(
         "absolute bottom-12 left-0 bg-[rgb(var(--color-gray-bg-settings))] text-sm text-[rgb(var(--color-muted))] rounded overflow-hidden shadow-2xl z-60 flex-col items-center w-full border-2 border-[rgb(var(--color-gray-border))]",
         isExportOpen ? "flex" : "hidden"
@@ -23,7 +23,7 @@ const Export = ({ isExportOpen, exportCSV, exportPDF }) => {
       >
         As PDF
       </button>
-    </div>
+    </menu>
   );
 };
 

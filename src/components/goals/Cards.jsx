@@ -62,30 +62,36 @@ const Cards = () => {
               {/* Edit and delete buttons */}
               <div className="flex justify-end gap-4">
                 <button
+                  type="button"
+                  aria-label={`Edit goal: ${goal.name}`}
                   onClick={() => handleEditGoal(goal.id)}
                   className="text-lg text-[rgb(var(--color-brand-deep))] hover:text-[rgb(var(--color-brand))] transition cursor-pointer"
                 >
-                  <HiOutlinePencil />
+                  <HiOutlinePencil aria-hidden="true" />
                 </button>
                 <button
+                  type="button"
+                  aria-label={`Delete goal: ${goal.name}`}
                   onClick={() =>
                     deleteGoalAndContribution(goal.id, goal.categoryKey)
                   }
                   className="text-lg text-red-500 hover:text-red-600 transition cursor-pointer"
                 >
-                  <HiOutlineTrash />
+                  <HiOutlineTrash aria-hidden="true" />
                 </button>
               </div>
             </div>
 
             {/* Add contribution button */}
             <button
+              type="buton"
+              aria-label={`Add contribution to goal: ${goal.name}`}
               onClick={() =>
                 handleAddContribution(goal.id, "contributions", goal.name)
               }
               className="border-green-500 border bg-[rgb(var(--color-contribution-bg))] text-base font-semibold text-[rgb(var(--color-text))] px-4 py-1.5 md:py-2 rounded-md cursor-pointer hover:bg-green-500 hover:text-white transition flex justify-center items-center gap-2"
             >
-              <FaPlus className="text-lg" />
+              <FaPlus aria-hidden="true" className="text-lg" />
               Add Contribution
             </button>
           </div>

@@ -48,9 +48,10 @@ const TransactionTable = () => {
   const renderActions = (transaction, mobile = false) => (
     <div className={clsx("flex items-center", mobile ? "gap-3" : "gap-4")}>
       <button
+        type="button"
         onClick={() => handleEditTransaction(transaction.id)}
         title="Edit transaction"
-        aria-label="Edit transaction"
+        aria-label={`Edit transaction: ${transaction.description ?? transaction.category ?? "No description"}, ${formatAmount(transaction.amount, selectedCurrency)}`}
         className={clsx(
           "cursor-pointer transition",
           mobile
@@ -58,22 +59,23 @@ const TransactionTable = () => {
             : "text-[rgb(var(--color-brand-deep))] hover:text-[rgb(var(--color-brand))]"
         )}
       >
-        <HiOutlinePencil className="text-base" />
+        <HiOutlinePencil aria-hidden="true" className="text-base" />
       </button>
       <button
+        type="button"
         onClick={() => {
           if (isDemoMode) {
             showDemoReadOnlyToast();
             return;
           }
-
+          
           deleteTransaction(user.uid, "transactions", transaction.id);
         }}
         title="Delete transaction"
-        aria-label="Delete transaction"
+        aria-label={`Delete transaction: ${transaction.description ?? transaction.category ?? "No description"}, ${formatAmount(transaction.amount, selectedCurrency)}`}
         className="cursor-pointer text-red-500 transition hover:text-red-600"
       >
-        <HiOutlineTrash className="text-base" />
+        <HiOutlineTrash aria-hidden="true" className="text-base" />
       </button>
     </div>
   );
@@ -154,6 +156,8 @@ const TransactionTable = () => {
       {sortedTransactions?.length > 10 && (
         <div className="flex items-center justify-between mt-10">
           <button
+            type="button"
+            aria-label="Previous page"
             onClick={handlePrev}
             disabled={currentPage === 1}
             className="px-4 py-1 rounded bg-[rgb(var(--color-))] hover:scale-y-105 transition shadow text-[rgb(var(--color-muted))] disabled:opacity-50 font-medium text-sm cursor-pointer"
@@ -166,6 +170,8 @@ const TransactionTable = () => {
           </span>
 
           <button
+            type="button"
+            aria-label="Next page"
             onClick={handleNext}
             disabled={currentPage === totalPages}
             className="px-4 py-1 rounded bg-[rgb(var(--color-))] hover:scale-y-105 transition shadow text-[rgb(var(--color-muted))] disabled:opacity-50 font-medium text-sm cursor-pointer"

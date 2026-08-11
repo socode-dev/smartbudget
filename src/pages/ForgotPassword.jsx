@@ -34,7 +34,7 @@ const ForgotPassword = () => {
         new password.
       </p>
 
-      <form className="w-full flex flex-col">
+      <form onSubmit={onSendResetEmail} className="w-full flex flex-col">
         <fieldset className=" w-full mb-4">
           <div className="flex flex-col gap-1">
             <label
@@ -43,23 +43,26 @@ const ForgotPassword = () => {
             >
               Email Address
             </label>
+
             <input
               {...register("email")}
               type="email"
               id="email"
               placeholder="1234567890@gmail.com"
-              className="w-full text-sm text-[rgb(var(--color-muted))] px-4 py-2 rounded-lg border-2 border-[rgb(var(--color-gray-border))] outline-none focus:border-[rgb(var(--color-brand))] transition"
+              className="w-full text-sm text-[rgb(var(--color-muted))] px-4 py-2 rounded-lg border-2 border-[rgb(var(--color-gray-border))] outline-none focus:border-[rgb(var(--color-brand))] focus:ring-2 focus:ring-[rgb(var(--color-brand))] focus:ring-offset-2 transition"
             />
           </div>
+
           {errors.email && (
-            <p className="text-[12px] text-red-600 mt-1">
+            <p role="alert" className="text-[12px] text-red-600 mt-1">
               {errors.email.message}
             </p>
           )}
         </fieldset>
 
         <button
-          onClick={onSendResetEmail}
+          type="submit"
+          aria-busy={isSubmitting}
           disabled={isSubmitting}
           className="self-end text-base text-center font-medium w-1/2 py-1 mt-6 rounded-lg shadow bg-[rgb(var(--color-brand))] text-white hover:scale-97 active:scale-103 disabled:opacity-50 transition cursor-pointer"
         >
