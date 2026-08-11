@@ -24,7 +24,7 @@ const InsightCard = ({ insight }) => {
   }
 
   return (
-    <div className={clsx("flex flex-col bg-[rgb(var(--color-bg-card))] shadow-sm border-l-4 rounded-md", severityColor[severity]?.border || severityColor.LOW.border)}>
+    <div aria-live="polite" className={clsx("flex flex-col bg-[rgb(var(--color-bg-card))] shadow-sm border-l-4 rounded-md", severityColor[severity]?.border || severityColor.LOW.border)}>
 
       <div className="flex items-center gap-3 my-4 px-4 text-sm font-semibold">
         
@@ -46,7 +46,7 @@ const InsightCard = ({ insight }) => {
 
       <p className="text-sm text-[rgb(var(--color-muted))] bg-[rgb(--color-gray-bg)] flex items-start gap-4 pl-4 pr-8 py-3 overflow-hidden">
         <span className="w-10 h-10 text-yellow-300/80">
-        <FaLightbulb size={18} />
+        <FaLightbulb aria-hidden="true" size={18} />
         </span>
         <span>{actionText}</span>
       </p>

@@ -62,6 +62,7 @@ const Insights = () => {
         exit={{ opacity: 0, y: -20 }}
         transition={{ duration: 0.4, ease: "easeOut" }}
         className=" px-5 md:px-10 py-8 flex justify-center items-center"
+        aria-live="polite"
       >
         <p className="mt-10 text-xl md:text-2xl text-center text-[rgb(var(--color-muted))]">
           Please verify your email to access this feature.
@@ -115,7 +116,7 @@ const Insights = () => {
       </div>
 
       {aiLimitReached && (
-        <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-4 flex flex-col gap-2 mb-10">
+        <div aria-live="polite" className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-4 flex flex-col gap-2 mb-10">
           
           <div className="flex items-center gap-2">
             <span>🔒</span>
@@ -169,6 +170,7 @@ const Insights = () => {
             <div className="mt-8 flex items-center justify-center gap-3">
               <button
                 type="button"
+                aria-label="Previous page"
                 onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
                 disabled={currentPage === 1}
                 className="rounded-md border border-[rgb(var(--color-gray-border))] bg-[rgb(var(--color-bg-card))] px-4 py-2 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-50"
@@ -180,6 +182,7 @@ const Insights = () => {
               </span>
               <button
                 type="button"
+                aria-label="Next page"
                 onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
                 disabled={currentPage === totalPages}
                 className="rounded-md border border-[rgb(var(--color-gray-border))] bg-[rgb(var(--color-bg-card))] px-4 py-2 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-50"

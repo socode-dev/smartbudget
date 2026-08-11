@@ -13,17 +13,21 @@ const Charts = () => {
       </p>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <figure className="space-y-4 bg-[rgb(var(--color-bg-card))] rounded-lg p-4 shadow">
-          <h3 className="text-xl font-medium">Income vs Expenses</h3>
+        <figure 
+          aria-labelledby="income-expenses-title"
+          className="space-y-4 bg-[rgb(var(--color-bg-card))] rounded-lg p-4 shadow"
+        >
+          <h3 id="income-expenses-title" className="text-xl font-medium">Income vs Expenses</h3>
 
-          {/* Line chart for income vs expenses */}
           <LineChart />
         </figure>
 
-        <figure className="space-y-4 bg-[rgb(var(--color-bg-card))] rounded-lg p-4 shadow">
-          <h3 className="text-xl font-medium">Budget Overview</h3>
+        <figure
+          aria-labelledby="budget-overview"
+          className="space-y-4 bg-[rgb(var(--color-bg-card))] rounded-lg p-4 shadow"
+        >
+          <h3 id="budget-overview" className="text-xl font-medium">Budget Overview</h3>
 
-          {/* Doughnut chart for budget overview and its empty state*/}
           {budgets.length === 0 ? (
             <div className="h-68 flex flex-col items-center justify-center text-[rgb(var(--color-muted))] text-center">
               <p className="text-lg font-medium mb-3">

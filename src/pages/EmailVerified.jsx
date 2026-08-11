@@ -21,8 +21,8 @@ const EmailVerified = () => {
       transition={{ duration: 0.4, ease: "easeOut" }}
       className="flex flex-col items-center text-center gap-6 bg-[rgb(var(--color-bg-card))] mt-20 p-6 w-full max-w-[500px] mx-auto h-fit rounded-lg"
     >
-      <div className="border rounded-full border-green-500 text-green-500 p-3">
-        <FaCheck />
+      <div role="img" className="border rounded-full border-green-500 text-green-500 p-3">
+        <FaCheck aria-hidden="true" />
       </div>
       <h4 className="text-xl font-semibold text-[rgb(var(--color-text))]">
         Email verified
@@ -33,6 +33,8 @@ const EmailVerified = () => {
       </p>
 
       <button
+        type="button"
+        aria-label="Go back to dashboard"
         onClick={handleNavigate}
         className="text-base font-medium px-4 py-2 bg-[rgb(var(--color-brand))] hover:bg-[rgb(var(--color-brand-hover))] text-white rounded transition cursor-pointer"
       >

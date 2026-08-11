@@ -6,7 +6,6 @@ const BarChart = () => {
   const chartRef = useRef(null);
   const { barChartOptions, barChartData } = useReportChartContext();
 
-  // Cleanup chart on unmount
   useEffect(() => {
     return () => {
       if (chartRef.current) {

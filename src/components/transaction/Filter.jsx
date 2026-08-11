@@ -8,20 +8,24 @@ const Filter = () => {
   return (
     <div className="grid grid-cols-8 items-center gap-3 md:gap-5 mb-6">
       {/* Search by Note */}
-      <input
-        type="text"
-        placeholder="Search by description..."
-        className="col-span-full sm:col-span-4 md:col-span-full xl:col-span-3 rounded border border-[rgb(var(--color-gray-border))] bg-[rgb(var(--color-bg-card))] outline-none focus:border-[rgb(var(--color-brand))] transition text-sm p-2"
-        value={filters.search}
-        onChange={(e) =>
-          setFilters((prev) => ({ ...prev, search: e.target.value }))
-        }
-      />
+      <fieldset className="col-span-full sm:col-span-4 md:col-span-full xl:col-span-3">
+        <label htmlFor="search" className="hidden">Search transaction by description</label>
+        <input
+          id="search"
+          type="text"
+          placeholder="Search by description..."
+          className="w-full rounded border border-[rgb(var(--color-gray-border))] bg-[rgb(var(--color-bg-card))] outline-none focus:border-[rgb(var(--color-brand))] focus:ring-2 focus:ring-[rgb(var(--color-brand))] focus:ring-offset-2 transition text-sm p-2"
+          value={filters.search}
+          onChange={(e) =>
+            setFilters((prev) => ({ ...prev, search: e.target.value }))
+          }
+        />
+      </fieldset>
 
       {/* Date Range */}
       <div className="w-full col-span-full sm:col-span-4 md:col-span-4 xl:col-span-3 flex gap-2">
         {/* From Date */}
-        <div className="w-1/2 flex items-center gap-2">
+        <fieldset className="w-1/2 flex items-center gap-2">
           <label className="text-sm text-[rgb(var(--color-muted))]">From</label>
           <input
             type="date"
@@ -31,7 +35,7 @@ const Filter = () => {
               setFilters((prev) => ({ ...prev, fromDate: e.target.value }))
             }
           />
-        </div>
+        </fieldset>
 
         {/* To Date */}
         <div className="w-1/2 flex items-center gap-2">

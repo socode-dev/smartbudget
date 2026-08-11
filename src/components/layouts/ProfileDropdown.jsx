@@ -14,8 +14,8 @@ const ProfileDropdown = () => {
   if (!isProfileOpen) return null;
 
   return (
-    <div
-      role="dialog"
+    <section
+      id="profile-menu"
       className="absolute right-2 top-12 w-max bg-[rgb(var(--color-gray-bg-settings))] border border-[rgb(var(--color-gray-border))] rounded-lg shadow-lg z-60 text-base font-medium p-6"
     >
       <FaUserCircle className="text-5xl md:text-6xl text-[rgb(var(--color-muted))]" />
@@ -36,13 +36,17 @@ const ProfileDropdown = () => {
       </p>
 
       <button
+        type="button"
         onClick={handleSignoutPromptOpen}
+        aria-label="open log out dialog"
+        aria-haspopup="dialog"
         className="flex gap-1.5 items-center mt-15 mx-auto cursor-pointer text-red-600 hover:text-red-700 transition"
       >
-        <FaSignOutAlt />
+        <FaSignOutAlt aria-hidden="true" />
         <span>Log Out</span>
       </button>
-    </div>
+    
+    </section>
   );
 };
 

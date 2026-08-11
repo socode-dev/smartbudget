@@ -6,9 +6,6 @@ import { Toaster } from "react-hot-toast";
 import FormModal from "../components/modals/FormModal";
 import NotificationDialog from "../components/modals/NotificationDialog";
 import Preferences from "../components/modals/Preferences";
-import LazyWrapper from "../routes/LazyWrapper";
-import HeaderSkeleton from "../components/skeletons/HeaderSkeleton";
-import SidebarSkeleton from "../components/skeletons/SidebarSkeleton";
 import useAuthStore from "../store/useAuthStore";
 import WelcomeModal from "../components/modals/WelcomeModal";
 import TourJoyride from "../components/ui/TourJoyride";
@@ -46,15 +43,12 @@ const MainLayout = () => {
       <Preferences />
 
       {/* Sidebar */}
-      <LazyWrapper loadingFallback={SidebarSkeleton}>
-        <Sidebar />
-      </LazyWrapper>
+      <Sidebar />
 
       {/* Main Content */}
       <div className="flex flex-col grow">
-        <LazyWrapper loadingFallback={<HeaderSkeleton />}>
-          <Header />
-        </LazyWrapper>
+        <Header />
+        
         <main className="bg-[rgb(var(--color-bg))] overflow-y-auto grow transition-all duration-200 lg:pt-0 pt-14 scrollbar-thin">
           {/* Display under header if user email is not verified */}
           {!isDemoMode && !isUserEmailVerified && (

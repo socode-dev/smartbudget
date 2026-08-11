@@ -64,14 +64,14 @@ const Cards = () => {
                     {formatAmount(budgetLimit, selectedCurrency)}
                   </strong>
                 </p>
-                {/* {budget.type === "expense" && ( */}
+                
                 <p className="text-[rgb(var(--color-muted))] text-base font-medium">
                   {budget.type === "income" ? "Received:" : "Spent:"}{" "}
                   <strong className="text-[rgb(var(--color-muted))]">
                     {formatAmount(amountSpent, selectedCurrency)}
                   </strong>
                 </p>
-                {/* )} */}
+
                 <p className="text-[rgb(var(--color-muted))] text-base font-medium">
                   {progressBarPercentage > 100 && budget.type === "expense"
                     ? "Overspent"
@@ -103,33 +103,38 @@ const Cards = () => {
               {/* Progress Bar */}
               <div className="w-full h-3 bg-[rgb(var(--color-gray-border))] rounded-full overflow-hidden">
                 <div
+                  role="progressbar"
+                  aria-label={`${progressBarPercentage}% of ${budget.name ?? budget.category} used`}
                   className={`h-full ${progressBarBackground} rounded-full transition-all duration-500 ease-in-out`}
                   style={{
                     width: `${progressBarPercentage}%`,
                   }}
-                ></div>
+                />
               </div>
             </div>
 
             <div className="flex gap-2">
               <button
+                type="button"
+                aria-label={`Edit ${budget.name ?? budget.category} budget`}
                 className="text-sm text-[rgb(var(--color-brand-deep))] hover:text-[rgb(var(--color-brand))] transition cursor-pointer"
                 onClick={() => handleEditBudget(budget.id)}
               >
-                <HiOutlinePencil className="text-lg" />
+                <HiOutlinePencil aria-hidden className="text-lg" />
               </button>
               <button
+                type="button"
+                aria-label={`Delete ${budget.name ?? budget.category} budget`}
                 onClick={() => handleDeleteBudget(budget.id)}
                 className="text-sm text-red-500 hover:text-red-600 transition cursor-pointer"
               >
-                <HiOutlineTrash className="text-lg" />
+                <HiOutlineTrash aria-hidden="true" className="text-lg" />
               </button>
             </div>
           </div>
         );
       })}
 
-      {/* End of Budgets */}
     </section>
   );
 };

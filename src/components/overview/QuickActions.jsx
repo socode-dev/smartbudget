@@ -49,36 +49,49 @@ const QuickActions = () => {
       {/* Action Buttons */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 justify-between gap-4 mt-10">
         <button
+          type="button"
+          aria-label="Add transaction"
+          aria-haspopup="dialog"
           onClick={() => isDemoMode ? showDemoReadOnlyToast() : onOpenModal("transactions", "add")}
           className="bg-green-600 hover:bg-green-700  text-white text-base  px-4 py-2 rounded-lg shadow-md transition cursor-pointer flex justify-center items-center gap-2"
         >
-          <FiPlus className="text-lg" />
+          <FiPlus aria-hidden="true" className="text-lg" />
           <span>Add Entry</span>
         </button>
 
         <button
+          type="button"
+          aria-label="Set budget"
+          aria-haspopup="dialog"
           onClick={() => isDemoMode ? showDemoReadOnlyToast() : onOpenModal("budgets")}
           className="bg-[rgb(var(--color-brand-deep))] hover:bg-[rgb(var(--color-brand))]  text-white text-base px-4 py-2 rounded-lg shadow-md transition cursor-pointer flex justify-center items-center gap-2"
         >
-          <FiTarget className="text-lg" />
+          <FiTarget aria-hidden="true" className="text-lg" />
           <span>Set Budget</span>
         </button>
 
         <button
+          type="button"
+          aria-label="Set goal"
+          aria-haspopup="dialog"
           onClick={() => isDemoMode ? showDemoReadOnlyToast() : onOpenModal("goals")}
           className="bg-[rgb(var(--color-brand-deep))] hover:bg-[rgb(var(--color-brand))]  text-white text-base px-4 py-2 rounded-lg shadow-md transition cursor-pointer flex justify-center items-center gap-2"
         >
-          <FiTarget className="text-lg" />
+          <FiTarget aria-hidden="true" className="text-lg" />
           <span>Set Goal</span>
         </button>
 
         <div className="relative" ref={exportRef}>
           {/* Export button */}
           <button
+            type="button"
+            aria-label="Export transactions log"
+            aria-haspopup="true"
+            aria-expanded={isExportOpen}
             onClick={handleExportToggle}
             className="w-full bg-gray-700 hover:bg-gray-800  text-white text-base px-4 py-2 rounded-lg shadow-md transition cursor-pointer flex justify-center items-center gap-2"
           >
-            <FiDownload className="text-lg" />
+            <FiDownload aria-hidden="true" className="text-lg" />
             <span>Export Log</span>
           </button>
 

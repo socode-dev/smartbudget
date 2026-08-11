@@ -74,7 +74,7 @@ body {
 }
 
 .scrollbar-thin::-webkit-scrollbar-track {
-  background: #e5e7eb; /* Tailwind gray-200 */
+  background: var(--color-bg); /* Tailwind gray-200 */
 }
 
 .scrollbar-thin::-webkit-scrollbar-thumb {

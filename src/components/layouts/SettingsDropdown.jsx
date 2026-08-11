@@ -17,6 +17,7 @@ const SettingsDropdown = () => {
   const { handleCSVExport, handlePDFExport } = useOverviewContext();
   const {
     isSettingsOpen,
+    isCurrencyOpen,
     handleCurrencyToggle,
     handlePreferencesOpen,
     isExportOpen,
@@ -49,21 +50,22 @@ const SettingsDropdown = () => {
   };
 
   return (
-    // <div className="">
-    <ul className="flex flex-col items-start absolute right-0 top-13 w-56 bg-[rgb(var(--color-gray-bg-settings))] border border-[rgb(var(--color-gray-border))] rounded-lg shadow-lg z-60 text-sm overflow-y-visible">
-      {/* Theme mode switch */}
+    <ul id="settings-menu" className="flex flex-col items-start absolute right-0 top-13 w-56 bg-[rgb(var(--color-gray-bg-settings))] border border-[rgb(var(--color-gray-border))] rounded-lg shadow-lg z-60 text-sm overflow-y-visible">
+      
       <li className="w-full px-4 py-3 cursor-pointer flex items-center justify-between hover:bg-[rgb(var(--color-gray-bg))] transition rounded-tl-lg rounded-tr-lg">
+        
         <span>Theme</span>
-        {/* Sun/Moon sliding switch */}
         <button
+          type="button"
+          onClick={toggleTheme}
+          aria-label="Toggle theme"
+          aria-pressed={theme === "dark"}
           className={clsx(
             "ml-2 w-13 h-6 rounded-full relative focus:outline-none cursor-pointer transition flex items-center",
             theme === "dark"
               ? "bg-[rgb(var(--color-brand-deep))]"
               : "bg-gray-200"
           )}
-          onClick={toggleTheme}
-          aria-label="Toggle theme"
         >
           <span
             className={clsx(
@@ -80,11 +82,13 @@ const SettingsDropdown = () => {
             )}
           </span>
         </button>
+
       </li>
 
-      {/* Currency selector */}
-      <li
-        role="button"
+      <button
+        type="button"
+        aria-haspopup="listbox"
+        aria-expanded={isCurrencyOpen ? "true" : "false"}
         onClick={handleCurrencyToggle}
         className="w-full px-4 py-3 cursor-pointer flex items-center justify-between hover:bg-[rgb(var(--color-gray-bg))] transition relative"
       >
@@ -94,22 +98,26 @@ const SettingsDropdown = () => {
           <span className="text-gray-500">({selectedCurrency})</span>
         </button>
 
-        {/* Currency dropdown */}
         <CurrencyDropdown />
-      </li>
+      </button>
 
-      {/* Preferences button */}
       <button
+        type="button"
         onClick={handlePreferencesOpen}
+        aria-haspopup="dialog"
         className="w-full text-left px-4 py-3 cursor-pointer hover:bg-[rgb(var(--color-gray-bg))] transition"
       >
         Preferences
       </button>
 
-      {/* Export all data */}
       <div className="relative w-full">
         <button
+          type="button"
           onClick={handleExportToggle}
+          aria-haspopup="menu"
+          aria-label="open export methods"
+          aria-expanded={isExportOpen}
+          aria-controls="export-menu"
           className="w-full text-left px-4 py-3 cursor-pointer hover:bg-[rgb(var(--color-gray-bg))] transition rounded-bl-lg rounded-br-lg"
         >
           Export All Data
@@ -122,10 +130,6 @@ const SettingsDropdown = () => {
         />
       </div>
 
-      {/* Help center */}
-      {/* <button className="w-full text-left px-4 py-3 cursor-pointer hover:bg-[rgb(var(--color-gray-bg))] transition">
-        Help
-      </button> */}
     </ul>
   );
 };

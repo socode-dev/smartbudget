@@ -18,7 +18,7 @@ const Goals = () => {
 
   useEffect(() => {
     setCurrentPage("goals");
-    // Start tour if not completed when navigating to goals page
+    
     const timer = setTimeout(() => {
       startTourIfNotCompleted("goals", userId);
     }, 500);
@@ -45,39 +45,31 @@ const Goals = () => {
 
         {filteredGoals.length > 0 && (
           <button
+            type="button"
+            aria-label="Open form to add goal"
+            aria-haspopup="dialog"
             onClick={() => isDemoMode ? showDemoReadOnlyToast() : onOpenModal("goals", "add")}
             className="bg-[rgb(var(--color-brand-deep))] hover:bg-[rgb(var(--color-brand))] transition cursor-pointer text-white px-4 py-2 rounded-md text-xl"
           >
-            <FaPlus />
+            <FaPlus aria-hidden="true" />
           </button>
         )}
       </section>
 
-      {/* Search bar to search goal by name */}
       {goals?.length > 0 && (
         <input
           id="goals-search"
           type="text"
+          aria-live="polite"
           placeholder="Search by name..."
-          className="w-full mx-auto mb-10 rounded border border-[rgb(var(--color-gray-border))] bg-[rgb(var(--color-bg-card))] outline-none focus:border-[rgb(var(--color-brand))] transition text-sm p-2"
+          className="w-full mx-auto mb-10 rounded border border-[rgb(var(--color-gray-border))] bg-[rgb(var(--color-bg-card))] outline-none focus:border-[rgb(var(--color-brand))] focus:ring-2 focus:ring-[rgb(var(--color-brand))] focus:ring-offset-2 transition text-sm p-2"
           value={searchName}
           onChange={(e) => setSearchName(e.target.value)}
         />
       )}
 
-      {/* Goal Cards */}
-      <Cards />
-
-      {/* Empty state if goal searched does not exist */}
-      {filteredGoals?.length === 0 && goals.length > 0 && (
-        <p className="text-center text-base text-[rgb(var(--color-muted))] mb-6">
-          The goal you are looking for does not exist.
-        </p>
-      )}
-
-      {/* Empty State */}
       {goals.length === 0 && (
-        <div className="mt-4 flex flex-col items-center w-full">
+        <div aria-live="polite" className="mt-4 flex flex-col items-center w-full">
           <p
             id="goals-empty-state"
             className="text-base text-[rgb(var(--color-muted))] text-center mb-6"
@@ -87,15 +79,26 @@ const Goals = () => {
           </p>
 
           <button
+            type="button"
+            aria-label="Open form to add goal"
+            aria-haspopup="dialog"
             id="add-first-goal-btn"
             onClick={() => isDemoMode ? showDemoReadOnlyToast() : onOpenModal("goals", "add")}
             className=" bg-blue-500 hover:bg-blue-600 transition cursor-pointer text-white px-4 py-2 rounded-md text-base flex items-center gap-2"
           >
-            <FaPlus className="text-lg" />
+            <FaPlus aria-hidden="true" className="text-lg" />
             <span>Add Your First Goal</span>
           </button>
         </div>
       )}
+
+      {filteredGoals?.length === 0 && goals.length > 0 && (
+        <p className="text-center text-base text-[rgb(var(--color-muted))] mb-6">
+          The goal you are looking for does not exist.
+        </p>
+      )}
+
+      <Cards />
     </motion.main>
   );
 };
