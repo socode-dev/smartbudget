@@ -7,10 +7,10 @@ const BarChart = () => {
   const { barChartOptions, barChartData } = useReportChartContext();
 
   useEffect(() => {
+    const chart = chartRef.current;
+
     return () => {
-      if (chartRef.current) {
-        chartRef.current?.chart?.destroy();
-      }
+        chart?.destroy();
     };
   }, []);
 

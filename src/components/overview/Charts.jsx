@@ -15,7 +15,7 @@ const Charts = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <figure 
           aria-labelledby="income-expenses-title"
-          className="space-y-4 bg-[rgb(var(--color-bg-card))] rounded-lg p-4 shadow"
+          className="max-h-96 space-y-4 bg-[rgb(var(--color-bg-card))] rounded-lg p-4 shadow"
         >
           <h3 id="income-expenses-title" className="text-xl font-medium">Income vs Expenses</h3>
 

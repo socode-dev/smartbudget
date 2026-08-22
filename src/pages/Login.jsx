@@ -21,6 +21,7 @@ const Login = () => {
     loginErrors: errors,
     loginIsSubmitting: isSubmitting,
     loginHandleSubmit: handleSubmit,
+    loginFormReset: reset,
   } = useAuthFormContext();
   const { getValues } = useThresholdForm();
 
@@ -66,7 +67,10 @@ const Login = () => {
       )}
 
       <form
-        onSubmit={handleSubmit((data) => onLogin(data))}
+        onSubmit={handleSubmit((data) => {
+          onLogin(data);
+          reset();
+        })}
         className="w-11/12"
       >
         <fieldset className=" w-full mb-4">

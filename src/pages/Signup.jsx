@@ -22,6 +22,7 @@ const Signup = () => {
     signupErrors: errors,
     signupIsSubmitting: isSubmitting,
     signupHandleSubmit: handleSubmit,
+    signupFormReset: reset,
   } = useAuthFormContext();
 
   const { getValues } = useThresholdForm();
@@ -76,9 +77,10 @@ const Signup = () => {
       )}
 
       <form
-        onSubmit={handleSubmit((data) =>
-          onSignup(data, getThresholdsValue(getValues))
-        )}
+        onSubmit={handleSubmit((data) => {
+          onSignup(data, getThresholdsValue(getValues));
+          reset();
+        })}
         className="w-full grid grid-cols-2 gap-2"
       >
         {/* First Name field */}

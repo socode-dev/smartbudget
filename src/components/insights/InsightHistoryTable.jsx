@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import clsx from "clsx";
 import ResponsiveTable from "../ui/ResponsiveTable";
+import { color } from "./pillColor";
 
 const typeLabels = {
   anomaly: "Anomaly",
@@ -11,7 +12,7 @@ const typeLabels = {
 
 const filterOptions = {
   type: ["all", "risk", "anomaly", "budget", "cashflow"],
-  status: ["all", "ACTIVE", "EXPIRED"],
+  status: ["all", "ACTIVE", "EXPIRED", "ACKNOWLEDGED", "VIEWED", "DISMISSED"],
 };
 
 const InsightHistoryTable = ({ histories = [] }) => {
@@ -58,8 +59,8 @@ const InsightHistoryTable = ({ histories = [] }) => {
       key: "status",
       header: "Status",
       render: (history) => (
-        <span className={clsx("rounded-full px-2.5 py-1 text-xs font-semibold", statusClass(history.status))}>
-          {toTitleCase(history.status)}
+        <span className={clsx("rounded-full px-2.5 py-1 text-xs font-semibold", color[history.status])}>
+          {history.status}
         </span>
       ),
       cellClassName: "whitespace-nowrap",
@@ -156,11 +157,6 @@ const severityClass = (severity) => {
   return "bg-[rgb(var(--color-status-bg-blue))] text-blue-500";
 };
 
-const statusClass = (status) => {
-  return status === "ACTIVE"
-    ? "bg-[rgb(var(--color-status-bg-green))] text-green-600"
-    : "bg-[rgb(var(--color-status-bg-gray))] text-gray-500";
-};
 
 const toDate = (value) => {
   if (!value) return new Date(0);

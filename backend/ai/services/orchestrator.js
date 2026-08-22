@@ -21,6 +21,7 @@ import {runAnomalyService} from "./anomaly.js";
 import {runBudgetService} from "./budget.js";
 import {runCashflowService} from "./cashflow.js";
 import {runRiskService} from "./risk.js";
+import { logBusinessEvent } from "../telemetry/businessLogger.js";
 
 const AGENT_MAP = {
     anomaly: runAnomalyService,
@@ -31,6 +32,11 @@ const AGENT_MAP = {
 
 export const runOrchestrator = async ({
     userId,
+    institutionId = null,
+    pilotId = null,
+    cohortId = null,
+    dataSource = null,
+    enrollmentSource = null,
     anomalies,
     budgetComplianceList,
     cashflowData,
@@ -40,7 +46,13 @@ export const runOrchestrator = async ({
     const runId = createTelemetryRunId();
     const startedAtMs = Date.now();
 
-    const telemetryContext = buildTelemetryContext({userId, isDemo})
+    const telemetryContext = buildTelemetryContext({
+        userId, 
+        institutionId,
+        pilotId,
+        cohortId,
+        isDemo
+    })
 
     const rawSignals = normalizeSignals({
         anomalies, 
@@ -227,8 +239,11 @@ export const runOrchestrator = async ({
         };
     }
 
-    const persisted = await persistInsights({userId, insight});
+    const persistenceResult = await persistInsights({userId, insight});
 
+    const persisted = Boolean(persistenceResult?.persisted);
+    const insightId = persistenceResult?.insightId ?? null;
+    
     if(!persisted) {
         await logAIPipelineRun({
             ...telemetryContext,
@@ -246,22 +261,38 @@ export const runOrchestrator = async ({
 
             selectedSignalType: selectedSignal?.type ?? null,
             selectedSignalId: selectedSignal?.id ?? null,
-
-
+            
+            
             attentionAllowed: true,
             attentionReason: attentionDecision.reason,
-
+            
             triggerEligible: true,
             reservationAllowed: true,
-
+            
             persisted: false,
             usedFallback: Boolean(insight?.isFallback),
-            insightId: insight?.id ?? null,
+            insightId,
             insightType: insight?.type ?? null,
             severity: insight?.severity ?? selectedSignal?.severity ?? null,
-
-
+            
+            
             error: new Error("Insight persistence failed"),
+        });
+        
+        await logBusinessEvent({
+            ...telemetryContext,
+            userId,
+            eventType: "insight_generated",
+            insightId,
+            insightType: insight?.type ?? null,
+            severity: insight?.severity ?? selectedSignal?.severity ?? null,
+            source: "backend",
+            dataSource,
+            enrollmentSource,
+            metadata: {
+                selectedSignalId: selectedSignal?.id ?? null,
+                selectedSignalType: selectedSignal?.type ?? null
+            },
         });
 
         await markSignalTriggerFailed({
@@ -281,7 +312,7 @@ export const runOrchestrator = async ({
         userId,
         runId,
         eventType: "INSIGHT_GENERATED",
-        insightId: insight?.id ?? null,
+        insightId,
         insightType: insight?.type ?? null,
         selectedSignalId: selectedSignal?.id ?? null,
         selectedSignalType: selectedSignal?.type ?? null,
@@ -319,7 +350,7 @@ export const runOrchestrator = async ({
 
         persisted: true,
         usedFallback: Boolean(insight?.isFallback),
-        insightId: insight?.id ?? null,
+        insightId,
         insightType: insight?.type ?? null,
         severity: insight?.severity ?? selectedSignal?.severity ?? null,
     });

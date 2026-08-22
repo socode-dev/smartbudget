@@ -15,8 +15,23 @@ import {
 
 const currency = "NGN";
 
+const toNgnTransactions = transactions =>
+  transactions.map(transaction => ({
+    ...transaction,
+    amount: transaction.amount * 100,
+  }));
+
+const toNgnBudget = budget => ({
+  ...budget,
+  amount: budget.amount * 100,
+});
+
 const complianceFor = user =>
-  user.budgets.map(budget => buildBudgetComplianceData({ budget, transactions: user.transactions, currency }));
+  user.budgets.map(budget => buildBudgetComplianceData({
+    budget: toNgnBudget(budget),
+    transactions: toNgnTransactions(user.transactions),
+    currency,
+  }));
 
 const highAnomaly = (id, category = "Food", deviation = 260) => ({
   id,
@@ -44,10 +59,10 @@ describe("financial risk engine", () => {
     vi.setSystemTime(new Date(fixedSystemDate));
 
     const risk = buildRiskData({
-      anomalies: detectAnomalies({ transactions: normalUser.transactions, currency }),
+      anomalies: detectAnomalies({ transactions: toNgnTransactions(normalUser.transactions), currency }),
       budgetCompliance: complianceFor(normalUser),
-      cashflowData: buildCashflowData({ transactions: normalUser.transactions, currency }),
-      transactions: normalUser.transactions,
+      cashflowData: buildCashflowData({ transactions: toNgnTransactions(normalUser.transactions), currency }),
+      transactions: toNgnTransactions(normalUser.transactions),
       currency
     });
 
@@ -69,10 +84,10 @@ describe("financial risk engine", () => {
     };
 
     const risk = buildRiskData({
-      anomalies: detectAnomalies({ transactions: user.transactions, currency }),
+      anomalies: detectAnomalies({ transactions: toNgnTransactions(user.transactions), currency }),
       budgetCompliance: complianceFor(user),
-      cashflowData: buildCashflowData({ transactions: cashflowRiskUser.transactions, currency }),
-      transactions: user.transactions,
+      cashflowData: buildCashflowData({ transactions: toNgnTransactions(cashflowRiskUser.transactions), currency }),
+      transactions: toNgnTransactions(user.transactions),
       currency
     });
 
@@ -93,8 +108,8 @@ describe("financial risk engine", () => {
         highAnomaly("high-3", "Food", 280),
       ],
       budgetCompliance: [exceededBudgetCompliance("budget-food", "Food", 110)],
-      cashflowData: buildCashflowData({ transactions: cashflowRiskUser.transactions, currency }),
-      transactions: cashflowRiskUser.transactions,
+      cashflowData: buildCashflowData({ transactions: toNgnTransactions(cashflowRiskUser.transactions), currency }),
+      transactions: toNgnTransactions(cashflowRiskUser.transactions),
       currency
     });
 
@@ -113,8 +128,8 @@ describe("financial risk engine", () => {
     const risk = buildRiskData({
       anomalies: [highAnomaly("high-anomaly-food")],
       budgetCompliance: complianceFor(normalUser),
-      cashflowData: buildCashflowData({ transactions: normalUser.transactions, currency }),
-      transactions: normalUser.transactions,
+      cashflowData: buildCashflowData({ transactions: toNgnTransactions(normalUser.transactions), currency }),
+      transactions: toNgnTransactions(normalUser.transactions),
       currency
     });
 
@@ -131,8 +146,8 @@ describe("financial risk engine", () => {
     const risk = buildRiskData({
       anomalies: [],
       budgetCompliance: complianceFor(normalUser),
-      cashflowData: buildCashflowData({ transactions: cashflowRiskUser.transactions, currency }),
-      transactions: cashflowRiskUser.transactions,
+      cashflowData: buildCashflowData({ transactions: toNgnTransactions(cashflowRiskUser.transactions), currency }),
+      transactions: toNgnTransactions(cashflowRiskUser.transactions),
       currency
     });
 
@@ -148,8 +163,8 @@ describe("financial risk engine", () => {
     const risk = buildRiskData({
       anomalies: [],
       budgetCompliance: complianceFor(exceedingBudgetsUser),
-      cashflowData: buildCashflowData({ transactions: normalUser.transactions, currency }),
-      transactions: exceedingBudgetsUser.transactions,
+      cashflowData: buildCashflowData({ transactions: toNgnTransactions(normalUser.transactions), currency }),
+      transactions: toNgnTransactions(exceedingBudgetsUser.transactions),
       currency
     });
 
@@ -166,8 +181,8 @@ describe("financial risk engine", () => {
     const anomalyOnly = buildRiskData({
       anomalies: [highAnomaly("high-anomaly-food")],
       budgetCompliance: complianceFor(normalUser),
-      cashflowData: buildCashflowData({ transactions: normalUser.transactions, currency }),
-      transactions: normalUser.transactions,
+      cashflowData: buildCashflowData({ transactions: toNgnTransactions(normalUser.transactions), currency }),
+      transactions: toNgnTransactions(normalUser.transactions),
       currency
     });
 
@@ -178,8 +193,8 @@ describe("financial risk engine", () => {
         highAnomaly("high-anomaly-food-3", "Food", 240),
       ],
       budgetCompliance: complianceFor(normalUser),
-      cashflowData: buildCashflowData({ transactions: cashflowRiskUser.transactions, currency }),
-      transactions: cashflowRiskUser.transactions,
+      cashflowData: buildCashflowData({ transactions: toNgnTransactions(cashflowRiskUser.transactions), currency }),
+      transactions: toNgnTransactions(cashflowRiskUser.transactions),
       currency
     });
 
@@ -197,8 +212,8 @@ describe("financial risk engine", () => {
     const risk = buildRiskData({
       anomalies: [highAnomaly("high-anomaly-food"), highAnomaly("high-anomaly-shopping", "Shopping")],
       budgetCompliance: complianceFor(normalUser),
-      cashflowData: buildCashflowData({ transactions: cashflowRiskUser.transactions, currency }),
-      transactions: normalUser.transactions,
+      cashflowData: buildCashflowData({ transactions: toNgnTransactions(cashflowRiskUser.transactions), currency }),
+      transactions: toNgnTransactions(normalUser.transactions),
       currency
     });
 
@@ -214,16 +229,16 @@ describe("financial risk engine", () => {
     const mild = buildRiskData({
       anomalies: [highAnomaly("high-anomaly-food")],
       budgetCompliance: complianceFor(normalUser),
-      cashflowData: buildCashflowData({ transactions: cashflowRiskUser.transactions, currency }),
-      transactions: cashflowRiskUser.transactions,
+      cashflowData: buildCashflowData({ transactions: toNgnTransactions(cashflowRiskUser.transactions), currency }),
+      transactions: toNgnTransactions(cashflowRiskUser.transactions),
       currency
     });
 
     const worse = buildRiskData({
       anomalies: [highAnomaly("high-anomaly-food"), highAnomaly("high-anomaly-shopping", "Shopping")],
       budgetCompliance: complianceFor(exceedingBudgetsUser),
-      cashflowData: buildCashflowData({ transactions: cashflowRiskUser.transactions, currency }),
-      transactions: cashflowRiskUser.transactions,
+      cashflowData: buildCashflowData({ transactions: toNgnTransactions(cashflowRiskUser.transactions), currency }),
+      transactions: toNgnTransactions(cashflowRiskUser.transactions),
       currency
     });
 
@@ -235,10 +250,10 @@ describe("financial risk engine", () => {
       ],
     };
     const crisis = buildRiskData({
-      anomalies: detectAnomalies({ transactions: systemicUser.transactions, currency }),
+      anomalies: detectAnomalies({ transactions: toNgnTransactions(systemicUser.transactions), currency }),
       budgetCompliance: complianceFor(systemicUser),
-      cashflowData: buildCashflowData({ transactions: cashflowRiskUser.transactions, currency }),
-      transactions: systemicUser.transactions,
+      cashflowData: buildCashflowData({ transactions: toNgnTransactions(cashflowRiskUser.transactions), currency }),
+      transactions: toNgnTransactions(systemicUser.transactions),
       currency
     });
 
@@ -260,8 +275,8 @@ describe("financial risk engine", () => {
     const risk = buildRiskData({
       anomalies: manyAnomalies,
       budgetCompliance: [exceededBudgetCompliance("budget-food", "Food", 120)],
-      cashflowData: buildCashflowData({ transactions: cashflowRiskUser.transactions, currency }),
-      transactions: exceedingBudgetsUser.transactions,
+      cashflowData: buildCashflowData({ transactions: toNgnTransactions(cashflowRiskUser.transactions), currency }),
+      transactions: toNgnTransactions(exceedingBudgetsUser.transactions),
       currency
     });
 

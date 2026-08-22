@@ -1,6 +1,8 @@
 import { loadFinancialData } from "../../backend/userData/loadFinancialData.js";
 import { runFinancialSignals } from "../../backend/financial-signals/runFinancialSignals.js";
 import { runOrchestrator } from "../../backend/ai/services/orchestrator.js";
+import { recordFinancialBehaviourTelemetry } from "../../backend/ai/telemetry/businessBehaviourTelemetry.js";
+import { loadPilotContext } from "../../backend/userData/loadPilotContext.js";
 
 export default async function handler(req, res) {
     if(req.method !== "POST") {
@@ -28,8 +30,18 @@ export default async function handler(req, res) {
             currency
         });
 
+        const pilotContext = await loadPilotContext({ userId });
+
+        await recordFinancialBehaviourTelemetry({
+            userId,
+            ...pilotContext,
+            budgetComplianceList,
+            anomalies
+        })
+
         const result = await runOrchestrator({ 
             userId, 
+            ...pilotContext,
             anomalies, 
             budgetComplianceList, 
             cashflowData, 
