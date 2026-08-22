@@ -1,9 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-vi.mock("../ai/services/aiClient.js", () => ({
-  generateAIResponse: vi.fn(),
-}));
-
 vi.mock("../ai/orchestrator/triggerGate.js", () => ({
   checkSignalEligibility: vi.fn(),
   filterEligibleSignals: vi.fn(),
@@ -58,8 +54,11 @@ vi.mock("../ai/telemetry/logger.js", () => ({
   logInsightEvent: vi.fn(() => Promise.resolve(true)),
 }));
 
+vi.mock("../ai/telemetry/businessLogger.js", () => ({
+  logBusinessEvent: vi.fn(() => Promise.resolve(true)),
+}));
+
 import { runOrchestrator } from "../ai/services/orchestrator.js";
-import { generateAIResponse } from "../ai/services/aiClient.js";
 import {
   filterEligibleSignals,
   markSignalTriggered,
@@ -141,13 +140,7 @@ describe("orchestrator", () => {
     saveAttentionState.mockResolvedValue(true);
     filterEligibleSignals.mockImplementation(async ({ signals }) => signals);
     reserveSelectedSignal.mockImplementation(async ({ selectedSignal }) => selectedSignal);
-    persistInsights.mockResolvedValue(true);
-    generateAIResponse.mockResolvedValue({
-      selectedSignalId: "risk-jun",
-      selectedSignalType: "financial-risk",
-      reason: "Systemic pressure is highest.",
-      priority: "high",
-    });
+    persistInsights.mockResolvedValue({ persisted: true, insightId: "insight-test" });
     runRiskService.mockResolvedValue({ id: "risk-jun", type: "financial-risk", agent: { explanation: "Risk insight", suggestion: "Risk suggestion" } });
     runAnomalyService.mockResolvedValue({ id: "anomaly-food", type: "anomaly", agent: { explanation: "Anomaly insight", suggestion: "Anomaly suggestion" } });
     runBudgetService.mockResolvedValue({ id: "budget-food", type: "budget", agent: { explanation: "Budget insight", suggestion: "Budget suggestion" } });
@@ -161,7 +154,6 @@ describe("orchestrator", () => {
       userId: "user-orchestrator",
       topSignal: expect.objectContaining({ id: "risk-jun", type: "financial-risk" }),
     }));
-    expect(generateAIResponse).not.toHaveBeenCalled();
     expect(runRiskService).toHaveBeenCalledTimes(1);
     expect(runRiskService).toHaveBeenCalledWith({
       data: riskData,
@@ -173,7 +165,7 @@ describe("orchestrator", () => {
     expect(result.reason).toBe("NO_ACTIVE_EPISODE");
   });
 
-  it("does not drain lower-ranked signals while the top episode is active", async () => {
+  it("filters and executes only the selected top signal", async () => {
     const result = await runPipeline();
 
     expect(filterEligibleSignals).toHaveBeenCalledWith({
@@ -194,7 +186,6 @@ describe("orchestrator", () => {
       insight: null,
       reason: "ACTIVE_EPISODE_UNCHANGED",
     });
-    expect(generateAIResponse).not.toHaveBeenCalled();
     expect(runRiskService).not.toHaveBeenCalled();
   });
 
@@ -204,7 +195,6 @@ describe("orchestrator", () => {
     const result = await runPipeline();
 
     expect(result).toEqual({ insight: null, reason: "NO_ELIGIBLE_SIGNAL" });
-    expect(generateAIResponse).not.toHaveBeenCalled();
   });
 
   it("returns only one insight per run and marks that selected signal triggered", async () => {
@@ -336,7 +326,7 @@ describe("orchestrator", () => {
     expect(result).toEqual({ insight: null, reason: "NO_RESERVED_SELECTION" });
   });
 
-  it("passes demo mode through to agent services without writing in demo runs", async () => {
+  it("passes demo mode through to agent services", async () => {
     await runPipeline({ isDemo: true });
     expect(runRiskService).toHaveBeenCalledWith(expect.objectContaining({ isDemo: true }));
 
@@ -345,12 +335,7 @@ describe("orchestrator", () => {
     filterEligibleSignals.mockImplementation(async ({ signals }) => signals);
     reserveSelectedSignal.mockImplementation(async ({ selectedSignal }) => selectedSignal);
     persistInsights.mockResolvedValue(true);
-    generateAIResponse.mockResolvedValue({
-      selectedSignalId: "risk-jun",
-      selectedSignalType: "financial-risk",
-      reason: "Systemic pressure is highest.",
-      priority: "high",
-    });
+    persistInsights.mockResolvedValue({ persisted: true, insightId: "insight-test" });
     runRiskService.mockResolvedValue({ id: "risk-jun", type: "financial-risk", agent: { explanation: "Risk insight", suggestion: "Risk suggestion" } });
 
     await runPipeline({ isDemo: false });

@@ -14,27 +14,24 @@ import {
 import { db } from "./firebase";
 
 // Helper to get colection reference
-const userColRef = (userUID, collectionName) =>
-  collection(db, "users", userUID, collectionName);
+const userColRef = (userId, collectionName) =>
+  collection(db, "users", userId, collectionName);
 
 // Add new document to user's subcollection
-export const addDocument = async (userID, collectionName, data) => {
-  return await addDoc(userColRef(userID, collectionName), {
+export const addDocument = async (userId, collectionName, data) => {
+  return await addDoc(userColRef(userId, collectionName), {
     ...data,
     createdAt: serverTimestamp(),
   });
 };
 
-export const updateDocument = async (userID, collectionName, itemUID, data) => {
-  if (!userID || !collectionName || !itemUID) {
+export const updateDocument = async (userId, collectionName, itemId, data) => {
+  if (!userId || !collectionName || !itemId) {
     return { ok: false, reason: "MISSING_UPDATE_TARGET" };
   }
 
   try {
-    await updateDoc(doc(db, "users", userID, collectionName, itemUID), {
-      ...data,
-      updatedAt: serverTimestamp(),
-    });
+    await updateDoc(doc(db, "users", userId, collectionName, itemId), { ...data });
 
     return { ok: true };
   } catch (err) {
@@ -46,9 +43,9 @@ export const updateDocument = async (userID, collectionName, itemUID, data) => {
   }
 };
 
-export const deleteDocument = async (userUID, collectionName, dataID) => {
+export const deleteDocument = async (userId, collectionName, itemId) => {
   try {
-    await deleteDoc(doc(db, "users", userUID, collectionName, dataID));
+    await deleteDoc(doc(db, "users", userId, collectionName, itemId));
   } catch (err) {
     console.warn(err);
   }

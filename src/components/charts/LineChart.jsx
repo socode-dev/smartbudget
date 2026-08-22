@@ -14,10 +14,10 @@ const LineChart = () => {
   const selectedCurrency = useCurrencyStore(state => state.selectedCurrency);
 
   useEffect(() => {
+    const chart = chartRef.current;
+
     return () => {
-      if (chartRef.current) {
-        chartRef.current?.chart?.destroy();
-      }
+        chart?.destroy();
     };
   }, []);
 
@@ -36,7 +36,7 @@ const LineChart = () => {
   )).join(". ");
 
   return (
-    <div aria-describedby="income-expenses-summary" className="w-full h-68 flex flex-col items-center justify-center">
+    <div aria-describedby="income-expenses-summary" className="w-full flex flex-col items-center justify-center">
       {monthlyIncome[0] === 0 && monthlyExpenses[0] === 0 ? (
         <div className="text-[rgb(var(--color-muted))] text-center">
           <p className="text-lg font-medium mb-3">
@@ -56,6 +56,7 @@ const LineChart = () => {
             ref={chartRef}
             data={incomeVsExpensesData}
             options={incomeVsExpensesOptions}
+            height={300}
           />
         </>
       )}

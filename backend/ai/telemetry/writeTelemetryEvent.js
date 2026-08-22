@@ -1,5 +1,7 @@
 import { db, FieldValue } from "../../../lib/firebaseAdmin.js";
 import { getDateKey, getDailyMetricId, getMetricShardId } from "./utils.js";
+import { buildBusinessDailyMetricPatch } from "./businessMetrics.js";
+import { queueUniqueCustomerMarker } from "./customerMetrics.js";
 
 const TELEMETRY_ROOT = "telemetry";
 
@@ -22,6 +24,13 @@ export const writeTelemetryEvent  = async ({ userId, category, eventId, payload 
     
         const userEventRef = buildUserEventRef({userId, category, eventId});
         batch.set(userEventRef, eventPayload, {merge: true});
+
+        queueUniqueCustomerMarker({
+            batch,
+            db,
+            payload: eventPayload,
+            dateKey,
+        });
 
         if(payload?.institutionId) {
             const institutionEventRef = buildInstitutionEventRef({
@@ -149,6 +158,15 @@ const buildDailyMetricPatch = ({ category, payload, dateKey, shardId, now }) => 
             shardId, 
             now 
         });
+    }
+
+    if (category === "businessEvents") {
+        return buildBusinessDailyMetricPatch({
+            payload,
+            dateKey,
+            shardId,
+            now
+        })
     }
 
     return null;

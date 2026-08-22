@@ -6,8 +6,8 @@ import {v4 as uuidv4} from "uuid";
 export const detectAnomalies = ({ transactions, currency }) => {
   const MIN_HISTORY_MONTHS = 4;
   const ROBUST_Z_THRESHOLD = 3;
-  const MIN_ABSOLUTE_INCREASE = 50;
   const MIN_PERCENT_INCREASE = 25;
+  const MIN_ABSOLUTE_INCREASE = currency === "NGN" ? 5000 : 50;
 
   const byCategoryMonth = {};
 
@@ -45,13 +45,13 @@ export const detectAnomalies = ({ transactions, currency }) => {
   const anomalies = [];
 
   Object.entries(categorySeries)?.forEach(([category, series]) => {
-    series.sort((a, b) => a.monthKey.localeCompare(b.monthKey));
+    const sortedSeries = [...series].sort((a, b) => a.monthKey.localeCompare(b.monthKey));
 
-    const values = series.map((s) => s.total);
+    const values = sortedSeries.map((s) => s.total);
 
     // Evaluate last month only
-    const latestIndex = series.length - 1;
-    const { month, total } = series[latestIndex];
+    const latestIndex = sortedSeries.length - 1;
+    const { month, total } = sortedSeries[latestIndex];
     const historyValues = values.slice(0, -1);
 
     if (historyValues.length < MIN_HISTORY_MONTHS) return;
@@ -96,19 +96,17 @@ export const detectAnomalies = ({ transactions, currency }) => {
       total: item.total,
     }));
 
-    const anomaly = {
+    anomalies.push({
       id: `anomaly_${uuidv4()}`,
       type: "anomaly",
       category,
       currency,
       timestamp: new Date().toISOString(),
-
       risk: {
         score: riskScore,
         level: robustZ >= 5 ? "HIGH" : "MEDIUM",
         confidence: 0.8,
       },
-
       signal: {
         metric: "spending",
         month,
@@ -121,7 +119,6 @@ export const detectAnomalies = ({ transactions, currency }) => {
         intensity: robustZ >= 5 ? "extreme" : "moderate",
         trend,
       },
-
       context: {
         months_analyzed: historyValues.length,
         highest_in_period: total === maxVal,
@@ -131,7 +128,6 @@ export const detectAnomalies = ({ transactions, currency }) => {
         previous_value: previous,
         recent_history: formattedHistory,
       },
-
       impact: {
         type: "overspending",
         severity: robustZ >= 5 ? "HIGH" : "MEDIUM",
@@ -140,14 +136,11 @@ export const detectAnomalies = ({ transactions, currency }) => {
             ? "may significantly affect balance"
             : "may affect balance",
       },
-
       recommendation: {
         action_type: "reduce_spending",
         action_hint: `Reduce spending in ${category}`,
       }
-    };
-
-    anomalies.push(anomaly);
+    });
   });
 
   return anomalies;

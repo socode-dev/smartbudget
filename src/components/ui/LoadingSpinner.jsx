@@ -1,4 +1,4 @@
-const LoadingSpinner = ({ size = 25, color = "white" }) => {
+const LoadingSpinner = ({ size = 25, color = "white", borderTopColor =  "gray"}) => {
   return (
     <div
       className="border-7 rounded-full animate-spin mx-auto"
@@ -6,7 +6,7 @@ const LoadingSpinner = ({ size = 25, color = "white" }) => {
         width: size,
         height: size,
         borderColor: color,
-        borderTopColor: "gray",
+        borderTopColor: borderTopColor,
       }}
     >
       <div></div>

@@ -2,7 +2,6 @@ import { useEffect, useRef } from "react";
 import { Doughnut } from "react-chartjs-2";
 import { useReportChartContext } from "../../context/ReportChartContext";
 import { useOverviewChartContext } from "../../context/OverviewChartContext";
-import clsx from "clsx";
 import { ChartSummary } from "./LineChart";
 import { formatAmount } from "../../utils/formatAmount";
 import useCurrencyStore from "../../store/useCurrencyStore";
@@ -14,10 +13,10 @@ const DoughnutChart = ({ page }) => {
   const selectedCurrency = useCurrencyStore(state => state.selectedCurrency);
 
   useEffect(() => {
+    const chart = chartRef.current;
+
     return () => {
-      if (chartRef.current) {
-        chartRef.current?.chart?.destroy();
-      }
+        chart?.destroy();
     };
   }, []);
 
@@ -49,16 +48,13 @@ const DoughnutChart = ({ page }) => {
   return (
     <div
       aria-describedby="budget-overview-summary"
-      className={clsx(
-        "grow w-full flex flex-col items-center",
-        page === "overview" ? "h-68" : "h-80"
-      )}
+      className="grow w-full flex flex-col items-center"
     >
       <ChartSummary id="budget-overview-summary">
         Budget overview. {budgetSummary}
       </ChartSummary>
 
-      <Doughnut ref={chartRef} data={data} options={options} />
+      <Doughnut ref={chartRef} data={data} options={options} height={300} />
     </div>
   );
 };

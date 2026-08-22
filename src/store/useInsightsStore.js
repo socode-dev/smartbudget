@@ -7,6 +7,11 @@ import {
 } from "firebase/firestore";
 import { db } from "../firebase/firebase";
 import { updateDocument } from "../firebase/firestore";
+import { trackBusinessEvent } from "../api/businessTelemetry";
+
+const hasTerminalResponse = (status) => {
+  return ["ACKNOWLEDGED", "DISMISSED", "EXPIRED"].includes(status);
+}
 
 const useInsightsStore = create(
   persist(
@@ -32,17 +37,42 @@ const useInsightsStore = create(
             const expired = data.expiresAt && data.expiresAt < now;
 
             if (expired) {
-              history.push(formatInsightHistory({ data, expired }));
+              const alreadyTerminal = hasTerminalResponse(data.status);
 
-              if (data.status !== "EXPIRED") {
+              history.push(formatInsightHistory({ 
+                data: {
+                  ...data,
+                  status: alreadyTerminal ? data.status : "EXPIRED",
+                },
+              }));
+
+              await updateDocument(uid, "insights", document.id, {
+                valid: false
+              });
+
+              if (!alreadyTerminal) {
                 await updateDocument(uid, "insights", document.id, {
                   status: "EXPIRED",
+                  expiredAtMs: now
+                });
+
+                await trackBusinessEvent({
+                  userId: uid,
+                  eventType: "insight_expired",
+                  insightId: document.id,
+                  insightType: data.type,
+                  severity: data.severity,
+                  surface: "insights_store",
                 });
               }
-            } else {
-              const activeInsight = { id: document.id, ...data, status: "ACTIVE" };
 
-              history.push(formatInsightHistory({ data: activeInsight, expired }));
+              continue;
+            }
+            
+            if (data.valid) {
+              const activeInsight = {...data};
+
+              history.push(formatInsightHistory({data: activeInsight}));
               list.push(activeInsight);
             }
           }
@@ -53,16 +83,16 @@ const useInsightsStore = create(
 
       clearInsightsStore: () => set({ insights: [], insightsHistory: [] }),
     }),
-    {
-      name: "insights-storage",
-      partialize: (state) => ({ insights: state.insights }),
-    }
+    // {
+    //   name: "insights-storage",
+    //   partialize: (state) => ({ insights: state.insights }),
+    // }
   )
 );
 
-const formatInsightHistory = ({ data, expired }) => {
+const formatInsightHistory = ({ data }) => {
   const type = normalizeHistoryType(data.type);
-  const status = expired || data.status === "EXPIRED" ? "EXPIRED" : "ACTIVE";
+  const status = data.status;
   const category = ["anomaly", "budget"].includes(type) ? data.category ?? null : null;
 
   return {
