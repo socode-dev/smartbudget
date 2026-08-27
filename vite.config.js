@@ -4,23 +4,24 @@ import tailwindcss from "@tailwindcss/vite";
 import dotenv from "dotenv";
 import path from "path";
 
-dotenv.config({ path: path.resolve(process.cwd(), '.env.local') });
+const isVitest = process.env.VITEST;
 
-// https://vite.dev/config/
+if (!isVitest) {
+  dotenv.config({ path: path.resolve(process.cwd(), '.env.local') });
+}
+
 export default defineConfig({
   plugins: [react(), tailwindcss()],
   test: {
     globals: true,
     environment: "node",
-    include: ["src/tests/**/*.test.js", "backend/tests/**/*.test.js"],
+    include: [
+      "src/tests/**/*.test.js", 
+      "backend/tests/**/*.test.js",
+    ],
+    isolate: true,
+    clearMocks: true,
+    restoreMocks: true,
+    testTimeout: 15000,
   },
-  server: {
-    proxy: {
-      '/api': {
-        target: 'http://localhost:3002',
-        changeOrigin: true,
-        secure: false,
-      }
-    }
-  }
 });

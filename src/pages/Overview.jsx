@@ -54,7 +54,7 @@ const Overview = () => {
         <h2 className="text-3xl md:text-4xl font-semibold text-[rgb(var(--color-text))]">
           Welcome,{" "}
           <span className="text-[rgb(var(--color-brand-deep))]">
-            {userName.fullName}
+            {userName.fullName || "User"}
           </span>
         </h2>
         <p className="text-base text-[rgb(var(--color-muted))]">

@@ -10,6 +10,8 @@ lerna-debug.log*
 # Cursor and development folders
 node_modules
 .cursor/
+.agents/
+.claude/
 dev-dist/
 dist
 dist-ssr
