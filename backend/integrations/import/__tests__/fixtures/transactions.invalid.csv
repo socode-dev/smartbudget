@@ -1,0 +1,6 @@
+transaction_id,customer_id,category,type,amount,date,description
+,CUST-001,Food,expense,2500,2026-08-01,Missing transaction id
+TXN-006,,Transport,expense,1200,2026-08-02,Missing customer id
+TXN-007,CUST-001,Salary,credit,50000,2026-08-03,Invalid transaction type
+TXN-008,CUST-001,Food,expense,-500,2026-08-04,Invalid negative amount
+TXN-009,CUST-001,Food,expense,500,2026-02-30,Invalid date

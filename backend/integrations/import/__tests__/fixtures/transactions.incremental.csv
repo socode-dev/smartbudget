@@ -1,0 +1,4 @@
+transaction_id,customer_id,category,type,amount,date,description
+TXN-003,CUST-002,Transport,expense,1500,2026-08-03,Duplicate transaction from prior import
+TXN-007,CUST-001,Utilities,expense,8000,2026-08-10,Electricity bill
+TXN-008,CUST-003,Emergency Savings,income,5000,2026-08-11,Manual savings contribution

@@ -5,12 +5,14 @@
   "type": "module",
   "scripts": {
     "dev": "vite --host",
-    "dev:api": "node server.js",
-    "dev:full": "concurrently \"npm run dev:api\" \"npm run dev\"",
+    "dev:vercel": "vercel dev",
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "test": "vitest"
+    "test": "vitest",
+    "test:watch": "vitest --watch",
+    "test:importer": "cross-env FIREBASE_PROJECT_ID=demo-smartbudget GCLOUD_PROJECT=demo-smartbudget firebase emulators:exec --project demo-smartbudget --only firestore \"vitest run --config vitest.importer.config.js\"",
+    "test:coverage": "vitest run --coverage" 
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
@@ -54,11 +56,13 @@
     "@types/react-dom": "^19.1.6",
     "@vitejs/plugin-react": "^4.5.2",
     "concurrently": "^9.2.1",
+    "cross-env": "^10.1.0",
     "dotenv": "^17.4.2",
     "eslint": "^9.29.0",
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.20",
+    "firebase-tools": "^15.28.1",
     "globals": "^16.2.0",
     "vite": "^7.0.0",
     "vitest": "^3.2.4"

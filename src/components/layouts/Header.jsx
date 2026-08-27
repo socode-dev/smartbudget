@@ -92,7 +92,7 @@ const Header = () => {
             aria-controls="profile-menu"
             className="text-base tracking-wide text-white font-bold bg-[rgb(var(--color-brand))] hover:bg-[rgb(var(--color-brand-hover))] px-2.5 py-1.5 rounded-full transition cursor-pointer"
           >
-            {userName.initials ?? "SB"}
+            {userName.initials || "SB"}
           </button>
 
           <ProfileDropdown />

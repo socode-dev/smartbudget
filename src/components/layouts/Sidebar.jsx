@@ -98,7 +98,7 @@ const Sidebar = () => {
             expanded ? "justify-start" : "justify-center"
           )}
         >
-          <FaUserCircle className="text-3xl" />
+          <FaUserCircle className={clsx("text-3xl", !userName?.fullname && "mx-auto")} />
           <span
             className={clsx(
               "text-sm transition-all duration-200 truncate max-w-full",

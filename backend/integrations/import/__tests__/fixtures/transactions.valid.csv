@@ -1,0 +1,7 @@
+transaction_id,customer_id,category,type,amount,date,description
+TXN-001,CUST-001,Food,expense,2500,2026-08-01,Lunch and groceries
+TXN-002,CUST-001,Salary,income,120000,2026-08-02,Monthly salary
+TXN-003,CUST-002,Transport,expense,1500,2026-08-03,Bus fare
+TXN-004,CUST-002,Loan Repayment,expense,15000,2026-08-04,Weekly microloan repayment
+TXN-005,CUST-003,Inventory Sales,income,45000,2026-08-05,Daily shop sales deposit
+TXN-006,CUST-003,Stock Purchase,expense,22000,2026-08-06,Wholesale goods purchase
