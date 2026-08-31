@@ -1,7 +1,10 @@
 import { describe, expect, it } from "vitest";
 import { db } from "../../../../lib/firebaseAdmin.js";
 import { createInvites } from "../createInvites.js";
-import { INVITE_STATUSES } from "../inviteTypes.js";
+import {
+    INVITE_STATE_STATUSES,
+    INVITE_STATUSES
+} from "../inviteTypes.js";
 import { validateInvite } from "../validateInvite.js";
 
 const ACTIVATION_BASE_URL = "https://smartbudget.app";
@@ -35,6 +38,16 @@ const createInviteAndToken = async ({
 };
 
 describe("validateInvite()", () => {
+    it("requires a token", async () => {
+        await expect(validateInvite()).rejects.toThrow("MISSING_INVITE_TOKEN");
+    });
+
+    it("rejects an unknown token", async () => {
+        await expect(
+            validateInvite({ token: "unknown-token" })
+        ).rejects.toThrow("INVITE_NOT_FOUND");
+    });
+
     it("returns scope for an active unexpired invite", async () => {
         const { token } = await createInviteAndToken();
 
@@ -66,7 +79,7 @@ describe("validateInvite()", () => {
             .get();
 
         expect(invite.status).toBe(INVITE_STATUSES.EXPIRED);
-        expect(state.data().status).toBe(INVITE_STATUSES.EXPIRED);
+        expect(state.data().status).toBe(INVITE_STATE_STATUSES.EXPIRED);
     });
 
     it("rejects a used invite", async () => {

@@ -39,6 +39,19 @@ const createInviteAndToken = async ({
 };
 
 describe("activateInvite()", () => {
+    it("requires token, auth uid, and email", async () => {
+        await expect(activateInvite()).rejects.toThrow(
+            "MISSING_ACTIVATION_PARAMS"
+        );
+
+        await expect(
+            activateInvite({
+                token: "token",
+                authUid: "firebase-user-001",
+            })
+        ).rejects.toThrow("MISSING_ACTIVATION_PARAMS");
+    });
+
     it("claims an active invite for a Firebase Auth user", async () => {
         const { token } = await createInviteAndToken();
 
@@ -96,6 +109,56 @@ describe("activateInvite()", () => {
         });
     });
 
+    it("migrates pre-activation transactions during normal activation", async () => {
+        const { token } = await createInviteAndToken();
+
+        await db
+            .collection("pilotCustomers")
+            .doc("import-customer-001")
+            .collection("transactions")
+            .doc("tx-001")
+            .set({
+                id: "tx-001",
+                amount: 100,
+                ownerType: "PILOT_CUSTOMER",
+            });
+
+        await activateInvite({
+            token,
+            authUid: "firebase-user-001",
+            email: "customer@example.com",
+        });
+
+        const migratedTransaction = await db
+            .collection("users")
+            .doc("firebase-user-001")
+            .collection("transactions")
+            .doc("tx-001")
+            .get();
+
+        const stagedTransaction = await db
+            .collection("pilotCustomers")
+            .doc("import-customer-001")
+            .collection("transactions")
+            .doc("tx-001")
+            .get();
+
+        const identity = await db
+            .collection("pilotIdentities")
+            .doc("import-customer-001")
+            .get();
+
+        expect(migratedTransaction.exists).toBe(true);
+        expect(migratedTransaction.data()).toMatchObject({
+            id: "tx-001",
+            amount: 100,
+            ownerType: "USER",
+            migratedFromImportCustomerId: "import-customer-001",
+        });
+        expect(stagedTransaction.exists).toBe(false);
+        expect(identity.data().status).toBe(PILOT_IDENTITY_STATUSES.CLAIMED);
+    });
+
     it("does not allow a second user to consume the same invite", async () => {
         const { token } = await createInviteAndToken();
 
@@ -112,6 +175,75 @@ describe("activateInvite()", () => {
                 email: "other@example.com",
             })
         ).rejects.toThrow("INVITE_NOT_ACTIVE");
+    });
+
+    it("does not allow a different user to claim an already claimed customer identity", async () => {
+        const { token } = await createInviteAndToken();
+
+        await db
+            .collection("pilotIdentities")
+            .doc("import-customer-001")
+            .set({
+                importCustomerId: "import-customer-001",
+                userId: "firebase-user-001",
+                institutionId: "ins-a",
+                pilotId: "pilot-001",
+                status: PILOT_IDENTITY_STATUSES.CLAIMED,
+            });
+
+        await expect(
+            activateInvite({
+                token,
+                authUid: "firebase-user-002",
+                email: "other@example.com",
+            })
+        ).rejects.toThrow("CUSTOMER_ALREADY_CLAIMED");
+    });
+
+    it("does not allow a different user to claim a migrating customer identity", async () => {
+        const { token } = await createInviteAndToken();
+
+        await db
+            .collection("pilotIdentities")
+            .doc("import-customer-001")
+            .set({
+                importCustomerId: "import-customer-001",
+                userId: "firebase-user-001",
+                institutionId: "ins-a",
+                pilotId: "pilot-001",
+                status: PILOT_IDENTITY_STATUSES.MIGRATING,
+            });
+
+        await expect(
+            activateInvite({
+                token,
+                authUid: "firebase-user-002",
+                email: "other@example.com",
+            })
+        ).rejects.toThrow("CUSTOMER_ACTIVATION_IN_PROGRESS");
+    });
+
+    it("does not allow an auth user already linked to another import customer to activate a new invite", async () => {
+        const { token } = await createInviteAndToken({
+            importCustomerId: "import-customer-002",
+        });
+
+        await db
+            .collection("users")
+            .doc("firebase-user-001")
+            .set({
+                uid: "firebase-user-001",
+                email: "customer@example.com",
+                importCustomerId: "import-customer-001",
+            });
+
+        await expect(
+            activateInvite({
+                token,
+                authUid: "firebase-user-001",
+                email: "customer@example.com",
+            })
+        ).rejects.toThrow("AUTH_USER_ALREADY_LINKED");
     });
 
     it("allows the same user to retry a used invite and finish migration", async () => {

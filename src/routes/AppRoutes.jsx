@@ -5,6 +5,8 @@ import PublicRoute from "./PublicRoute";
 import ProtectedRoute from "./ProtectedRoute";
 import Login from "../pages/Login";
 import Signup from "../pages/Signup";
+import ActivateInvite from "../pages/ActivateInvite";
+import ErrorPage from "../pages/ErrorPage";
 import ForgotPassword from "../pages/ForgotPassword";
 import { lazy } from "react";
 import EmailVerified from "../pages/EmailVerified";
@@ -28,8 +30,9 @@ const Notifications = lazy(() => import("../pages/Notifications"));
 const AppRoutes = () => {
   return (
     <Routes>
-      {/* Authentication routes */}
       <Route element={<AuthLayout />}>
+        <Route path="activate" element={<ActivateInvite />} />
+        
         <Route
           path="login"
           element={
@@ -107,6 +110,7 @@ const AppRoutes = () => {
           }
         />
         <Route path="notifications" element={<Notifications />} />
+        <Route path="*" element={<ErrorPage />} />
       </Route>
 
       {/* Main routes */}
@@ -168,7 +172,9 @@ const AppRoutes = () => {
         />
         <Route path="notifications" element={<Notifications />} />
         <Route path="email-verified" element={<EmailVerified />} />
+        <Route path="*" element={<ErrorPage />} />
       </Route>
+      <Route path="*" element={<ErrorPage />} />
     </Routes>
   );
 };
