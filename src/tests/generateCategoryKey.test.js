@@ -134,4 +134,18 @@ describe("generateCategoryKey", () => {
     expect(generateCategoryKey("budget", "A")).toBe("budget:a");
     expect(generateCategoryKey("budget", "1")).toBe("budget:1");
   });
+
+  it("uses the category as the slug when no second argument is provided", () => {
+    expect(generateCategoryKey("Freelance")).toBe("freelance:freelance");
+    expect(generateCategoryKey("Salary")).toBe("salary:salary");
+  });
+
+  it("supports explicit prefix and category arguments for financial matching", () => {
+    expect(
+      generateCategoryKey({ prefix: "expense", category: "Food" })
+    ).toBe("expense:food");
+    expect(
+      generateCategoryKey({ prefix: "income", category: "Freelance" })
+    ).toBe("income:freelance");
+  });
 });

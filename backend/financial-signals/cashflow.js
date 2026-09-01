@@ -47,13 +47,11 @@ return "HIGH";
 
 const projectionConfidence = getProjectionConfidence();
 
-// Only calculate burn rate when meaningful
 const dailyBurnRate =
 projectionConfidence === "LOW"
 ? null
 : parseFloat((totalSpent / todayDate).toFixed(2));
 
-// Runway uses safe fallback if burn rate is unreliable
 let spendingRunwayDays = null;
 
 if(projectionConfidence === "LOW") {
@@ -118,6 +116,8 @@ return "SAFE";
 };
 
 const outcome = getOutcome();
+
+if (outcome === "SAFE") return null;
 
 return {
   id: `txn_${uuidv4()}`,

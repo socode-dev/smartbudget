@@ -1,7 +1,7 @@
 import { expect } from "vitest";
 
 const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
-const CATEGORY_KEY_PATTERN = /^[a-z0-9-]+:unknown$/;
+const CATEGORY_KEY_PATTERN = /^(income|expense):[a-z0-9-&!.?-]+$/;
 
 export const assertFinanceRecordSchema = record => {
   expect(record).toMatchObject({

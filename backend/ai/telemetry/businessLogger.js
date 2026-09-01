@@ -15,6 +15,8 @@ export const logBusinessEvent = async ({
     insightType = null,
     severity = null,
     surface = null,
+    subjectCollection = "users",
+    writeSubjectEvent = true,
     metadata = {}
 } = {}) => {
     if(!userId || !eventType) return false;
@@ -25,6 +27,8 @@ export const logBusinessEvent = async ({
         userId,
         category: "businessEvents",
         eventId,
+        subjectCollection,
+        writeSubjectEvent,
         payload: {
             schemaVersion: 1,
             eventId,

@@ -43,6 +43,32 @@ describe("processCustomers()", () => {
         const users = await db.collection("users").get();
         expect(users.size).toBe(0);
 
+        const userTelemetryRefs = await Promise.all(
+            result.affectedImportCustomerIds.map(importCustomerId =>
+                db
+                    .collection("users")
+                    .doc(importCustomerId)
+                    .collection("telemetry")
+                    .listDocuments()
+            )
+        );
+
+        const importerTelemetryRefs = await db
+            .collection("users")
+            .doc("importer_bank-a")
+            .collection("telemetry")
+            .listDocuments();
+
+        const pilotCustomerTelemetryRefs = await db
+            .collection("pilotCustomers")
+            .doc(result.affectedImportCustomerIds[0])
+            .collection("telemetry")
+            .listDocuments();
+
+        expect(userTelemetryRefs.flat()).toHaveLength(0);
+        expect(importerTelemetryRefs).toHaveLength(0);
+        expect(pilotCustomerTelemetryRefs.length).toBeGreaterThan(0);
+
         const pilotCustomers = await db.collection("pilotCustomers").get();
         expect(pilotCustomers.size).toBe(3);
 

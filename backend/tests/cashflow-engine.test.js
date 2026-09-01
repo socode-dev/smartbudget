@@ -42,17 +42,13 @@ const expectProjectionInvariant = result => {
 };
 
 describe("cashflow engine", () => {
-  it("returns a safe cashflow signal for normal current-month spending", () => {
+  it("returns null for normal healthy current-month spending", () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date(fixedSystemDate));
 
     const result = buildCashflowData({ transactions: normalUser.transactions, currency: "NGN"});
 
-    expect(result.outcome).toBe("SAFE");
-    expect(result.income.total).toBe(4200);
-    expect(result.spending.current_balance).toBeGreaterThan(0);
-    expectAccountingInvariant(result);
-    expectProjectionInvariant(result);
+    expect(result).toBeNull();
 
     vi.useRealTimers();
   });
@@ -108,17 +104,13 @@ describe("cashflow engine", () => {
     vi.useRealTimers();
   });
 
-  it("returns safe cashflow for empty transactions", () => {
+  it("returns null for empty transactions because there is no cashflow risk", () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date(fixedSystemDate));
 
     const result = buildCashflowData({ transactions: edgeCaseUsers.emptyTransactions.transactions, currency: "NGN" });
 
-    expect(result.income.total).toBe(0);
-    expect(result.spending.total_spent).toBe(0);
-    expect(result.outcome).toBe("SAFE");
-    expectAccountingInvariant(result);
-    expectProjectionInvariant(result);
+    expect(result).toBeNull();
 
     vi.useRealTimers();
   });
@@ -129,6 +121,7 @@ describe("cashflow engine", () => {
 
     const result = buildCashflowData({ transactions: incomeAfterSpendingUser.transactions, currency: "NGN" });
 
+    expect(result.outcome).toBe("WARNING");
     expect(result.income.total).toBe(3500);
     expect(result.spending.total_spent).toBe(1600);
     expectAccountingInvariant(result);
@@ -143,9 +136,7 @@ describe("cashflow engine", () => {
 
     const result = buildCashflowData({ transactions: multipleIncomeSourcesUser.transactions, currency: "NGN" });
 
-    expect(result.income.total).toBe(4350);
-    expect(result.spending.total_spent).toBe(700);
-    expectAccountingInvariant(result);
+    expect(result).toBeNull();
 
     vi.useRealTimers();
   });
@@ -156,9 +147,7 @@ describe("cashflow engine", () => {
 
     const result = buildCashflowData({ transactions: monthIsolationUser.transactions, currency: "NGN" });
 
-    expect(result.income.total).toBe(4000);
-    expect(result.spending.total_spent).toBe(400);
-    expectAccountingInvariant(result);
+    expect(result).toBeNull();
 
     vi.useRealTimers();
   });
@@ -171,10 +160,7 @@ describe("cashflow engine", () => {
       buildCashflowData({ transactions: normalUser.transactions, currency: "NGN" })
     );
 
-    const normalize = result => ({ ...result, id: "stable-id" });
-
-    expect(normalize(runs[1])).toEqual(normalize(runs[0]));
-    expect(normalize(runs[2])).toEqual(normalize(runs[0]));
+    expect(runs).toEqual([null, null, null]);
 
     vi.useRealTimers();
   });
@@ -188,9 +174,7 @@ describe("cashflow engine", () => {
       currency: "NGN"
     });
 
-    expect(result.income.total).toBe(4000);
-    expect(result.spending.total_spent).toBe(400);
-    expect(result.outcome).toBe("SAFE");
+    expect(result).toBeNull();
 
     vi.useRealTimers();
   });

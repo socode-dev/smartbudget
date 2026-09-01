@@ -7,6 +7,15 @@ import {
 import { getInviteByToken } from "./validateInvite.js";
 
 const MIGRATION_BATCH_SIZE = 400;
+const DEFAULT_THRESHOLDS = Object.freeze({
+    transactionThreshold: 50000,
+    budgetThreshold50: 50,
+    budgetThreshold80: 80,
+    budgetThreshold100: 100,
+    goalThreshold50: 50,
+    goalThreshold80: 80,
+    goalThreshold100: 100,
+});
 
 export const activateInvite = async ({
     token,
@@ -210,6 +219,9 @@ const claimInvite = ({
             cohortId: invite.cohortId ?? null,
             importCustomerId: invite.importCustomerId,
             source: "institution_invite",
+            thresholds:
+                userSnapshot.data()?.thresholds ??
+                DEFAULT_THRESHOLDS,
             updatedAt: FieldValue.serverTimestamp(),
         };
 

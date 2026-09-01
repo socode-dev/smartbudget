@@ -25,7 +25,7 @@ const persistedFinanceRecord = ({
     id,
     name: displayCategory,
     category: displayCategory,
-    categoryKey: generateCategoryKey(category, ""),
+    categoryKey: generateCategoryKey({ prefix: type, category }),
     amount,
     type,
     date,

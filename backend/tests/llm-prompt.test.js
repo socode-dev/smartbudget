@@ -11,7 +11,6 @@ import {
   exceedingBudgetsUser,
   fixedSystemDate,
   normalUser,
-  oneCategoryOverspendingUser,
 } from "./fixtures/index.js";
 import { assertPromptSanitized } from "./fixtures/fixture-validators.js";
 
@@ -95,18 +94,14 @@ describe("prompt builders", () => {
     const riskPrompt = buildCashflowPrompt({
       cashflowData: buildCashflowData({ transactions: cashflowRiskUser.transactions, currency }),
     });
-    const safePrompt = buildCashflowPrompt({
-      cashflowData: buildCashflowData({ transactions: normalUser.transactions, currency }),
-    });
+    const safeCashflowData = buildCashflowData({ transactions: normalUser.transactions, currency });
 
     expect(riskPrompt).toContain("Current income:");
     expect(riskPrompt).toContain("Spent:");
     expect(riskPrompt).toContain("Days remaining:");
     expect(riskPrompt).toContain("Outcome: RISK");
-    expect(safePrompt).toContain("Outcome: SAFE");
-    expect(safePrompt).not.toContain("Outcome: RISK");
+    expect(safeCashflowData).toBeNull();
     assertPromptSanitized(riskPrompt);
-    assertPromptSanitized(safePrompt);
 
     vi.useRealTimers();
   });
@@ -183,7 +178,7 @@ describe("prompt builders", () => {
     vi.setSystemTime(new Date(fixedSystemDate));
 
     const cashflowPrompt = buildCashflowPrompt({
-      cashflowData: buildCashflowData({ transactions: oneCategoryOverspendingUser.transactions, currency }),
+      cashflowData: buildCashflowData({ transactions: cashflowRiskUser.transactions, currency }),
     });
     const budgetPrompt = buildBudgetCompliancePrompt({
       complianceData: buildBudgetComplianceData({

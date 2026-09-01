@@ -58,6 +58,14 @@ describe("Incremental imports", () => {
         expect(
             counts.reduce((total, snapshot) => total + snapshot.size, 0)
         ).toBe(6);
+
+        const importedTransaction = counts
+            .flatMap(snapshot => snapshot.docs)
+            .find(doc => doc.data().category === "Loan Repayment");
+
+        expect(importedTransaction.data().categoryKey).toBe(
+            "expense:loan-repayment"
+        );
     });
 
     it("imports only new transactions", async () => {
