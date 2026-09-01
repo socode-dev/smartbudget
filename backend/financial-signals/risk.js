@@ -15,15 +15,15 @@ export const buildRiskData = ({ anomalies, budgetCompliance, cashflowData, trans
     
     const budgetComplianceRate = totalBudgets > 0 ? Math.round(((totalBudgets - exceededBudgets.length) / totalBudgets) * 100) : 100; 
 
-    const cashFlowOutcome = cashflowData.outcome;
-    const percentSpent = cashflowData.derived.percent_spent;
-    const projectionConfidence = cashflowData.derived.projection_confidence;
-    const hasNoIncome = cashflowData.derived.has_no_income;
+    const cashFlowOutcome = cashflowData?.outcome ?? "SAFE";
+    const percentSpent = cashflowData?.derived?.percent_spent ?? 0;
+    const projectionConfidence = cashflowData?.derived?.projection_confidence ?? null;
+    const hasNoIncome = cashflowData?.derived?.has_no_income ?? false;
 
     const now = new Date();
     const currentYear = getYear(now);
 
-    const savingsRate = cashflowData.income.total > 0 ? 
+    const savingsRate = cashflowData?.income?.total > 0 ?
     Math.max(0, Math.round(
         ((cashflowData.income.total - cashflowData.spending.total_spent) / cashflowData.income.total) * 100
     ))

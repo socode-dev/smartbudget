@@ -12,6 +12,7 @@ import { handleEdit } from "../utils/handleEdit";
 import { useFormContext } from "./FormContext";
 import { useModalContext } from "./ModalContext";
 import { showDemoReadOnlyToast, useDemoMode } from "../demo/useDemoMode";
+import { sortTransactionsByDateTime } from "../utils/sortTransactions";
 
 const TransactionsContext = createContext();
 
@@ -33,11 +34,9 @@ export const TransactionsProvider = ({ children }) => {
   const forms = useFormContext("transactions");
   const { setValue } = forms;
 
-  // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const transactionsPerPage = 10;
 
-  // Scroll to top when page changes
   useEffect(() => {
     const mainElement = document.querySelector("main");
     if (mainElement) {
@@ -45,7 +44,6 @@ export const TransactionsProvider = ({ children }) => {
     }
   }, [currentPage]);
 
-  // Filter transaction by description search, date range, category and type
   const filteredTransactions = useMemo(
     () =>
       transactions?.filter((tx) => {
@@ -93,13 +91,11 @@ export const TransactionsProvider = ({ children }) => {
     ]
   );
 
-  // Sort transactions by date (latest first)
   const sortedTransactions = useMemo(
-    () => filteredTransactions?.sort((a, b) => b.createdAt - a.createdAt),
+    () => sortTransactionsByDateTime(filteredTransactions),
     [filteredTransactions]
   );
 
-  // Get total income, expenses, and balance
   const { totalBalance, totalExpenses, totalIncome } = useMemo(
     () => transactionTotal(sortedTransactions),
     [sortedTransactions]
@@ -114,7 +110,6 @@ export const TransactionsProvider = ({ children }) => {
     sortedTransactions?.length / transactionsPerPage
   );
 
-  // Calculate current page slice
   const indexOfLastTransaction = currentPage * transactionsPerPage;
   const indexOfFirstTransaction = indexOfLastTransaction - transactionsPerPage;
   const currentTransactions = sortedTransactions?.slice(
@@ -122,7 +117,6 @@ export const TransactionsProvider = ({ children }) => {
     indexOfLastTransaction
   );
 
-  // Handle navigation
   const handlePrev = () => setCurrentPage((prev) => Math.max(prev - 1, 1));
 
   const handleNext = () =>

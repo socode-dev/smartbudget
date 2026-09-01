@@ -98,6 +98,15 @@ describe("activateInvite()", () => {
             email: "customer@example.com",
             importCustomerId: "import-customer-001",
             source: "institution_invite",
+            thresholds: {
+                transactionThreshold: 50000,
+                budgetThreshold50: 50,
+                budgetThreshold80: 80,
+                budgetThreshold100: 100,
+                goalThreshold50: 50,
+                goalThreshold80: 80,
+                goalThreshold100: 100,
+            },
         });
 
         expect(invite.status).toBe(INVITE_STATUSES.USED);
@@ -106,6 +115,48 @@ describe("activateInvite()", () => {
         expect(state.data()).toMatchObject({
             status: INVITE_STATE_STATUSES.CLAIMED,
             userId: "firebase-user-001",
+        });
+    });
+
+    it("does not overwrite existing user thresholds during activation", async () => {
+        const { token } = await createInviteAndToken();
+
+        await db
+            .collection("users")
+            .doc("firebase-user-001")
+            .set({
+                uid: "firebase-user-001",
+                email: "customer@example.com",
+                thresholds: {
+                    transactionThreshold: 20000,
+                    budgetThreshold50: 60,
+                    budgetThreshold80: 90,
+                    budgetThreshold100: 120,
+                    goalThreshold50: 40,
+                    goalThreshold80: 70,
+                    goalThreshold100: 95,
+                },
+            });
+
+        await activateInvite({
+            token,
+            authUid: "firebase-user-001",
+            email: "customer@example.com",
+        });
+
+        const user = await db
+            .collection("users")
+            .doc("firebase-user-001")
+            .get();
+
+        expect(user.data().thresholds).toMatchObject({
+            transactionThreshold: 20000,
+            budgetThreshold50: 60,
+            budgetThreshold80: 90,
+            budgetThreshold100: 120,
+            goalThreshold50: 40,
+            goalThreshold80: 70,
+            goalThreshold100: 95,
         });
     });
 

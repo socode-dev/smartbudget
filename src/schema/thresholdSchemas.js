@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const thresholdSchemas = z.object({
-  transactionThreshold: z.coerce.number().default(5000).optional(),
+  transactionThreshold: z.coerce.number().default(50000).optional(),
 
   // Budget thresholds
   budgetThreshold50: z.coerce.number().min(1).max(100).optional(),
@@ -15,7 +15,7 @@ export const thresholdSchemas = z.object({
 });
 
 export const defaultThresholds = {
-  transactionThreshold: 5000,
+  transactionThreshold: 50000,
 
   budgetThreshold50: 50,
   budgetThreshold80: 80,

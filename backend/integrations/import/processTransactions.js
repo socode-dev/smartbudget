@@ -4,6 +4,7 @@ import { BUSINESS_EVENTS } from "./importTypes.js";
 import { logImportBusinessEvent } from "./telemetry.js";
 import { getAllInChunks, commitInChunks } from "./utils.js";
 import { PILOT_IDENTITY_STATUSES } from "../invites/inviteTypes.js";
+import { generateCategoryKey } from "../../../src/utils/generateKey.js";
 
 export const processTransactions = async ({
     rows,
@@ -167,7 +168,6 @@ export const processTransactions = async ({
         affectedUserIds: [...affectedUserIds]
     };
 };
-
 const normalizeTransaction = ({
     row,
     institutionId,
@@ -194,7 +194,7 @@ const normalizeTransaction = ({
         transaction: {
             name: category,
             category,
-            categoryKey: normalizeCategory(category),
+            categoryKey: generateCategoryKey({ prefix: type, category }),
             amount: Number(row.amount),
             type,
             date: String(row.date ?? "").trim(),
@@ -204,15 +204,4 @@ const normalizeTransaction = ({
             source: "sftp_import"
         }
     };
-};
-
-const normalizeCategory = (category) => {
-    return (
-        String(category ?? "")
-            .trim()
-            .toLowerCase()
-            .replace(/[^a-z0-9]+/g, "_")
-            .replace(/^_+|_+$/g, "") ||
-        "unknown"
-    );
 };

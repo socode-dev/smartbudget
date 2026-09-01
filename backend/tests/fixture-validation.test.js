@@ -62,7 +62,7 @@ describe("fixture trust", () => {
   it("keeps budget fixtures aligned with June spending windows", () => {
     exceedingBudgetsUser.budgets.forEach(budget => {
       assertFinanceRecordSchema(budget);
-      expect(budget.categoryKey).toBe("food:unknown");
+      expect(budget.categoryKey).toBe("expense:food");
     });
 
     const foodSpend = exceedingBudgetsUser.transactions

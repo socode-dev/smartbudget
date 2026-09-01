@@ -1,119 +1,158 @@
-import useTransactionStore from "../store/useTransactionStore";
-import { useModalContext } from "../context/ModalContext";
 import { toast } from "react-hot-toast";
 import { useFormContext } from "../context/FormContext";
-import { generateCategoryKey } from "../utils/generateKey";
-import { createNotification } from "../firebase/firestore";
+import { useModalContext } from "../context/ModalContext";
+import { addDocument, createNotification } from "../firebase/firestore";
 import useCurrencyStore from "../store/useCurrencyStore";
+import useTransactionStore from "../store/useTransactionStore";
 import { formatAmount } from "../utils/formatAmount";
+import { generateCategoryKey } from "../utils/generateKey";
 import { getSnakeCaseValue } from "../utils/snakeCaseValue";
-import { addDocument } from "../firebase/firestore";
+
+const FORM_LABELS = {
+  TRANSACTIONS: "transactions",
+  BUDGETS: "budgets",
+  GOALS: "goals",
+  CONTRIBUTIONS: "contributions",
+};
+
+const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+const singularLabel = (label) =>
+  (label[0].toUpperCase() + label.slice(1)).slice(0, -1);
+
+const getFormType = (label) => ({
+  isTransaction: label === FORM_LABELS.TRANSACTIONS,
+  isBudget: label === FORM_LABELS.BUDGETS,
+  isGoal: label === FORM_LABELS.GOALS,
+  isContribution: label === FORM_LABELS.CONTRIBUTIONS,
+});
+
+const hasSupportedLabel = ({
+  isTransaction,
+  isBudget,
+  isGoal,
+  isContribution,
+}) => isTransaction || isBudget || isGoal || isContribution;
+
+const resolveCategoryValue = ({ data, isTransaction, isBudget }) => {
+  const selectedCategory = data.category?.trim() || "";
+  const customCategory = data.name?.trim() || "";
+
+  if (isTransaction || isBudget) {
+    return customCategory || selectedCategory;
+  }
+
+  return customCategory;
+};
+
+const buildCategoryKey = ({ categoryValue, type, isTransaction, isBudget }) => {
+  if (isTransaction || isBudget) {
+    return generateCategoryKey({ prefix: type, category: categoryValue });
+  }
+
+  return generateCategoryKey({ prefix: "goal", category: categoryValue });
+};
+
+const buildFormRecord = ({ data, editTransaction, formType, mode }) => {
+  const { isTransaction, isBudget } = formType;
+  const categoryValue = resolveCategoryValue({ data, isTransaction, isBudget });
+  const type = isTransaction || isBudget ? data.type : null;
+
+  const record = {
+    name: getSnakeCaseValue(categoryValue),
+    category: getSnakeCaseValue(categoryValue),
+    categoryKey: buildCategoryKey({
+      categoryValue,
+      type,
+      isTransaction,
+      isBudget,
+    }),
+    amount: data.amount,
+    type,
+    date: data.date,
+    description: data.description,
+  };
+
+  if (mode !== "add" && editTransaction?.id) {
+    record.id = editTransaction.id;
+  }
+
+  return record;
+};
+
+const shouldSaveCustomCategory = ({ data, formType, mode }) => {
+  const { isTransaction, isBudget } = formType;
+  return mode !== "edit" && Boolean(data.name?.trim()) && (isTransaction || isBudget);
+};
+
+const shouldCreateLargeExpenseNotification = ({
+  label,
+  record,
+  transactionThreshold,
+}) =>
+  label === FORM_LABELS.TRANSACTIONS &&
+  record.type === "expense" &&
+  Number(record.amount) >= Number(transactionThreshold);
+
 
 const useFormSubmit = (label, mode) => {
   const forms = useFormContext(label);
   const { reset, handleSubmit } = forms;
-
+  const { onCloseModal } = useModalContext();
   const { editTransaction, addTransactionToStore, updateTransaction } =
     useTransactionStore();
-  const { onCloseModal } = useModalContext();
 
-  const transactions = label === "transactions";
-  const budgets = label === "budgets";
-  const goals = label === "goals";
-  const contributions = label === "contributions";
+  const formType = getFormType(label);
 
-  const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-
-  //Generate unique category key
-  const getUniqueCategoryKey = (prefix, name) => {
-    if (transactions || budgets) {
-      return generateCategoryKey(prefix, name);
-    } else if (goals || contributions) {
-      return generateCategoryKey("goal", name);
-    } else {
-      return generateCategoryKey("txn", prefix);
+  const syncWithRetry = async (syncOperation) => {
+    try {
+      await syncOperation();
+    } catch {
+      await delay(1200);
+      await syncOperation();
     }
   };
 
-  // Get Transaction / Budget / Goal name
-  const getCustomCat = (category, name) => {
-    const categoryValue = category?.trim() || name?.trim() || "";
-
-    if (transactions || budgets) {
-      return getSnakeCaseValue(categoryValue);
-    } else if (goals || contributions) {
-      return getSnakeCaseValue(name);
-    } else {
-      return getSnakeCaseValue(name);
-    }
-  };
-
-  // Handle submit form: add transactions, budgets, goals and contributions
-  const onSubmit = (data, userUID, transactionID, transactionThreshold) => {
+  const onSubmit = async (data, userUID, transactionID, transactionThreshold) => {
     const { selectedCurrency } = useCurrencyStore.getState();
 
-    if (!transactions && !budgets && !goals && !contributions) return;
+    if (!hasSupportedLabel(formType)) return;
 
-    const type = transactions || budgets ? data.type : null;
-    const categoryOrCustom = data.category?.trim() || data.name?.trim() || "";
+    const record = buildFormRecord({
+      data,
+      editTransaction,
+      formType,
+      mode,
+    });
 
-    // Create transaction object
-    const transaction = {
-      name: getCustomCat(data.category, data.name),
-      category: getSnakeCaseValue(categoryOrCustom),
-      categoryKey: getUniqueCategoryKey(data.category, data.name),
-      amount: data.amount,
-      type,
-      date: data.date,
-      description: data.description,
-    };
-
-    if (mode !== "add" && editTransaction?.id) {
-      transaction.id = editTransaction.id;
-    }
-
-    // Close the modal
-    onCloseModal(label);
-
-    // Show toast on success
-    toast.success(
-      `${(label[0].toUpperCase() + label.slice(1)).slice(0, -1)} ${
-        mode === "add" ? "added" : "updated"
-      } successfully`,
-      {
-        duration: 3000,
-        position: "top-center",
-      },
-    );
-    // Reset/Clear the form
-    reset();
-
-    // Run firestore operations off the form submit lifecycle so low-end devices stay seamless
     const runSync = async () => {
       if (mode === "edit") {
-        await updateTransaction(userUID, label, transactionID, transaction);
+        await updateTransaction(userUID, label, transactionID, record);
       } else {
-        await addTransactionToStore(userUID, label, transaction);
+        await addTransactionToStore(userUID, label, record);
 
-        if (data.name && (transactions || budgets)) {
+        if (shouldSaveCustomCategory({ data, formType, mode })) {
           await addDocument(userUID, "categories", {
-            name: getSnakeCaseValue(data.name),
+            name: record.category,
+            categoryKey: record.categoryKey,
           });
         }
       }
 
       if (
-        label === "transactions" &&
-        type === "expense" &&
-        transaction.amount >= transactionThreshold
+        shouldCreateLargeExpenseNotification({
+          label,
+          record,
+          transactionThreshold,
+        })
       ) {
         await createNotification(userUID, {
-          subject: "Large Expense Alert 🚨",
+          subject: "Large Expense Alert",
           message: `You recorded an expense transaction of ${formatAmount(
-            data.amount,
+            record.amount,
             selectedCurrency,
           )} for "${
-            transaction.category
+            record.category
           }", which is higher than your set threshold of ${formatAmount(
             transactionThreshold,
             selectedCurrency,
@@ -123,30 +162,34 @@ const useFormSubmit = (label, mode) => {
       }
     };
 
-    const syncTask = (async () => {
-      // Retry once to handle low-network scenarios.
-      try {
-        await runSync();
-      } catch {
-        await delay(1200);
-        await runSync();
-      }
-    })();
+    try {
+      await syncWithRetry(runSync);
 
-    syncTask.catch(() => {
+      onCloseModal(label);
+      reset();
+
+      toast.success(
+        `${singularLabel(label)} ${
+          mode === "add" ? "added" : "updated"
+        } successfully`,
+        {
+          duration: 3000,
+          position: "top-center",
+        },
+      );
+
+      return "Transaction synced";
+    } catch {
       toast.error(
-        `Could not sync this ${label.slice(0, -1)} to cloud. Please submit again: "${transaction.category}" (${formatAmount(
-          transaction.amount,
-          selectedCurrency,
-        )}).`,
+        `Could not sync this ${label.slice(0, -1)}. Please try again: "${
+          record.category
+        }" (${formatAmount(record.amount, selectedCurrency)}).`,
         {
           duration: 5000,
           position: "top-center",
         },
       );
-    });
-
-    return "Transaction queued";
+    }
   };
 
   return {

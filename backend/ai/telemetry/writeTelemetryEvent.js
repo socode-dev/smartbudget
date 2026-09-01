@@ -5,7 +5,14 @@ import { queueUniqueCustomerMarker } from "./customerMetrics.js";
 
 const TELEMETRY_ROOT = "telemetry";
 
-export const writeTelemetryEvent  = async ({ userId, category, eventId, payload }) => {
+export const writeTelemetryEvent  = async ({
+    userId,
+    category,
+    eventId,
+    payload,
+    subjectCollection = "users",
+    writeSubjectEvent = true,
+}) => {
     if (!userId || !category || !eventId) return false;
     
     const now = Date.now();
@@ -22,8 +29,15 @@ export const writeTelemetryEvent  = async ({ userId, category, eventId, payload 
     try {
         const batch = db.batch();
     
-        const userEventRef = buildUserEventRef({userId, category, eventId});
-        batch.set(userEventRef, eventPayload, {merge: true});
+        if (writeSubjectEvent) {
+            const subjectEventRef = buildSubjectEventRef({
+                subjectCollection,
+                userId,
+                category,
+                eventId
+            });
+            batch.set(subjectEventRef, eventPayload, {merge: true});
+        }
 
         queueUniqueCustomerMarker({
             batch,
@@ -61,9 +75,14 @@ export const writeTelemetryEvent  = async ({ userId, category, eventId, payload 
 
 };
 
-const buildUserEventRef = ({ userId, category, eventId }) => {
+const buildSubjectEventRef = ({
+    subjectCollection,
+    userId,
+    category,
+    eventId
+}) => {
     return db
-    .collection("users")
+    .collection(subjectCollection)
     .doc(userId)
     .collection(TELEMETRY_ROOT)
     .doc(category)

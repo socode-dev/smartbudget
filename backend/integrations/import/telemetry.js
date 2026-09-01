@@ -24,6 +24,7 @@ export const logImportBusinessEvent = async ({
         source: "sftp_import",
         dataSource: "sftp_institution_import",
         enrollmentSource: "institution_sftp_import",
+        writeSubjectEvent: false,
         metadata,
     });
 };
@@ -49,6 +50,7 @@ export const logCustomerBusinessEvent = async ({
         source: "sftp_import",
         dataSource: "sftp_institution_import",
         enrollmentSource: "institution_sftp_import",
+        subjectCollection: "pilotCustomers",
         metadata,
     });
 };
