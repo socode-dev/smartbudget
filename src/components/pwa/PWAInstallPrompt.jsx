@@ -1,10 +1,26 @@
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 
+const isAppleMobileDevice = () => {
+    const userAgent = window.navigator.userAgent;
+
+    return (
+        /iPhone|iPad|iPod/i.test(userAgent) ||
+        (window.navigator.platform === "MacIntel" &&
+            window.navigator.maxTouchPoints > 1)
+    );
+};
+
+const isRunningStandalone = () =>
+    window.matchMedia("(display-mode: standalone)").matches ||
+    window.navigator.standalone === true;
+
 export const PWAInstallPrompt = () => {
     const [installEvent, setInstallEvent] = useState(null);
-
     const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const [isIosPromptDismissed, setIsIosPromptDismissed] = useState(false);
+    const [isIOS] = useState(isAppleMobileDevice);
+    const [isStandalone, setIsStandalone] = useState(isRunningStandalone);
 
     useEffect(() => {
         const handleBeforeInstallPrompt = (event) => {
@@ -16,6 +32,7 @@ export const PWAInstallPrompt = () => {
         const handleAppInstalled = () => {
             setInstallEvent(null);
             setIsDialogOpen(false);
+            setIsStandalone(true);
         };
 
         window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
@@ -29,16 +46,33 @@ export const PWAInstallPrompt = () => {
         };
     }, []);
 
-    const shouldShowBanner = Boolean(installEvent);
+    const requiresIosInstructions =
+        isIOS && !isStandalone && !installEvent;
+    const shouldShowBanner =
+        Boolean(installEvent) ||
+        (requiresIosInstructions && !isIosPromptDismissed);
 
     const openInstallDialog = () => setIsDialogOpen(true);
 
     const closeInstallDialog = () => {
         setIsDialogOpen(false);
+
+        if (requiresIosInstructions) {
+            setIsIosPromptDismissed(true);
+            return;
+        }
+
         setInstallEvent(null);
     };
 
-    const dismissBanner = () => setInstallEvent(null);
+    const dismissBanner = () => {
+        if (requiresIosInstructions) {
+            setIsIosPromptDismissed(true);
+            return;
+        }
+
+        setInstallEvent(null);
+    };
 
     const handleRealInstall = async () => {
         if (!installEvent) {
@@ -102,12 +136,15 @@ export const PWAInstallPrompt = () => {
 
                     <div className="min-w-0 flex-1">
                         <p className="text-sm font-semibold text-[rgb(var(--color-text))]">
-                            Install SmartBudget
+                            {requiresIosInstructions
+                                ? "Install SmartBudget on iPhone"
+                                : "Install SmartBudget"}
                         </p>
 
                         <p className="mt-1 text-sm leading-5 text-[rgb(var(--color-muted))]">
-                            Add SmartBudget to this device for faster access and a standalone
-                            app experience.
+                            {requiresIosInstructions
+                                ? "Add SmartBudget to your Home Screen for quick, app-like access."
+                                : "Add SmartBudget to this device for faster access and a standalone app experience."}
                         </p>
 
                         <div className="mt-4 flex items-center gap-3">
@@ -116,7 +153,9 @@ export const PWAInstallPrompt = () => {
                                 onClick={openInstallDialog}
                                 className="rounded-md bg-[rgb(var(--color-brand))] px-4 py-2 text-sm font-medium text-white shadow transition hover:bg-[rgb(var(--color-brand-hover))] active:scale-103 cursor-pointer"
                             >
-                                Install SmartBudget
+                                {requiresIosInstructions
+                                    ? "How to install"
+                                    : "Install SmartBudget"}
                             </button>
 
                             <button
@@ -195,52 +234,66 @@ export const PWAInstallPrompt = () => {
                             id="pwa-install-title"
                             className="text-lg font-semibold text-[rgb(var(--color-text))]"
                             >
-                            Install SmartBudget
+                            {requiresIosInstructions
+                                ? "Install SmartBudget on iPhone"
+                                : "Install SmartBudget"}
                             </h2>
 
                             <p className="mt-2 text-sm leading-6 text-[rgb(var(--color-muted))]">
-                            Install SmartBudget on this device for quick access and a more
-                            focused application experience.
+                            {requiresIosInstructions
+                                ? "Follow these steps to add SmartBudget to your Home Screen."
+                                : "Install SmartBudget on this device for quick access and a more focused application experience."}
                             </p>
                         </div>
                     </div>
 
                     <div className="mt-6 space-y-4">
-                        <div className="flex gap-3">
-                            <CheckIcon />
+                        {requiresIosInstructions ? (
+                            <>
+                                <InstallStep number="1" text="Open SmartBudget in your browser." />
+                                <InstallStep number="2" text="Tap the Share button." />
+                                <InstallStep number="3" text="Select Add to Home Screen." />
+                                <InstallStep number="4" text="Enable Open as Web App, then tap Add." />
+                            </>
+                        ) : (
+                            <>
+                                <div className="flex gap-3">
+                                    <CheckIcon />
 
-                            <div>
-                                <p className="text-sm font-medium text-[rgb(var(--color-text))]">Faster access</p>
+                                    <div>
+                                        <p className="text-sm font-medium text-[rgb(var(--color-text))]">Faster access</p>
 
-                                <p className="mt-0.5 text-sm text-[rgb(var(--color-muted))]">
-                                    Launch SmartBudget directly from your desktop or application launcher.
-                                </p>
-                            </div>
-                        </div>
+                                        <p className="mt-0.5 text-sm text-[rgb(var(--color-muted))]">
+                                            Launch SmartBudget directly from your desktop or application launcher.
+                                        </p>
+                                    </div>
+                                </div>
 
-                        <div className="flex gap-3">
-                            <CheckIcon />
+                                <div className="flex gap-3">
+                                    <CheckIcon />
 
-                            <div>
-                                <p className="text-sm font-medium text-[rgb(var(--color-text))]">Standalone experience</p>
+                                    <div>
+                                        <p className="text-sm font-medium text-[rgb(var(--color-text))]">Standalone experience</p>
 
-                                <p className="mt-0.5 text-sm text-[rgb(var(--color-muted))]">
-                                Use SmartBudget in its own application window without normal browser navigation.
-                                </p>
-                            </div>
-                        </div>
+                                        <p className="mt-0.5 text-sm text-[rgb(var(--color-muted))]">
+                                        Use SmartBudget in its own application window without normal browser navigation.
+                                        </p>
+                                    </div>
+                                </div>
 
-                        <div className="flex gap-3">
-                            <CheckIcon />
+                                <div className="flex gap-3">
+                                    <CheckIcon />
 
-                            <div>
-                                <p className="text-sm font-medium text-[rgb(var(--color-text))]">Always within reach</p>
+                                    <div>
+                                        <p className="text-sm font-medium text-[rgb(var(--color-text))]">Always within reach</p>
 
-                                <p className="mt-0.5 text-sm text-[rgb(var(--color-muted))]">
-                                Keep your financial workspace available alongside your other applications.
-                                </p>
-                            </div>
-                        </div>
+                                        <p className="mt-0.5 text-sm text-[rgb(var(--color-muted))]">
+                                        Keep your financial workspace available alongside your other applications.
+                                        </p>
+                                    </div>
+                                </div>
+                            </>
+                        )}
                     </div>
 
                     <div className="mt-7 flex justify-end gap-3">
@@ -252,13 +305,23 @@ export const PWAInstallPrompt = () => {
                             Not now
                         </button>
 
-                        <button
-                            type="button"
-                            onClick={handleRealInstall}
-                            className="rounded-md bg-[rgb(var(--color-brand))] px-4 py-2 text-sm font-medium text-white shadow transition hover:bg-[rgb(var(--color-brand-hover))] active:scale-103 cursor-pointer"
-                        >
-                            Install SmartBudget
-                        </button>
+                        {requiresIosInstructions ? (
+                            <button
+                                type="button"
+                                onClick={closeInstallDialog}
+                                className="rounded-md bg-[rgb(var(--color-brand))] px-4 py-2 text-sm font-medium text-white shadow transition hover:bg-[rgb(var(--color-brand-hover))] active:scale-103 cursor-pointer"
+                            >
+                                Got it
+                            </button>
+                        ) : (
+                            <button
+                                type="button"
+                                onClick={handleRealInstall}
+                                className="rounded-md bg-[rgb(var(--color-brand))] px-4 py-2 text-sm font-medium text-white shadow transition hover:bg-[rgb(var(--color-brand-hover))] active:scale-103 cursor-pointer"
+                            >
+                                Install SmartBudget
+                            </button>
+                        )}
                     </div>
                 </motion.div>
             </motion.div>
@@ -266,6 +329,18 @@ export const PWAInstallPrompt = () => {
     </AnimatePresence>
   );
 }
+
+const InstallStep = ({ number, text }) => {
+    return (
+        <div className="flex items-center gap-3">
+            <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[rgb(var(--color-status-bg-blue))] text-sm font-semibold text-[rgb(var(--color-brand))]">
+                {number}
+            </div>
+
+            <p className="text-sm text-[rgb(var(--color-text))]">{text}</p>
+        </div>
+    );
+};
 
 const CheckIcon = () => {
     return (
