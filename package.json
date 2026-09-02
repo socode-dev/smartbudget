@@ -12,7 +12,7 @@
     "test": "vitest",
     "test:watch": "vitest --watch",
     "test:importer": "cross-env FIREBASE_PROJECT_ID=demo-smartbudget GCLOUD_PROJECT=demo-smartbudget firebase emulators:exec --project demo-smartbudget --only firestore \"vitest run --config vitest.importer.config.js\"",
-    "test:coverage": "vitest run --coverage" 
+    "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
@@ -44,6 +44,7 @@
     "react-icons": "^5.5.0",
     "react-joyride": "^2.9.3",
     "react-router-dom": "^7.6.3",
+    "ssh2-sftp-client": "^12.1.1",
     "styled-components": "^6.1.19",
     "tailwindcss": "^4.1.11",
     "uuid": "^11.1.0",
