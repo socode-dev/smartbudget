@@ -160,11 +160,29 @@ const claimInvite = ({
         const identityRef = db
         .collection("pilotIdentities")
         .doc(invite.importCustomerId);
+
+        const pilotCustomerRef = db
+            .collection("pilotCustomers")
+            .doc(invite.importCustomerId);
         
         const identitySnapshot = await transaction.get(identityRef);
+        const pilotCustomerSnapshot = await transaction.get(pilotCustomerRef);
         
         const userRef = db.collection("users").doc(authUid);
         const userSnapshot = await transaction.get(userRef);
+
+        if (!pilotCustomerSnapshot.exists) {
+            throw new Error("PILOT_CUSTOMER_NOT_FOUND");
+        }
+
+        const pilotCustomer = pilotCustomerSnapshot.data();
+
+        if (
+            pilotCustomer.institutionId !== invite.institutionId ||
+            pilotCustomer.pilotId !== invite.pilotId
+        ) {
+            throw new Error("PILOT_CUSTOMER_SCOPE_MISMATCH");
+        }
         
         if (
             userSnapshot.exists &&
@@ -214,6 +232,11 @@ const claimInvite = ({
         const userData = {
             uid: authUid,
             email,
+            profile: buildUserProfile({
+                existingProfile: userSnapshot.data()?.profile,
+                importedProfile: pilotCustomer.profile,
+                email,
+            }),
             institutionId: invite.institutionId,
             pilotId: invite.pilotId,
             cohortId: invite.cohortId ?? null,
@@ -259,6 +282,28 @@ const claimInvite = ({
             alreadyActivated: false,
         });
     });
+};
+
+const buildUserProfile = ({
+    existingProfile = {},
+    importedProfile = {},
+    email,
+}) => {
+    const firstName =
+        existingProfile.firstName ?? importedProfile.firstName ?? "";
+    const lastName =
+        existingProfile.lastName ?? importedProfile.lastName ?? "";
+
+    return {
+        ...existingProfile,
+        firstName,
+        lastName,
+        fullName:
+            existingProfile.fullName ??
+            importedProfile.fullName ??
+            `${firstName} ${lastName}`.trim(),
+        email: existingProfile.email ?? email,
+    };
 };
 
 const buildActivationResult = ({

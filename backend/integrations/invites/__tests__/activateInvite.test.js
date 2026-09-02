@@ -17,6 +17,21 @@ const createInviteAndToken = async ({
     importCustomerId = "import-customer-001",
     ttlDays = 7,
 } = {}) => {
+    await db
+        .collection("pilotCustomers")
+        .doc(importCustomerId)
+        .set({
+            importCustomerId,
+            institutionId: "ins-a",
+            pilotId: "pilot-001",
+            status: "PENDING_ACTIVATION",
+            profile: {
+                firstName: "Amina",
+                lastName: "Yusuf",
+                fullName: "Amina Yusuf",
+            },
+        });
+
     const result = await createInvites({
         customers: [
             {
@@ -98,6 +113,12 @@ describe("activateInvite()", () => {
             email: "customer@example.com",
             importCustomerId: "import-customer-001",
             source: "institution_invite",
+            profile: {
+                firstName: "Amina",
+                lastName: "Yusuf",
+                fullName: "Amina Yusuf",
+                email: "customer@example.com",
+            },
             thresholds: {
                 transactionThreshold: 50000,
                 budgetThreshold50: 50,
@@ -115,6 +136,37 @@ describe("activateInvite()", () => {
         expect(state.data()).toMatchObject({
             status: INVITE_STATE_STATUSES.CLAIMED,
             userId: "firebase-user-001",
+        });
+    });
+
+    it("preserves an existing user profile while filling missing imported fields", async () => {
+        const { token } = await createInviteAndToken();
+
+        await db
+            .collection("users")
+            .doc("firebase-user-001")
+            .set({
+                profile: {
+                    firstName: "Preferred",
+                },
+            });
+
+        await activateInvite({
+            token,
+            authUid: "firebase-user-001",
+            email: "customer@example.com",
+        });
+
+        const user = await db
+            .collection("users")
+            .doc("firebase-user-001")
+            .get();
+
+        expect(user.data().profile).toMatchObject({
+            firstName: "Preferred",
+            lastName: "Yusuf",
+            fullName: "Amina Yusuf",
+            email: "customer@example.com",
         });
     });
 

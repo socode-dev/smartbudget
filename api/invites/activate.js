@@ -74,6 +74,8 @@ export default async function handler(req, res) {
             CUSTOMER_ALREADY_CLAIMED: 409,
             CUSTOMER_ACTIVATION_IN_PROGRESS: 409,
             AUTH_USER_ALREADY_LINKED: 409,
+            PILOT_CUSTOMER_NOT_FOUND: 409,
+            PILOT_CUSTOMER_SCOPE_MISMATCH: 409,
             TRANSACTION_MIGRATION_INCOMPLETE: 500,
         };
 
@@ -101,7 +103,10 @@ const getActivationMessage = code => {
         case "CUSTOMER_ACTIVATION_IN_PROGRESS":
             return "Activation is already in progress. Please try again shortly.";
         case "AUTH_USER_ALREADY_LINKED":
-            return "This signed-in account is already linked to another institution invite.";
+            return "This signed-in account is already linked to another invite.";
+        case "PILOT_CUSTOMER_NOT_FOUND":
+        case "PILOT_CUSTOMER_SCOPE_MISMATCH":
+            return "The imported customer profile could not be verified for this invitation.";
         case "TRANSACTION_MIGRATION_INCOMPLETE":
             return "Activation started, but financial data migration did not finish. Please retry.";
         default:
