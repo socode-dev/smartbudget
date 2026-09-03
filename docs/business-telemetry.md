@@ -1,6 +1,6 @@
 # SmartBudget Business Telemetry
 
-SmartBudget business telemetry records whether the product is creating useful pilot evidence for institutions.
+SmartBudget business telemetry records whether the product is delivering useful financial guidance and measurable engagement.
 
 It is different from AI pipeline telemetry. AI telemetry answers, "Did the insight engine run correctly?" Business telemetry answers, "Did customers receive, see, and respond to useful financial insights?"
 
@@ -12,7 +12,7 @@ Business telemetry focuses on a small evidence chain:
 Customer data -> insight generated -> insight viewed -> customer response -> observed financial change
 ```
 
-The first version tracks only the signals needed for an institution pilot:
+The current reporting model recognizes a deliberately small set of product signals:
 
 ```text
 customer_imported
@@ -30,27 +30,27 @@ budget_breach_resolved
 anomaly_detected
 ```
 
-When SFTP import is added, SmartBudget will also track whether the institution data pipeline is working:
+Secure file ingestion also records whether the external data pipeline is working. The operational categories cover:
 
 ```text
-sftp_import_received
-sftp_import_processed
-sftp_customer_imported
-sftp_financial_data_imported
-sftp_import_failed
+import received
+import processed
+customer data imported
+financial data imported
+import failed
 ```
 
 ## Why It Matters
 
-For an institution pilot, SmartBudget needs to show more than technical activity. It needs to show that:
+SmartBudget needs to show more than technical activity. It needs to show that:
 
 - customers entered or received usable financial data
 - SmartBudget generated insights from that data
 - customers saw the insights
 - customers acknowledged or dismissed the insights
-- financial behavior can be compared before and during the pilot
+- financial behavior can be compared across meaningful evaluation periods
 
-This supports pilot reporting without overclaiming causality. Reports should describe observed changes, not claim that SmartBudget alone caused those changes.
+Reports should describe observed changes without claiming that SmartBudget alone caused them.
 
 ## Insight Responses
 
@@ -73,12 +73,12 @@ Dismiss
 
 ## Reporting
 
-Business reports compare a baseline period against the pilot period.
+Business reports can compare a baseline period against a later evaluation period.
 
 Example:
 
 ```text
-Baseline -> SmartBudget pilot -> observed change
+Baseline -> later period -> observed change
 ```
 
 The report uses unique customer counts for key events, so one customer does not inflate the result by triggering the same event many times in a day.
@@ -99,4 +99,4 @@ src/api/respondToInsight.js
 src/utils/insightTelemetry.js
 ```
 
-The business telemetry layer should stay small. New events should be added only when they help answer a real pilot or institution reporting question.
+The business telemetry layer should stay small. New events should be added only when they answer a concrete product question.

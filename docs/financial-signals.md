@@ -8,7 +8,7 @@ For the full AI flow, see [SmartBudget AI Architecture](./ai-architecture.md). F
 
 The financial signal engines initially lived in the frontend under `src/insight_engines`. That worked during early development because the app could calculate signals close to the UI and move quickly.
 
-As SmartBudget matured, the signal engines were moved to the backend. This makes the backend the source of truth for financial facts, keeps business logic out of the UI, and gives future institution reporting and outcome telemetry a more trusted foundation.
+As SmartBudget matured, the signal engines were moved to the backend. This makes the backend the source of truth for financial facts, keeps business logic out of the UI, and gives product reporting and outcome telemetry a more trusted foundation.
 
 The frontend calls:
 
@@ -116,14 +116,7 @@ How it works:
 - requires enough historical months before emitting a signal
 - only flags meaningful increases, not normal variation
 
-Important thresholds:
-
-```text
-minimum history: 4 prior months
-minimum absolute increase: 50
-minimum percent increase: 25%
-robust z-score threshold: 3
-```
+Detection thresholds are internal tuning parameters. The engine requires sufficient history and evaluates absolute change, percentage change, and robust statistical deviation before emitting a signal.
 
 Output includes:
 
@@ -231,7 +224,7 @@ has no income
 outcome
 ```
 
-This signal is important for early liquidity and deposit stability indicators.
+This signal is important for identifying early liquidity pressure.
 
 ## Financial Risk Engine
 
@@ -276,7 +269,7 @@ systemic crisis flag
 supporting anomaly, budget, cashflow, and historical signals
 ```
 
-The risk engine is the broadest institution-facing signal because it connects multiple pressure points into one structured view.
+The risk engine is the broadest combined signal because it connects multiple pressure points into one structured view.
 
 ## Why This Lives In The Backend
 

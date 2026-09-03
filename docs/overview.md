@@ -2,7 +2,7 @@
 
 SmartBudget is a personal finance web app that helps users track transactions, manage budgets, monitor goals, and receive real-time financial insights.
 
-For deeper details, see [Financial Signals](./financial-signals.md), [SmartBudget AI Architecture](./ai-architecture.md), [Backend AI Telemetry](./backend-ai-telemetry.md), and [SmartBudget Testing](./TESTING.md).
+For deeper details, see [Financial Signals](./financial-signals.md), [SmartBudget AI Architecture](./ai-architecture.md), [Backend AI Telemetry](./backend-ai-telemetry.md), [Secure Data Ingestion](./data-ingestion.md), [Identity and Account Activation](./identity-and-activation.md), [Reliability and Failure Recovery](./reliability-and-recovery.md), and [SmartBudget Testing](./TESTING.md).
 
 It combines deterministic financial analysis with AI-powered explanation. The system calculates financial facts first, then AI explains the most important issue in simple language.
 
@@ -77,7 +77,7 @@ For details, see [SmartBudget AI Architecture](./ai-architecture.md) and [Financ
 
 ## Telemetry
 
-SmartBudget records AI pipeline telemetry so pilot behavior can be measured.
+SmartBudget records AI pipeline telemetry so system behavior and reliability can be measured.
 
 It tracks:
 
@@ -91,9 +91,22 @@ It tracks:
 
 For details, see [Backend AI Telemetry](./backend-ai-telemetry.md).
 
+## External Data Sources
+
+SmartBudget supports scoped ingestion of structured customer and transaction data without coupling file transport to domain logic.
+
+```text
+External data source
+-> secure ingestion
+-> validation and import
+-> canonical application data
+```
+
+For details, see [Secure Data Ingestion](./data-ingestion.md).
+
 ## Direction
 
-SmartBudget is growing toward a more institution-ready system with safer AI execution, measurable reliability, and clearer backend boundaries.
+SmartBudget is evolving toward stronger backend reliability, safer AI execution, measurable system behavior, and clearer service boundaries.
 
 The core design remains the same:
 

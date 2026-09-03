@@ -181,11 +181,11 @@ The AI pipeline logs:
 - selected agent runs
 - generated insight events
 
-Telemetry is used to measure reliability, latency, fallback rate, blocked reasons, and insight volume during pilots.
+Telemetry is used to measure reliability, latency, fallback rate, blocked reasons, and insight volume during real usage and system evaluation.
 
 ## Current Direction
 
-The architecture is growing toward an institution-ready pilot system. The current focus is:
+The architecture is evolving toward a more reliable production system. The current focus is:
 
 - reliable backend orchestration
 - deterministic financial signals
