@@ -100,6 +100,12 @@ export const handleIncomingFile = async ({
             activationBaseUrl,
         });
 
+        if (!importResult.ok) {
+            const error = new Error(importResult.status || "IMPORT_FAILED");
+            error.code = importResult.status || "IMPORT_FAILED";
+            throw error;
+        }
+
         let invitationExportPath = null;
         let deliverySpoolId = null;
 
