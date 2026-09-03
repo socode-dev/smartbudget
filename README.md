@@ -85,8 +85,12 @@ smartbudget/
   docs/
     ai-architecture.md
     backend-ai-telemetry.md
+    business-telemetry.md
+    data-ingestion.md
     financial-signals.md
+    identity-and-activation.md
     overview.md
+    reliability-and-recovery.md
     TESTING.md
   lib/
     firebaseAdmin.js
@@ -137,6 +141,10 @@ The financial signal engines originally lived in the frontend and now run in the
 - [Financial Signals](./docs/financial-signals.md)
 - [AI Architecture](./docs/ai-architecture.md)
 - [Backend AI Telemetry](./docs/backend-ai-telemetry.md)
+- [Business Telemetry](./docs/business-telemetry.md)
+- [Secure Data Ingestion](./docs/data-ingestion.md)
+- [Identity and Account Activation](./docs/identity-and-activation.md)
+- [Reliability and Failure Recovery](./docs/reliability-and-recovery.md)
 - [Testing](./docs/TESTING.md)
 
 ## Scripts
@@ -150,4 +158,4 @@ npm test
 
 ## Status
 
-Active development. Not open source.
+Public repository under active development.

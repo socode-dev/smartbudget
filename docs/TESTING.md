@@ -1,134 +1,86 @@
 # SmartBudget Testing
 
-SmartBudget uses Vitest to validate deterministic financial logic, backend AI orchestration, and frontend utilities.
+SmartBudget uses Vitest to test deterministic financial analysis, AI orchestration, import behavior, account activation, and frontend utilities.
 
-For architecture context, see [SmartBudget Overview](./overview.md), [Financial Signals](./financial-signals.md), and [SmartBudget AI Architecture](./ai-architecture.md).
+For system context, see the [SmartBudget overview](./overview.md), [AI architecture](./ai-architecture.md), [financial signals](./financial-signals.md), and [secure data ingestion](./data-ingestion.md).
 
 ## Test Layout
 
 ```text
 backend/tests/
+backend/integrations/import/__tests__/
+backend/integrations/invites/__tests__/
 src/tests/
 ```
 
-## Backend Tests
+## Financial Signal Tests
 
-Backend tests cover the core insight pipeline.
+The backend signal tests cover anomaly detection, budget compliance, cashflow assessment, financial risk scoring, and trigger eligibility. Their fixtures model realistic financial user scenarios, including stable activity, sparse history, missing income, overspending, refunds, recurring pressure, and cashflow risk.
 
-### Financial Signal Tests
+These tests are expected to be deterministic: the same validated financial data should produce the same signals and scores. Some source-level fixture and test identifiers retain legacy scenario wording, but they represent realistic financial users and end-to-end pipeline scenarios rather than a distinct product mode.
 
-```text
-backend/tests/anomaly-engine.test.js
-backend/tests/budget-engine.test.js
-backend/tests/cashflow-engine.test.js
-backend/tests/financial-risk-engine.test.js
-backend/tests/fixture-validation.test.js
-```
+## AI Pipeline Tests
 
-These tests validate the deterministic engines that now live in:
+The orchestration tests follow the current execution order:
 
 ```text
-backend/financial-signals/
+deterministic signals
+        -> normalization and scoring
+        -> attention gate
+        -> trigger eligibility
+        -> reservation
+        -> selected specialist agent
+        -> validated insight or local fallback
+        -> persistence
+        -> telemetry
 ```
 
-They check:
+They verify scoring, gate behavior, specialist selection, prompt structure, output validation, timeout handling, local fallbacks, persistence, and telemetry. Only the selected specialist is called after eligibility and reservation; the system does not call every specialist before scoring.
 
-- anomaly detection
-- budget compliance calculations
-- cashflow outcome and projections
-- financial risk scoring
-- fixture quality and realistic user scenarios
-- edge cases such as no income, sparse history, refunds, and missing budgets
+## Data-Ingestion Tests
 
-### AI Pipeline Tests
+Importer and activation tests use the Firestore emulator and cover:
 
-```text
-backend/tests/llm-prompt.test.js
-backend/tests/signal-scoring.test.js
-backend/tests/trigger-gate.test.js
-backend/tests/attention-gate.test.js
-backend/tests/orchestrator.test.js
-```
+- customer and transaction imports
+- pre-activation customer and transaction staging
+- secure activation export generation
+- account activation and identity binding
+- migration to canonical authenticated users
+- incremental transaction imports
+- duplicate file and transaction suppression
+- isolated integration scopes
+- malformed CSV and invalid-row handling
+- retry-safe invite consumption and activation
 
-These tests validate:
-
-- prompt builders
-- signal normalization and scoring
-- trigger gate behavior
-- attention gate behavior
-- orchestrator selection and persistence flow
-- AI timeout/fallback behavior
+A local transport adapter is also used for end-to-end checks. It simulates the external file-transport boundary while exercising the real importer, activation-export, persistence, routing, and successful or failed file lifecycle. It is not a replacement for emulator-based automated tests.
 
 ## Frontend Tests
 
-Frontend tests now focus on UI-facing utilities and stores.
-
-```text
-src/tests/formatAmount.test.js
-src/tests/formatRelativeTime.test.js
-src/tests/generateCategoryKey.test.js
-src/tests/getTotalBudgetSpent.test.js
-src/tests/onboarding-store.test.js
-src/tests/transactionTotal.test.js
-```
-
-These tests validate formatting, category keys, totals, and frontend state behavior.
-
-## Fixtures
-
-Financial fixtures live in:
-
-```text
-backend/tests/fixtures/
-```
-
-They model realistic user scenarios:
-
-- normal stable users
-- no-income users
-- overspending users
-- recurring pressure users
-- cashflow risk users
-- institution-style pilot users
-- trigger gate scenarios
-
-Fixtures are important because the financial engines are deterministic. Good fixtures make the pipeline easier to trust.
+Frontend tests cover formatting, category-key generation, transaction ordering, financial totals, and state-store behavior. These tests protect UI-facing calculations and ensure transactions are ordered consistently by date and time.
 
 ## Running Tests
 
-Run all tests:
+Run the standard suite:
 
 ```bash
 npm run test
 ```
 
-Run one test file:
+Run the importer and activation suite with emulators:
 
 ```bash
-npm run test -- backend/tests/anomaly-engine.test.js
+npm run test:importer
 ```
 
-Run lint:
+Run lint and the production build checks:
 
 ```bash
 npm run lint
-```
-
-Run build:
-
-```bash
 npm run build
 ```
 
 ## Testing Principle
 
-SmartBudget separates deterministic facts from AI communication.
+SmartBudget separates deterministic facts from AI communication. Financial signal tests therefore assert exact behavior, while AI tests focus on controlled execution, validated communication, and safe fallback behavior.
 
-That means:
-
-- financial signal tests must be stable and exact
-- AI prompt tests focus on structure and safety
-- orchestrator tests focus on control flow
-- frontend tests focus on display helpers and state
-
-The deterministic backend signal layer is the source of financial truth. AI explains that truth; it does not create it.
+Related documentation: [Identity and Account Activation](./identity-and-activation.md) and [Reliability and Failure Recovery](./reliability-and-recovery.md).
