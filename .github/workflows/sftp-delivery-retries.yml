@@ -1,0 +1,43 @@
+name: SFTP Delivery Retries
+
+on:
+    schedule:
+        - cron: "*/10 * * * *"
+    workflow_dispatch:
+
+permissions:
+    contents: read
+
+concurrency:
+    group: smartbudget-sftp-delivery-retries
+    cancel-in-progress: false
+
+jobs:
+    retry-deliveries:
+        name: Retry pending SFTP deliveries
+        runs-on: ubuntu-latest
+        timeout-minutes: 10
+
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v6
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v6
+              with:
+                node-version: 24
+                cache: npm
+
+            - name: Install dependencies
+              run: npm ci
+
+            - name: Retry pending deliveries
+              env:
+                NODE_ENV: production
+                FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
+                FIREBASE_CLIENT_EMAIL: ${{ secrets.FIREBASE_CLIENT_EMAIL }}
+                FIREBASE_PRIVATE_KEY: ${{ secrets.FIREBASE_PRIVATE_KEY }}
+                SFTP_PRIVATE_KEY: ${{ secrets.SFTP_PRIVATE_KEY }}
+                SFTP_PRIVATE_KEY_PASSPHRASE: ${{ secrets.SFTP_PRIVATE_KEY_PASSPHRASE }}
+                SFTP_DELIVERY_SPOOL_ENCRYPTION_KEY: ${{ secrets.SFTP_DELIVERY_SPOOL_ENCRYPTION_KEY }}
+              run: npm run sftp:retry-deliveries

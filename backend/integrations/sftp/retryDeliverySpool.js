@@ -28,7 +28,7 @@ export const retryInvitationDeliverySpools = async ({
     client,
     institutionId,
     pilotId,
-    outgoingDir = process.env.SFTP_OUTGOING_DIR || "/outgoing",
+    outgoingDir,
     limit = 20,
 } = {}) => {
     if (!client)
@@ -36,6 +36,9 @@ export const retryInvitationDeliverySpools = async ({
 
     if (!institutionId || !pilotId)
         throw new Error("MISSING_IMPORT_SCOPE");
+
+    if (!outgoingDir)
+        throw new Error("MISSING_SFTP_OUTGOING_DIR");
 
     const spools = await listRetryableInvitationDeliverySpools({
         institutionId,
@@ -97,7 +100,7 @@ export const retryInvitationDeliverySpools = async ({
         ok: results.every(result => result.ok),
         checkedCount: spools.length,
         deliveredCount: results.filter(result => result.ok).length,
-        failedCount: results.filter(result => !result.ok),
+        failedCount: results.filter(result => !result.ok).length,
         results,
     };
 };

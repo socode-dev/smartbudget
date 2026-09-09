@@ -1,16 +1,22 @@
-import { createSftpConfigFromEnv, withSftpClient } from "./client.js";
+import { withSftpClient } from "./client.js";
 import { retryInvitationDeliverySpools } from "./retryDeliverySpool.js";
 
 export const runDeliverySpoolRetry = async ({
     institutionId,
     pilotId,
-    sftpConfig = createSftpConfigFromEnv(),
-    outgoingDir = process.env.SFTP_OUTGOING_DIR || "/outgoing",
+    sftpConfig,
+    outgoingDir,
     limit = 20,
     clientFactory,
 } = {}) => {
     if (!institutionId || !pilotId)
         throw new Error("MISSING_IMPORT_SCOPE");
+
+    if (!sftpConfig)
+        throw new Error("MISSING_SFTP_CONFIG");
+
+    if (!outgoingDir)
+        throw new Error("MISSING_SFTP_OUTGOING_DIR");
 
     return withSftpClient({
         config: sftpConfig,
