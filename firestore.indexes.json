@@ -1,0 +1,19 @@
+{
+    "indexes": [
+        {
+        "collectionGroup": "deliverySpool",
+        "queryScope": "COLLECTION_GROUP",
+        "fields": [
+            {
+            "fieldPath": "type",
+            "order": "ASCENDING"
+            },
+            {
+            "fieldPath": "status",
+            "order": "ASCENDING"
+            }
+        ]
+        }
+    ],
+    "fieldOverrides": []
+}

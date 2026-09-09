@@ -77,6 +77,8 @@ export const createInvitationDeliverySpool = async ({
         spoolId,
         type: "INVITATION_EXPORT",
         status: "PENDING_DELIVERY",
+        institutionId,
+        pilotId,
         importId,
         sourceFileName: fileName,
         batchId,
