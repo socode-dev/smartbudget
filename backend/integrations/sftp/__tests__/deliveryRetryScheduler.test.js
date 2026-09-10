@@ -24,7 +24,7 @@ const previousPrivateKeyPassphrase =
 
 beforeEach(() => {
     process.env.SFTP_PRIVATE_KEY = "private-key";
-    process.env.SFTP_PRIVATE_KEY_PASSPHRASE = "passphrase";
+    delete process.env.SFTP_PRIVATE_KEY_PASSPHRASE;
 });
 
 afterEach(() => {
@@ -161,8 +161,8 @@ describe("SFTP delivery retry scheduler", () => {
             port: 22,
             username: "smartbudget",
             privateKey: "private-key",
-            passphrase: "passphrase",
         });
+        expect(result.sftpConfig).not.toHaveProperty("passphrase");
 
         const persisted = await configRef.get();
 
@@ -172,6 +172,22 @@ describe("SFTP delivery retry scheduler", () => {
         expect(persisted.data()).not.toHaveProperty(
             "passphrase",
         );
+    });
+
+    it("includes an optional private-key passphrase when configured", async () => {
+        process.env.SFTP_PRIVATE_KEY_PASSPHRASE = "test-passphrase";
+
+        const configRef = getSftpIntegrationConfigRef({
+            institutionId: "institution-a",
+        });
+
+        await configRef.set(ACTIVE_CONFIG);
+
+        const result = await getSftpIntegrationConfig({
+            institutionId: "institution-a",
+        });
+
+        expect(result.sftpConfig.passphrase).toBe("test-passphrase");
     });
 
     it("requires an institution id for config resolution", async () => {
