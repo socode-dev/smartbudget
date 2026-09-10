@@ -88,9 +88,6 @@ export const getSftpIntegrationConfig = async ({ institutionId } = {}) => {
     if (!privateKey)
         throw new Error("MISSING_SFTP_PRIVATE_KEY");
 
-    if (!privateKeyPassphrase)
-        throw new Error("MISSING_SFTP_PRIVATE_KEY_PASSPHRASE");
-
     return {
         institutionId,
         status: persisted.status,
@@ -105,8 +102,8 @@ export const getSftpIntegrationConfig = async ({ institutionId } = {}) => {
             username: persisted.username,
             hostFingerprintSha256: persisted.hostFingerprintSha256,
             privateKey: privateKey.replace(/\\n/g, "\n"),
-            passphrase: privateKeyPassphrase,
             readyTimeout: 20000,
+            ...(privateKeyPassphrase ? { passphrase: privateKeyPassphrase } : {}),
         },
     };
 };

@@ -11,15 +11,19 @@ const assertValidSftpConfig = (config = {}) => {
         throw new Error("MISSING_SFTP_PRIVATE_KEY");
 };
 
-export const createSftpConfigFromEnv = ({ prefix = "SFTP" } = {}) => ({
-    host: process.env[`${prefix}_HOST`],
-    port: Number(process.env[`${prefix}_PORT`] || 22),
-    username: process.env[`${prefix}_USERNAME`],
-    privateKey: process.env[`${prefix}_PRIVATE_KEY`]?.replace(/\\n/g, "\n"),
-    passphrase: process.env[`${prefix}_PRIVATE_KEY_PASSPHRASE`],
-    hostFingerprintSha256: process.env[`${prefix}_HOST_FINGERPRINT_SHA256`],
-    readyTimeout: Number(process.env[`${prefix}_READY_TIMEOUT_MS`] || 20000),
-});
+export const createSftpConfigFromEnv = ({ prefix = "SFTP" } = {}) => {
+    const passphrase = process.env[`${prefix}_PRIVATE_KEY_PASSPHRASE`];
+
+    return {
+        host: process.env[`${prefix}_HOST`],
+        port: Number(process.env[`${prefix}_PORT`] || 22),
+        username: process.env[`${prefix}_USERNAME`],
+        privateKey: process.env[`${prefix}_PRIVATE_KEY`]?.replace(/\\n/g, "\n"),
+        hostFingerprintSha256: process.env[`${prefix}_HOST_FINGERPRINT_SHA256`],
+        readyTimeout: Number(process.env[`${prefix}_READY_TIMEOUT_MS`] || 20000),
+        ...(passphrase ? { passphrase } : {}),
+    };
+};
 
 export const createSftpClient = async () => {
     try {
@@ -48,10 +52,10 @@ export const withSftpClient = async ({
             port: config.port || 22,
             username: config.username,
             privateKey: config.privateKey,
-            passphrase: config.passphrase,
             readyTimeout: config.readyTimeout,
             hostHash: "sha256",
             hostVerifier: (hashedKey) => hashedKey === config.hostFingerprintSha256,
+            ...(config.passphrase ? { passphrase: config.passphrase } : {}),
         });
 
         return await operation(client);
