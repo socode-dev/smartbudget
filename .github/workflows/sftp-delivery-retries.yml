@@ -15,6 +15,7 @@ concurrency:
 jobs:
     retry-deliveries:
         name: Retry pending SFTP deliveries
+        environment: production
         runs-on: ubuntu-latest
         timeout-minutes: 10
 
