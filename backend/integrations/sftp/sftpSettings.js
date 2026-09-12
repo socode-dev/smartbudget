@@ -81,6 +81,16 @@ export const normalizeHostFingerprint = value => {
     return digest.toString("hex");
 };
 
+const hasControlCharacters = value => {
+    for (const character of value) {
+        const code = character.charCodeAt(0);
+
+        if (code <= 31 || code === 127) return true;
+    }
+
+    return false;
+};
+
 export const validateSftpSettings = (input = {}) => {
     if (!input || typeof input !== "object" || Array.isArray(input)) {
         throw new Error("INVALID_SFTP_INTEGRATION_CONFIG");
@@ -92,7 +102,7 @@ export const validateSftpSettings = (input = {}) => {
         if (
             typeof input[field] !== "string" ||
             !input[field].trim() ||
-            /[\u0000-\u001f\u007f]/.test(input[field])
+            hasControlCharacters(input[field])
         )
             throw new Error(`INVALID_SFTP_INTEGRATION_CONFIG:${field}`);
 
@@ -113,7 +123,7 @@ export const validateSftpSettings = (input = {}) => {
             !value.startsWith("/") ||
             value.includes("\\") ||
             value.split("/").includes("..") ||
-            /[\u0000-\u001f\u007f]/.test(value)
+            hasControlCharacters(value)
         )
             throw new Error(`INVALID_SFTP_INTEGRATION_CONFIG:${field}`);
 
