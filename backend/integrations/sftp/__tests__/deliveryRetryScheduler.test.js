@@ -9,7 +9,7 @@ const ACTIVE_CONFIG = {
     host: "sftp.example.test",
     port: 22,
     username: "smartbudget",
-    hostFingerprintSha256: "test-fingerprint",
+    hostFingerprintSha256: "a".repeat(64),
     incomingDir: "/incoming",
     processingDir: "/processing",
     processedDir: "/processed",
