@@ -2,7 +2,7 @@ name: SFTP Daily Transport
 
 on:
     schedule:
-        - cron: "0 5 * * *"
+        - cron: "0 4 * * *"
     workflow_dispatch:
 
 permissions:
@@ -40,7 +40,7 @@ jobs:
                 FIREBASE_PRIVATE_KEY: ${{ secrets.FIREBASE_PRIVATE_KEY }}
                 SFTP_PRIVATE_KEY: ${{ secrets.SFTP_PRIVATE_KEY }}
                 SFTP_PRIVATE_KEY_PASSPHRASE: ${{ secrets.SFTP_PRIVATE_KEY_PASSPHRASE }}
-                SFTP_IMPORT_HMAC_SECRET: ${{ secrets.SFTP_IMORT_HMAC_SECRET }}
+                SFTP_IMPORT_HMAC_SECRET: ${{ secrets.SFTP_IMPORT_HMAC_SECRET }}
                 SFTP_DELIVERY_SPOOL_ENCRYPTION_KEY: ${{ secrets.SFTP_DELIVERY_SPOOL_ENCRYPTION_KEY }}
                 SMARTBUDGET_ACTIVATION_BASE_URL: ${{ vars.SMARTBUDGET_ACTIVATION_BASE_URL }}
-              run: npm run sftp:run-transport
+              run: npm run sftp:run-transports
