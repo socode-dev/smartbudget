@@ -1,4 +1,5 @@
 import { prepareInstitutionOnboarding, readInstitutionConnectionFile } from "./helpers/prepareInstitutionOnboarding.js";
+import { SftpDiagnosticError } from "../backend/integrations/sftp/sftpDiagnostics.js";
 
 const DEFAULT_CONNECTION_DETAILS_PATH = String.raw`C:\Users\stosi\.smartbudget_secrets\institutions\example.institution.json`;
 
@@ -94,6 +95,9 @@ try {
         ? message
         : "INSTITUTION_ONBOARDING_COMMAND_FAILED";
 
-    process.stderr.write(`${safeCode}\n`);
+    const output = error instanceof SftpDiagnosticError
+        ? JSON.stringify(error.toJSON())
+        : safeCode;
+    process.stderr.write(`${output}\n`);
     process.exitCode = 1;
 }
