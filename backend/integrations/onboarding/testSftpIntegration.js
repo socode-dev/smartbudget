@@ -4,6 +4,7 @@ import { withSftpClient } from "../sftp/client.js";
 import { assertConfigRevision, validateSftpSettings, SFTP_INTEGRATION_STATUSES } from "../sftp/sftpSettings.js";
 import { buildRuntimeSftpConfig, getSftpIntegrationConfigRef } from "../sftp/sftpIntegrationConfig.js";
 import { verifySftpAccess } from "./verifySftpAccess.js";
+import { runSftpDiagnosticStep, toSftpDiagnosticError } from "../sftp/sftpDiagnostics.js";
 
 export const testSftpIntegration = async ({
     institutionId,
@@ -15,39 +16,46 @@ export const testSftpIntegration = async ({
     const integrationRef = getSftpIntegrationConfigRef({ institutionId });
     const attemptId = randomUUID();
 
-    const settings = await db.runTransaction(async transaction => {
-        const snapshot = await transaction.get(integrationRef);
+    const settings = await runSftpDiagnosticStep(
+        { stage: "PREPARE_VERIFICATION" },
+        () => db.runTransaction(async transaction => {
+            const snapshot = await transaction.get(integrationRef);
 
-        if (!snapshot.exists)
-            throw new Error("SFTP_INTEGRATION_NOT_FOUND");
+            if (!snapshot.exists)
+                throw new Error("SFTP_INTEGRATION_NOT_FOUND");
 
-        const data = snapshot.data();
+            const data = snapshot.data();
 
-        if (data.status !== SFTP_INTEGRATION_STATUSES.DISABLED)
-            throw new Error("SFTP_TEST_REQUIRES_DISABLED_INTEGRATION");
+            if (data.status !== SFTP_INTEGRATION_STATUSES.DISABLED)
+                throw new Error("SFTP_TEST_REQUIRES_DISABLED_INTEGRATION");
 
-        if (data.revision !== expectedRevision)
-            throw new Error("SFTP_CONFIG_REVISION_CONFLICT");
+            if (data.revision !== expectedRevision)
+                throw new Error("SFTP_CONFIG_REVISION_CONFLICT");
 
-        const validated = validateSftpSettings(data);
+            const validated = validateSftpSettings(data);
 
-        transaction.update(integrationRef, {
-            verifiedRevision: null,
-            verifiedAt: null,
-            verificationAttemptId: attemptId,
-            updatedAt: FieldValue.serverTimestamp(),
-        });
+            transaction.update(integrationRef, {
+                verifiedRevision: null,
+                verifiedAt: null,
+                verificationAttemptId: attemptId,
+                updatedAt: FieldValue.serverTimestamp(),
+            });
 
-        return validated;
-    });
+            return validated;
+        }),
+    );
 
+    let stage = "BUILD_CONFIG";
     try {
+        const config = buildRuntimeSftpConfig(settings);
+        stage = "CONNECT";
         await withSftpClient({
-            config: buildRuntimeSftpConfig(settings),
+            config,
             clientFactory,
             operation: client => verifySftpAccess({ client, settings }),
         });
 
+        stage = "SAVE_VERIFICATION";
         await db.runTransaction(async transaction => {
             const snapshot = await transaction.get(integrationRef);
             const data = snapshot.data();
@@ -68,6 +76,7 @@ export const testSftpIntegration = async ({
             });
         });
     } catch (error) {
+        const diagnostic = toSftpDiagnosticError(error, { stage });
         await db.runTransaction(async transaction => {
             const snapshot = await transaction.get(integrationRef);
             const data = snapshot.data();
@@ -84,19 +93,13 @@ export const testSftpIntegration = async ({
                     updatedAt: FieldValue.serverTimestamp(),
                 });
             }
-        }).catch(() => {});
+        }).catch(resetError => {
+            diagnostic.resetFailure = toSftpDiagnosticError(resetError, {
+                stage: "RESET_VERIFICATION",
+            });
+        });
 
-        const safeErrors = new Set([
-            "MISSING_SFTP_PRIVATE_KEY",
-            "SFTP_PROBE_CLEANUP_FAILED",
-            "SFTP_CONFIGURATION_CHANGED_DURING_TEST",
-        ]);
-
-        throw new Error(
-            safeErrors.has(error.message)
-                ? error.message
-                : "SFTP_ACCESS_TEST_FAILED",
-        );
+        throw diagnostic;
     }
 
     return {

@@ -201,12 +201,49 @@ describe("institution onboarding", () => {
             ...scope,
             expectedRevision: 1,
             clientFactory: async () => client,
-        })).rejects.toThrow("SFTP_PROBE_CLEANUP_FAILED");
+        })).rejects.toMatchObject({
+            stage: "DELETE_PROBE",
+            cleanupFailure: { message: "SFTP_PROBE_CLEANUP_FAILED", stage: "CLEANUP_PROBE" },
+        });
 
         expect(
             (await getSftpIntegrationConfigRef(scope).get())
                 .data().verifiedRevision,
         ).toBeNull();
+    });
+
+    it("reports failure to save verification and clears the attempt", async () => {
+        const scope = await createInstitution(INPUT);
+        const { client } = makeClient();
+        const runTransaction = db.runTransaction.bind(db);
+        vi.spyOn(db, "runTransaction")
+            .mockImplementationOnce(runTransaction)
+            .mockRejectedValueOnce(Object.assign(new Error("private storage details"), { code: 14 }));
+
+        await expect(testSftpIntegration({
+            ...scope, expectedRevision: 1, clientFactory: async () => client,
+        })).rejects.toMatchObject({ stage: "SAVE_VERIFICATION", reason: "BACKEND_UNAVAILABLE" });
+
+        expect((await getSftpIntegrationConfigRef(scope).get()).data()).toMatchObject({
+            status: "DISABLED", verifiedRevision: null, verificationAttemptId: null,
+        });
+    });
+
+    it("preserves connection failure when resetting verification also fails", async () => {
+        const scope = await createInstitution(INPUT);
+        const { client } = makeClient();
+        client.connect.mockRejectedValueOnce(Object.assign(new Error("private host details"), { code: "ETIMEDOUT" }));
+        const runTransaction = db.runTransaction.bind(db);
+        vi.spyOn(db, "runTransaction")
+            .mockImplementationOnce(runTransaction)
+            .mockRejectedValueOnce(Object.assign(new Error("private storage details"), { code: 14 }));
+
+        await expect(testSftpIntegration({
+            ...scope, expectedRevision: 1, clientFactory: async () => client,
+        })).rejects.toMatchObject({
+            stage: "CONNECT", reason: "TIMEOUT", hostVerification: "NOT_REACHED",
+            resetFailure: { stage: "RESET_VERIFICATION", reason: "BACKEND_UNAVAILABLE" },
+        });
     });
 
     it("disables updates and rejects stale revisions", async () => {
