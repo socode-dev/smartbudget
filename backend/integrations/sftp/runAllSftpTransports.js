@@ -1,6 +1,7 @@
 import { discoverActiveSftpIntegrations } from "./discoverActiveSftpIntegrations.js";
 import { getSftpImportIntegrationConfig } from "./sftpIntegrationConfig.js";
 import { runSftpTransport } from "./runSftpTransport.js";
+import { toSftpDiagnosticError } from "./sftpDiagnostics.js";
 
 const SAFE_ERROR_CODES = new Set([
     "INSTITUTION_NOT_ACTIVE",
@@ -83,11 +84,13 @@ export const runAllSftpTransports = async ({
         processedFileCount: 0,
         failedFileCount: 0,
         failureCounts: {},
+        failureDiagnostics: [],
     };
 
     if (!integrations.length) return summary;
 
     const runtime = readImportRuntime();
+    const diagnosticCounts = new Map();
 
     const recordFailure = code => {
         summary.failedInstitutionCount += 1;
@@ -97,10 +100,12 @@ export const runAllSftpTransports = async ({
 
     for (const { institutionId } of integrations) {
         summary.attemptedInstitutionCount += 1;
+        let stage = "LOAD_INTEGRATION_CONFIG";
 
         try {
             const integration = await loadIntegrationConfig({ institutionId });
 
+            stage = "RUN_TRANSPORT";
             const result = await runTransport({
                 institutionId,
                 pilotId: integration.pilotId,
@@ -124,10 +129,19 @@ export const runAllSftpTransports = async ({
             }
         } catch (error) {
             recordFailure(safeErrorCode(error));
+            const diagnostic = toSftpDiagnosticError(error, { stage }).toJSON();
+            const key = JSON.stringify(diagnostic);
+            const existing = diagnosticCounts.get(key);
+            if (existing) {
+                existing.count += 1;
+            } else {
+                diagnosticCounts.set(key, { ...diagnostic, count: 1 });
+            }
         }
     }
 
     summary.ok = summary.failedInstitutionCount === 0;
+    summary.failureDiagnostics = [...diagnosticCounts.values()];
 
     return summary;
 };

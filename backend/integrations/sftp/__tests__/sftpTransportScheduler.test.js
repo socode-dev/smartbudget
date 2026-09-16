@@ -2,6 +2,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { db } from "../../../../lib/firebaseAdmin.js";
 import { discoverActiveSftpIntegrations } from "../discoverActiveSftpIntegrations.js";
 import { runAllSftpTransports } from "../runAllSftpTransports.js";
+import { SftpDiagnosticError } from "../sftpDiagnostics.js";
+import { runSftpTransport } from "../runSftpTransport.js";
 
 const SCOPES = [
     { institutionId: "source-a" },
@@ -119,6 +121,68 @@ describe("global SFTP transport scheduler", () => {
             SFTP_TRANSPORT_SCOPE_FAILED: 1,
         });
         expect(JSON.stringify(result)).not.toContain("sensitive");
+    });
+
+    it.each([
+        ["PRIVATE_KEY_INVALID", "NOT_REACHED"],
+        ["HOST_VERIFICATION_FAILED", "REJECTED"],
+        ["AUTHENTICATION_FAILED", "MATCHED"],
+        ["TIMEOUT", "NOT_REACHED"],
+    ])("preserves safe connection diagnostics: %s", async (reason, hostVerification) => {
+        const result = await runAllSftpTransports({
+            discoverIntegrations: async () => SCOPES,
+            loadIntegrationConfig: async ({ institutionId }) => makeIntegration(institutionId),
+            runTransport: vi.fn()
+                .mockRejectedValueOnce(new SftpDiagnosticError({ stage: "CONNECT", reason, hostVerification }))
+                .mockResolvedValueOnce({ ok: true, fileCount: 0, processedCount: 0, failedCount: 0 }),
+        });
+        expect(result.successfulInstitutionCount).toBe(1);
+        expect(result.failedInstitutionCount).toBe(1);
+        expect(result.failureDiagnostics).toEqual([{
+            code: "SFTP_ACCESS_TEST_FAILED", stage: "CONNECT", reason, hostVerification, count: 1,
+        }]);
+    });
+
+    it("groups matching diagnostics without exposing scope identities or raw errors", async () => {
+        const result = await runAllSftpTransports({
+            discoverIntegrations: async () => SCOPES,
+            loadIntegrationConfig: async () => {
+                throw Object.assign(new Error("sensitive host username payload credentials"), { code: 7 });
+            },
+            runTransport: vi.fn(),
+        });
+        expect(result.failureDiagnostics).toEqual([{
+            code: "SFTP_ACCESS_TEST_FAILED", stage: "LOAD_INTEGRATION_CONFIG",
+            reason: "PERMISSION_DENIED", count: 2,
+        }]);
+        expect(JSON.stringify(result)).not.toMatch(/sensitive|source-a|source-b|credentials/);
+    });
+
+    it("preserves listing failures from the actual transport worker", async () => {
+        const client = {
+            connect: vi.fn(async options => {
+                expect(options.hostVerifier("a".repeat(64))).toBe(true);
+            }),
+            list: vi.fn().mockRejectedValue(Object.assign(new Error("private remote path"), { code: 3 })),
+            end: vi.fn().mockResolvedValue(),
+        };
+        const result = await runAllSftpTransports({
+            discoverIntegrations: async () => [SCOPES[0]],
+            loadIntegrationConfig: async () => ({
+                ...makeIntegration("source-a"),
+                sftpConfig: {
+                    host: "source-a.example.test", username: "test-user",
+                    privateKey: "test-key", hostFingerprintSha256: "a".repeat(64),
+                },
+            }),
+            runTransport: options => runSftpTransport({ ...options, clientFactory: async () => client }),
+        });
+        expect(result.failureDiagnostics).toEqual([{
+            code: "SFTP_ACCESS_TEST_FAILED", stage: "LIST_INCOMING",
+            reason: "PERMISSION_DENIED", target: "incomingDir", count: 1,
+        }]);
+        expect(client.end).toHaveBeenCalledOnce();
+        expect(JSON.stringify(result)).not.toContain("private remote path");
     });
 
     it.each([
