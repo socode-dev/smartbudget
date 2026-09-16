@@ -1,6 +1,7 @@
 import { createSftpConfigFromEnv, withSftpClient } from "./client.js";
 import { handleIncomingFile } from "./handleIncomingFile.js";
 import { listIncomingFiles } from "./remoteFiles.js";
+import { runSftpDiagnosticStep } from "./sftpDiagnostics.js";
 
 export const runSftpTransport = async ({
     institutionId,
@@ -23,7 +24,10 @@ export const runSftpTransport = async ({
         config: sftpConfig,
         clientFactory,
         operation: async (client) => {
-            const files = await listIncomingFiles({ client, incomingDir });
+            const files = await runSftpDiagnosticStep(
+                { stage: "LIST_INCOMING", target: "incomingDir" },
+                () => listIncomingFiles({ client, incomingDir }),
+            );
             const results = [];
 
             for (const file of files) {

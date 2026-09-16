@@ -12,7 +12,10 @@ const SAFE_CODES = new Set([
 const getReason = (error, stage) => {
     const code = error?.code;
     const message = String(error?.message ?? "");
-    const backendStage = ["PREPARE_VERIFICATION", "SAVE_VERIFICATION", "RESET_VERIFICATION"].includes(stage);
+    const backendStage = [
+        "PREPARE_VERIFICATION", "SAVE_VERIFICATION", "RESET_VERIFICATION",
+        "LOAD_INTEGRATION_CONFIG",
+    ].includes(stage);
 
     if (backendStage) {
         if (code === 4 || code === "deadline-exceeded") return "TIMEOUT";
