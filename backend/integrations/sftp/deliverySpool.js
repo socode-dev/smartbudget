@@ -2,7 +2,7 @@ import { createCipheriv, createDecipheriv, randomBytes } from "crypto";
 import { db, FieldValue } from "../../../lib/firebaseAdmin.js";
 
 const ALGORITHM = "aes-256-gcm";
-const DEFAULT_TTL_MS = 60 * 60 * 1000;
+const DEFAULT_TTL_MS = 48 * 60 * 60 * 1000;
 
 const getEncryptionKey = () => {
     const rawKey = process.env.SFTP_DELIVERY_SPOOL_ENCRYPTION_KEY;
