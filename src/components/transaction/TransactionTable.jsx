@@ -1,20 +1,30 @@
-import { HiOutlineTrash, HiOutlinePencil } from "react-icons/hi";
+import TransactionPagination from "./TransactionPagination";
+import TransactionMobileList from "./TransactionMobileList";
+import TransactionDesktopTable from "./TransactionDesktopTable";
+import TransactionAmount from "./TransactionAmount";
+import { useState } from "react";
+import { FiTrash2, FiEdit2 } from "react-icons/fi";
+import { toast } from "react-hot-toast";
 import { useTransactionsContext } from "../../context/TransactionsContext";
-import clsx from "clsx";
 import useCurrencyStore from "../../store/useCurrencyStore";
-import { formatAmount } from "../../utils/formatAmount";
 import useTransactionStore from "../../store/useTransactionStore";
 import useAuthStore from "../../store/useAuthStore";
-import ResponsiveTable from "../ui/ResponsiveTable";
 import { showDemoReadOnlyToast, useDemoMode } from "../../demo/useDemoMode";
+import Button from "../ui/Button";
+
+const monthFormatter = new Intl.DateTimeFormat(undefined, {
+  month: "long",
+  year: "numeric",
+  timeZone: "UTC",
+});
 
 const TransactionTable = () => {
   const isDemoMode = useDemoMode();
   const user = useAuthStore((state) => state.currentUser);
-  const deleteTransaction = useTransactionStore(
-    (state) => state.deleteTransaction
-  );
+  const deleteTransaction = useTransactionStore(state => state.deleteTransaction);
   const selectedCurrency = useCurrencyStore((state) => state.selectedCurrency);
+  const [deletingId, setDeletingId] = useState(null);
+
   const {
     sortedTransactions,
     currentTransactions,
@@ -27,159 +37,107 @@ const TransactionTable = () => {
     handleEditTransaction,
   } = useTransactionsContext();
 
-  const formatCategory = (transaction) => {
-    return transaction.category === "Other"
-      ? `${transaction.category} (${transaction.name})`
-      : transaction.category;
+  const groups = currentTransactions.reduce((result, transaction) => {
+    const date = new Date(transaction.date);
+    const month = Number.isNaN(date.getTime())
+      ? "Undated"
+      : monthFormatter.format(date);
+    const last = result.at(-1);
+    if (last?.month === month) last.transactions.push(transaction);
+    else
+      result.push({
+        month,
+        transactions: [transaction],
+      });
+    return result;
+  }, []);
+
+  const formatCategory = (transaction) =>
+    transaction.category === "Other" && transaction.name
+      ? `Other (${transaction.name})`
+      : transaction.category || "Uncategorized";
+
+  const removeTransaction = async (transaction) => {
+    if (isDemoMode) return showDemoReadOnlyToast();
+    if (!user?.uid || deletingId) return;
+    setDeletingId(transaction.id);
+
+    try {
+      await deleteTransaction(user.uid, "transactions", transaction.id);
+    } catch {
+      toast.error(
+        "Could not delete the transaction. Please refresh and try again.",
+      );
+    } finally {
+      setDeletingId(null);
+    }
   };
 
   const renderAmount = (transaction) => (
-    <span
-      className={clsx(
-        "font-medium",
-        transaction.type === "income" ? "text-green-500" : "text-red-500"
-      )}
-    >
-      {transaction.type === "income" ? "+" : "-"}
-      {formatAmount(transaction.amount, selectedCurrency)}
-    </span>
+    <TransactionAmount
+      transaction={transaction}
+      selectedCurrency={selectedCurrency}
+    />
   );
 
-  const renderActions = (transaction, mobile = false) => (
-    <div className={clsx("flex items-center", mobile ? "gap-3" : "gap-4")}>
-      <button
-        type="button"
+  const renderActions = (transaction) => (
+    <div className="flex shrink-0 justify-end gap-0.5">
+      <Button
+        variant="ghost"
+        className="size-11 min-h-11 shrink-0 p-0!"
         onClick={() => handleEditTransaction(transaction.id)}
         title="Edit transaction"
-        aria-label={`Edit transaction: ${transaction.description ?? transaction.category ?? "No description"}, ${formatAmount(transaction.amount, selectedCurrency)}`}
-        className={clsx(
-          "cursor-pointer transition",
-          mobile
-            ? "text-blue-500 hover:text-blue-600"
-            : "text-[rgb(var(--color-brand-deep))] hover:text-[rgb(var(--color-brand))]"
-        )}
+        aria-haspopup="dialog"
+        aria-label={`Edit transaction: ${transaction.description || formatCategory(transaction)}, ${transaction.date}`}
       >
-        <HiOutlinePencil aria-hidden="true" className="text-base" />
-      </button>
-      <button
-        type="button"
-        onClick={() => {
-          if (isDemoMode) {
-            showDemoReadOnlyToast();
-            return;
-          }
-          
-          deleteTransaction(user.uid, "transactions", transaction.id);
-        }}
+        <FiEdit2 aria-hidden="true" />
+      </Button>
+      <Button
+        variant="ghost"
+        className="size-11 min-h-11 shrink-0 p-0! text-danger"
+        onClick={() => removeTransaction(transaction)}
+        disabled={deletingId !== null}
         title="Delete transaction"
-        aria-label={`Delete transaction: ${transaction.description ?? transaction.category ?? "No description"}, ${formatAmount(transaction.amount, selectedCurrency)}`}
-        className="cursor-pointer text-red-500 transition hover:text-red-600"
+        aria-label={`Delete transaction: ${transaction.description || formatCategory(transaction)}, ${transaction.date}`}
       >
-        <HiOutlineTrash aria-hidden="true" className="text-base" />
-      </button>
+        <FiTrash2 aria-hidden="true" />
+      </Button>
     </div>
   );
 
-  const columns = [
-    {
-      key: "date",
-      header: "Date",
-      render: (transaction) => transaction.date,
-      cellClassName: "whitespace-nowrap",
-    },
-    {
-      key: "description",
-      header: "Description",
-      render: (transaction) => transaction.description || "No description",
-    },
-    {
-      key: "category",
-      header: "Category",
-      render: formatCategory,
-    },
-    {
-      key: "amount",
-      header: "Amount",
-      render: renderAmount,
-      cellClassName: "whitespace-nowrap",
-    },
-    {
-      key: "actions",
-      header: "",
-      render: (transaction) => renderActions(transaction),
-      cellClassName: "whitespace-nowrap",
-      hideOnMobile: true,
-    },
-  ];
-
   return (
-    <div>
-      <h3 className="text-lg md:text-xl mb-8 text-[rgb(var(--color-muted))] font-semibold">
-        Showing {indexOfFirstTransaction + 1}-
-        {Math.min(indexOfLastTransaction, sortedTransactions.length)} of{" "}
-        {sortedTransactions.length} transactions
-      </h3>
-
-      <ResponsiveTable
-        columns={columns}
-        rows={currentTransactions}
-        getRowKey={(transaction) => transaction.id}
-        emptyMessage="No transactions found."
-        mobileRow={(transaction) => (
-          <div className="flex flex-col gap-4">
-            <h4 className="text-base font-semibold">
-              {transaction.description || "No description"}
-            </h4>
-
-            <div className="flex items-center gap-1">
-              <div className="grid grow grid-cols-1 gap-2 text-[13px] min-[420px]:grid-cols-3">
-                <p className="flex items-center gap-1">
-                  <span className="h-2 w-2 rounded-full bg-[rgb(var(--color-muted))]"></span>
-                  <span>{transaction.date}</span>
-                </p>
-                <p className="flex items-center gap-1">
-                  <span className="h-2 w-2 rounded-full bg-[rgb(var(--color-muted))]"></span>
-                  <span>{formatCategory(transaction)}</span>
-                </p>
-                <p className="flex items-center gap-1">
-                  <span className="h-2 w-2 rounded-full bg-[rgb(var(--color-muted))]"></span>
-                  {renderAmount(transaction)}
-                </p>
-              </div>
-              {renderActions(transaction, true)}
-            </div>
-          </div>
-        )}
+    <div className="min-w-0">
+      <div className="pb-4">
+        <h2
+          className="text-sm font-medium"
+          aria-live="polite"
+          aria-atomic="true"
+        >
+          Showing {indexOfFirstTransaction + 1}-
+          {Math.min(indexOfLastTransaction, sortedTransactions.length)} of{" "}
+          {sortedTransactions.length} transactions
+        </h2>
+      </div>
+      <div className="hidden overflow-x-auto md:block">
+        <TransactionDesktopTable
+          groups={groups}
+          formatCategory={formatCategory}
+          renderAmount={renderAmount}
+          renderActions={renderActions}
+        />
+      </div>
+      <TransactionMobileList
+        groups={groups}
+        renderAmount={renderAmount}
+        formatCategory={formatCategory}
+        renderActions={renderActions}
       />
-
-      {/* Pagination Controls */}
-      {sortedTransactions?.length > 10 && (
-        <div className="flex items-center justify-between mt-10">
-          <button
-            type="button"
-            aria-label="Previous page"
-            onClick={handlePrev}
-            disabled={currentPage === 1}
-            className="px-4 py-1 rounded bg-[rgb(var(--color-))] hover:scale-y-105 transition shadow text-[rgb(var(--color-muted))] disabled:opacity-50 font-medium text-sm cursor-pointer"
-          >
-            <span>&larr;</span> Prev
-          </button>
-
-          <span className="text-sm text-[rgb(var(--color-muted))] font-medium">
-            Page {currentPage} out of {totalPages}
-          </span>
-
-          <button
-            type="button"
-            aria-label="Next page"
-            onClick={handleNext}
-            disabled={currentPage === totalPages}
-            className="px-4 py-1 rounded bg-[rgb(var(--color-))] hover:scale-y-105 transition shadow text-[rgb(var(--color-muted))] disabled:opacity-50 font-medium text-sm cursor-pointer"
-          >
-            Next <span>&rarr;</span>
-          </button>
-        </div>
-      )}
+      <TransactionPagination
+        handlePrev={handlePrev}
+        currentPage={currentPage}
+        totalPages={totalPages}
+        handleNext={handleNext}
+      />
     </div>
   );
 };

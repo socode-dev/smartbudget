@@ -1,13 +1,17 @@
 import { useState } from "react";
-import { FaEye, FaEyeSlash, FaGoogle, FaMicrosoft } from "react-icons/fa6";
 import { Link } from "react-router-dom";
 import { useAuthFormContext } from "../context/AuthFormContext";
-import ScrollToTop from "../layout/ScrollToTop";
-import LoadingSpinner from "../components/ui/LoadingSpinner";
 import useThresholdForm from "../hooks/useThresholdForm";
 import { getThresholdsValue } from "../utils/getValues";
 import useAuthStore from "../store/useAuthStore";
-import { motion } from "framer-motion";
+import AuthFormShell from "../components/auth/AuthFormShell";
+import AuthFooter from "../components/auth/AuthFooter";
+import PasswordField from "../components/auth/PasswordField";
+import SocialAuthButtons from "../components/auth/SocialAuthButtons";
+import Alert from "../components/ui/Alert";
+import Button from "../components/ui/Button";
+import FormField from "../components/ui/FormField";
+import Input from "../components/ui/Input";
 
 const Signup = () => {
   const onSignup = useAuthStore((state) => state.onSignup);
@@ -16,7 +20,6 @@ const Signup = () => {
   const onSignupErr = useAuthStore((state) => state.onSignupErr);
   const googleErr = useAuthStore((state) => state.googleErr);
   const microsoftErr = useAuthStore((state) => state.microsoftErr);
-
   const {
     signupRegister: register,
     signupErrors: errors,
@@ -24,274 +27,129 @@ const Signup = () => {
     signupHandleSubmit: handleSubmit,
     signupFormReset: reset,
   } = useAuthFormContext();
-
   const { getValues } = useThresholdForm();
-
-  const [revealPassword, setRevealPassword] = useState({
-    password: false,
-    confirmPassword: false,
-  });
-
-  const Icon = {
-    password: revealPassword.password ? FaEye : FaEyeSlash,
-    confirmPassword: revealPassword.confirmPassword ? FaEye : FaEyeSlash,
-  };
-
-  const togglePasswordReveal = (type) =>
-    setRevealPassword((prev) => ({ ...prev, [type]: !prev[type] }));
+  const [socialPending, setSocialPending] = useState(false);
+  const busy = isSubmitting || socialPending;
 
   return (
-    <motion.main
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20 }}
-      transition={{ duration: 0.4, ease: "easeOut" }}
-      className="w-full max-w-[650px] h-auto px-2 py-8 flex flex-col items-center mx-auto"
+    <AuthFormShell
+      title="Create an Account"
+      description="Let's get you set up with Vydra account."
     >
-      <ScrollToTop />
-
-      <h2 className="text-3xl md:text-4xl text-[rgb(var(--color-brand))] text-center font-medium tracking-wide">
-        Create an Account
-      </h2>
-      <p className="text-base text-[rgb(var(--color-muted))] text-center mt-4 mb-6">
-        Let's get you set up with SmartBudget
-      </p>
-
-      {/* Display authentication error if there is any */}
-      {onSignupErr && (
-        <p role="alert" className="max-w-11/12 bg-[rgb(var(--color-status-bg-red))] px-4 py-2 rounded text-red-600 text-sm mb-2">
-          {onSignupErr}
-        </p>
-      )}
-
-      {microsoftErr && (
-        <p role="alert" className="max-w-11/12 bg-[rgb(var(--color-status-bg-red))] px-4 py-2 rounded text-red-600 text-sm mb-2">
-          {microsoftErr}
-        </p>
-      )}
-
-      {googleErr && (
-        <p role="alert" className="max-w-11/12 bg-[rgb(var(--color-status-bg-red))] px-4 py-2 rounded text-red-600 text-sm mb-2">
-          {googleErr}
-        </p>
-      )}
-
+      {[onSignupErr, googleErr, microsoftErr]
+        .filter(Boolean)
+        .map((error, index) => (
+          <Alert key={index} className="mb-4">
+            {error}
+          </Alert>
+        ))}
       <form
-        onSubmit={handleSubmit((data) => {
-          onSignup(data, getThresholdsValue(getValues));
-          reset();
+        noValidate
+        onSubmit={handleSubmit(async (data) => {
+          if (socialPending) return;
+          const result = await onSignup(data, getThresholdsValue(getValues));
+          if (result?.ok) reset();
         })}
-        className="w-full grid grid-cols-2 gap-2"
+        aria-busy={busy}
       >
-        {/* First Name field */}
-        <fieldset>
-          <div className="flex flex-col gap-1">
-            <label
-              htmlFor="firstName"
-              className="text-base text-[rgb(var(--color-muted))] font-medium after:content-['*'] after:text-red-500 after:ml-0.5"
+        <fieldset disabled={busy} className="min-w-0 space-y-4">
+          <div className="grid gap-4 sm:grid-cols-2">
+            <FormField
+              id="first-name"
+              label="First Name"
+              required
+              error={errors.firstName}
             >
-              First Name
-            </label>
-            <input
-              {...register("firstName")}
-              type="text"
-              id="firstName"
-              aria-invalid={errors.firstName ? "true" : "false"}
-              aria-describedby={errors.firstName ? "first-name-error" : undefined}
-              placeholder="Enter your first name"
-              className="w-full text-base text-[rgb(var(--color-muted))] px-4 py-2 rounded-lg border-2 border-[rgb(var(--color-gray-border))] outline-none focus:border-[rgb(var(--color-brand))] focus:ring-2 focus:ring-[rgb(var(--color-brand))] focus:ring-offset-2 transition"
-            />
+              {(fieldProps) => (
+                <Input
+                  {...register("firstName")}
+                  {...fieldProps}
+                  autoComplete="given-name"
+                  placeholder="Enter your first name"
+                />
+              )}
+            </FormField>
+            <FormField
+              id="last-name"
+              label="Last Name"
+              required
+              error={errors.lastName}
+            >
+              {(fieldProps) => (
+                <Input
+                  {...register("lastName")}
+                  {...fieldProps}
+                  autoComplete="family-name"
+                  placeholder="Enter your last name"
+                />
+              )}
+            </FormField>
           </div>
-          {errors.firstName && (
-            <p role="alert" id="first-name-error" className="text-sm text-red-600 mt-1">
-              {errors.firstName.message}
-            </p>
-          )}
-        </fieldset>
-
-        {/* Last Name field */}
-        <fieldset>
-          <div className="flex flex-col gap-1">
-            <label
-              htmlFor="lastName"
-              className="text-base text-[rgb(var(--color-muted))] font-medium after:content-['*'] after:text-red-500 after:ml-0.5"
-            >
-              Last Name
-            </label>
-            <input
-              {...register("lastName")}
-              type="text"
-              id="lastName"
-              aria-invalid={errors.lastName ? "true" : "false"}
-              aria-describedby={errors.lastName ? "last-name-error" : undefined}
-              placeholder="Enter your last name"
-              className="w-full text-base text-[rgb(var(--color-muted))] px-4 py-2 rounded-lg border-2 border-[rgb(var(--color-gray-border))] outline-none focus:border-[rgb(var(--color-brand))] focus:ring-2 focus:ring-[rgb(var(--color-brand))] focus:ring-offset-2 transition"
-            />
-          </div>
-          {errors.lastName && (
-            <p role="alert" id="last-name-error" className="text-sm text-red-600 mt-1">
-              {errors.lastName.message}
-            </p>
-          )}
-        </fieldset>
-
-        {/* Email field */}
-        <fieldset className="col-span-full">
-          <div className="flex flex-col gap-1">
-            <label
-              htmlFor="email"
-              className="text-base text-[rgb(var(--color-muted))] font-medium after:content-['*'] after:text-red-500 after:ml-0.5"
-            >
-              Email
-            </label>
-            <input
-              {...register("email")}
-              type="email"
-              id="email"
-              aria-invalid={errors.email ? "true" : "false"}
-              aria-describedby={errors.email ? "email-error" : undefined}
-              placeholder="Enter your email"
-              className="w-full text-base text-[rgb(var(--color-muted))] px-4 py-2 rounded-lg border-2 border-[rgb(var(--color-gray-border))] outline-none focus:border-[rgb(var(--color-brand))] focus:ring-2 focus:ring-[rgb(var(--color-brand))] focus:ring-offset-2 transition"
-            />
-          </div>
-          {errors.email && (
-            <p role="alert" id="email-error" className="text-sm text-red-600 mt-1">{errors.email.message}</p>
-          )}
-        </fieldset>
-
-        {/* Password fields */}
-        <fieldset className="col-span-full sm:col-span-1">
-          <div className="flex flex-col gap-1">
-            <label
-              htmlFor="password"
-              className="text-base text-[rgb(var(--color-muted))] font-medium after:content-['*'] after:text-red-500 after:ml-0.5"
-            >
-              Password
-            </label>
-            <div className="relative">
-              <input
-                {...register("password")}
-                type={revealPassword.password ? "text" : "password"}
-                id="password"
-                aria-invalid={errors.password ? "true" : "false"}
-                aria-describedby={errors.password ? "password-error" : undefined}
-                placeholder="Enter password"
-                className="w-full text-base text-[rgb(var(--color-muted))] px-4 py-2 rounded-lg border-2 border-[rgb(var(--color-gray-border))] outline-none focus:border-[rgb(var(--color-brand))] focus:ring-2 focus:ring-[rgb(var(--color-brand))] focus:ring-offset-2 transition"
+          <FormField
+            id="signup-email"
+            label="Email"
+            required
+            error={errors.email}
+          >
+            {(fieldProps) => (
+              <Input
+                {...register("email")}
+                {...fieldProps}
+                type="email"
+                autoComplete="email"
+                placeholder="Enter your email"
               />
-
-              <button
-                type="button"
-                aria-label={revealPassword.password ? "Show password" : "Hide password"}
-                onClick={() => togglePasswordReveal("password")}
-                className="text-lg text-gray-400 absolute top-[50%] -translate-y-[50%] right-2 cursor-pointer"
-              >
-                <Icon.password aria-hidden="true" />
-              </button>
-            </div>
+            )}
+          </FormField>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <PasswordField
+              {...register("password")}
+              id="signup-password"
+              label="Password"
+              className="mb-0"
+              error={errors.password}
+              placeholder="Enter password"
+            />
+            <PasswordField
+              {...register("confirmPassword")}
+              id="confirm-password"
+              label="Confirm Password"
+              className="mb-0"
+              error={errors.confirmPassword}
+              placeholder="Confirm password"
+            />
           </div>
-          {errors.password && (
-            <p role="alert" id="password-error" className="text-sm text-red-600 mt-1">
-              {errors.password.message}
-            </p>
-          )}
+          <Button
+            type="submit"
+            className="w-full"
+            loading={isSubmitting}
+            loadingText="Creating account..."
+            disabled={busy}
+          >
+            Create Account
+          </Button>
         </fieldset>
-
-        {/* Confirm Password field */}
-        <fieldset className="col-span-full sm:col-span-1">
-          <div className="flex flex-col gap-1">
-            <label
-              htmlFor="confirmPassword"
-              className="text-base text-[rgb(var(--color-muted))] font-medium after:content-['*'] after:text-red-500 after:ml-0.5"
-            >
-              Confirm Password
-            </label>
-            <div className="relative">
-              <input
-                {...register("confirmPassword")}
-                type={revealPassword.confirmPassword ? "text" : "password"}
-                id="confirmPassword"
-                aria-invalid={errors.confirmPassword ? "true" : "false"}
-                aria-describedby={errors.confirmPassword ? "confirm-password-error" : undefined}
-                placeholder="Confirm password"
-                className="w-full text-base text-[rgb(var(--color-muted))] px-4 py-2 rounded-lg border-2 border-[rgb(var(--color-gray-border))] outline-none focus:border-[rgb(var(--color-brand))] focus:ring-2 focus:ring-[rgb(var(--color-brand))] focus:ring-offset-2 transition"
-              />
-
-              <button 
-                type="button"
-                aria-label={revealPassword.confirmPassword ? "Show confirm password" : "Hide confirm password"}
-                onClick={() => togglePasswordReveal("confirmPassword")}
-                className="text-lg text-gray-400 absolute top-[50%] -translate-y-[50%] right-2 cursor-pointer"
-              >
-                <Icon.confirmPassword aria-hidden="true" />
-              </button>
-            </div>
-          </div>
-          {errors.confirmPassword && (
-            <p role="alert" id="confirm-password-error" className="text-sm text-red-600">
-              {errors.confirmPassword.message}
-            </p>
-          )}
-        </fieldset>
-
-        {/* Submit Button */}
-        <button
-          type="submit"
-          disabled={isSubmitting}
-          aria-busy={isSubmitting}
-          className="col-span-full mt-6 text-base font-medium text-center py-2 rounded-lg shadow bg-[rgb(var(--color-brand))] text-white hover:scale-97
-          active:scale-103 disabled:opacity-50 disabled:cursor-not-allowed transition cursor-pointer"
-        >
-          {isSubmitting ? <LoadingSpinner size={25} /> : "Create Account"}
-        </button>
-
-        <Link
+        <Button
+          as={Link}
           to="/demo"
-          aria-current="page"
-          className="col-span-full mt-3 rounded-lg border-2 border-[rgb(var(--color-brand))] px-4 py-2 text-center text-base font-medium text-[rgb(var(--color-brand))] transition hover:bg-[rgb(var(--color-status-bg-blue))]"
+          variant="outline"
+          className="mt-3 w-full"
+          disabled={busy}
         >
           Explore Demo
-        </Link>
+        </Button>
       </form>
-
-      <section className="w-11/12 flex flex-col gap-3 mt-6">
-        <p className="text-base text-center">OR SIGN UP WITH:</p>
-
-        <fieldset className="w-full flex gap-4">
-          {/* Google sign up */}
-          <button
-            type="button"
-            aria-label="Signup with google"
-            onClick={() => onGoogleSignIn(getThresholdsValue(getValues))}
-            className="w-1/2 px-4 py-2 flex items-center justify-center gap-4 border-2 border-[rgb(var(--color-gray-border))] hover:bg-[rgb(var(--color-gray-bg))] transition rounded-lg text-base text-[rgb(var(--color-muted))] font-medium cursor-pointer"
-          >
-            <FaGoogle aria-hidden="true" />
-            <span>Google</span>
-          </button>
-
-          {/* Microsoft sign up */}
-          <button
-            type="button"
-            aria-label="Signup with microsoft"
-            onClick={() => onMicrosoftSignIn(getThresholdsValue(getValues))}
-            className="w-1/2 px-4 py-2 flex items-center justify-center gap-4 border-2 border-[rgb(var(--color-gray-border))] rounded-lg text-base text-[rgb(var(--color-muted))] hover:bg-[rgb(var(--color-gray-bg))] transition font-medium cursor-pointer"
-          >
-            <FaMicrosoft aria-hidden="true" />
-            <span aria-hidden="true">Microsoft</span>
-          </button>
-        </fieldset>
-      </section>
-
-      <p className="text-base text-center text-[rgb(var(--color-muted))] mt-6">
-        Already have an account?{" "}
-        <Link
-          to="/login"
-          aria-current="page"
-          className="text-[rgb(var(--color-brand))] font-medium"
-        >
-          Log in
-        </Link>
-      </p>
-    </motion.main>
+      <SocialAuthButtons
+        verb="sign up"
+        disabled={isSubmitting}
+        onPendingChange={setSocialPending}
+        onGoogle={() => onGoogleSignIn(getThresholdsValue(getValues))}
+        onMicrosoft={() => onMicrosoftSignIn(getThresholdsValue(getValues))}
+      />
+      <AuthFooter to="/login" linkText="Log in">
+        Already have an account?
+      </AuthFooter>
+    </AuthFormShell>
   );
 };
 

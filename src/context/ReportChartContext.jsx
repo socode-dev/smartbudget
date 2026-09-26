@@ -1,213 +1,127 @@
-import { useContext, createContext, useMemo, useRef } from "react";
-import useTransactionStore from "../store/useTransactionStore";
+import { useContext, createContext, useMemo } from "react";
+import { useReportContext } from "./ReportContext";
 import { formatAmount } from "../utils/formatAmount";
 import useCurrencyStore from "../store/useCurrencyStore";
-import { getRandomColor } from "../utils/randomColor";
+import useThemeStore from "../store/useThemeStore";
 
 const ReportChartContext = createContext();
+const palette = [
+  "#2563eb",
+  "#10b981",
+  "#f59e0b",
+  "#f43f5e",
+  "#8b5cf6",
+  "#06b6d4",
+  "#64748b",
+];
 
 export const ReportChartProvider = ({ children }) => {
-  const transactions = useTransactionStore((state) => state.transactions);
+  const { categoryBreakdown } = useReportContext();
   const selectedCurrency = useCurrencyStore((state) => state.selectedCurrency);
-
-  const expenses = useMemo(
-    () => transactions?.filter((tx) => tx.type === "expense"),
-    [transactions],
-  );
-
-  const categoryTotals = useMemo(
+  const theme = useThemeStore((state) => state.theme);
+  const dark = theme === "dark";
+  const textColor = dark ? "#9ca3af" : "#374151";
+  const gridColor = dark ? "#333333" : "#e5e7eb";
+  const categories = useMemo(
     () =>
-      expenses?.reduce((acc, tx) => {
-        const cat = tx.category;
-        acc[cat] = (acc[cat] || 0) + tx.amount;
-        return acc;
-      }, {}),
-    [expenses],
+      categoryBreakdown.map((row, index) => ({
+        ...row,
+        color: palette[index % palette.length],
+      })),
+    [categoryBreakdown],
   );
-
-  const labels = useMemo(
-    () => categoryTotals ? Object.keys(categoryTotals) : [],
-    [categoryTotals]);
-  const amounts = useMemo(
-    () => categoryTotals ? Object.values(categoryTotals) : [],
-    [categoryTotals]);
-  const colorsRef = useRef({});
-  const totalAmount = useMemo(
-    () => expenses?.reduce((acc, tx) => acc + tx.amount, 0),
-    [expenses]);
-  const maxAmount = useMemo(() => Math.max(0, ...amounts), [amounts]);
-
-  // Scale chart steps with the largest expense. Example: 10,000 -> 2,000 step, 20,000 -> 5,000 step.
-  const yAxisStepSize = useMemo(() => {
-    if (!maxAmount) return 1000;
-
-    const roughStep = maxAmount / 5;
-    const magnitude = 10 ** Math.floor(Math.log10(roughStep));
-    const normalized = roughStep / magnitude;
-
-    if (normalized <= 1) return magnitude;
-    if (normalized <= 2) return 2 * magnitude;
-    if (normalized <= 5) return 5 * magnitude;
-    return 10 * magnitude;
-  }, [maxAmount]);
-
-  const yAxisMax = useMemo(() => {
-    if (!maxAmount) return yAxisStepSize * 5;
-    return Math.ceil(maxAmount / yAxisStepSize) * yAxisStepSize;
-  }, [maxAmount, yAxisStepSize]);
-
-  const randomColors = useMemo(
-    () =>
-      labels.map((label) => {
-        if (!colorsRef.current[label]) {
-          colorsRef.current[label] = getRandomColor();
-        }
-        return colorsRef.current[label];
-      }),
-    [labels],
-  );
-
-  const formattedLabels = useMemo(
-    () =>
-      labels?.map((label) => {
-        const percentage = totalAmount
-          ? ((categoryTotals[label] / totalAmount) * 100)?.toFixed(1)
-          : 0;
-        return `${label} (${percentage}%)`;
-      }),
-    [labels, totalAmount, categoryTotals],
-  );
-
-  // Data for doughnut chart
+  const labels = categories.map((row) => row.category);
+  const amounts = categories.map((row) => row.amount);
+  const colors = categories.map((row) => row.color);
+  const tooltip = {
+    backgroundColor: dark ? "#262626" : "#ffffff",
+    titleColor: dark ? "#ffffff" : "#0f172a",
+    bodyColor: textColor,
+    borderColor: gridColor,
+    borderWidth: 1,
+    cornerRadius: 6,
+    padding: 12,
+    titleFont: { family: "DM Sans" },
+    bodyFont: { family: "DM Sans" },
+    callbacks: {
+      label: (context) => formatAmount(Number(context.raw), selectedCurrency),
+    },
+  };
   const doughnutChartData = {
-    labels: formattedLabels,
+    labels,
     datasets: [
       {
-        label: "Expenses by Category",
+        label: "Expenses by category",
         data: amounts,
-        backgroundColor: randomColors,
-        borderColor: randomColors,
-        borderWidth: 1,
+        backgroundColor: colors,
+        borderColor: dark ? "#191919" : "#ffffff",
+        borderWidth: 3,
+        hoverOffset: 4,
       },
     ],
   };
-
-  // Options for doughnut chart
-
   const doughnutChartOptions = {
     responsive: true,
-    cutout: "30%",
-    plugins: {
-      legend: {
-        display: true,
-        position: "bottom",
-        labels: {
-          color: "#6b7280",
-          font: {
-            size: 12,
-            weight: "400",
-          },
-          padding: 12,
-        },
-      },
-      tooltip: {
-        callbacks: {
-          label: (context) => {
-            const label = context.label || "";
-            const amount = context.raw || "";
-            return `${label} ${formatAmount(amount, selectedCurrency)}`;
-          },
-        },
-      },
-    },
     maintainAspectRatio: false,
+    cutout: "65%",
+    plugins: { legend: { display: false }, tooltip },
   };
-
-  // Data for bar chart
   const barChartData = {
     labels,
     datasets: [
       {
-        label: "Expenses by Category",
+        label: "Expenses by category",
         data: amounts,
-        backgroundColor: randomColors,
-        borderColor: randomColors,
-        borderWidth: 1,
-        borderRadius: 50,
-        color: "#6b7280",
-        font: { weight: 400, size: 12 },
+        backgroundColor: colors,
+        borderRadius: 6,
+        borderSkipped: "bottom",
+        maxBarThickness: 48,
       },
     ],
   };
-
-  // Options for bar chart
   const barChartOptions = {
     responsive: true,
+    maintainAspectRatio: false,
     scales: {
       x: {
+        grid: { display: false },
+        border: { display: false },
         ticks: {
-          color: "#6b7280",
+          color: textColor,
+          font: { family: "DM Sans", size: 11 },
+          maxRotation: 0,
+          autoSkip: true,
+          callback: function (value) {
+            const label = this.getLabelForValue(value);
+            return label.length > 13 ? `${label.slice(0, 12)}...` : label;
+          },
         },
       },
       y: {
         beginAtZero: true,
-        max: yAxisMax,
+        border: { display: false },
+        grid: { color: gridColor, drawTicks: false },
         ticks: {
-          stepSize: yAxisStepSize,
-          color: "#6b7280",
-          callback: (value) => formatAmount(Number(value), selectedCurrency),
+          maxTicksLimit: 6,
+          color: textColor,
+          font: { family: "DM Sans", size: 11 },
+          callback: (value) =>
+            new Intl.NumberFormat(undefined, {
+              style: "currency",
+              currency: selectedCurrency,
+              notation: "compact",
+              maximumFractionDigits: 1,
+            }).format(Number(value)),
         },
       },
     },
-    plugins: {
-      legend: {
-        display: true,
-        position: "bottom",
-        padding: 10,
-        labels: {
-          font: {
-            size: 12,
-            weight: "400",
-          },
-          generateLabels: (chart) => {
-            const dataset = chart.data.datasets[0];
-            const total = dataset.data.reduce((acc, val) => acc + val, 0);
-
-            return chart.data.labels.map((label, i) => {
-              const value = dataset.data[i];
-              const percentage = total ? ((value / total) * 100).toFixed(1) : 0;
-
-              return {
-                text: `${label} (${percentage}%)`,
-                fillStyle: dataset.backgroundColor[i],
-                strokeStyle: dataset.backgroundColor[i],
-                lineWidth: 0.5,
-                hidden: false,
-                index: i,
-                fontColor: "#6b7280",
-              };
-            });
-          },
-          padding: 12,
-        },
-      },
-      tooltip: {
-        callbacks: {
-          label: (context) => {
-            const label = context.label || "";
-            const value = context.raw || "";
-
-            return `${label} ${formatAmount(value, selectedCurrency)}`;
-          },
-        },
-      },
-    },
-    maintainAspectRatio: false,
+    plugins: { legend: { display: false }, tooltip },
   };
 
   return (
     <ReportChartContext.Provider
       value={{
+        categories,
         doughnutChartData,
         doughnutChartOptions,
         barChartData,

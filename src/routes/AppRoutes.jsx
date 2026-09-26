@@ -8,31 +8,41 @@ import Signup from "../pages/Signup";
 import ActivateInvite from "../pages/ActivateInvite";
 import ErrorPage from "../pages/ErrorPage";
 import ForgotPassword from "../pages/ForgotPassword";
-import { lazy } from "react";
 import EmailVerified from "../pages/EmailVerified";
-import LazyWrapper from "./LazyWrapper";
-import OverviewSkeleton from "../components/skeletons/overview/OverviewSkeleton";
-import TransactionSkeleton from "../components/skeletons/TransactionSkeleton";
-import BudgetSkeleton from "../components/skeletons/BudgetSkeleton";
-import GoalSkeleton from "../components/skeletons/GoalSkeleton";
-import ReportSkeleton from "../components/skeletons/ReportSkeleton";
-import InsightSkeleton from "../components/skeletons/InsightSkeleton";
 import DemoInitializer from "../demo/DemoInitializer";
+import LazyWrapper from "./LazyWrapper";
+import { dashboardPages } from "./dashboardPages";
+import AuthLoadingScreen from "../components/ui/AuthLoadingScreen";
 
-const Overview = lazy(() => import("../pages/Overview"));
-const Transactions = lazy(() => import("../pages/Transactions"));
-const Budgets = lazy(() => import("../pages/Budgets"));
-const Goals = lazy(() => import("../pages/Goals"));
-const Insights = lazy(() => import("../pages/Insights"));
-const Reports = lazy(() => import("../pages/Reports"));
-const Notifications = lazy(() => import("../pages/Notifications"));
-
-const AppRoutes = () => {
+export default function AppRoutes() {
+  const dashboardRoutes = dashboardPages.map(
+    ({ path, Component, fallback }) => (
+      <Route
+        key={path || "overview"}
+        index={!path}
+        path={path}
+        element={
+          <LazyWrapper loadingFallback={fallback}>
+            <Component />
+          </LazyWrapper>
+        }
+      />
+    ),
+  );
+  
   return (
     <Routes>
       <Route element={<AuthLayout />}>
         <Route path="activate" element={<ActivateInvite />} />
-        
+        <Route path="forgot-password" element={<ForgotPassword />} />
+        <Route
+          path="email-verified"
+          element={
+            <ProtectedRoute>
+              <EmailVerified />
+            </ProtectedRoute>
+          }
+        />
         <Route
           path="login"
           element={
@@ -41,7 +51,6 @@ const AppRoutes = () => {
             </PublicRoute>
           }
         />
-        <Route path="forgot-password" element={<ForgotPassword />} />
         <Route
           path="signup"
           element={
@@ -51,8 +60,6 @@ const AppRoutes = () => {
           }
         />
       </Route>
-
-      {/* Demo routes */}
       <Route
         path="/demo"
         element={
@@ -61,59 +68,8 @@ const AppRoutes = () => {
           </DemoInitializer>
         }
       >
-        <Route
-          index
-          element={
-            <LazyWrapper loadingFallback={<OverviewSkeleton />}>
-              <Overview />
-            </LazyWrapper>
-          }
-        />
-        <Route
-          path="transactions"
-          element={
-            <LazyWrapper loadingFallback={<TransactionSkeleton />}>
-              <Transactions />
-            </LazyWrapper>
-          }
-        />
-        <Route
-          path="budgets"
-          element={
-            <LazyWrapper loadingFallback={<BudgetSkeleton />}>
-              <Budgets />
-            </LazyWrapper>
-          }
-        />
-        <Route
-          path="goals"
-          element={
-            <LazyWrapper loadingFallback={<GoalSkeleton />}>
-              <Goals />
-            </LazyWrapper>
-          }
-        />
-        <Route
-          path="insights"
-          element={
-            <LazyWrapper loadingFallback={<InsightSkeleton />}>
-              <Insights />
-            </LazyWrapper>
-          }
-        />
-        <Route
-          path="reports"
-          element={
-            <LazyWrapper loadingFallback={<ReportSkeleton />}>
-              <Reports />
-            </LazyWrapper>
-          }
-        />
-        <Route path="notifications" element={<Notifications />} />
-        <Route path="*" element={<ErrorPage />} />
+        {dashboardRoutes}
       </Route>
-
-      {/* Main routes */}
       <Route
         path="/"
         element={
@@ -122,61 +78,9 @@ const AppRoutes = () => {
           </ProtectedRoute>
         }
       >
-        <Route
-          index
-          element={
-            <LazyWrapper loadingFallback={<OverviewSkeleton />}>
-              <Overview />
-            </LazyWrapper>
-          }
-        />
-        <Route
-          path="transactions"
-          element={
-            <LazyWrapper loadingFallback={<TransactionSkeleton />}>
-              <Transactions />
-            </LazyWrapper>
-          }
-        />
-        <Route
-          path="budgets"
-          element={
-            <LazyWrapper loadingFallback={<BudgetSkeleton />}>
-              <Budgets />
-            </LazyWrapper>
-          }
-        />
-        <Route
-          path="goals"
-          element={
-            <LazyWrapper loadingFallback={<GoalSkeleton />}>
-              <Goals />
-            </LazyWrapper>
-          }
-        />
-        <Route
-          path="insights"
-          element={
-            <LazyWrapper loadingFallback={<InsightSkeleton />}>
-              <Insights />
-            </LazyWrapper>
-          }
-        />
-        <Route
-          path="reports"
-          element={
-            <LazyWrapper loadingFallback={<ReportSkeleton />}>
-              <Reports />
-            </LazyWrapper>
-          }
-        />
-        <Route path="notifications" element={<Notifications />} />
-        <Route path="email-verified" element={<EmailVerified />} />
-        <Route path="*" element={<ErrorPage />} />
+        {dashboardRoutes}
       </Route>
       <Route path="*" element={<ErrorPage />} />
     </Routes>
   );
-};
-
-export default AppRoutes;
+}

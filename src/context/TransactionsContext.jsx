@@ -16,33 +16,38 @@ import { sortTransactionsByDateTime } from "../utils/sortTransactions";
 
 const TransactionsContext = createContext();
 
+const initialFilters = {
+  search: "",
+  fromDate: "",
+  toDate: "",
+  category: "all",
+  type: "all",
+};
+
 export const TransactionsProvider = ({ children }) => {
   const isDemoMode = useDemoMode();
   const { onOpenModal, setTransactionID } = useModalContext();
   const transactions = useTransactionStore((state) => state.transactions);
   const setEditTransaction = useTransactionStore(
-    (state) => state.setEditTransaction
+    (state) => state.setEditTransaction,
   );
-  const [filters, setFilters] = useState({
-    search: "",
-    fromDate: "",
-    toDate: "",
-    category: "all",
-    type: "all",
-  });
+  const [filters, updateFilters] = useState(initialFilters);
 
   const forms = useFormContext("transactions");
   const { setValue } = forms;
 
-  const [currentPage, setCurrentPage] = useState(1);
+  const [page, setCurrentPage] = useState(1);
   const transactionsPerPage = 10;
 
-  useEffect(() => {
-    const mainElement = document.querySelector("main");
-    if (mainElement) {
-      mainElement.scrollTo({ top: 0, behavior: "smooth" });
-    }
-  }, [currentPage]);
+  const setFilters = useCallback((nextFilters) => {
+    updateFilters(nextFilters);
+    setCurrentPage(1);
+  }, []);
+
+  const resetFilters = useCallback(
+    () => setFilters(initialFilters),
+    [setFilters],
+  );
 
   const filteredTransactions = useMemo(
     () =>
@@ -88,56 +93,72 @@ export const TransactionsProvider = ({ children }) => {
       filters.toDate,
       filters.type,
       filters.category,
-    ]
+    ],
   );
 
   const sortedTransactions = useMemo(
     () => sortTransactionsByDateTime(filteredTransactions),
-    [filteredTransactions]
+    [filteredTransactions],
   );
 
   const { totalBalance, totalExpenses, totalIncome } = useMemo(
     () => transactionTotal(sortedTransactions),
-    [sortedTransactions]
+    [sortedTransactions],
   );
 
   const netBalance = useMemo(
     () => totalIncome - totalExpenses,
-    [totalIncome, totalExpenses]
+    [totalIncome, totalExpenses],
   );
 
-  const totalPages = Math.ceil(
-    sortedTransactions?.length / transactionsPerPage
+  const totalPages = Math.max(
+    1,
+    Math.ceil(sortedTransactions.length / transactionsPerPage),
   );
+  const currentPage = Math.min(page, totalPages);
+
+  useEffect(() => {
+    const mainElement = document.querySelector("main");
+    const reducedMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+    mainElement?.scrollTo({
+      top: 0,
+      behavior: reducedMotion ? "auto" : "smooth",
+    });
+  }, [currentPage]);
 
   const indexOfLastTransaction = currentPage * transactionsPerPage;
   const indexOfFirstTransaction = indexOfLastTransaction - transactionsPerPage;
   const currentTransactions = sortedTransactions?.slice(
     indexOfFirstTransaction,
-    indexOfLastTransaction
+    indexOfLastTransaction,
   );
 
-  const handlePrev = () => setCurrentPage((prev) => Math.max(prev - 1, 1));
+  const handlePrev = () => setCurrentPage(Math.max(currentPage - 1, 1));
 
   const handleNext = () =>
-    setCurrentPage((prev) => Math.min(prev + 1, totalPages));
+    setCurrentPage(Math.min(currentPage + 1, totalPages));
 
-  const handleEditTransaction = useCallback((id) => {
-    if (isDemoMode) {
-      showDemoReadOnlyToast();
-      return;
-    }
+  const handleEditTransaction = useCallback(
+    (id) => {
+      if (isDemoMode) {
+        showDemoReadOnlyToast();
+        return;
+      }
 
-    handleEdit(
-      id,
-      "transactions",
-      "edit",
-      setValue,
-      onOpenModal,
-      setEditTransaction
-    );
-    setTransactionID(id);
-  }, [isDemoMode, onOpenModal, setEditTransaction, setTransactionID, setValue]);
+      handleEdit(
+        id,
+        "transactions",
+        "edit",
+        setValue,
+        onOpenModal,
+        setEditTransaction,
+      );
+      setTransactionID(id);
+    },
+    [isDemoMode, onOpenModal, setEditTransaction, setTransactionID, setValue],
+  );
 
   const value = {
     sortedTransactions,
@@ -154,6 +175,7 @@ export const TransactionsProvider = ({ children }) => {
     netBalance,
     filters,
     setFilters,
+    resetFilters,
     handleEditTransaction,
   };
 

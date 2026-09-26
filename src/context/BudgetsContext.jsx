@@ -1,10 +1,4 @@
-import {
-  createContext,
-  useContext,
-  useState,
-  useMemo,
-  useEffect,
-} from "react";
+import { createContext, useContext, useState, useMemo, useEffect } from "react";
 import useTransactionStore from "../store/useTransactionStore";
 import { useFormContext } from "./FormContext";
 import { useModalContext } from "./ModalContext";
@@ -13,7 +7,11 @@ import { checkBudgetThreshold } from "../utils/checkBudgetThreshold";
 import useThresholdStore from "../store/useThresholdStore";
 import { scheduleThresholdCheck } from "../utils/scheduleThresholdCheck";
 import useAuthStore from "../store/useAuthStore";
-import { isDemoUser, showDemoReadOnlyToast, useDemoMode } from "../demo/useDemoMode";
+import {
+  isDemoUser,
+  showDemoReadOnlyToast,
+  useDemoMode,
+} from "../demo/useDemoMode";
 
 const BudgetsContext = createContext();
 
@@ -27,10 +25,10 @@ export const BudgetsProvider = ({ children }) => {
   const transactions = useTransactionStore((state) => state.transactions);
   const budgets = useTransactionStore((state) => state.budgets);
   const deleteTransaction = useTransactionStore(
-    (state) => state.deleteTransaction
+    (state) => state.deleteTransaction,
   );
   const setEditTransaction = useTransactionStore(
-    (state) => state.setEditTransaction
+    (state) => state.setEditTransaction,
   );
   const forms = useFormContext("budgets");
   const { setValue } = forms;
@@ -45,11 +43,13 @@ export const BudgetsProvider = ({ children }) => {
         const matchesName =
           searchName === ""
             ? true
-            : budget?.name?.toLowerCase().includes(searchName?.toLowerCase());
+            : [budget.name, budget.category].some((value) =>
+                value?.toLowerCase().includes(searchName.trim().toLowerCase()),
+              );
 
         return matchesName;
       }),
-    [budgets, searchName]
+    [budgets, searchName],
   );
 
   const budgetCounts = budgets?.length;
@@ -76,7 +76,7 @@ export const BudgetsProvider = ({ children }) => {
           budgets,
           budgetThreshold50,
           budgetThreshold80,
-          budgetThreshold100
+          budgetThreshold100,
         );
       }
     }
@@ -84,17 +84,16 @@ export const BudgetsProvider = ({ children }) => {
     return () => {
       mounted = false;
     };
-  }, 
-  [
-    isDemoSession, 
-    user?.uid, 
-    budgets, 
+  }, [
+    isDemoSession,
+    user?.uid,
+    budgets,
     transactions,
-    transactionCounts, 
-    budgetCounts, 
-    budgetThreshold50, 
-    budgetThreshold80, 
-    budgetThreshold100
+    transactionCounts,
+    budgetCounts,
+    budgetThreshold50,
+    budgetThreshold80,
+    budgetThreshold100,
   ]);
 
   const handleEditBudget = (id) => {
@@ -109,7 +108,7 @@ export const BudgetsProvider = ({ children }) => {
       "edit",
       setValue,
       onOpenModal,
-      setEditTransaction
+      setEditTransaction,
     );
     setTransactionID(id);
   };
@@ -120,7 +119,7 @@ export const BudgetsProvider = ({ children }) => {
       return;
     }
 
-    deleteTransaction(user.uid, "budgets", id);
+    return deleteTransaction(user.uid, "budgets", id);
   };
 
   const getProgressBackground = (percentage, type) => {

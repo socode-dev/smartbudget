@@ -1,204 +1,203 @@
 import { useMemo } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
-import AuthMotionShell from "../components/auth/AuthMotionShell";
+import { Link, useSearchParams } from "react-router-dom";
+import {
+  FiCheckCircle,
+  FiClock,
+  FiLink,
+  FiUserCheck,
+} from "react-icons/fi";
+import AuthFormShell from "../components/auth/AuthFormShell";
+import AuthFooter from "../components/auth/AuthFooter";
 import PasswordField from "../components/auth/PasswordField";
+import Alert from "../components/ui/Alert";
+import Button from "../components/ui/Button";
+import FormField from "../components/ui/FormField";
+import Input from "../components/ui/Input";
 import LoadingSpinner from "../components/ui/LoadingSpinner";
 import useInviteActivation from "../hooks/useInviteActivation";
 
 const ActivateInvite = () => {
-    const [searchParams] = useSearchParams();
-    const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const token = useMemo(
+    () => searchParams.get("token")?.trim() ?? "",
+    [searchParams],
+  );
+  const {
+    currentUser,
+    error,
+    form,
+    handleChange,
+    handleRetryActivation,
+    handleSubmit,
+    invite,
+    status,
+  } = useInviteActivation(token);
+  const submitting = status === "submitting";
 
-    const token = useMemo(
-        () => searchParams.get("token")?.trim() ?? "",
-        [searchParams]
-    );
-
-    const {
-        currentUser,
-        error,
-        form,
-        handleChange,
-        handleRetryActivation,
-        handleSubmit,
-        invite,
-        status,
-    } = useInviteActivation(token);
-
-    if (status === "validating") {
-        return (
-        <AuthMotionShell>
-            <PageTitle
-            title="Activate SmartBudget"
-            description="Checking your activation link..."
-            />
-            <LoadingSpinner
-            color="rgb(var(--color-brand))"
-            borderTopColor="rgb(var(--color-gray-border))"
-            />
-        </AuthMotionShell>
-        );
-    }
-
-    if (status === "invalid" || status === "expired") {
-        return (
-        <AuthMotionShell>
-            <PageTitle title="Activation Link Unavailable" />
-            <AlertMessage>{error}</AlertMessage>
-        </AuthMotionShell>
-        );
-    }
-
-    if (status === "success") {
-        return (
-        <AuthMotionShell>
-            <PageTitle
-            title="SmartBudget Activated"
-            description="Your account is ready."
-            />
-
-            <button
-            type="button"
-            onClick={() => navigate("/")}
-            className="w-11/12 text-base text-center font-medium py-2 rounded-lg shadow bg-[rgb(var(--color-brand))] text-white hover:scale-97 active:scale-103 transition cursor-pointer"
-            >
-            Continue
-            </button>
-        </AuthMotionShell>
-        );
-    }
-
+  if (status === "validating") {
     return (
-        <AuthMotionShell>
-        <PageTitle
-            title="Activate SmartBudget"
-            description={getInviteExpiryText(invite)}
-        />
-
-        {currentUser ? (
-            <SignedInActivation
-            currentUser={currentUser}
-            isSubmitting={status === "submitting"}
-            onActivate={handleRetryActivation}
-            />
-        ) : (
-            <ActivationForm
-            form={form}
-            isSubmitting={status === "submitting"}
-            onChange={handleChange}
-            onSubmit={handleSubmit}
-            />
-        )}
-
-        {error ? <AlertMessage>{error}</AlertMessage> : null}
-        
-        </AuthMotionShell>
-    );
-    };
-
-    const PageTitle = ({ description, title }) => (
-    <>
-        <h2 className="text-3xl md:text-4xl text-[rgb(var(--color-brand))] text-center font-medium tracking-wide">
-            {title}
-        </h2>
-        {description ? (
-        <p className="text-base text-[rgb(var(--color-muted))] text-center mt-4 mb-6">
-            {description}
-        </p>
-        ) : null}
-    </>
-    );
-
-    const AlertMessage = ({ children }) => (
-    <p
-        role="alert"
-        className="w-11/12 bg-[rgb(var(--color-status-bg-red))] px-4 py-2 rounded text-red-600 text-sm text-center mt-4"
-    >
-        {children}
-    </p>
-    );
-
-    const SignedInActivation = ({ currentUser, isSubmitting, onActivate }) => (
-    <section className="w-11/12 flex flex-col items-center">
-        <p className="w-full bg-[rgb(var(--color-status-bg-blue))] px-4 py-2 rounded text-sm text-[rgb(var(--color-muted))] text-center mb-4">
-            You are already signed in as {currentUser.email}. Continue to activate this invite.
-        </p>
-
-        <button
-            type="button"
-            onClick={onActivate}
-            disabled={isSubmitting}
-            aria-busy={isSubmitting}
-            className="w-full text-base text-center font-medium py-2 rounded-lg shadow bg-[rgb(var(--color-brand))] text-white hover:scale-97 active:scale-103 transition cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+      <AuthFormShell
+        title="Activate your account"
+        description="We are checking the invitation linked to your account."
+      >
+        <div
+          role="status"
+          className="rounded-2xl border border-border bg-card p-6 text-center shadow-sm"
         >
-            {isSubmitting 
-                ? <LoadingSpinner size={25} /> 
-                : "Activate account"
-            }
-        </button>
-    </section>
+          <span className="mx-auto flex size-12 items-center justify-center rounded-full bg-info-soft text-primary">
+            <LoadingSpinner
+              compact
+              color="currentColor"
+              borderTopColor="transparent"
+              size={20}
+            />
+          </span>
+          <p className="mt-4 text-sm text-muted-foreground">
+            Checking your activation link...
+          </p>
+        </div>
+      </AuthFormShell>
     );
+  }
 
-    const ActivationForm = ({ form, isSubmitting, onChange, onSubmit }) => (
-    <form onSubmit={onSubmit} className="w-11/12">
-        <fieldset className="w-full mb-4">
-            <div className="flex flex-col gap-1">
-                <label
-                    htmlFor="email"
-                    className="text-base text-[rgb(var(--color-muted))] font-medium after:content-['*'] after:text-red-500 after:ml-0.5"
-                >
-                    Email
-                </label>
-                <input
-                    id="email"
+  if (status === "invalid" || status === "expired") {
+    return (
+      <AuthFormShell
+        title="Activation link unavailable"
+        description="This invitation cannot be used to create or activate an account."
+      >
+        <div className="rounded-2xl border border-danger/20 bg-danger-soft p-5">
+          <span className="flex size-11 items-center justify-center rounded-xl bg-card text-danger shadow-xs">
+            <FiLink aria-hidden="true" size={21} />
+          </span>
+          <Alert className="mt-4 border-0 bg-transparent p-0" role="alert">
+            {error ||
+              (status === "expired"
+                ? "This invitation has expired."
+                : "This invitation is invalid or no longer available.")}
+          </Alert>
+        </div>
+        <AuthFooter to="/login" linkText="Back to login">
+          Need a different account?
+        </AuthFooter>
+      </AuthFormShell>
+    );
+  }
+
+  if (status === "success") {
+    return (
+      <AuthFormShell
+        title="Account activated"
+        description="Your Vydra account is ready to use."
+      >
+        <div className="mb-6 rounded-2xl border border-success/20 bg-success-soft p-5 text-center text-success">
+          <span className="mx-auto flex size-12 items-center justify-center rounded-full bg-card shadow-xs">
+            <FiCheckCircle aria-hidden="true" size={26} />
+          </span>
+          <p className="mt-4 text-sm leading-relaxed">
+            Your invitation has been accepted successfully.
+          </p>
+        </div>
+        <Button as={Link} to="/" className="w-full">
+          Continue
+        </Button>
+      </AuthFormShell>
+    );
+  }
+
+  return (
+    <AuthFormShell
+      title="Activate your account"
+      description={
+        invite?.expiresAtMs
+          ? `This invitation is valid until ${new Date(invite.expiresAtMs).toLocaleDateString()}.`
+          : "Use the details from your invitation to finish setting up Vydra."
+      }
+    >
+      {error && <Alert className="mb-4">{error}</Alert>}
+      {currentUser ? (
+        <section
+          aria-label="Account activation"
+          aria-busy={submitting}
+          className="rounded-2xl border border-border bg-card p-5 shadow-sm"
+        >
+          <div className="mb-5 flex items-start gap-3">
+            <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-info-soft text-primary">
+              <FiUserCheck aria-hidden="true" size={20} />
+            </span>
+            <div className="min-w-0">
+              <h2 className="font-medium">Continue with your account</h2>
+              <p className="mt-1 break-words text-sm leading-relaxed text-muted-foreground">
+                You are signed in as {currentUser.email}. Continue to activate
+                this invitation.
+              </p>
+            </div>
+          </div>
+          <Button
+            onClick={handleRetryActivation}
+            loading={submitting}
+            loadingText="Activating account..."
+            className="w-full"
+          >
+            Activate account
+          </Button>
+        </section>
+      ) : (
+        <>
+          <div className="mb-5 flex items-center gap-3 rounded-xl border border-border bg-surface px-4 py-3 text-sm text-muted-foreground">
+            <FiClock aria-hidden="true" className="shrink-0 text-primary" />
+            <span>This invitation can only be used once.</span>
+          </div>
+          <form onSubmit={handleSubmit} aria-busy={submitting}>
+            <fieldset disabled={submitting} className="min-w-0 space-y-4">
+              <FormField id="activation-email" label="Email" required>
+                {(fieldProps) => (
+                  <Input
+                    {...fieldProps}
                     name="email"
                     type="email"
                     value={form.email}
-                    onChange={onChange}
+                    onChange={handleChange}
                     autoComplete="email"
-                    required
                     placeholder="Enter your email"
-                    className="w-full text-base text-[rgb(var(--color-muted))] px-4 py-2 rounded-lg border-2 border-[rgb(var(--color-gray-border))] outline-none focus:border-[rgb(var(--color-brand))] focus:ring-2 focus:ring-[rgb(var(--color-brand))] focus:ring-offset-2 transition"
-                />
-            </div>
-        </fieldset>
-
-        <PasswordField
-            id="password"
-            label="Password"
-            name="password"
-            value={form.password}
-            onChange={onChange}
-            placeholder="Enter password"
-        />
-
-        <PasswordField
-            id="confirmPassword"
-            label="Confirm Password"
-            name="confirmPassword"
-            value={form.confirmPassword}
-            onChange={onChange}
-            placeholder="Confirm password"
-        />
-
-        <button
-            type="submit"
-            disabled={isSubmitting}
-            aria-busy={isSubmitting}
-            className="w-full mt-6 text-base font-medium text-center py-2 rounded-lg shadow bg-[rgb(var(--color-brand))] text-white hover:scale-97 active:scale-103 disabled:opacity-50 disabled:cursor-not-allowed transition cursor-pointer"
-        >
-            {isSubmitting 
-                ? <LoadingSpinner size={25} /> 
-                : "Activate now"
-            }
-        </button>
-    </form>
-    );
-
-    const getInviteExpiryText = (invite) => {
-    if (!invite?.expiresAtMs) return "";
-
-    return `This invite is valid until ${new Date(invite.expiresAtMs).toLocaleDateString()}.`;
+                  />
+                )}
+              </FormField>
+              <PasswordField
+                id="activation-password"
+                label="Password"
+                name="password"
+                value={form.password}
+                onChange={handleChange}
+                placeholder="Enter password"
+                className="mb-0"
+              />
+              <PasswordField
+                id="activation-confirm-password"
+                label="Confirm Password"
+                name="confirmPassword"
+                value={form.confirmPassword}
+                onChange={handleChange}
+                placeholder="Confirm password"
+                className="mb-0"
+              />
+              <Button
+                type="submit"
+                loading={submitting}
+                loadingText="Activating account..."
+                className="w-full"
+              >
+                Activate now
+              </Button>
+            </fieldset>
+          </form>
+        </>
+      )}
+      <AuthFooter to="/login" linkText="Back to login">
+        Already have an account?
+      </AuthFooter>
+    </AuthFormShell>
+  );
 };
 
 export default ActivateInvite;

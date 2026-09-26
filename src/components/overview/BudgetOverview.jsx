@@ -1,25 +1,23 @@
-import ExpensesBudgetOverview from "./ExpensesBudgetOverview";
 import IncomeBudgetOverview from "./IncomeBudgetOveview";
+import ExpensesBudgetOverview from "./ExpensesBudgetOverview";
 
-const BudgetOverview = () => {
-  return (
-    <>
-      <h2 className="text-3xl font-medium mb-2">Budget Overview</h2>
-      <p className="text-base text-[rgb(var(--color-muted))] mb-8">
-        Track how close you are meeting your goals.
-      </p>
-
-      {/* Budget Overview Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Income Budget */}
-        <IncomeBudgetOverview />
-
-        {/* Expense Budget */}
-        <ExpensesBudgetOverview />
-        {/* End of expense*/}
+const BudgetOverview = () => (
+  <>
+    <header className="mb-4 flex flex-wrap items-start justify-between gap-3 border-b border-border pb-4">
+      <div>
+        <h2 className="font-display text-base font-semibold">
+          Income &amp; Expense Budgets
+        </h2>
+        <p className="mt-1 text-xs text-muted-foreground">
+          Track progress toward your goals and limits.
+        </p>
       </div>
-    </>
-  );
-};
+    </header>
+    <div className="space-y-4">
+      <IncomeBudgetOverview />
+      <ExpensesBudgetOverview />
+    </div>
+  </>
+);
 
 export default BudgetOverview;

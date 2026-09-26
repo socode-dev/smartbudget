@@ -4,6 +4,7 @@ import { eachMonthOfInterval, format } from "date-fns";
 import { useOverviewContext } from "./OverviewContext";
 import { formatAmount } from "../utils/formatAmount";
 import useCurrencyStore from "../store/useCurrencyStore";
+import useThemeStore from "../store/useThemeStore";
 
 const OverviewChartContext = createContext();
 
@@ -11,126 +12,173 @@ export const OverviewChartProvider = ({ children }) => {
   const transactions = useTransactionStore((state) => state.transactions);
   const selectedCurrency = useCurrencyStore((state) => state.selectedCurrency);
   const { totalBudget, totalBudgetUsed } = useOverviewContext();
+  const theme = useThemeStore((state) => state.theme);
+
+  const isDarkMode = theme === "dark";
+
+  const incomeColor = "#10B981";
+  const incomeBGColor = isDarkMode
+    ? "rgba(16, 185, 129, 0.18)"
+    : "rgba(16, 185, 129, 0.12)";
+
+  const expenseColor = "#F43F5E";
+  const expenseBGColor = isDarkMode
+    ? "rgba(244, 63, 94, 0.16)"
+    : "rgba(244, 63, 94, 0.1)";
+
+  const textColor = isDarkMode ? "rgb(160, 168, 181)" : "rgb(100, 116, 139)";
+  const gridColor = isDarkMode
+    ? "rgba(148, 163, 184, 0.16)"
+    : "rgba(148, 163, 184, 0.2)";
 
   const budgetRemaining =
     totalBudget - totalBudgetUsed > 0 ? totalBudget - totalBudgetUsed : 0;
 
-  const dates = transactions?.map((tx) => new Date(tx.date));
+  const monthlySeries = useMemo(() => {
+    const totals = new Map();
+    for (const transaction of transactions ?? []) {
+      const date = new Date(transaction.date);
+      const amount = Number(transaction.amount);
+      if (
+        Number.isNaN(date.getTime()) ||
+        !Number.isFinite(amount) ||
+        !["income", "expense"].includes(transaction.type)
+      )
+        continue;
+      const key = format(date, "yyyy-MM");
+      const month = totals.get(key) || { income: 0, expense: 0, date };
+      month[transaction.type] += amount;
+      totals.set(key, month);
+    }
+    const keys = [...totals.keys()].sort();
+    if (!keys.length) return [];
+    return eachMonthOfInterval({
+      start: totals.get(keys[0]).date,
+      end: totals.get(keys.at(-1)).date,
+    }).map((date) => {
+      const total = totals.get(format(date, "yyyy-MM"));
+      return {
+        label: format(date, "MMM yyyy"),
+        income: total?.income ?? 0,
+        expense: total?.expense ?? 0,
+      };
+    });
+  }, [transactions]);
 
-  const firstDate =
-    dates?.length > 0 ? new Date(Math.min(...dates)) : new Date();
-  const lastDate =
-    dates?.length > 0 ? new Date(Math.max(...dates)) : new Date();
-
-  const months = eachMonthOfInterval({
-    start: new Date(firstDate.getFullYear(), firstDate.getMonth()),
-    end: new Date(lastDate.getFullYear(), lastDate.getMonth()),
-  }).map((date) => format(date, "MMM"));
-
-  const monthlyIncome = useMemo(
-    () =>
-      months.map((month) => {
-        const sameMonthTransactions = transactions?.filter(
-          (transaction) =>
-            transaction.type === "income" &&
-            format(new Date(transaction.date), "MMM") === month
-        );
-        const totalMonthlyIncome = sameMonthTransactions?.reduce(
-          (sum, tx) => sum + tx.amount,
-          0
-        );
-        return totalMonthlyIncome;
-      }),
-    [transactions, months]
+  const months = monthlySeries.map((month) => month.label);
+  const monthlyIncome = monthlySeries.map((month) => month.income);
+  const monthlyExpenses = monthlySeries.map((month) => month.expense);
+  const maxValue = monthlySeries.reduce(
+    (max, month) => Math.max(max, month.income, month.expense),
+    0,
   );
+  const compactCurrency = new Intl.NumberFormat(undefined, {
+    style: "currency",
+    currency: selectedCurrency,
+    notation: "compact",
+    maximumFractionDigits: 1,
+  });
+  const areaFill =
+    (color, fallback) =>
+    ({ chart }) => {
+      if (!chart.chartArea) return fallback;
+      const gradient = chart.ctx.createLinearGradient(
+        0,
+        chart.chartArea.top,
+        0,
+        chart.chartArea.bottom,
+      );
+      gradient.addColorStop(0, color);
+      gradient.addColorStop(1, "rgba(0, 0, 0, 0)");
+      return gradient;
+    };
 
-  const monthlyExpenses = useMemo(
-    () =>
-      months.map((month) => {
-        const sameMonthTransactions = transactions?.filter(
-          (transaction) =>
-            transaction.type === "expense" &&
-            format(new Date(transaction.date), "MMM") === month
-        );
-        const totalMonthlyExpenses = sameMonthTransactions?.reduce(
-          (sum, tx) => sum + tx.amount,
-          0
-        );
-        return totalMonthlyExpenses;
-      }),
-    [transactions, months]
-  );
-
-  // Combine all values into one array to get max
-  const allValues = [...monthlyIncome, ...monthlyExpenses];
-  const maxValue = Math.max(...allValues);
-
-  // Only set stepSize if max is greater than 60000
-  let stepSize;
-  switch (true) {
-    case maxValue > 150000:
-      stepSize = 25000;
-      break;
-    case maxValue > 100000:
-      stepSize = 20000;
-      break;
-    case maxValue > 50000:
-      stepSize = 10000;
-      break;
-    case maxValue > 20000:
-      stepSize = 5000;
-      break;
-    case maxValue > 10000:
-      stepSize = 2000;
-      break;
-    case maxValue > 5000:
-      stepSize = 1000;
-      break;
-    default:
-      stepSize = 500;
-  }
-
-  // Income vs Expenses line chart data
   const incomeVsExpensesData = {
     labels: months,
     datasets: [
       {
         label: "Income",
         data: monthlyIncome,
-        borderColor: "#10B981",
-        tension: 0.3,
+        borderColor: incomeColor,
+        backgroundColor: areaFill(incomeBGColor, incomeBGColor),
+        fill: true,
+        cubicInterpolationMode: "monotone",
+        pointRadius: months.length === 1 ? 4 : 0,
+        pointHoverRadius: 5,
+        pointHoverBorderWidth: 3,
+        pointHoverBorderColor: isDarkMode ? "#141922" : "#FFFFFF",
+        pointHoverBackgroundColor: incomeColor,
+        borderWidth: 2.5,
+        borderCapStyle: "round",
+        borderJoinStyle: "round",
       },
       {
         label: "Expenses",
         data: monthlyExpenses,
-        borderColor: "#EF4444",
-        tension: 0.3,
+        borderColor: expenseColor,
+        backgroundColor: areaFill(expenseBGColor, expenseBGColor),
+        fill: true,
+        cubicInterpolationMode: "monotone",
+        pointRadius: months.length === 1 ? 4 : 0,
+        pointHoverRadius: 5,
+        pointHoverBorderWidth: 3,
+        pointHoverBorderColor: isDarkMode ? "#141922" : "#FFFFFF",
+        pointHoverBackgroundColor: expenseColor,
+        borderWidth: 2.5,
+        borderCapStyle: "round",
+        borderJoinStyle: "round",
       },
     ],
   };
 
-  // Income vs Expenses line chart options
   const incomeVsExpensesOptions = {
     responsive: true,
     maintainAspectRatio: false,
+    interaction: {
+      mode: "index",
+      intersect: false,
+    },
     layout: {
-      padding: { top: 12, bottom: 12 },
+      padding: { top: 14, right: 6, bottom: 4, left: 2 },
     },
     plugins: {
       legend: {
-        position: "bottom",
-        labels: {
-          color: "#9ca3af",
-          font: { size: 14, weight: 400 },
-        },
+        display: false,
       },
       tooltip: {
+        mode: "index",
+        intersect: false,
+        backgroundColor: isDarkMode
+          ? "rgba(27, 33, 44, 0.98)"
+          : "rgba(255, 255, 255, 0.98)",
+        titleColor: isDarkMode ? "#F1F3F7" : "#0F172A",
+        bodyColor: isDarkMode ? "#A0A8B5" : "#475569",
+        borderColor: isDarkMode
+          ? "rgba(148, 163, 184, 0.22)"
+          : "rgba(148, 163, 184, 0.3)",
+        borderWidth: 1,
+        cornerRadius: 10,
+        padding: 12,
+        caretPadding: 10,
+        boxWidth: 8,
+        boxHeight: 8,
+        boxPadding: 5,
+        usePointStyle: true,
+        titleFont: {
+          family: "DM Sans",
+          size: 12,
+          weight: "600",
+        },
+        bodyFont: {
+          family: "DM Sans",
+          size: 12,
+          weight: "500",
+        },
         callbacks: {
           label: (context) => {
-            const label = context.label || "";
-            const value = context.raw || "";
-
-            return `${label} ${formatAmount(value, selectedCurrency)}`;
+            const label = context.dataset.label || "";
+            const value = context.raw ?? 0;
+            return `${label}: ${formatAmount(value, selectedCurrency)}`;
           },
         },
       },
@@ -139,20 +187,39 @@ export const OverviewChartProvider = ({ children }) => {
       y: {
         beginAtZero: true,
         suggestedMax: maxValue,
+        border: {
+          display: false,
+        },
         ticks: {
-          stepSize,
-          callback: (value) => formatAmount(value, selectedCurrency),
-          color: "#9ca3af",
-          font: { size: 14 },
+          maxTicksLimit: 5,
+          callback: (value) => compactCurrency.format(value),
+          color: textColor,
+          font: {
+            size: 11,
+            family: "DM Sans",
+            lineHeight: 1.5,
+          },
+          padding: 12,
         },
         grid: {
-          color: "#9ca3af",
+          color: gridColor,
+          drawTicks: false,
+          lineWidth: 1,
         },
       },
       x: {
+        border: {
+          display: false,
+        },
         ticks: {
-          color: "#9ca3af",
-          font: { size: 14 },
+          color: textColor,
+          maxTicksLimit: 6,
+          maxRotation: 0,
+          padding: 10,
+          font: { size: 11, family: "DM Sans", weight: "500" },
+        },
+        grid: {
+          display: false,
         },
       },
     },
@@ -172,7 +239,6 @@ export const OverviewChartProvider = ({ children }) => {
   };
 
   // Budget overview doughnut chart options
-
   const budgetOverviewOptions = {
     responsive: true,
     cutout: "70%",
@@ -205,12 +271,14 @@ export const OverviewChartProvider = ({ children }) => {
   return (
     <OverviewChartContext.Provider
       value={{
+        hasTransactions: monthlySeries.length > 0,
         monthlyIncome,
         monthlyExpenses,
         incomeVsExpensesData,
         incomeVsExpensesOptions,
         budgetOverviewData,
         budgetOverviewOptions,
+        gridColor,
       }}
     >
       {children}

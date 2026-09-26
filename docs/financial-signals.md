@@ -1,14 +1,14 @@
-# SmartBudget Financial Signals
+# Vydra Financial Signals
 
-SmartBudget financial signals are deterministic backend calculations. They turn user transactions and budgets into structured facts before any AI agent runs.
+Vydra financial signals are deterministic backend calculations. They turn user transactions and budgets into structured facts before any AI agent runs.
 
-For the full AI flow, see [SmartBudget AI Architecture](./ai-architecture.md). For telemetry around the pipeline, see [Backend AI Telemetry](./backend-ai-telemetry.md). For test coverage, see [SmartBudget Testing](./TESTING.md).
+For the full AI flow, see [Vydra AI Architecture](./ai-architecture.md). For telemetry around the pipeline, see [AI Telemetry](./ai-telemetry.md). For test coverage, see [Vydra Testing](./TESTING.md).
 
 ## Architecture Evolution
 
 The financial signal engines initially lived in the frontend under `src/insight_engines`. That worked during early development because the app could calculate signals close to the UI and move quickly.
 
-As SmartBudget matured, the signal engines were moved to the backend. This makes the backend the source of truth for financial facts, keeps business logic out of the UI, and gives product reporting and outcome telemetry a more trusted foundation.
+As Vydra matured, the signal engines were moved to the backend. This makes the backend the source of truth for financial facts, keeps business logic out of the UI, and gives product reporting and outcome telemetry a more trusted foundation.
 
 The frontend calls:
 
@@ -273,7 +273,7 @@ The risk engine is the broadest combined signal because it connects multiple pre
 
 ## Why This Lives In The Backend
 
-Keeping financial signals in the backend gives SmartBudget a stronger architecture:
+Keeping financial signals in the backend gives Vydra a stronger architecture:
 
 - frontend stays focused on UI
 - financial calculations are controlled server-side

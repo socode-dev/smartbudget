@@ -1,45 +1,61 @@
-import useNotificationStore from "../../store/useNotificationStore";
+import { FiBell, FiX } from "react-icons/fi";
 import { useNotificationContext } from "../../context/NotificationContext";
-import { FaXmark } from "react-icons/fa6";
+import { formatRelativeTime } from "../../utils/formatRelativeTime";
 import Dialog from "../ui/Dialog";
+import Button from "../ui/Button";
 
 const NotificationDialog = () => {
-  const notifications = useNotificationStore((state) => state.notifications);
-  const { onCloseDialog, openNotificationDialog, notificationId } =
-    useNotificationContext();
-
-  const notification = notifications?.find(
-    (notification) => notification.id === notificationId
-  );
-
-  if (!openNotificationDialog && !notification) return;
+  const {
+    onCloseDialog,
+    onDialogClosed,
+    openNotificationDialog,
+    selectedNotification: notification,
+  } = useNotificationContext();
 
   return (
-    <Dialog ariaLabel="notification-details">
-      {/* <section className="bg-[rgb(var(--color-bg-card))] w-full sm:w-5/6 md:w-4/6 lg:w-3/6 xl:w-2/6 h-2/3 max-w-md overflow-y-auto p-6 rounded-lg shadow-xl flex flex-col"> */}
-      <div className="flex justify-between items-start gap-10 w-full">
-        <h3 className="text-xl font-semibold">{notification?.subject}</h3>
-
-        <button
+    <Dialog
+      open={openNotificationDialog}
+      onClose={onCloseDialog}
+      onExitComplete={onDialogClosed}
+      padded={false}
+      ariaLabelledBy="notification-title"
+      ariaDescribedBy="notification-message"
+    >
+      <header className="flex items-start gap-3 border-b border-border px-6 py-5">
+        <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-info-soft text-primary">
+          <FiBell aria-hidden="true" />
+        </span>
+        <div className="min-w-0 flex-1">
+          <h2
+            id="notification-title"
+            className="font-display text-lg font-semibold break-words"
+          >
+            {notification?.subject || "Notification"}
+          </h2>
+          <p className="mt-1 text-xs text-muted-foreground">
+            {formatRelativeTime(notification?.createdAt)}
+          </p>
+        </div>
+        <Button
+          variant="ghost"
+          className="size-11 min-h-11 p-0! shrink-0"
           onClick={onCloseDialog}
-          className="text-xl text-gray-500 hover:text-gray-700 transition cursor-pointer"
+          aria-label="Close notification"
+          title="Close notification"
         >
-          <FaXmark />
-        </button>
-      </div>
-      <p className="text-base text-[rgb(var(--color-muted))] w-full grow">
+          <FiX aria-hidden="true" />
+        </Button>
+      </header>
+      <p
+        id="notification-message"
+        className="px-6 py-5 text-sm leading-relaxed whitespace-pre-wrap break-words"
+      >
         {notification?.message}
       </p>
-
-      <button
-        onClick={onCloseDialog}
-        className="self-end bg-[rgb(var(--color-brand))] hover:bg-[rgb(var(--color-brand-hover))] transition text-white font-medium px-4 py-2 rounded cursor-pointer"
-      >
-        Close
-      </button>
-      {/* </section> */}
+      <footer className="flex justify-end border-t border-border bg-surface px-6 py-4">
+        <Button onClick={onCloseDialog}>Close</Button>
+      </footer>
     </Dialog>
   );
 };
-
 export default NotificationDialog;

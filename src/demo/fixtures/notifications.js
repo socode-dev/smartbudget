@@ -21,7 +21,7 @@ export const demoNotifications = [
     id: "demo-notification-history",
     subject: "Insight history available",
     message:
-      "This demo includes active and expired insight records to show how SmartBudget preserves audit-friendly signal history.",
+      "This demo includes active and expired insight records to show how Vydra preserves audit-friendly signal history.",
     type: "System",
     read: true,
     createdAt: new Date("2026-06-10T10:00:00").getTime(),

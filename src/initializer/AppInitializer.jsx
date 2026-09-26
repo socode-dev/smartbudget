@@ -15,18 +15,18 @@ import { isDemoUser, useDemoMode } from "../demo/useDemoMode";
 
 const AppInitializer = () => {
   const isDemoMode = useDemoMode();
-  
+
   const user = useAuthStore((state) => state.currentUser);
   const userId = user?.uid;
-  
+
   const isDemoSession = isDemoMode || isDemoUser(user);
-  
+
   const setCategories = useTransactionStore((state) => state.setCategories);
 
   const setThresholds = useThresholdStore((state) => state.setThresholds);
-  
+
   const initInsights = useInsightsStore((state) => state.initInsights);
-  
+
   const startAuthListener = useAuthStore((state) => state.startAuthListener);
   const stopAuthListener = useAuthStore((state) => state.stopAuthListener);
 
@@ -68,7 +68,11 @@ const AppInitializer = () => {
     if (isDemoSession) return;
     if (!userId) return;
 
-    const unsubscribe = subcollectionListener(userId, "categories", setCategories);
+    const unsubscribe = subcollectionListener(
+      userId,
+      "categories",
+      setCategories,
+    );
 
     return () => {
       unsubscribe();
@@ -79,35 +83,39 @@ const AppInitializer = () => {
   useEffect(() => {
     if (isDemoSession) return;
     if (!userId) return;
-    
+
     let cancelled = false;
 
     const runInsights = async () => {
       const selectedCurrency = useCurrencyStore.getState().selectedCurrency;
-  
+
       try {
-        await runInsightPipeline({ 
-          userId, 
-          currency: selectedCurrency, 
-          isDemo: false
+        useInsightsStore.getState().setInsightError(null);
+        await runInsightPipeline({
+          userId,
+          currency: selectedCurrency,
+          isDemo: false,
         });
       } catch (err) {
         if (cancelled) return;
 
-        console.error(err)
-        useInsightsStore.getState().setInsightError(err.message)
+        console.warn("Insight service unavailable", {
+          code: err.code || "INSIGHT_PIPELINE_FAILED",
+        });
+        useInsightsStore
+          .getState()
+          .setInsightError("New insights are temporarily unavailable.");
       }
-  }
+    };
 
-  runInsights();
+    runInsights();
 
     return () => {
       cancelled = true;
-    }
+    };
   }, [isDemoSession, userId]);
-  
+
   return null;
 };
-
 
 export default AppInitializer;

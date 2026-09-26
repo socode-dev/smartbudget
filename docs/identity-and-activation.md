@@ -1,6 +1,6 @@
 # Identity and Account Activation
 
-External systems may identify a customer differently from Firebase Authentication. SmartBudget keeps the external import identity separate from the canonical application user ID so existing authenticated-user behavior remains consistent.
+External systems may identify a customer differently from Firebase Authentication. Vydra keeps the external import identity separate from the canonical application user ID so existing authenticated-user behavior remains consistent.
 
 ## Identity Lifecycle
 
@@ -18,7 +18,7 @@ external customer identity
 The central invariant is:
 
 ```text
-SmartBudget user ID = Firebase Auth UID
+Vydra user ID = Firebase Auth UID
 ```
 
 External identifiers are normalized before persistence and scoped to their integration source. They are not used as permanent application user IDs. This prevents identifiers from separate sources from being treated as the same person and avoids changing application code that relies on the authenticated UID.

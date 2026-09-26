@@ -1,0 +1,58 @@
+export const tourStyles = {
+  options: {
+    arrowColor: "var(--popover)",
+    backgroundColor: "var(--popover)",
+    overlayColor: "rgb(0 0 0 / 0.62)",
+    primaryColor: "var(--primary)",
+    textColor: "var(--foreground)",
+    width: 360,
+    zIndex: 1000,
+  },
+  tooltip: {
+    backgroundColor: "var(--popover)",
+    border: "1px solid var(--border)",
+    borderRadius: 12,
+    boxShadow: "0 20px 45px rgb(0 0 0 / 0.28)",
+    color: "var(--foreground)",
+    padding: 0,
+  },
+  tooltipContent: {
+    color: "var(--foreground)",
+    fontSize: 14,
+    lineHeight: 1.55,
+    padding: "20px 20px 12px",
+    textAlign: "left",
+  },
+  tooltipFooter: {
+    borderTop: "1px solid var(--border)",
+    gap: 8,
+    marginTop: 4,
+    padding: "12px 16px",
+  },
+  buttonNext: {
+    backgroundColor: "var(--primary)",
+    borderRadius: 8,
+    color: "var(--primary-foreground)",
+    fontSize: 13,
+    fontWeight: 600,
+    padding: "8px 14px",
+  },
+  buttonBack: {
+    backgroundColor: "transparent",
+    border: "1px solid var(--border)",
+    borderRadius: 8,
+    color: "var(--foreground)",
+    fontSize: 13,
+    marginRight: 0,
+    padding: "7px 12px",
+  },
+  buttonSkip: {
+    color: "var(--muted-foreground)",
+    fontSize: 13,
+    padding: "8px",
+  },
+  spotlight: {
+    borderRadius: 10,
+    boxShadow: "0 0 0 2px var(--primary)",
+  },
+};

@@ -1,242 +1,155 @@
+import clsx from "clsx";
+import EntryNameField from "./EntryNameField";
+import EntryAmountDateFields from "./EntryAmountDateFields";
+import EntryTypeField from "./EntryTypeField";
+import { useEffect } from "react";
+import { format } from "date-fns";
+import { FiSave } from "react-icons/fi";
 import { useModalContext } from "../../context/ModalContext";
 import useFormSubmit from "../../hooks/useFormSubmit";
 import { useFormContext } from "../../context/FormContext";
-import { useRef } from "react";
-import LoadingSpinner from "../ui/LoadingSpinner";
 import useThresholdStore from "../../store/useThresholdStore";
 import useAuthStore from "../../store/useAuthStore";
 import useTransactionStore from "../../store/useTransactionStore";
+import useCurrencyStore from "../../store/useCurrencyStore";
+import { showDemoReadOnlyToast, useDemoMode } from "../../demo/useDemoMode";
+import Button from "../ui/Button";
+import FormField from "../ui/FormField";
 
-const ModalForm = ({ label, mode }) => {
+const controlClass =
+  "h-10 min-w-0 w-full rounded-lg border border-border bg-card px-3 text-sm text-foreground outline-none transition-colors focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/30 disabled:opacity-60";
+
+const singularLabels = {
+  transactions: "transaction",
+  budgets: "budget",
+  goals: "goal",
+  contributions: "contribution",
+};
+
+const ModalForm = ({ label, mode, onClose }) => {
+  const isDemoMode = useDemoMode();
   const user = useAuthStore((state) => state.currentUser);
   const thresholds = useThresholdStore((state) => state.thresholds);
   const categories = useTransactionStore((state) => state.categories);
+  const currency = useCurrencyStore((state) => state.selectedCurrency);
   const { onSubmit, handleSubmit } = useFormSubmit(label, mode);
-  const { onCloseModal, transactionID } = useModalContext();
-  const forms = useFormContext(label);
+  const { transactionID } = useModalContext();
+
   const {
     register,
     setValue,
-    reset,
+    getValues,
     formState: { errors, isSubmitting },
-  } = forms;
-
-  const formRef = useRef(null);
-
+  } = useFormContext(label);
+  
   const transactionLabel = label === "transactions";
   const budgetLabel = label === "budgets";
   const goalLabel = label === "goals";
   const contributionLabel = label === "contributions";
-
-  // Get current date
-  const getTodayDate = () => new Date().toISOString().split("T")[0];
-  setValue("date", getTodayDate());
-
-  const txID = mode === "edit" ? transactionID : null;
-
-  const submitPrefix = mode === "edit" ? "Edit" : "Save";
-
-  const onClose = () => {
-    onCloseModal(label);
-    reset();
+  const categorized = transactionLabel || budgetLabel;
+  
+  useEffect(() => {
+    if (mode === "edit") return;
+    if (!getValues("date")) setValue("date", format(new Date(), "yyyy-MM-dd"));
+    if (categorized && !getValues("type")) setValue("type", "expense");
+  }, [mode, categorized, getValues, setValue]);
+  
+  const fieldId = (name) => `${label}-${name}`;
+  
+  const submit = (data) => {
+    if (isDemoMode) return showDemoReadOnlyToast();
+    
+    return onSubmit(
+      data,
+      user?.uid,
+      mode === "edit" ? transactionID : null,
+      thresholds?.transactionThreshold ?? 10000,
+    );
   };
-
+  
   return (
-    <form
-      onSubmit={handleSubmit((data) =>
-        onSubmit(
-          data,
-          user.uid,
-          txID,
-          thresholds.transactionThreshold ?? 10000,
-        ),
-      )}
-      className="space-y-4"
-    >
-      {/* Category Dropdown */}
-      {(transactionLabel || budgetLabel) && (
-        <div>
-          <label className="block text-base font-medium mb-2 after:content-['*'] after:text-red-500 after:ml-0.5">
-            Category
-          </label>
-          <select
-            ref={formRef}
-            {...register("category")}
-            className="rounded border border-[rgb(var(--color-gray-border))] bg-[rgb(var(--color-bg-card))] outline-none focus:border-[rgb(var(--color-brand))] focus:ring-2 focus:ring-[rgb(var(--color-brand))] focus:ring-offset-2 text-base w-full p-2 cursor-pointer"
+    <form onSubmit={handleSubmit(submit)} aria-busy={isSubmitting}>
+      <fieldset disabled={isSubmitting} className="min-w-0 space-y-5 px-6 py-5">
+        <legend className="sr-only">{singularLabels[label]} details</legend>
+        {categorized && (
+          <FormField
+            id={fieldId("category")}
+            label="Category"
+            error={errors.category}
           >
-            <option value="">Select category</option>
-            {categories.map((cat, i) => (
-              <option key={`${cat}_${i}`} value={cat}>
-                {cat}
-              </option>
-            ))}
-          </select>
-          {errors.category && (
-            <p role="alert" className="text-[13px] text-red-500 mt-1">
-              {errors.category.message}
-            </p>
-          )}
-        </div>
-      )}
-
-      <div>
-        <label
-          htmlFor="name"
-          aria-label="name"
-          className="block text-base font-medium mb-2"
-        >
-          {budgetLabel || transactionLabel ? "Set Custom Category" : "Name"}
-        </label>
-        <input
-          {...register("name")}
-          type="text"
-          id="name"
-          placeholder={
-            transactionLabel || budgetLabel
-              ? "Transportation..."
-              : "Input goal name"
-          }
-          readOnly={contributionLabel}
-          className="rounded border border-[rgb(var(--color-gray-border))] bg-[rgb(var(--color-bg-card))] outline-none focus:border-[rgb(var(--color-brand))] focus:ring-2 focus:ring-[rgb(var(--color-brand))] focus:ring-offset-2 text-base w-full p-2"
-        />
-        {errors.name && (
-          <p role="alert" className="text-[13px] text-red-500 mt-1">{errors.name.message}</p>
-        )}
-      </div>
-
-      {/* Show type radio buttons if category is other */}
-      {(transactionLabel || budgetLabel) && (
-        <div className="flex flex-col">
-          <h3 className="text-base font-medium mb-2 after:content-['*'] after:text-red-500 after:ml-0.5">
-            Type
-          </h3>
-          <div className="flex items-center gap-2">
-            {/* Income Radio Button */}
-            <div className="flex items-center gap-2">
-              <input
-                {...register("type")}
-                type="radio"
-                name="type"
-                id="income"
-                value="income"
-                className="hidden peer"
-              />
-              <label
-                htmlFor="income"
-                aria-label="income"
-                className="text-sm border-3 rounded-lg border-[rgb(var(--color-gray-border))] px-3 py-1.5 peer-checked:border-[rgb(var(--color-brand))] peer-checked:focus:ring-2 peer-checked:focus:ring-[rgb(var(--color-brand))] peer-checked:focus:ring-offset-2 transition cursor-pointer"
+            {(props) => (
+              <select
+                {...props}
+                {...register("category")}
+                className={controlClass}
               >
-                Income
-              </label>
-            </div>
-
-            {/* Expense Radio Button */}
-            <div className="flex items-center gap-2">
-              <input
-                {...register("type")}
-                type="radio"
-                name="type"
-                id="expense"
-                value="expense"
-                className="hidden peer"
-              />
-              <label
-                htmlFor="expense"
-                aria-label="expense"
-                className="text-sm border-3 rounded-lg border-[rgb(var(--color-gray-border))] px-3 py-1.5 peer-checked:border-[rgb(var(--color-brand))] peer-checked:focus:ring-2 peer-checked:focus:ring-[rgb(var(--color-brand))] peer-checked:focus:ring-offset-2 transition cursor-pointer"
-              >
-                Expense
-              </label>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Amount and Date */}
-      <div className="mb-4 grid grid-cols-2 gap-4">
-        {/* Amount Input */}
-        <div>
-          <label
-            htmlFor="amount"
-            className="block text-base font-medium mb-2 after:content-['*'] after:text-red-500 after:ml-0.5"
-          >
-            {budgetLabel ? "Limit" : goalLabel ? "Target" : "Amount"}
-          </label>
-          <input
-            {...register("amount")}
-            type="number"
-            id="amount"
-            className="rounded border border-[rgb(var(--color-gray-border))] bg-[rgb(var(--color-bg-card))] outline-none focus:border-[rgb(var(--color-brand))] focus:ring-2 focus:ring-[rgb(var(--color-brand))] focus:ring-offset-2 text-base w-full p-2 cursor-pointer"
-            placeholder="0.00"
-            step="0.01"
-          />
-          {errors.amount && (
-            <p role="alert" className="text-[13px] text-red-500 mt-1">
-              {errors.amount.message}
-            </p>
-          )}
-        </div>
-
-        {/* Date Picker */}
-        <div>
-          <label
-            htmlFor="date"
-            className="block text-base font-medium mb-2 after:content-['*'] after:text-red-500 after:ml-0.5"
-          >
-            {budgetLabel ? "Start Date" : goalLabel ? "Due Date" : "Date"}
-          </label>
-          <input
-            {...register("date")}
-            type="date"
-            id="date"
-            className="rounded border border-[rgb(var(--color-gray-border))] bg-[rgb(var(--color-bg-card))] outline-none focus:border-[rgb(var(--color-brand))] focus:ring-2 focus:ring-[rgb(var(--color-brand))] focus:ring-offset-2 text-base w-full p-2 cursor-pointer"
-          />
-          {errors.date && (
-            <p role="alert" className="text-[13px] text-red-500 mt-1">
-              {errors.date.message}
-            </p>
-          )}
-        </div>
-      </div>
-
-      {/* Description || Notes Textarea */}
-      <div>
-        <label htmlFor="note" className="block text-base font-medium mb-2">
-          {transactionLabel ? "Description" : "Notes"}{" "}
-        </label>
-        <textarea
-          id="note"
-          className="rounded border border-[rgb(var(--color-gray-border))] bg-[rgb(var(--color-bg-card))] outline-none focus:border-[rgb(var(--color-brand))] focus:ring-2 focus:ring-[rgb(var(--color-brand))] focus:ring-offset-2 text-base w-full p-2 resize-none"
-          rows={3}
-          placeholder={transactionLabel ? "Short description" : "Short notes"}
-          {...register("description")}
-        />
-        {errors.description && (
-          <p role="alert" className="text-[13px] text-red-500 mt-1">
-            {errors.description.message}
-          </p>
+                <option value="">Select category</option>
+                {categories.map((category) => (
+                  <option key={category} value={category}>
+                    {category}
+                  </option>
+                ))}
+              </select>
+            )}
+          </FormField>
         )}
-      </div>
-      {/* Buttons Row */}
-      <footer className="flex justify-end gap-2">
-        <button
-          type="button"
-          onClick={onClose}
-          aria-label={`close ${transactionLabel} form`}
-          className="text-[rgb(var(--color-muted))] border border-[rgb(var(--color-gray-bg))]  cursor-pointer px-4 py-2 rounded-md text-base transition"
+        <EntryNameField
+          fieldId={fieldId}
+          categorized={categorized}
+          contributionLabel={contributionLabel}
+          goalLabel={goalLabel}
+          errors={errors}
+          register={register}
+          controlClass={controlClass}
+        />
+        {categorized && (
+          <EntryTypeField
+            errors={errors}
+            fieldId={fieldId}
+            register={register}
+            label={label}
+          />
+        )}
+        <EntryAmountDateFields
+          fieldId={fieldId}
+          budgetLabel={budgetLabel}
+          goalLabel={goalLabel}
+          errors={errors}
+          currency={currency}
+          register={register}
+          controlClass={controlClass}
+        />
+        <FormField
+          id={fieldId("description")}
+          label={transactionLabel ? "Description" : "Notes"}
+          error={errors.description}
         >
+          {(props) => (
+            <textarea
+              {...props}
+              {...register("description")}
+              rows={3}
+              placeholder={
+                transactionLabel ? "Short description" : "Short notes"
+              }
+              className={clsx(
+                "min-h-24 w-full resize-y rounded-lg border border-border bg-card px-3 py-2 text-sm outline-none",
+                "focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/30",
+              )}
+            />
+          )}
+        </FormField>
+      </fieldset>
+      <footer className="flex flex-wrap justify-end gap-2 border-t border-border bg-surface px-6 py-4">
+        <Button variant="outline" disabled={isSubmitting} onClick={onClose}>
           Cancel
-        </button>
-
-        <button
-          type="submit"
-          disabled={isSubmitting}
-          aria-busy={isSubmitting}
-          aria-label={`submit ${transactionLabel} form`}
-          className="w-3/5 bg-[rgb(var(--color-brand))] text-white hover:bg-[rgb(var(--color-brand-hover))] transition cursor-pointer px-4 py-2 rounded-md text-base font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          {isSubmitting ? <LoadingSpinner size={25} /> : `${submitPrefix}`}
-        </button>
+        </Button>
+        <Button type="submit" loading={isSubmitting} loadingText="Saving...">
+          <span className="flex items-center gap-2">
+            <FiSave aria-hidden="true" />
+            {mode === "edit" ? "Save changes" : `Save ${singularLabels[label]}`}
+          </span>
+        </Button>
       </footer>
     </form>
   );

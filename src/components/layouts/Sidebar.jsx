@@ -1,117 +1,44 @@
-import { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
-import {
-  FaTachometerAlt,
-  FaListAlt,
-  FaWallet,
-  FaChartPie,
-  FaBullseye,
-  FaLightbulb,
-  FaUserCircle,
-} from "react-icons/fa";
+import { useEffect, useRef } from "react";
 import clsx from "clsx";
 import { useMainContext } from "../../context/MainContext";
-import useAuthStore from "../../store/useAuthStore";
-import { getDemoPath, useDemoMode } from "../../demo/useDemoMode";
+import SidebarContent from "./SidebarContent";
 
-const navLinks = [
-  { to: "/", icon: FaTachometerAlt, label: "Overview" },
-  { to: "/transactions", icon: FaListAlt, label: "Transactions" },
-  { to: "/budgets", icon: FaWallet, label: "Budgets" },
-  { to: "/goals", icon: FaBullseye, label: "Goals" },
-  { to: "/insights", icon: FaLightbulb, label: "Insights" },
-  { to: "/reports", icon: FaChartPie, label: "Reports" },
-];
-
-const Sidebar = () => {
-  const location = useLocation();
-  const isDemoMode = useDemoMode();
-  const userName = useAuthStore((state) => state.userName);
+const Sidebar = ({ collapsed }) => {
   const { isSidebarOpen, handleSidebarClose } = useMainContext();
-  const [hovered, setHovered] = useState(false);
+  const drawerRef = useRef(null);
 
-  const expanded = hovered || isSidebarOpen;
+  useEffect(() => {
+    const drawer = drawerRef.current;
+    if (isSidebarOpen && !drawer.open) drawer.showModal();
+    if (!isSidebarOpen && drawer.open) drawer.close();
+  }, [isSidebarOpen]);
 
   return (
-    <aside className="w-fit">
-      {/* Overlay for mobile */}
-      {isSidebarOpen && (
-        <button
-          type="button"
-          className={clsx(
-            "fixed inset-0 bg-black/50 z-60 lg:hidden transition-opacity duration-200",
-            isSidebarOpen ? "block" : "hidden"
-          )}
-          onClick={handleSidebarClose}
-          aria-label="Close sidebar overlay"
-        />
-      )}
-      <section
+    <>
+      <aside
+        id="app-sidebar"
         className={clsx(
-          "fixed left-0 top-0 h-dvh bg-[rgb(var(--color-bg))] text-[rgb(var(--color-text))] flex flex-col shadow-lg transition-all duration-200 z-70 lg:translate-x-0 lg:static p-3",
-          isSidebarOpen ? "translate-x-0" : "-translate-x-100 lg:translate-x-0",
-          expanded ? "lg:w-48 w-56" : "lg:w-20 w-16"
+          "hidden shrink-0 border-r border-sidebar-border lg:block",
+          collapsed ? "w-18" : "w-64",
         )}
-        style={{ minWidth: expanded ? "10rem" : "4rem" }}
-        onMouseEnter={() => setHovered(true)}
-        onMouseLeave={() => setHovered(false)}
-        aria-label="Sidebar navigation"
       >
-        {/* Logo */}
-        <h2 className=" bg-[rgb(var(--color-brand-deep))] rounded-lg flex items-center justify-center text-white font-bold text-xl md:text-2xl py-1.5">
-          SB
-        </h2>
-        {/* Navigation */}
-        <nav className="flex flex-col grow gap-2 mt-12 overflow-y-auto scrollbar-thin">
-          {navLinks.map((link) => (
-            <Link
-              key={link.to}
-              to={isDemoMode ? getDemoPath(link.to) : link.to}
-              onClick={handleSidebarClose}
-              aria-current={location.pathname === link.to ? "page" : undefined}
-              aria-label={link.label}
-              className={clsx(
-                "relative group flex items-center gap-3 px-2 py-2 rounded-lg hover:bg-[rgb(var(--color-brand-deep))] hover:text-white transition-colors text-[rgb(var(--color-muted))] text-base",
-                expanded ? "justify-start pl-3" : "justify-center",
-                location.pathname === (isDemoMode ? getDemoPath(link.to) : link.to)
-                  ? "bg-[rgb(var(--color-status-bg-blue))] text-blue-600"
-                  : ""
-              )}
-            >
-              <link.icon aria-hidden="true" className="text-lg" />
-              
-              <span
-                className={clsx(
-                  "transition-all duration-200",
-                  expanded ? "inline" : "hidden"
-                )}
-              >
-                {link.label}
-              </span>
-            </Link>
-          ))}
-        </nav>
+        <SidebarContent collapsed={collapsed} />
+      </aside>
 
-        <div
-          className={clsx(
-            "flex items-center bg-[rgb(var(--color-brand-deep))] text-white gap-2 px-4 rounded-lg py-2",
-            expanded ? "justify-start" : "justify-center"
-          )}
-        >
-          <FaUserCircle className={clsx("text-3xl", !userName?.fullname && "mx-auto")} />
-          <span
-            className={clsx(
-              "text-sm transition-all duration-200 truncate max-w-full",
-              expanded ? "inline" : "hidden"
-            )}
-          >
-            {userName?.fullName?.toUpperCase()}
-          </span>
-        </div>
-        {/* </div> */}
-      </section>
-    </aside>
+      <dialog
+        ref={drawerRef}
+        id="mobile-sidebar"
+        aria-label="Navigation"
+        className="fixed inset-y-0 left-0 m-0 h-dvh max-h-dvh w-72 max-w-[calc(100vw-2rem)] border-0 bg-sidebar p-0! font-sans text-foreground backdrop:bg-black/45"
+        onCancel={handleSidebarClose}
+        onClose={handleSidebarClose}
+        onClick={(event) => {
+          if (event.target === event.currentTarget) handleSidebarClose();
+        }}
+      >
+        <SidebarContent mobile />
+      </dialog>
+    </>
   );
 };
-
 export default Sidebar;

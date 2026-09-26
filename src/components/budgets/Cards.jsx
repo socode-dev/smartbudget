@@ -1,142 +1,107 @@
-import { HiOutlineTrash, HiOutlinePencil } from "react-icons/hi";
+import BudgetCard from "./BudgetCard";
 import clsx from "clsx";
-import { format } from "date-fns";
+import { useState } from "react";
+import { FiAlertTriangle, FiCheckCircle } from "react-icons/fi";
+import toast from "react-hot-toast";
 import { useBudgetsContext } from "../../context/BudgetsContext";
 import useCurrencyStore from "../../store/useCurrencyStore";
-import { formatAmount } from "../../utils/formatAmount";
+import useTransactionStore from "../../store/useTransactionStore";
+import useThresholdStore from "../../store/useThresholdStore";
 import { getAmountSpent } from "../../utils/getAmountSpent";
+import Pagination from "../ui/Pagination";
 
 const Cards = () => {
-  const { selectedCurrency } = useCurrencyStore();
-  const {
-    filteredBudgets,
-    getProgressBackground,
-    handleEditBudget,
-    handleDeleteBudget,
-  } = useBudgetsContext();
+  const selectedCurrency = useCurrencyStore((state) => state.selectedCurrency);
+  const transactions = useTransactionStore((state) => state.transactions);
+  const warningThreshold = useThresholdStore(state => state.thresholds?.budgetThreshold80 ?? 80);
+
+  const { filteredBudgets, handleEditBudget, handleDeleteBudget } = useBudgetsContext();
+
+    const [page, setPage] = useState(1);
+  const [deletingId, setDeletingId] = useState(null);
+  const pages = Math.max(1, Math.ceil(filteredBudgets.length / 6));
+  const currentPage = Math.min(page, pages);
+
+  const rows = filteredBudgets.map((budget) => ({
+    ...budget,
+    activity: getAmountSpent(
+      budget.categoryKey,
+      budget.date,
+      budget.type,
+      transactions,
+    ),
+  }));
+
+  const overCount = rows.filter(
+    (budget) =>
+      budget.type === "expense" && budget.activity > Number(budget.amount),
+  ).length;
+
+  const deleteBudget = async (id) => {
+    if (deletingId) return;
+    setDeletingId(id);
+
+    try {
+      await handleDeleteBudget(id);
+    } catch {
+      toast.error("Could not delete the budget. Please refresh and try again.");
+    } finally {
+      setDeletingId(null);
+    }
+  };
 
   return (
-    <section id="budget-cards" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      {filteredBudgets.map((budget) => {
-        const monthLabel = format(new Date(budget.date), "MMMM yyyy");
-        const budgetLimit = budget.amount;
-        const amountSpent = getAmountSpent(
-          budget.categoryKey,
-          budget.date,
-          budget.type
-        );
-        const remainingBalance = budgetLimit - amountSpent;
-        const progressBarPercentage = (amountSpent / budgetLimit) * 100;
-        const progressBarBackground = getProgressBackground(
-          progressBarPercentage,
-          budget.type
-        );
-
-        return (
-          <div
+    <div>
+      <div className="mb-6 flex flex-wrap items-center gap-3 border-y border-border py-4">
+        <span
+          className={clsx(
+            "inline-flex max-w-full items-center gap-1.5 rounded-full border border-border bg-[var(--sb-soft)] px-2.5 py-1 text-xs leading-4 font-medium text-[var(--sb-accent)] wrap-anywhere [&>svg]:shrink-0",
+            {
+              "[--sb-accent:var(--success)] [--sb-soft:var(--success-soft)]":
+                !overCount,
+              "[--sb-accent:var(--danger)] [--sb-soft:var(--danger-soft)]":
+                !!overCount,
+            },
+          )}
+        >
+          {overCount ? (
+            <FiAlertTriangle aria-hidden="true" />
+          ) : (
+            <FiCheckCircle aria-hidden="true" />
+          )}
+          {overCount} expense {overCount === 1 ? "budget" : "budgets"} over
+          limit
+        </span>
+        <p className="text-sm text-muted-foreground">
+          {rows.length} {rows.length === 1 ? "budget" : "budgets"} matching your
+          search
+        </p>
+      </div>
+      <section
+        id="budget-cards"
+        aria-label="Category budgets"
+        className="grid grid-cols-1 gap-4 md:grid-cols-2 min-[1280px]:grid-cols-3"
+      >
+        {rows.slice((currentPage - 1) * 6, currentPage * 6).map((budget) => (
+          <BudgetCard
             key={budget.id}
-            className="bg-[rgb(var(--color-bg-card))] h-50 p-4 rounded-lg flex justify-between items-start gap-4"
-          >
-            <div className="flex flex-col grow h-full space-y-1.5">
-              <div className="mb-4">
-                <h3 className="text-xl font-semibold">
-                  {budget.category.toLowerCase() === "other"
-                    ? budget.name
-                    : budget.category}
-                </h3>
-                <div className="flex gap-3">
-                  <p className="text-gray-500 bg-[rgb(var(--color-bg))] text-sm font-medium w-fit py-0.5 px-2 rounded mt-1">
-                    {budget.type.slice(0, 1).toUpperCase() +
-                      budget.type.slice(1).toLowerCase()}
-                  </p>
-
-                  <p className="text-gray-500 bg-[rgb(var(--color-bg))] text-sm font-medium w-fit py-0.5 px-2 rounded mt-1">
-                    {monthLabel}
-                  </p>
-                </div>
-              </div>
-
-              {/* Budget summary */}
-              <div className="grow w-full">
-                <p className="text-[rgb(var(--color-muted))] text-base font-medium">
-                  Limit:{" "}
-                  <strong className="text-[rgb(var(--color-muted))]">
-                    {formatAmount(budgetLimit, selectedCurrency)}
-                  </strong>
-                </p>
-                
-                <p className="text-[rgb(var(--color-muted))] text-base font-medium">
-                  {budget.type === "income" ? "Received:" : "Spent:"}{" "}
-                  <strong className="text-[rgb(var(--color-muted))]">
-                    {formatAmount(amountSpent, selectedCurrency)}
-                  </strong>
-                </p>
-
-                <p className="text-[rgb(var(--color-muted))] text-base font-medium">
-                  {progressBarPercentage > 100 && budget.type === "expense"
-                    ? "Overspent"
-                    : progressBarPercentage > 100 && budget.type === "income"
-                    ? "Extra"
-                    : "Remaining"}
-                  :{" "}
-                  <strong
-                    className={clsx(
-                      "text-[rgb(var(--color-muted))]",
-                      progressBarPercentage > 100 &&
-                        budget.type === "income" &&
-                        "text-green-600",
-                      progressBarPercentage > 100 &&
-                        budget.type === "expense" &&
-                        "text-red-600"
-                    )}
-                  >
-                    {progressBarPercentage > 100
-                      ? `${budget.type === "income" ? "+" : "-"}${formatAmount(
-                          Math.abs(remainingBalance),
-                          selectedCurrency
-                        )}`
-                      : formatAmount(remainingBalance, selectedCurrency)}
-                  </strong>
-                </p>
-              </div>
-
-              {/* Progress Bar */}
-              <div className="w-full h-3 bg-[rgb(var(--color-gray-border))] rounded-full overflow-hidden">
-                <div
-                  role="progressbar"
-                  aria-label={`${progressBarPercentage}% of ${budget.name ?? budget.category} used`}
-                  className={`h-full ${progressBarBackground} rounded-full transition-all duration-500 ease-in-out`}
-                  style={{
-                    width: `${progressBarPercentage}%`,
-                  }}
-                />
-              </div>
-            </div>
-
-            <div className="flex gap-2">
-              <button
-                type="button"
-                aria-label={`Edit ${budget.name ?? budget.category} budget`}
-                className="text-sm text-[rgb(var(--color-brand-deep))] hover:text-[rgb(var(--color-brand))] transition cursor-pointer"
-                onClick={() => handleEditBudget(budget.id)}
-              >
-                <HiOutlinePencil aria-hidden className="text-lg" />
-              </button>
-              <button
-                type="button"
-                aria-label={`Delete ${budget.name ?? budget.category} budget`}
-                onClick={() => handleDeleteBudget(budget.id)}
-                className="text-sm text-red-500 hover:text-red-600 transition cursor-pointer"
-              >
-                <HiOutlineTrash aria-hidden="true" className="text-lg" />
-              </button>
-            </div>
-          </div>
-        );
-      })}
-
-    </section>
+            budget={budget}
+            handleEditBudget={handleEditBudget}
+            deletingId={deletingId}
+            deleteBudget={deleteBudget}
+            selectedCurrency={selectedCurrency}
+            warningThreshold={warningThreshold}
+          />
+        ))}
+      </section>
+      <Pagination
+        page={currentPage}
+        pages={pages}
+        onPageChange={setPage}
+        label="Budgets pagination"
+        count={`${rows.length} budgets`}
+      />
+    </div>
   );
 };
-
 export default Cards;

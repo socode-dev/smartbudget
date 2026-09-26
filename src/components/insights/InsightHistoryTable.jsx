@@ -1,183 +1,141 @@
+import InsightHistoryRows from "./InsightHistoryRows";
+import InsightHistoryFilters from "./InsightHistoryFilters";
 import { useMemo, useState } from "react";
-import clsx from "clsx";
-import ResponsiveTable from "../ui/ResponsiveTable";
-import { color } from "./pillColor";
+import { FiClock } from "react-icons/fi";
+import Button from "../ui/Button";
+import Pagination from "../ui/Pagination";
+import { toInsightDate } from "./insightPresentation";
 
-const typeLabels = {
-  anomaly: "Anomaly",
-  budget: "Budget",
-  cashflow: "Cash Flow",
-  risk: "Risk",
-};
-
-const filterOptions = {
-  type: ["all", "risk", "anomaly", "budget", "cashflow"],
-  status: ["all", "ACTIVE", "EXPIRED", "ACKNOWLEDGED", "VIEWED", "DISMISSED"],
+const initialFilters = {
+  type: "all",
+  category: "all",
+  severity: "all",
+  status: "all",
+  expiry: "",
 };
 
 const InsightHistoryTable = ({ histories = [] }) => {
-  const [typeFilter, setTypeFilter] = useState("all");
-  const [statusFilter, setStatusFilter] = useState("all");
+  const [filters, setFilters] = useState(initialFilters);
+  const [page, setPage] = useState(1);
+
+  const options = useMemo(
+    () => ({
+      type: [
+        ...new Set(histories.map((history) => history.type).filter(Boolean)),
+      ].sort(),
+      category: [
+        ...new Set(
+          histories.map((history) => history.category).filter(Boolean),
+        ),
+      ].sort(),
+      severity: [
+        ...new Set(
+          histories.map((history) => history.severity).filter(Boolean),
+        ),
+      ].sort(),
+      status: [
+        ...new Set(histories.map((history) => history.status).filter(Boolean)),
+      ].sort(),
+    }),
+    [histories],
+  );
 
   const filteredHistories = useMemo(() => {
+    const expiresBefore = filters.expiry ? new Date(`${filters.expiry}T23:59:59.999`) : null;
+    
     return histories
-      .filter((history) => typeFilter === "all" || history.type === typeFilter)
-      .filter((history) => statusFilter === "all" || history.status === statusFilter)
-      .sort((a, b) => toDate(b.createdAt) - toDate(a.createdAt));
-  }, [histories, typeFilter, statusFilter]);
+      .filter(
+        (history) =>
+          ["type", "category", "severity", "status"].every(
+            (field) =>
+              filters[field] === "all" || history[field] === filters[field],
+          ) &&
+          (!expiresBefore ||
+            (toInsightDate(history.expiresAt) &&
+              toInsightDate(history.expiresAt) <= expiresBefore)),
+      )
+      .sort(
+        (a, b) =>
+          (toInsightDate(b.createdAt)?.getTime() || 0) -
+          (toInsightDate(a.createdAt)?.getTime() || 0),
+      );
+  }, [histories, filters]);
 
-  const columns = [
-    {
-      key: "createdAt",
-      header: "Date",
-      render: (history) => formatDate(history.createdAt),
-      cellClassName: "whitespace-nowrap",
-    },
-    {
-      key: "type",
-      header: "Type",
-      render: (history) => typeLabels[history.type] || toTitleCase(history.type),
-      cellClassName: "whitespace-nowrap",
-    },
-    {
-      key: "category",
-      header: "Category",
-      render: (history) => history.category || "N/A",
-      cellClassName: "whitespace-nowrap",
-    },
-    {
-      key: "severity",
-      header: "Severity",
-      render: (history) => (
-        <span className={clsx("rounded-full px-2.5 py-1 text-xs font-semibold", severityClass(history.severity))}>
-          {history.severity}
-        </span>
-      ),
-      cellClassName: "whitespace-nowrap",
-    },
-    {
-      key: "status",
-      header: "Status",
-      render: (history) => (
-        <span className={clsx("rounded-full px-2.5 py-1 text-xs font-semibold", color[history.status])}>
-          {history.status}
-        </span>
-      ),
-      cellClassName: "whitespace-nowrap",
-    },
-    {
-      key: "expiresAt",
-      header: "Expires",
-      render: (history) => formatDate(history.expiresAt),
-      cellClassName: "whitespace-nowrap",
-    },
-  ];
+  const pages = Math.max(1, Math.ceil(filteredHistories.length / 10));
+  const currentPage = Math.min(page, pages);
+  const rows = filteredHistories.slice((currentPage - 1) * 10, currentPage * 10);
+  const hasFilters = Object.keys(initialFilters).some(key => filters[key] !== initialFilters[key]);
+
+  const update = (field) => (event) => {
+    setFilters((previous) => ({
+      ...previous,
+      [field]: event.target.value,
+    }));
+    setPage(1);
+  };
+
+  const reset = () => {
+    setFilters(initialFilters);
+    setPage(1);
+  };
+
+  const explanation = (history) => (
+    <>
+      <p className="line-clamp-2" title={history.message || undefined}>
+        {history.message || "No explanation recorded."}
+      </p>
+    </>
+  );
 
   return (
-    <section className="space-y-4">
-      <div className="flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
-        <div>
-          <h3 className="text-xl font-semibold">Insight History</h3>
-          <p className="text-sm text-[rgb(var(--color-muted))]">
-            Active and expired insight records.
+    <div className="space-y-5">
+      <h2 className="sr-only">Insight history</h2>
+      {histories.length > 0 && (
+        <InsightHistoryFilters
+          filters={filters}
+          update={update}
+          options={options}
+          hasFilters={hasFilters}
+          reset={reset}
+        />
+      )}
+
+      {rows.length ? (
+        <>
+          <p className="sr-only" aria-live="polite">
+            Showing {(currentPage - 1) * 10 + 1}-
+            {Math.min(currentPage * 10, filteredHistories.length)} of{" "}
+            {filteredHistories.length} records
           </p>
+          <InsightHistoryRows rows={rows} explanation={explanation} />
+          <Pagination
+            label="Insight history pagination"
+            page={currentPage}
+            pages={pages}
+            onPageChange={setPage}
+          />
+        </>
+      ) : (
+        <div className="flex min-h-80 flex-col items-center justify-center gap-4 px-4 py-8 text-center">
+          <span className="grid size-12 place-items-center rounded-lg bg-info-soft text-2xl text-primary">
+            <FiClock aria-hidden="true" />
+          </span>
+          <h3 className="font-display text-xl font-semibold">
+            {histories.length ? "No matching insights" : "No insight history"}
+          </h3>
+          <p className="text-sm text-muted-foreground">
+            {histories.length
+              ? "No insight history matches your filters."
+              : "Your insight records will appear here when available."}
+          </p>
+          {hasFilters && (
+            <Button variant="outline" onClick={reset}>
+              Clear filters
+            </Button>
+          )}
         </div>
-
-        <div className="flex flex-wrap gap-2">
-          <select
-            value={typeFilter}
-            onChange={(event) => setTypeFilter(event.target.value)}
-            className="rounded-md border border-[rgb(var(--color-gray-border))] bg-[rgb(var(--color-bg-card))] px-3 py-2 text-sm outline-none"
-          >
-            {filterOptions.type.map((type) => (
-              <option key={type} value={type}>
-                {type === "all" ? "All types" : typeLabels[type]}
-              </option>
-            ))}
-          </select>
-
-          <select
-            value={statusFilter}
-            onChange={(event) => setStatusFilter(event.target.value)}
-            className="rounded-md border border-[rgb(var(--color-gray-border))] bg-[rgb(var(--color-bg-card))] px-3 py-2 text-sm outline-none"
-          >
-            {filterOptions.status.map((status) => (
-              <option key={status} value={status}>
-                {status === "all" ? "All statuses" : toTitleCase(status)}
-              </option>
-            ))}
-          </select>
-        </div>
-      </div>
-
-      <ResponsiveTable
-        columns={columns}
-        rows={filteredHistories}
-        getRowKey={(history) => history.id}
-        emptyMessage="No insight history matches the selected filters."
-        mobileRow={(history) => (
-          <div className="space-y-4">
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <p className="text-base font-semibold">
-                  {typeLabels[history.type] || toTitleCase(history.type)}
-                </p>
-                <p className="mt-1 text-sm text-[rgb(var(--color-muted))]">
-                  {history.category || "N/A"}
-                </p>
-              </div>
-
-              <div className="flex flex-col items-end gap-2">
-                {columns[3].render(history)}
-                {columns[4].render(history)}
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-3 text-sm">
-              <div>
-                <p className="text-[rgb(var(--color-muted))]">Date</p>
-                <p className="mt-1 font-medium">{formatDate(history.createdAt)}</p>
-              </div>
-              <div>
-                <p className="text-[rgb(var(--color-muted))]">Expires</p>
-                <p className="mt-1 font-medium">{formatDate(history.expiresAt)}</p>
-              </div>
-            </div>
-          </div>
-        )}
-      />
-    </section>
+      )}
+    </div>
   );
 };
-
-const severityClass = (severity) => {
-  if (severity === "HIGH") return "bg-[rgb(var(--color-status-bg-red))] text-red-500";
-  if (severity === "MEDIUM") return "bg-[rgb(var(--color-status-bg-amber))] text-amber-500";
-
-  return "bg-[rgb(var(--color-status-bg-blue))] text-blue-500";
-};
-
-
-const toDate = (value) => {
-  if (!value) return new Date(0);
-  if (typeof value?.toDate === "function") return value.toDate();
-
-  const date = new Date(value);
-  return Number.isNaN(date.getTime()) ? new Date(0) : date;
-};
-
-const formatDate = (value) => {
-  const date = toDate(value);
-  if (date.getTime() === 0) return "N/A";
-
-  return new Intl.DateTimeFormat("en-US", {
-    month: "short",
-    day: "numeric",
-  }).format(date);
-};
-
-const toTitleCase = (value = "") => {
-  return value.toLowerCase().replace(/\b\w/g, (letter) => letter.toUpperCase());
-};
-
 export default InsightHistoryTable;

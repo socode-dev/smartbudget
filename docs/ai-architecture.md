@@ -1,12 +1,12 @@
-# SmartBudget AI Architecture
+# Vydra AI Architecture
 
-SmartBudget uses a hybrid AI architecture: deterministic engines calculate financial facts, and AI explains the most important fact in clear language.
+Vydra uses a hybrid AI architecture: deterministic engines calculate financial facts, and AI explains the most important fact in clear language.
 
-For the product-level summary, see [SmartBudget Overview](./overview.md). For deterministic signal details, see [Financial Signals](./financial-signals.md). For telemetry, see [Backend AI Telemetry](./backend-ai-telemetry.md).
+For the product-level summary, see [Vydra Overview](./overview.md). For deterministic signal details, see [Financial Signals](./financial-signals.md). For telemetry, see [AI Telemetry](./ai-telemetry.md).
 
 ## Core Idea
 
-AI does not decide financial truth in SmartBudget.
+AI does not decide financial truth in Vydra.
 
 The backend first calculates structured signals from user data:
 
@@ -15,7 +15,7 @@ The backend first calculates structured signals from user data:
 - cashflow signals
 - financial risk signals
 
-The backend AI pipeline then decides which signal deserves attention, runs the right specialist agent, validates the result, persists the insight, and lets the UI update in real time.
+The AI pipeline then decides which signal deserves attention, runs the right specialist agent, validates the result, persists the insight, and lets the UI update in real time.
 
 ## Current Architecture
 
@@ -156,7 +156,7 @@ flowchart TD
 
 ## Safety Rails
 
-SmartBudget uses several guardrails before an insight reaches the UI:
+Vydra uses several guardrails before an insight reaches the UI:
 
 - quota checks before the AI pipeline runs
 - attention gate to avoid repeating unchanged episodes

@@ -30,10 +30,10 @@ export default defineConfig({
 
       manifest: {
         id: "/",
-        name: "SmartBudget",
-        short_name: "SmartBudget",
+        name: "Vydra",
+        short_name: "Vydra",
         description:
-        "Track your spending, set budget, set goals, and get AI-powered financial insights with SmartBudget.",
+        "Clarity for every financial decision.",
         
         theme_color: "#2763EB",
         background_color: "#ffffff",

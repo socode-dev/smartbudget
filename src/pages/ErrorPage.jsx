@@ -1,9 +1,11 @@
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { FaArrowRight, FaTriangleExclamation } from "react-icons/fa6";
+import { FiArrowRight, FiCompass, FiHome } from "react-icons/fi";
 import useAuthStore from "../store/useAuthStore";
 import AuthLoadingScreen from "../components/ui/AuthLoadingScreen";
 import { isDemoUser } from "../demo/useDemoMode";
+import BrandMark from "../components/ui/BrandMark";
+import Button from "../components/ui/Button";
 
 const ErrorPage = () => {
   const navigate = useNavigate();
@@ -17,6 +19,7 @@ const ErrorPage = () => {
   const isAuthenticated = Boolean(user && !isDemoUser(user));
   const destination = isAuthenticated ? "/" : "/";
   const buttonLabel = isAuthenticated ? "Go to dashboard" : "Go home";
+  const Icon = isAuthenticated ? FiCompass : FiHome;
 
   return (
     <motion.main
@@ -24,35 +27,41 @@ const ErrorPage = () => {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
       transition={{ duration: 0.4, ease: "easeOut" }}
-      className="min-h-dvh w-full flex items-center justify-center bg-[rgb(var(--color-bg-card))] px-5 py-10"
+      className="flex min-h-full w-full items-center justify-center bg-background px-4 py-10 text-foreground sm:px-6"
     >
-      <section className="w-full max-w-[560px] flex flex-col items-center text-center">
-        <div
-          role="img"
-          aria-label="Page not found"
-          className="mb-6 rounded-full border border-[rgb(var(--color-gray-border))] bg-[rgb(var(--color-gray-bg))] p-5 text-3xl text-[rgb(var(--color-brand))]"
-        >
-          <FaTriangleExclamation aria-hidden="true" />
+      <section className="w-full max-w-[680px] overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
+        <div className="flex items-center justify-between gap-4 border-b border-border bg-surface px-5 py-4 sm:px-6">
+          <BrandMark />
+          <span className="rounded-full border border-primary/20 bg-info-soft px-3 py-1 text-xs font-semibold text-primary">
+            404
+          </span>
         </div>
 
-        <p className="text-sm font-semibold uppercase tracking-wide text-[rgb(var(--color-brand))]">
-          404
-        </p>
-        <h1 className="mt-2 text-3xl md:text-4xl font-semibold text-[rgb(var(--color-text))]">
-          Page not found
-        </h1>
-        <p className="mt-4 max-w-[460px] text-base text-[rgb(var(--color-muted))]">
-          The page you are looking for does not exist or may have been moved.
-        </p>
+        <div className="px-5 py-8 text-center sm:px-8 sm:py-10">
+          <div className="mx-auto flex size-14 items-center justify-center rounded-2xl border border-border bg-background text-primary shadow-xs">
+            <Icon size={24} aria-hidden="true" />
+          </div>
 
-        <button
-          type="button"
-          onClick={() => navigate(destination)}
-          className="mt-8 inline-flex items-center justify-center gap-3 rounded-lg bg-[rgb(var(--color-brand))] px-5 py-2.5 text-base font-medium text-white shadow transition hover:scale-97 active:scale-103 cursor-pointer"
-        >
-          <span>{buttonLabel}</span>
-          <FaArrowRight aria-hidden="true" />
-        </button>
+          <p className="mt-6 text-xs font-semibold uppercase text-muted-foreground">
+            Page not found
+          </p>
+          <h1 className="mt-2 font-display text-3xl font-semibold text-foreground sm:text-4xl">
+            This page is not available
+          </h1>
+          <p className="mx-auto mt-3 max-w-[460px] text-sm leading-relaxed text-muted-foreground sm:text-base">
+            The page may have been moved, deleted, or opened from an outdated
+            link.
+          </p>
+
+          <div className="mt-8 flex justify-center">
+            <Button onClick={() => navigate(destination)}>
+              <span className="flex items-center justify-center gap-2">
+                {buttonLabel}
+                <FiArrowRight aria-hidden="true" />
+              </span>
+            </Button>
+          </div>
+        </div>
       </section>
     </motion.main>
   );

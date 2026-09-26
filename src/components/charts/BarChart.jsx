@@ -8,15 +8,20 @@ const BarChart = () => {
 
   useEffect(() => {
     const chart = chartRef.current;
-
     return () => {
-        chart?.destroy();
+      chart?.destroy();
     };
   }, []);
 
   return (
-    <div className="w-full h-80">
-      <Bar ref={chartRef} data={barChartData} options={barChartOptions} />
+    <div className="relative h-72 min-w-0 w-full">
+      <Bar
+        ref={chartRef}
+        data={barChartData}
+        options={barChartOptions}
+        role="img"
+        aria-label="Expenses by category. Detailed amounts appear in the breakdown table."
+      />
     </div>
   );
 };

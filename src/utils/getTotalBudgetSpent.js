@@ -1,35 +1,19 @@
-export const getTotalBudgetSpent = (transactions, budgets, type) => {
-  // Filter transactions that belong to budget categories AND same month as budgets
-  const budgetTransactions = transactions?.filter((tx) => {
-    // Check if transaction category matches any budget category
-    const matchingBudget = budgets?.find((budget) => {
-      if (type === budget.type) {
-        return budget.categoryKey === tx.categoryKey;
-      } else if (type === "all") {
-        return budget.categoryKey === tx.categoryKey;
-      }
+export const getTotalBudgetSpent = (transactions = [], budgets = [], type) => {
+  
+  return transactions.reduce((total, transaction) => {
+    const date = new Date(transaction.date);
+    const matches = budgets.some((budget) => {
+      const budgetDate = new Date(budget.date);
+  
+      return (
+        (type === "all" || budget.type === type) &&
+        budget.categoryKey === transaction.categoryKey &&
+        budget.type === transaction.type &&
+        date.getMonth() === budgetDate.getMonth() &&
+        date.getFullYear() === budgetDate.getFullYear()
+      );
     });
-
-    if (!matchingBudget) return false;
-
-    // Check if transaction date is in the same month as budget date
-    const txDate = new Date(tx.date);
-    const txType = tx.type;
-    const budgetDate = new Date(matchingBudget.date);
-    const budgetType = matchingBudget.type;
-
-    return (
-      txType === budgetType &&
-      txDate.getMonth() === budgetDate.getMonth() &&
-      txDate.getFullYear() === budgetDate.getFullYear()
-    );
-  });
-
-  // Calculate total spent on budget categories
-  const totalBudgetSpent = budgetTransactions?.reduce(
-    (total, tx) => total + tx.amount,
-    0
-  );
-
-  return totalBudgetSpent;
+  
+    return matches ? total + Number(transaction.amount) : total;
+  }, 0);
 };

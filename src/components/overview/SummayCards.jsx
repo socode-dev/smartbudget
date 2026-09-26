@@ -1,16 +1,12 @@
-import {
-  FaMoneyBillWave,
-  FaCreditCard,
-  FaChartLine,
-  FaChartPie,
-} from "react-icons/fa";
+import clsx from "clsx";
+import { FiArrowUpRight, FiArrowDownRight, FiCreditCard } from "react-icons/fi";
+import { LuScale } from "react-icons/lu";
 import { useOverviewContext } from "../../context/OverviewContext";
-import { useCallback, useMemo } from "react";
 import useCurrencyStore from "../../store/useCurrencyStore";
 import { formatAmount } from "../../utils/formatAmount";
 
 const SummaryCards = () => {
-  const selectedCurrency = useCurrencyStore((state) => state.selectedCurrency);
+  const currency = useCurrencyStore((state) => state.selectedCurrency);
   const {
     totalIncome,
     totalExpenses,
@@ -22,117 +18,100 @@ const SummaryCards = () => {
     expensesLabel,
   } = useOverviewContext();
 
-  // Generate net budget label
-  const getNetBalanceLabel = useCallback(() => {
-    if (netBalance === 0) {
-      return (
-        <p className="text-xs text-[rgb(var(--color-muted))]">
-          You are breaking even
-        </p>
-      );
-    } else if (netBalance > 0) {
-      return <p className="text-sm text-green-500">You are in the green</p>;
-    } else if (totalIncome === 0) {
-      return (
-        <p className="text-sm text-[rgb(var(--color-brand))]">
-          No income recorded
-        </p>
-      );
-    } else if (totalIncome > 0 && totalExpenses === 0) {
-      return <p className="text-sm text-indigo-500">No spending yet</p>;
-    } else {
-      return <p className="text-sm text-red-500">You are in the red</p>;
-    }
-  }, [netBalance, totalIncome, totalExpenses]);
+  const usage = Number.isFinite(budgetUsagePercentage) ? Math.max(0, budgetUsagePercentage) : 0;
 
-  const netBalanceLabel = useMemo(
-    () => getNetBalanceLabel(),
-    [getNetBalanceLabel]
-  );
+  let netCaption;
+  switch (true) {
+    case netBalance === 0:
+      netCaption = "You are breaking even";
+      break;
+    case netBalance > 0:
+      netCaption = "You are in the green";
+      break;
+    case totalIncome === 0:
+      netCaption = "No income recorded";
+      break;
+    default:
+      netCaption = "You are in the red";
+  }
 
-  const cardContainerStyle =
-    "sm:relative flex sm:flex-col justify-evenly items-center text-center gap-4 p-4 rounded-lg bg-[rgb(var(--color-bg-card))] shadow z-0";
-
-  const cardIconStyle =
-    "sm:absolute sm:-top-5 sm:left-1/2 sm:-translate-x-1/2 bg-[rgb(var(--color-bg-card))] p-2 rounded-full sm:shadow z-10";
-
-  const cardContentStyle =
-    "flex flex-col items-center text-center gap-3 lg:gap-4 sm:mt-5";
-
-  return (
-    <>
-      {/* Total Income */}
-      <div className={cardContainerStyle} id="total-income">
-        <div className={cardIconStyle}>
-          <FaMoneyBillWave aria-hidden="true" size={24} className="text-green-400" />
-        </div>
-
-        <div className={cardContentStyle}>
-          <h3 className="text-base md:text-lg text-[rgb(var(--color-muted))] font-medium">
-            Total Income
-          </h3>
-          <p className="text-3xl font-bold text-green-600">
-            {formatAmount(totalIncome, selectedCurrency)}
-          </p>
-          <p className="text-sm text-green-500">{incomeLabel}</p>
-        </div>
+  const cards = [
+    {
+      id: "total-income",
+      label: "Total Income",
+      value: formatAmount(totalIncome, currency),
+      caption: incomeLabel,
+      tone: "success",
+      icon: FiArrowUpRight,
+    },
+    {
+      id: "total-expenses",
+      label: "Total Expenses",
+      value: formatAmount(totalExpenses, currency),
+      caption: expensesLabel,
+      tone: "danger",
+      icon: FiArrowDownRight,
+    },
+    {
+      id: "net-balance",
+      label: "Net Balance",
+      value: formatAmount(netBalance, currency),
+      caption: netCaption,
+      tone: netBalance < 0 ? "danger" : "success",
+      icon: LuScale,
+    },
+    {
+      id: "budget-usage",
+      label: "Budget Usage",
+      value: `${usage}% used`,
+      caption: `${formatAmount(totalBudgetUsed, currency)} of ${formatAmount(totalBudget, currency)}`,
+      tone: usage > 100 ? "danger" : "warning",
+      icon: FiCreditCard,
+    },
+  ];
+  
+  return cards.map(({ id, label, value, caption, tone, icon: Icon }) => (
+    <article
+      key={id}
+      id={id}
+      className={clsx(
+        "relative min-w-0 overflow-hidden rounded-xl border border-border border-t-2 border-t-[var(--sb-accent)] bg-card p-5",
+        {
+          "[--sb-accent:var(--primary)] [--sb-soft:var(--info-soft)]":
+            tone === "primary",
+          "[--sb-accent:var(--success)] [--sb-soft:var(--success-soft)]":
+            tone === "success",
+          "[--sb-accent:var(--danger)] [--sb-soft:var(--danger-soft)]":
+            tone === "danger",
+          "[--sb-accent:var(--warning)] [--sb-soft:var(--warning-soft)]":
+            tone === "warning",
+        },
+      )}
+    >
+      <div className="flex items-center justify-between gap-3">
+        <h2 className="text-xs font-semibold uppercase text-muted-foreground">
+          {label}
+        </h2>
+        <span className="flex size-8 shrink-0 items-center justify-center rounded-xl bg-[var(--sb-soft)] text-[var(--sb-accent)]">
+          <Icon size={18} aria-hidden="true" />
+        </span>
       </div>
-
-      {/* Total Expenses */}
-      <div className={cardContainerStyle} id="total-expenses">
-        <div className={cardIconStyle}>
-          <FaCreditCard size={24} aria-hidden="true" className="text-red-400" />
-        </div>
-
-        <div className={cardContentStyle}>
-          <h3 className="text-base text-[rgb(var(--color-muted))] font-medium">
-            Total Expenses
-          </h3>
-          <p className="text-3xl font-bold text-red-600">
-            {formatAmount(totalExpenses, selectedCurrency)}
-          </p>
-          <p className="text-sm text-red-500">{expensesLabel}</p>
-        </div>
-      </div>
-
-      {/* Net Balance */}
-      <div className={cardContainerStyle} id="net-balance">
-        <div className={cardIconStyle}>
-          <FaChartLine size={24} aria-hidden="true" className="text-blue-400" />
-        </div>
-
-        <div className={cardContentStyle}>
-          <h3 className="text-base text-[rgb(var(--color-muted))] font-medium">
-            Net Balance
-          </h3>
-          <p className="text-3xl font-bold text-[rgb(var(--color-brand-deep))]">
-            {formatAmount(netBalance, selectedCurrency)}
-          </p>
-          {netBalanceLabel}
-        </div>
-      </div>
-
-      {/* Budget Usage */}
-      <div className={cardContainerStyle} id="budget-usage">
-        <div className={cardIconStyle}>
-          <FaChartPie size={24} aria-hidden="true" className="text-yellow-400" />
-        </div>
-
-        <div className={cardContentStyle}>
-          <h3 className="text-base text-[rgb(var(--color-muted))] font-medium">
-            Budget Usage
-          </h3>
-          <p className="text-3xl font-bold text-yellow-600">
-            {budgetUsagePercentage > 0 ? budgetUsagePercentage : "0"}% used
-          </p>
-          <p className="text-sm text-[rgb(var(--color-muted))]">
-            {formatAmount(totalBudgetUsed, selectedCurrency)} of{" "}
-            {formatAmount(totalBudget, selectedCurrency)}
-          </p>
-        </div>
-      </div>
-    </>
-  );
+      <p
+        className={clsx(
+          "mt-5 font-display leading-tight font-semibold text-[var(--sb-accent)] tabular-nums wrap-anywhere",
+          value.length > 18
+            ? "text-lg"
+            : value.length > 14
+              ? "text-[22px]"
+              : "text-[28px]",
+        )}
+      >
+        {value}
+      </p>
+      <p className="mt-3 break-words text-xs leading-relaxed text-muted-foreground">
+        {caption}
+      </p>
+    </article>
+  ));
 };
-
 export default SummaryCards;

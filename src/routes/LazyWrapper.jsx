@@ -1,7 +1,7 @@
 import { ErrorBoundary } from "react-error-boundary";
 import { Suspense } from "react";
 import { useNavigate } from "react-router-dom";
-import ErrorFallback from "./ErrorFalback";
+import ErrorFallback from "./ErrorFallback";
 
 const LazyWrapper = ({ children, loadingFallback }) => {
   const navigate = useNavigate();

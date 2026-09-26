@@ -1,16 +1,28 @@
+import SettingsExportOptions from "./SettingsExportOptions";
+import clsx from "clsx";
 import useThemeStore from "../../store/useThemeStore";
 import useCurrencyStore from "../../store/useCurrencyStore";
-import { FaSun, FaMoon } from "react-icons/fa";
+import {
+  FiSun,
+  FiMoon,
+  FiChevronDown,
+  FiDownload,
+  FiSliders,
+} from "react-icons/fi";
 import CurrencyFlag from "react-currency-flags";
-import clsx from "clsx";
 import { useMainContext } from "../../context/MainContext";
 import CurrencyDropdown from "./CurrencyDropdown";
 import { useOverviewContext } from "../../context/OverviewContext";
-import Export from "../ui/Export";
-import { showDemoReadOnlyToast, useDemoMode } from "../../demo/useDemoMode";
+import {
+  getDemoPath,
+  showDemoReadOnlyToast,
+  useDemoMode,
+} from "../../demo/useDemoMode";
+import { useNavigate } from "react-router-dom";
 
 const SettingsDropdown = () => {
   const isDemoMode = useDemoMode();
+  const navigate = useNavigate();
   const theme = useThemeStore((state) => state.theme);
   const toggleTheme = useThemeStore((state) => state.toggleTheme);
   const selectedCurrency = useCurrencyStore((state) => state.selectedCurrency);
@@ -19,7 +31,7 @@ const SettingsDropdown = () => {
     isSettingsOpen,
     isCurrencyOpen,
     handleCurrencyToggle,
-    handlePreferencesOpen,
+    handleSettingsToggle,
     isExportOpen,
     setIsExportOpen,
     handleExportToggle,
@@ -27,110 +39,112 @@ const SettingsDropdown = () => {
 
   if (!isSettingsOpen) return null;
 
-  const exportCSV = () => {
+  const exportData = (format) => {
     if (isDemoMode) {
       showDemoReadOnlyToast();
-      setIsExportOpen(false);
-      return;
+    } else if (format === "csv") {
+      handleCSVExport();
+    } else {
+      handlePDFExport();
     }
-
-    handleCSVExport();
-    setIsExportOpen(false);
-  };
-
-  const exportPDF = () => {
-    if (isDemoMode) {
-      showDemoReadOnlyToast();
-      setIsExportOpen(false);
-      return;
-    }
-
-    handlePDFExport();
     setIsExportOpen(false);
   };
 
   return (
-    <ul id="settings-menu" className="flex flex-col items-start absolute right-0 top-13 w-56 bg-[rgb(var(--color-gray-bg-settings))] border border-[rgb(var(--color-gray-border))] rounded-lg shadow-lg z-60 text-sm overflow-y-visible">
-      
-      <li className="w-full px-4 py-3 cursor-pointer flex items-center justify-between hover:bg-[rgb(var(--color-gray-bg))] transition rounded-tl-lg rounded-tr-lg">
-        
-        <span>Theme</span>
-        <button
-          type="button"
-          onClick={toggleTheme}
-          aria-label="Toggle theme"
-          aria-pressed={theme === "dark"}
+    <section
+      id="settings-menu"
+      aria-label="Settings"
+      className={clsx(
+        "absolute top-[calc(100%+0.5rem)] right-0 max-h-[calc(100dvh-5rem)] w-64 max-w-[calc(100vw-5rem)] overflow-y-auto",
+        "rounded-lg border border-border bg-popover text-sm shadow-xl",
+      )}
+    >
+      <h2 className="border-b border-border px-4 py-3 text-sm font-semibold">
+        Settings
+      </h2>
+      <div className="p-2">
+        <div
           className={clsx(
-            "ml-2 w-13 h-6 rounded-full relative focus:outline-none cursor-pointer transition flex items-center",
-            theme === "dark"
-              ? "bg-[rgb(var(--color-brand-deep))]"
-              : "bg-gray-200"
+            "flex min-h-11 w-full items-center justify-between gap-3 rounded-md px-3 py-2.5 text-left [&:is(button)]:cursor-pointer",
+            "[&:is(button)]:hover:bg-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
           )}
         >
-          <span
+          <span className="flex items-center gap-2">
+            {theme === "dark" ? (
+              <FiMoon aria-hidden="true" />
+            ) : (
+              <FiSun aria-hidden="true" />
+            )}{" "}
+            Dark theme
+          </span>
+          <button
+            type="button"
+            role="switch"
+            aria-checked={theme === "dark"}
+            aria-label="Dark theme"
+            onClick={toggleTheme}
             className={clsx(
-              "absolute top-0.5 mx-1 w-5 h-5 flex items-center justify-center rounded-full shadow transition duration-300",
-              theme === "dark"
-                ? "translate-x-6 bg-gray-900 text-yellow-300"
-                : "translate-x-0 bg-yellow-400 text-white"
+              "inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full bg-border p-0.5 aria-checked:bg-primary",
+              "[&>span]:size-5 [&>span]:rounded-full [&>span]:bg-white [&>span]:shadow-sm [&>span]:transition-transform",
+              "aria-checked:[&>span]:translate-x-5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
             )}
           >
-            {theme === "dark" ? (
-              <FaMoon className="text-base" />
-            ) : (
-              <FaSun className="text-base" />
-            )}
+            <span />
+          </button>
+        </div>
+        <button
+          type="button"
+          aria-expanded={isCurrencyOpen}
+          aria-controls="currency-options"
+          onClick={handleCurrencyToggle}
+          className={clsx(
+            "flex min-h-11 w-full items-center justify-between gap-3 rounded-md px-3 py-2.5 text-left [&:is(button)]:cursor-pointer",
+            "[&:is(button)]:hover:bg-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
+          )}
+        >
+          <span>Currency</span>
+          <span className="flex items-center gap-2 text-xs">
+            <CurrencyFlag currency={selectedCurrency} size="sm" />{" "}
+            {selectedCurrency}
+            <FiChevronDown aria-hidden="true" />
           </span>
         </button>
-
-      </li>
-
-      <button
-        type="button"
-        aria-haspopup="listbox"
-        aria-expanded={isCurrencyOpen ? "true" : "false"}
-        onClick={handleCurrencyToggle}
-        className="w-full px-4 py-3 cursor-pointer flex items-center justify-between hover:bg-[rgb(var(--color-gray-bg))] transition relative"
-      >
-        <span className="flex-1">Currency</span>
-        <button className="ml-2 px-2 py-1 rounded text-xs bg-[rgb(var(--color-gray-bg))] flex items-center gap-2">
-          <CurrencyFlag currency={selectedCurrency} size="md" />
-          <span className="text-gray-500">({selectedCurrency})</span>
-        </button>
-
         <CurrencyDropdown />
-      </button>
-
-      <button
-        type="button"
-        onClick={handlePreferencesOpen}
-        aria-haspopup="dialog"
-        className="w-full text-left px-4 py-3 cursor-pointer hover:bg-[rgb(var(--color-gray-bg))] transition"
-      >
-        Preferences
-      </button>
-
-      <div className="relative w-full">
+        <button
+          type="button"
+          onClick={() => {
+            handleSettingsToggle();
+            navigate(isDemoMode ? getDemoPath("/settings") : "/settings");
+          }}
+          className={clsx(
+            "flex min-h-11 w-full items-center justify-between gap-3 rounded-md px-3 py-2.5 text-left [&:is(button)]:cursor-pointer",
+            "[&:is(button)]:hover:bg-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
+          )}
+        >
+          <span className="flex items-center gap-2">
+            <FiSliders aria-hidden="true" />
+            Preferences
+          </span>
+        </button>
         <button
           type="button"
           onClick={handleExportToggle}
-          aria-haspopup="menu"
-          aria-label="open export methods"
           aria-expanded={isExportOpen}
-          aria-controls="export-menu"
-          className="w-full text-left px-4 py-3 cursor-pointer hover:bg-[rgb(var(--color-gray-bg))] transition rounded-bl-lg rounded-br-lg"
+          aria-controls="settings-export-options"
+          className={clsx(
+            "flex min-h-11 w-full items-center justify-between gap-3 rounded-md px-3 py-2.5 text-left [&:is(button)]:cursor-pointer",
+            "[&:is(button)]:hover:bg-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
+          )}
         >
-          Export All Data
+          <span className="flex items-center gap-2">
+            <FiDownload aria-hidden="true" />
+            Export All Data
+          </span>
+          <FiChevronDown aria-hidden="true" />
         </button>
-
-        <Export
-          isExportOpen={isExportOpen}
-          exportCSV={exportCSV}
-          exportPDF={exportPDF}
-        />
+        {isExportOpen && <SettingsExportOptions exportData={exportData} />}
       </div>
-
-    </ul>
+    </section>
   );
 };
 

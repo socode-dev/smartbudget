@@ -1,6 +1,6 @@
 export const demoUser = {
   uid: "demo-mfb-customer",
-  email: "demo.customer@smartbudget.test",
+  email: "demo.customer@vydra.test",
   firstName: "Amina",
   lastName: "Okafor",
   isDemo: true,

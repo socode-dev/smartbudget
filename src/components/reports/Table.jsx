@@ -1,72 +1,102 @@
-import { useMemo } from "react";
+import clsx from "clsx";
 import { useReportContext } from "../../context/ReportContext";
+import { useReportChartContext } from "../../context/ReportChartContext";
+import useCurrencyStore from "../../store/useCurrencyStore";
+import { formatAmount } from "../../utils/formatAmount";
 
 const Table = () => {
-  const { reportTableData } = useReportContext();
+  const { totalExpenses, expenses } = useReportContext();
+  const { categories } = useReportChartContext();
+  const currency = useCurrencyStore((state) => state.selectedCurrency);
 
-  const tableData = useMemo(() => reportTableData(), [reportTableData]);
+  const share = (row) => (
+    <div className="flex items-center gap-2 text-xs tabular-nums">
+      <span
+        className="block h-1.5 min-w-6 w-20 overflow-hidden rounded bg-border [&>span]:block [&>span]:h-full [&>span]:rounded-[inherit]"
+        aria-hidden="true"
+      >
+        <span
+          style={{
+            width: `${Math.min(100, Math.max(0, row.percentage))}%`,
+            backgroundColor: row.color,
+          }}
+        />
+      </span>
+      <span className="shrink-0 whitespace-nowrap">
+        {row.percentage.toFixed(1)}%
+      </span>
+    </div>
+  );
+
+  const name = (row) => (
+    <span className="inline-flex min-w-0 items-baseline gap-2 wrap-anywhere">
+      <span
+        className="inline-block size-2.5 shrink-0 rounded-xs"
+        style={{
+          backgroundColor: row.color,
+        }}
+        aria-hidden="true"
+      />
+      {row.category}
+    </span>
+  );
 
   return (
-    <>
-      {/* Desktop view */}
-      <table className="hidden md:table min-w-full divide-y divide-[rgb(var(--color-gray-border))] bg-[rgb(var(--color-bg-card))] rounded-lg shadow-sm p-4 overflow-hidden text-sm">
-        <thead className="bg-[rgb(var(--color-bg-card))]">
+    <div className="overflow-x-scroll rounded-b-xl">
+      <table
+        className={clsx(
+          "w-full min-w-[600px] table-fixed border-collapse bg-card text-sm [&_th]:border-b [&_th]:border-border [&_th]:px-4",
+          "[&_th]:py-3.5 [&_th]:text-left [&_th]:wrap-anywhere [&_td]:border-b [&_td]:border-border [&_td]:px-4 [&_td]:py-3.5",
+          "[&_td]:text-left [&_td]:wrap-anywhere [&_thead]:bg-surface [&_thead]:text-xs [&_thead]:text-muted-foreground",
+          "[&_tbody_tr:hover]:bg-surface [&_tfoot]:bg-surface [&_tfoot]:font-semibold",
+        )}
+      >
+        <caption className="sr-only">Expense totals by category</caption>
+        <thead>
           <tr>
-            <th className="text-left text-[rgb(var(--color-muted))] p-2">
-              Category
+            <th scope="col">Category</th>
+
+            <th scope="col" className="text-right! tabular-nums">
+              Amount spent
             </th>
-            <th className="text-left text-[rgb(var(--color-muted))] p-2">
-              Amount Spent
-            </th>
-            <th className="text-left text-[rgb(var(--color-muted))] p-2">
-              % of Total
-            </th>
-            <th className="text-left text-[rgb(var(--color-muted))] p-2">
+
+            <th scope="col">% of total</th>
+
+            <th scope="col" className="text-right! tabular-nums">
               Count
             </th>
           </tr>
         </thead>
-        <tbody className="bg-[rgb(var(--color-bg-card))] divide-y divide-[rgb(var(--color-gray-border))] text-[13px]">
-          {tableData.map((data) => (
-            <tr key={data.No}>
-              <td className="p-2.5">{data.Category}</td>
-              <td className="p-2.5">{data.Amount}</td>
-              <td className="p-2.5">{data.Percentage}</td>
-              <td className="p-2.5">{data.Count}</td>
+
+        <tbody>
+          {categories.map((row) => (
+            <tr key={row.category}>
+              <th scope="row" className="font-medium">
+                {name(row)}
+              </th>
+
+              <td className="text-right! tabular-nums">
+                {formatAmount(row.amount, currency)}
+              </td>
+
+              <td>{share(row)}</td>
+
+              <td className="text-right! tabular-nums">{row.count}</td>
             </tr>
           ))}
         </tbody>
+        <tfoot>
+          <tr>
+            <th scope="row">Total</th>
+            <td className="text-right! tabular-nums">
+              {formatAmount(totalExpenses, currency)}
+            </td>
+            <td>{totalExpenses > 0 ? "100%" : "0%"}</td>
+            <td className="text-right! tabular-nums">{expenses.length}</td>
+          </tr>
+        </tfoot>
       </table>
-
-      {/* Mobile view */}
-      <div className="md:hidden w-full max-w-3xl grid grid-cols-1 xs:grid-cols-2  gap-4">
-        {tableData.map((data) => (
-          <div
-            key={data.No}
-            className="bg-[rgb(var(--color-bg-card))] border border-[rgb(var(--color-gray-border))] shadow rounded p-4"
-          >
-            <h3 className="text-lg font-semibold ">{data.Category}</h3>
-            <div className="mt-3 space-y-1">
-              <p className="text-sm text-[rgb(var(--color-muted))] font-medium">
-                <span>Amount Spent: </span>
-                <strong className="text-sm">{data.Amount}</strong>
-              </p>
-
-              <p className="text-sm text-[rgb(var(--color-muted))] font-medium">
-                <span>% of Total: </span>
-                <strong className="text-sm">{data.Percentage}</strong>
-              </p>
-
-              <p className="text-sm text-[rgb(var(--color-muted))] font-medium">
-                <span>Transactions: </span>
-                <strong className="text-sm">{data.Count}</strong>
-              </p>
-            </div>
-          </div>
-        ))}
-      </div>
-    </>
+    </div>
   );
 };
-
 export default Table;
