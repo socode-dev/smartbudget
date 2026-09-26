@@ -26,7 +26,7 @@ beforeEach(() => {
         "SFTP_DELIVERY_SPOOL_ENCRYPTION_KEY",
         Buffer.alloc(32, 1).toString("base64"),
     );
-    vi.stubEnv("SMARTBUDGET_ACTIVATION_BASE_URL", "https://example.test");
+    vi.stubEnv("VYDRA_BASE_URL", "https://example.test");
 });
 
 afterEach(() => {

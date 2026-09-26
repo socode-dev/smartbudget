@@ -32,7 +32,7 @@ const safeErrorCode = error => {
 
 const readImportRuntime = () => {
     const hmacSecret = process.env.SFTP_IMPORT_HMAC_SECRET;
-    const activationBaseUrl = process.env.SMARTBUDGET_ACTIVATION_BASE_URL;
+    const activationBaseUrl = process.env.VYDRA_BASE_URL;
     const spoolKey = process.env.SFTP_DELIVERY_SPOOL_ENCRYPTION_KEY;
 
     if (!hmacSecret)

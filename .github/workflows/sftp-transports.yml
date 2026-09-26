@@ -42,5 +42,5 @@ jobs:
                 SFTP_PRIVATE_KEY_PASSPHRASE: ${{ secrets.SFTP_PRIVATE_KEY_PASSPHRASE }}
                 SFTP_IMPORT_HMAC_SECRET: ${{ secrets.SFTP_IMPORT_HMAC_SECRET }}
                 SFTP_DELIVERY_SPOOL_ENCRYPTION_KEY: ${{ secrets.SFTP_DELIVERY_SPOOL_ENCRYPTION_KEY }}
-                SMARTBUDGET_ACTIVATION_BASE_URL: ${{ vars.SMARTBUDGET_ACTIVATION_BASE_URL }}
+                VYDRA_BASE_URL: ${{ vars.VYDRA_BASE_URL }}
               run: npm run sftp:run-transports
