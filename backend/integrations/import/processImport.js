@@ -44,7 +44,7 @@ export const processImport = async ({
     fileContent,
     source = IMPORT_SOURCE.SFTP,
     hmacSecret = process.env.SFTP_IMPORT_HMAC_SECRET,
-    activationBaseUrl = process.env.SMARTBUDGET_ACTIVATION_BASE_URL,
+    activationBaseUrl = process.env.VYDRA_BASE_URL,
 } = {}) => {
     if (!institutionId || !pilotId) throw new Error("MISSING_IMPORT_SCOPE");
     if (!fileName || !fileType || !fileContent) throw new Error("MISSING_IMPORT_FILE");

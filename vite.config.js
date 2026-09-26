@@ -35,8 +35,8 @@ export default defineConfig({
         description:
         "Clarity for every financial decision.",
         
-        theme_color: "#2763EB",
-        background_color: "#ffffff",
+        theme_color: "#0B0F17",
+        background_color: "#0B0F17",
         
         display: "standalone",
         start_url: "/",

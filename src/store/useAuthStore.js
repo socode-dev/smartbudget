@@ -26,6 +26,8 @@ import useCurrencyStore from "./useCurrencyStore";
 import useInsightsStore from "./useInsightsStore";
 import toast from "react-hot-toast";
 
+const baseUrl = import.meta.env.VITE_VYDRA_BASE_URL || window.location.origin;
+
 const emailVerificationEmail = {
   subject: "Verify Your Email Address",
   message:
@@ -164,8 +166,6 @@ export const useAuthStore = create((set, get) => ({
     }
   },
 
-  // auth actions - these accept plain data. If your forms use
-  // wrapper handlers, call those wrappers and then call these methods
   onLogin: async (data) => {
     try {
       set({ loading: true, onLoginErr: null });
@@ -243,7 +243,7 @@ export const useAuthStore = create((set, get) => ({
 
       // Send email verification
       await sendEmailVerification(user, {
-        url: "https://smartbudget-beta.vercel.app/email-verified",
+        url: `${baseUrl}/email-verified`,
         handleCodeInApp: true,
       });
 
@@ -384,7 +384,7 @@ export const useAuthStore = create((set, get) => ({
     if (!email) return;
     try {
       await sendPasswordResetEmail(auth, email, {
-        url: "https://smartbudget-beta.vercel.app/login",
+        url: `${baseUrl}/login`,
         handleCodeInApp: true,
       });
       set({ resetLinkModalOpen: true });
@@ -396,7 +396,7 @@ export const useAuthStore = create((set, get) => ({
 
   resendVerificationLink: async (user) => {
     await sendEmailVerification(auth.currentUser, {
-      url: "https://smartbudget-beta.vercel.app/email-verified",
+      url: `${baseUrl}/email-verified`,
       handleCodeInApp: true,
     });
 

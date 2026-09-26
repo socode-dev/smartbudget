@@ -41,7 +41,7 @@ const SidebarContent = ({ collapsed = false, mobile = false }) => {
             to={demo ? getDemoPath("/") : "/"}
             onClick={close}
             aria-label="Vydra overview"
-            className="flex min-w-0 items-start gap-0.4 focus-visible:outline-2 focus-visible:outline-ring"
+            className="flex min-w-0 items-center gap-0.5 focus-visible:outline-2 focus-visible:outline-ring"
           >
             <VydraLogo variant="mark" className="size-12" label="" />
             {!collapsed && (

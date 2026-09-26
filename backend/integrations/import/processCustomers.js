@@ -21,7 +21,7 @@ export const processCustomers = async ({
     importId,
     source,
     hmacSecret,
-    activationBaseUrl = process.env.SMARTBUDGET_ACTIVATION_BASE_URL
+    activationBaseUrl = process.env.VYDRA_BASE_URL
 }) => {
     const normalizedCustomers = rows.map(row =>
         normalizeCustomer({

@@ -14,7 +14,7 @@ export const runSftpTransport = async ({
     failedDir = process.env.SFTP_FAILED_DIR || "/failed",
     outgoingDir = process.env.SFTP_OUTGOING_DIR || "/outgoing",
     hmacSecret = process.env.SFTP_IMPORT_HMAC_SECRET,
-    activationBaseUrl = process.env.SMARTBUDGET_ACTIVATION_BASE_URL,
+    activationBaseUrl = process.env.VYDRA_BASE_URL,
     clientFactory,
     importer
 } = {}) => {

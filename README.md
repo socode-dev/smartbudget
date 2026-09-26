@@ -14,7 +14,7 @@ The app combines deterministic financial signal engines with an AI insight layer
 
 ## View Live
 
-[Open Vydra](https://smartbudget-beta.vercel.app/)
+[Open Vydra](https://usevydra.vercel.app/)
 
 ## Features
 

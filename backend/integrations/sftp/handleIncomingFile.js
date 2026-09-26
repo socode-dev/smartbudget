@@ -8,15 +8,8 @@ import {
     readRemoteFile,
     uploadRemoteTextFile,
 } from "./remoteFiles.js";
-import {
-    buildInvitationCsv,
-    buildInvitationExportFileName,
-} from "./invitationExport.js";
-import {
-    createInvitationDeliverySpool,
-    deleteInvitationDeliverySpool,
-    markInvitationDeliveryFailed,
-} from "./deliverySpool.js";
+import { buildInvitationCsv, buildInvitationExportFileName } from "./invitationExport.js";
+import { createInvitationDeliverySpool, deleteInvitationDeliverySpool, markInvitationDeliveryFailed } from "./deliverySpool.js";
 import { retry } from "./retryDeliverySpool.js";
 
 const MAX_SFTP_FILE_SIZE_BYTES = 5 * 1024 * 1024;
@@ -60,7 +53,7 @@ export const handleIncomingFile = async ({
     pilotId,
     cohortId = null,
     hmacSecret = process.env.SFTP_IMPORT_HMAC_SECRET,
-    activationBaseUrl = process.env.SMARTBUDGET_ACTIVATION_BASE_URL,
+    activationBaseUrl = process.env.VYDRA_BASE_URL,
     processingDir = "/processing",
     processedDir = "/processed",
     failedDir = "/failed",
