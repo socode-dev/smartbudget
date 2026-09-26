@@ -15,7 +15,11 @@ import { checkGoalThreshold } from "../utils/checkGoalThreshold";
 import useThresholdStore from "../store/useThresholdStore";
 import { scheduleThresholdCheck } from "../utils/scheduleThresholdCheck";
 import useAuthStore from "../store/useAuthStore";
-import { isDemoUser, showDemoReadOnlyToast, useDemoMode } from "../demo/useDemoMode";
+import {
+  isDemoUser,
+  showDemoReadOnlyToast,
+  useDemoMode,
+} from "../demo/useDemoMode";
 
 const GoalsContext = createContext();
 
@@ -27,10 +31,10 @@ export const GoalsProvider = ({ children }) => {
   const goals = useTransactionStore((state) => state.goals);
   const contributions = useTransactionStore((state) => state.contributions);
   const deleteTransaction = useTransactionStore(
-    (state) => state.deleteTransaction
+    (state) => state.deleteTransaction,
   );
   const setEditTransaction = useTransactionStore(
-    (state) => state.setEditTransaction
+    (state) => state.setEditTransaction,
   );
   const { onOpenModal, modalState, setTransactionID } = useModalContext();
   const contributionModalState = modalState.contributions;
@@ -57,11 +61,7 @@ export const GoalsProvider = ({ children }) => {
     return () => {
       reset();
     };
-  }, 
-  [
-    contributionModalState.open, 
-    contributionModalState.meta?.name
-  ]);
+  }, [contributionModalState.open, contributionModalState.meta?.name]);
 
   // Open contribution modal
   const handleAddContribution = (id, label, name) => {
@@ -86,7 +86,7 @@ export const GoalsProvider = ({ children }) => {
       "edit",
       setGoalValue,
       onOpenModal,
-      setEditTransaction
+      setEditTransaction,
     );
     setTransactionID(id);
   };
@@ -94,11 +94,11 @@ export const GoalsProvider = ({ children }) => {
   const getAmountSaved = useCallback(
     (key) => {
       const amountSaved = contributions?.filter(
-        (contribution) => contribution.categoryKey === key
+        (contribution) => contribution.categoryKey === key,
       );
-      return amountSaved.reduce((acc, tx) => acc + tx.amount, 0);
+      return amountSaved.reduce((acc, tx) => acc + Number(tx.amount), 0);
     },
-    [contributions]
+    [contributions],
   );
 
   const goalCounts = goals?.length;
@@ -125,7 +125,7 @@ export const GoalsProvider = ({ children }) => {
           getAmountSaved,
           goalThreshold50,
           goalThreshold80,
-          goalThreshold100
+          goalThreshold100,
         );
       }
     }
@@ -133,16 +133,15 @@ export const GoalsProvider = ({ children }) => {
     return () => {
       mounted = false;
     };
-  }, 
-  [
-    isDemoSession, 
+  }, [
+    isDemoSession,
     user?.uid,
-    goals, 
-    goalCounts, 
+    goals,
+    goalCounts,
     contributionCounts,
-    goalThreshold50, 
-    goalThreshold80, 
-    goalThreshold100
+    goalThreshold50,
+    goalThreshold80,
+    goalThreshold100,
   ]);
 
   const filteredGoals = useMemo(
@@ -155,37 +154,29 @@ export const GoalsProvider = ({ children }) => {
 
         return matchesName;
       }),
-    [goals, searchName]
+    [goals, searchName],
   );
 
   // Handler to delete goal and its contributions(if any)
   const deleteGoalAndContribution = useCallback(
-    (id, key) => {
+    async (id, key) => {
       if (isDemoMode) {
         showDemoReadOnlyToast();
         return;
       }
 
       const goalContributions = contributions?.filter(
-        (contribution) => contribution.categoryKey === key
+        (contribution) => contribution.categoryKey === key,
       );
 
-      if (goalContributions.length > 0) {
-        for (let i = 0; i < goalContributions?.length; i++) {
-          for (const contribution of goalContributions) {
-            deleteTransaction(user.uid, "contributions", contribution.id);
-          }
-        }
-        deleteTransaction(user.uid, "goals", id);
-      } else {
-        deleteTransaction(user.uid, "goals", id);
+      for (const contribution of goalContributions) {
+        await deleteTransaction(user.uid, "contributions", contribution.id);
       }
+      await deleteTransaction(user.uid, "goals", id);
 
-      setTimeout(() => {
-        toast.success("Goal deleted successfuly", { duration: 3000 });
-      }, 500);
+      toast.success("Goal deleted successfully", { duration: 3000 });
     },
-    [contributions, isDemoMode, deleteTransaction, user?.uid]
+    [contributions, isDemoMode, deleteTransaction, user?.uid],
   );
 
   return (

@@ -1,17 +1,14 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { v4 as uuid } from "uuid";
-import {
-  collection,
-  onSnapshot,
-} from "firebase/firestore";
+import { collection, onSnapshot } from "firebase/firestore";
 import { db } from "../firebase/firebase";
 import { updateDocument } from "../firebase/firestore";
 import { trackBusinessEvent } from "../api/businessTelemetry";
 
 const hasTerminalResponse = (status) => {
   return ["ACKNOWLEDGED", "DISMISSED", "EXPIRED"].includes(status);
-}
+};
 
 const useInsightsStore = create(
   persist(
@@ -21,8 +18,8 @@ const useInsightsStore = create(
       insightError: null,
       aiLimitReached: false,
 
-      setInsightError: (message) => set({insightError: message}),
-      setAILimitReached: (bool) => set({aiLimitReached: bool}),
+      setInsightError: (message) => set({ insightError: message }),
+      setAILimitReached: (bool) => set({ aiLimitReached: bool }),
 
       initInsights: (uid) => {
         const colRef = collection(db, "users", uid, "insights");
@@ -39,21 +36,23 @@ const useInsightsStore = create(
             if (expired) {
               const alreadyTerminal = hasTerminalResponse(data.status);
 
-              history.push(formatInsightHistory({ 
-                data: {
-                  ...data,
-                  status: alreadyTerminal ? data.status : "EXPIRED",
-                },
-              }));
+              history.push(
+                formatInsightHistory({
+                  data: {
+                    ...data,
+                    status: alreadyTerminal ? data.status : "EXPIRED",
+                  },
+                }),
+              );
 
               await updateDocument(uid, "insights", document.id, {
-                valid: false
+                valid: false,
               });
 
               if (!alreadyTerminal) {
                 await updateDocument(uid, "insights", document.id, {
                   status: "EXPIRED",
-                  expiredAtMs: now
+                  expiredAtMs: now,
                 });
 
                 await trackBusinessEvent({
@@ -68,11 +67,11 @@ const useInsightsStore = create(
 
               continue;
             }
-            
-            if (data.valid) {
-              const activeInsight = {...data};
 
-              history.push(formatInsightHistory({data: activeInsight}));
+            if (data.valid) {
+              const activeInsight = { ...data };
+
+              history.push(formatInsightHistory({ data: activeInsight }));
               list.push(activeInsight);
             }
           }
@@ -83,17 +82,15 @@ const useInsightsStore = create(
 
       clearInsightsStore: () => set({ insights: [], insightsHistory: [] }),
     }),
-    // {
-    //   name: "insights-storage",
-    //   partialize: (state) => ({ insights: state.insights }),
-    // }
-  )
+  ),
 );
 
 const formatInsightHistory = ({ data }) => {
   const type = normalizeHistoryType(data.type);
   const status = data.status;
-  const category = ["anomaly", "budget"].includes(type) ? data.category ?? null : null;
+  const category = ["anomaly", "budget"].includes(type)
+    ? (data.category ?? null)
+    : null;
 
   return {
     id: uuid(),
@@ -103,6 +100,8 @@ const formatInsightHistory = ({ data }) => {
     severity: (data.severity || "LOW").toUpperCase(),
     createdAt: data.createdAt,
     expiresAt: data.expiresAt,
+    message: data.agent?.explanation || data.message || "",
+    actionText: data.agent?.suggestion || data.actionText || "",
   };
 };
 

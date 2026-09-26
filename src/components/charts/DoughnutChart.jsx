@@ -10,13 +10,12 @@ const DoughnutChart = ({ page }) => {
   const chartRef = useRef(null);
   const reportContext = useReportChartContext();
   const overviewContext = useOverviewChartContext();
-  const selectedCurrency = useCurrencyStore(state => state.selectedCurrency);
+  const selectedCurrency = useCurrencyStore((state) => state.selectedCurrency);
 
   useEffect(() => {
     const chart = chartRef.current;
-
     return () => {
-        chart?.destroy();
+      chart?.destroy();
     };
   }, []);
 
@@ -41,20 +40,41 @@ const DoughnutChart = ({ page }) => {
   const labels = data.labels;
   const values = data.datasets[0].data;
 
-  const budgetSummary = labels.map((label, index) => (
-    `${label}: ${formatAmount(values[index], selectedCurrency)}`
-  )).join(". ");
+  const budgetSummary = labels
+    .map(
+      (label, index) =>
+        `${label}: ${formatAmount(values[index], selectedCurrency)}`,
+    )
+    .join(". ");
+
+  const summaryId = page === "reports" ? "report-category-summary" : "budget-overview-summary";
 
   return (
     <div
-      aria-describedby="budget-overview-summary"
-      className="grow w-full flex flex-col items-center"
+      className={
+        page === "reports"
+          ? "relative mx-auto h-56 min-w-0 w-full max-w-64"
+          : "grow w-full flex flex-col items-center"
+      }
     >
-      <ChartSummary id="budget-overview-summary">
-        Budget overview. {budgetSummary}
+      <ChartSummary id={summaryId}>
+        {page === "reports"
+          ? "Expense category breakdown."
+          : "Budget overview."}{" "}
+        {budgetSummary}
       </ChartSummary>
 
-      <Doughnut ref={chartRef} data={data} options={options} height={300} />
+      <Doughnut
+        ref={chartRef}
+        data={data}
+        options={options}
+        height={300}
+        role="img"
+        aria-describedby={summaryId}
+        aria-label={
+          page === "reports" ? "Expense category breakdown" : "Budget overview"
+        }
+      />
     </div>
   );
 };

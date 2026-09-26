@@ -1,46 +1,115 @@
-import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import { FiCheckCircle, FiMail, FiRefreshCcw } from "react-icons/fi";
 import { auth } from "../firebase/firebase";
-import { FaCheck } from "react-icons/fa6";
 import useAuthStore from "../store/useAuthStore";
-import { motion } from "framer-motion";
+import AuthFormShell from "../components/auth/AuthFormShell";
+import Alert from "../components/ui/Alert";
+import Button from "../components/ui/Button";
+import LoadingSpinner from "../components/ui/LoadingSpinner";
 
 const EmailVerified = () => {
   const user = useAuthStore((state) => state.currentUser);
-  const navigate = useNavigate();
+  const [status, setStatus] = useState("checking");
+  const [attempt, setAttempt] = useState(0);
 
-  const handleNavigate = () => {
-    auth.currentUser.reload();
-    navigate("/");
+  useEffect(() => {
+    let cancelled = false;
+
+    const checkVerification = async () => {
+      try {
+        const currentUser = auth.currentUser;
+        if (!currentUser) throw new Error("AUTH_REQUIRED");
+        await currentUser.reload();
+        if (cancelled) return;
+        const verified = currentUser.emailVerified;
+        useAuthStore.setState({ isUserEmailVerified: verified });
+        setStatus(verified ? "verified" : "unverified");
+      } catch {
+        if (!cancelled) setStatus("error");
+      }
+    };
+
+    checkVerification();
+    return () => {
+      cancelled = true;
+    };
+  }, [attempt]);
+
+  const retry = () => {
+    setStatus("checking");
+    setAttempt((value) => value + 1);
   };
 
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20 }}
-      transition={{ duration: 0.4, ease: "easeOut" }}
-      className="flex flex-col items-center text-center gap-6 bg-[rgb(var(--color-bg-card))] mt-20 p-6 w-full max-w-[500px] mx-auto h-fit rounded-lg"
-    >
-      <div role="img" className="border rounded-full border-green-500 text-green-500 p-3">
-        <FaCheck aria-hidden="true" />
-      </div>
-      <h4 className="text-xl font-semibold text-[rgb(var(--color-text))]">
-        Email verified
-      </h4>
-      <p className="text-base text-[rgb(var(--color-muted))] font-medium">
-        Your email {user?.email} has been verified successfully. You can now
-        access SmartBudget features.
-      </p>
-
-      <button
-        type="button"
-        aria-label="Go back to dashboard"
-        onClick={handleNavigate}
-        className="text-base font-medium px-4 py-2 bg-[rgb(var(--color-brand))] hover:bg-[rgb(var(--color-brand-hover))] text-white rounded transition cursor-pointer"
+  if (status === "verified") {
+    return (
+      <AuthFormShell
+        title="Email verified"
+        description="Your account is ready to use."
       >
+        <div className="mb-6 rounded-2xl border border-success/20 bg-success-soft p-5 text-center text-success">
+          <span className="mx-auto flex size-12 items-center justify-center rounded-full bg-card shadow-xs">
+            <FiCheckCircle aria-hidden="true" size={26} />
+          </span>
+          <p className="mt-4 break-words text-sm leading-relaxed">
+            {user?.email
+              ? `${user.email} has been verified successfully.`
+              : "Your email has been verified successfully."}
+          </p>
+        </div>
+        <Button as={Link} to="/" className="w-full">
+          Back to Dashboard
+        </Button>
+      </AuthFormShell>
+    );
+  }
+
+  return (
+    <AuthFormShell
+      title="Email verification"
+      description="Confirm your email status before returning to your dashboard."
+    >
+      {status === "checking" ? (
+        <div
+          role="status"
+          className="mb-6 rounded-2xl border border-border bg-card p-5 text-center text-sm text-muted-foreground shadow-sm"
+        >
+          <span className="mx-auto mb-3 flex size-11 items-center justify-center rounded-xl bg-info-soft text-primary">
+            <LoadingSpinner
+              compact
+              color="currentColor"
+              borderTopColor="transparent"
+              size={20}
+            />
+          </span>
+          Checking your email verification...
+        </div>
+      ) : (
+        <Alert tone={status === "error" ? "error" : "info"} className="mb-6">
+          {status === "error"
+            ? "We could not check your email verification. Please try again."
+            : "Your email is not verified yet. Please check your inbox or spam folder for the verification link."}
+        </Alert>
+      )}
+      <Button
+        onClick={retry}
+        loading={status === "checking"}
+        loadingText="Checking verification..."
+        className="w-full"
+      >
+        <span className="flex items-center justify-center gap-2">
+          {status === "error" ? (
+            <FiRefreshCcw aria-hidden="true" />
+          ) : (
+            <FiMail aria-hidden="true" />
+          )}
+          Check verification
+        </span>
+      </Button>
+      <Button as={Link} to="/" variant="ghost" className="mt-3 w-full">
         Back to Dashboard
-      </button>
-    </motion.div>
+      </Button>
+    </AuthFormShell>
   );
 };
 

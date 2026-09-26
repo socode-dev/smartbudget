@@ -1,71 +1,58 @@
 import { useEffect } from "react";
 import { useModalContext } from "../../context/ModalContext";
-import Modal from "./Modal";
 import { useMainContext } from "../../context/MainContext";
+import Modal from "./Modal";
+
+const modalDefinitions = [
+  {
+    label: "transactions",
+    addTitle: "Add Transaction",
+    editTitle: "Edit Transaction",
+    description: "Track your spending in real time.",
+  },
+  {
+    label: "budgets",
+    addTitle: "Set Budget",
+    editTitle: "Edit Budget",
+    description: "Set a financial target to track and achieve.",
+  },
+  {
+    label: "goals",
+    addTitle: "Set Goal",
+    editTitle: "Edit Goal",
+    description: "Set a financial target to track and achieve.",
+  },
+  {
+    label: "contributions",
+    addTitle: "Add Contribution",
+    editTitle: "Edit Contribution",
+    description: "Make progress towards your savings goal.",
+  },
+];
 
 const FormModal = () => {
   const { modalState } = useModalContext();
   const { isSidebarOpen } = useMainContext();
 
-  // Disable window scroll when modal is open
   useEffect(() => {
-    if (
-      modalState.transactions.open ||
-      modalState.budgets.open ||
-      modalState.goals.open ||
-      modalState.contributions.open ||
-      isSidebarOpen
-    ) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "auto";
-    }
+    if (!isSidebarOpen) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [isSidebarOpen]);
 
-    return () => (document.body.style.overflow = "");
-  }, [modalState, isSidebarOpen]);
-
-  return (
-    <>
-      {modalState.transactions.open && (
-        <Modal
-          label="transactions"
-          mode={modalState.transactions.mode}
-          title={
-            modalState.transactions.mode === "add"
-              ? "Add Transaction"
-              : "Edit Transaction"
-          }
-          description="Track your spending in real time."
-        />
-      )}
-      {modalState.budgets.open && (
-        <Modal
-          label="budgets"
-          mode={modalState.budgets.mode}
-          title={
-            modalState.budgets.mode === "add" ? "Set Budget" : "Edit Budget"
-          }
-          description="Set a financial target to track and achieve."
-        />
-      )}
-      {modalState.goals.open && (
-        <Modal
-          label="goals"
-          mode={modalState.goals.mode}
-          title={modalState.goals.mode === "add" ? "Set Goal" : "Edit Goal"}
-          description="Set a financial target to track and achieve."
-        />
-      )}
-      {modalState.contributions.open && (
-        <Modal
-          label="contributions"
-          mode={modalState.contributions.mode}
-          title="Add Contribution"
-          description="Make progress towards your savings goal."
-        />
-      )}
-    </>
-  );
+  return modalDefinitions.map(({ label, addTitle, editTitle, description }) => (
+    <Modal
+      key={label}
+      label={label}
+      open={modalState[label].open}
+      mode={modalState[label].mode}
+      title={modalState[label].mode === "add" ? addTitle : editTitle}
+      description={description}
+    />
+  ));
 };
 
 export default FormModal;

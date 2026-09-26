@@ -1,6 +1,6 @@
 # Secure Data Ingestion
 
-SmartBudget can receive structured customer and transaction data from an external source without coupling file transport to import and domain logic.
+Vydra can receive structured customer and transaction data from an external source without coupling file transport to import and domain logic.
 
 ## Processing Boundary
 

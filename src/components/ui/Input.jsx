@@ -1,9 +1,10 @@
 import { forwardRef } from "react";
+import clsx from "clsx";
 
 const Input = forwardRef(
   (
     { type = "text", value, onChange, placeholder, className = "", ...props },
-    ref
+    ref,
   ) => (
     <input
       type={type}
@@ -11,10 +12,15 @@ const Input = forwardRef(
       onChange={onChange}
       placeholder={placeholder}
       ref={ref}
-      className={`block w-full border border-gray-300 rounded px-3 py-1 text-base focus:outline-none focus:ring-2 focus:ring-blue-500 ${className}`}
+      className={clsx(
+        "block h-11 min-w-0 w-full rounded-xl border border-border bg-card px-3 py-2.5 text-base leading-6 text-foreground shadow-xs outline-none transition-colors placeholder:text-muted-foreground/70 focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-ring/40 aria-invalid:border-danger disabled:cursor-not-allowed disabled:opacity-65 motion-reduce:transition-none md:text-sm",
+        className,
+      )}
       {...props}
     />
-  )
+  ),
 );
+
+Input.displayName = "Input";
 
 export default Input;

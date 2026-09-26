@@ -1,12 +1,20 @@
-# SmartBudget
+# Vydra
 
-SmartBudget is a personal finance web app for tracking transactions, budgets, goals, reports, and AI-assisted financial insights.
+Vydra is a personal financial intelligence platform for understanding financial activity, identifying meaningful patterns, and making informed financial decisions.
 
-The app combines deterministic financial engines with a backend AI pipeline. The deterministic engines calculate financial signals, while AI explains the most important signal in clear language.
+The app combines deterministic financial signal engines with an AI insight layer to turn financial data into clear, actionable context.
+
+## What Vydra Does
+
+- Tracks income, expenses, budgets, and financial goals
+- Analyzes financial activity for meaningful patterns and signals
+- Provides AI-assisted explanations and financial insights
+- Helps users understand their financial flow and where attention may be needed
+- Gives users the context to make their own financial decisions
 
 ## View Live
 
-[https://smartbudget-beta.vercel.app/](https://smartbudget-beta.vercel.app/)
+[Open Vydra](https://smartbudget-beta.vercel.app/)
 
 ## Features
 
@@ -14,7 +22,7 @@ The app combines deterministic financial engines with a backend AI pipeline. The
 - Budget creation and progress monitoring
 - Goal tracking with contributions
 - Reports with charts and export tools
-- Smart insight cards
+- AI-assisted insight cards
 - Insight history
 - Demo mode with seeded data
 - Realtime Firestore updates
@@ -60,16 +68,12 @@ flowchart TD
 ## Project Structure
 
 ```text
-smartbudget/
+vydra/
   .github/
     workflows/
-      lint.yml
-      vitest.yml
   api/
     ai/
-      orchestrator.js
     insights/
-      run.js
   backend/
     ai/
       fallbacks/
@@ -83,18 +87,7 @@ smartbudget/
     userData/
     tests/
   docs/
-    ai-architecture.md
-    backend-ai-telemetry.md
-    business-telemetry.md
-    data-ingestion.md
-    financial-signals.md
-    identity-and-activation.md
-    overview.md
-    reliability-and-recovery.md
-    TESTING.md
   lib/
-    firebaseAdmin.js
-    quota.js
   public/
   src/
     components/
@@ -111,13 +104,6 @@ smartbudget/
     store/
     tests/
     utils/
-    App.jsx
-    main.css
-    main.jsx
-  index.html
-  package.json
-  vercel.json
-  vite.config.js
 ```
 
 ## Backend AI Areas
@@ -137,10 +123,10 @@ The financial signal engines originally lived in the frontend and now run in the
 
 ## Documentation
 
-- [SmartBudget Overview](./docs/overview.md)
+- [Vydra Overview](./docs/overview.md)
 - [Financial Signals](./docs/financial-signals.md)
 - [AI Architecture](./docs/ai-architecture.md)
-- [Backend AI Telemetry](./docs/backend-ai-telemetry.md)
+- [AI Telemetry](./docs/ai-telemetry.md)
 - [Business Telemetry](./docs/business-telemetry.md)
 - [Secure Data Ingestion](./docs/data-ingestion.md)
 - [Identity and Account Activation](./docs/identity-and-activation.md)

@@ -3,66 +3,105 @@ import { isDemoUser, useDemoMode } from "../../demo/useDemoMode";
 import useAuthStore from "../../store/useAuthStore";
 import useOnboardingStore from "../../store/useOnboardingStore";
 import Dialog from "../ui/Dialog";
+import Button from "../ui/Button";
+import BrandMark from "../ui/BrandMark";
+import { FiCompass, FiX } from "react-icons/fi";
 
 const WelcomeModal = () => {
   const isDemoMode = useDemoMode();
   const user = useAuthStore((state) => state.currentUser);
-  const hasCompletedOnboarding = useOnboardingStore(
-    (state) => state.hasCompletedOnboarding
-  );
-  const completedOnboardingUsers = useOnboardingStore(
-    (state) => state.completedOnboardingUsers
-  );
-  const setOnboardingCompleted = useOnboardingStore(
-    (state) => state.setOnboardingCompleted
-  );
-  const enableTourForUser = useOnboardingStore(
-    (state) => state.enableTourForUser
-  );
+  const hasCompletedOnboarding = useOnboardingStore(state => state.hasCompletedOnboarding);
+  const completedOnboardingUsers = useOnboardingStore(state => state.completedOnboardingUsers);
+  const setOnboardingCompleted = useOnboardingStore(state => state.setOnboardingCompleted);
+  const enableTourForUser = useOnboardingStore(state => state.enableTourForUser);
   const startTour = useOnboardingStore((state) => state.startTour);
+  
   const hasSeenWelcome = user?.uid
     ? completedOnboardingUsers.includes(user.uid) ||
       (hasCompletedOnboarding && completedOnboardingUsers.length === 0)
     : hasCompletedOnboarding;
-
-  const handleTour = useCallback(() => {
+  
+    const handleTour = useCallback(() => {
     enableTourForUser(user?.uid);
     startTour("overview", user?.uid);
   }, [enableTourForUser, startTour, user?.uid]);
-
+  
   const handleSkip = useCallback(() => {
     setOnboardingCompleted(user?.uid);
   }, [setOnboardingCompleted, user?.uid]);
-
+  
   if (!user || isDemoMode || isDemoUser(user) || hasSeenWelcome) {
     return null;
   }
-
+  
   return (
-    <Dialog ariaLabel="welcome-dialog">
-      <h2 className="text-2xl font-bold mb-4">Welcome to SmartBudget</h2>
-      <p className="text-[rgb(var(--color-muted))] mb-6">
-        Take a quick tour of the dashboard, insights, budgets, goals, and
-        reports that help you understand customer financial behavior.
-      </p>
-
-      <div className="space-y-3 w-full">
-        <button
-          onClick={handleTour}
-          className="w-full px-4 py-2 bg-[rgb(var(--color-brand-deep))] text-white rounded-md hover:bg-[rgb(var(--color-brand))] active:bg-[rgb(var(--color-brand))] transition cursor-pointer"
-        >
-          Take a Tour
-        </button>
-
-        <button
-          onClick={handleSkip}
-          className="w-full px-4 py-2 bg-transparent text-gray-500 rounded-md hover:opacity-90 active:opacity-90 transition cursor-pointer"
-        >
+    <Dialog
+      ariaLabel="Welcome to Vydra"
+      onClose={handleSkip}
+      className="p-0! gap-0! items-stretch!"
+    >
+      <div className="border-b border-border bg-background p-6">
+        <div className="flex items-center justify-between gap-3">
+          <BrandMark />
+          
+          <Button
+            variant="ghost"
+            className="size-11 min-h-11 shrink-0 p-0!"
+            onClick={handleSkip}
+            aria-label="Close welcome"
+            title="Close welcome"
+          >
+            <FiX size={18} aria-hidden="true" />
+          </Button>
+        </div>
+        <h2 className="mt-5 font-display text-2xl font-semibold">
+          Welcome to Vydra
+        </h2>
+        <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+          Take a quick tour of your dashboard, insights, budgets, goals, and
+          reports.
+        </p>
+      </div>
+      <ol className="divide-y divide-[rgb(var(--color-gray-border))]">
+        {[
+          [
+            "Overview and transactions",
+            "Review your income, expenses, and financial activity.",
+          ],
+          ["Budgets and goals", "Track spending limits and savings progress."],
+          [
+            "Insights and reports",
+            "Explore your financial insights, trends, and reports.",
+          ],
+        ].map(([title, description], index) => (
+          <li key={title} className="flex gap-4 px-6 py-4">
+            <span
+              aria-hidden="true"
+              className="flex size-7 shrink-0 items-center justify-center rounded-full border border-border text-xs font-semibold"
+            >
+              {index + 1}
+            </span>
+            <div className="min-w-0">
+              <p className="text-sm font-medium">{title}</p>
+              <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
+                {description}
+              </p>
+            </div>
+          </li>
+        ))}
+      </ol>
+      <div className="flex flex-col-reverse gap-2 border-t border-border px-6 py-4 sm:flex-row sm:justify-end">
+        <Button variant="ghost" onClick={handleSkip}>
           Skip for now
-        </button>
+        </Button>
+        <Button onClick={handleTour}>
+          <span className="flex items-center justify-center gap-2">
+            <FiCompass aria-hidden="true" />
+            Take a Tour
+          </span>
+        </Button>
       </div>
     </Dialog>
   );
 };
-
 export default WelcomeModal;

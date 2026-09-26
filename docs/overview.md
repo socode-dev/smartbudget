@@ -1,12 +1,12 @@
-# SmartBudget Overview
+# Vydra Overview
 
-SmartBudget is a personal finance web app that helps users track transactions, manage budgets, monitor goals, and receive real-time financial insights.
+Vydra is a personal financial intelligence platform for understanding financial activity, identifying meaningful patterns, and making informed financial decisions.
 
-For deeper details, see [Financial Signals](./financial-signals.md), [SmartBudget AI Architecture](./ai-architecture.md), [Backend AI Telemetry](./backend-ai-telemetry.md), [Secure Data Ingestion](./data-ingestion.md), [Identity and Account Activation](./identity-and-activation.md), [Reliability and Failure Recovery](./reliability-and-recovery.md), and [SmartBudget Testing](./TESTING.md).
+For deeper details, see [Financial Signals](./financial-signals.md), [Vydra AI Architecture](./ai-architecture.md), [AI Telemetry](./ai-telemetry.md), [Secure Data Ingestion](./data-ingestion.md), [Identity and Account Activation](./identity-and-activation.md), [Reliability and Failure Recovery](./reliability-and-recovery.md), and [Vydra Testing](./TESTING.md).
 
 It combines deterministic financial analysis with AI-powered explanation. The system calculates financial facts first, then AI explains the most important issue in simple language.
 
-## What SmartBudget Does
+## What Vydra Does
 
 Users can:
 
@@ -17,7 +17,7 @@ Users can:
 - receive smart insight cards
 - review active and historical insights
 
-The goal is not only to show numbers. SmartBudget helps users understand spending behavior, budget pressure, cashflow issues, and overall financial risk.
+The goal is not only to show numbers. Vydra helps users understand spending behavior, budget pressure, cashflow issues, and overall financial risk.
 
 ## Current System
 
@@ -44,7 +44,7 @@ flowchart TD
 
 ## AI Principle
 
-SmartBudget does not let AI invent financial conditions.
+Vydra does not let AI invent financial conditions.
 
 Deterministic engines calculate:
 
@@ -57,9 +57,9 @@ AI then explains those signals and suggests a practical next step.
 
 This keeps the system more predictable, testable, and easier to trust.
 
-## Backend AI Pipeline
+## AI Pipeline
 
-The backend AI pipeline now includes:
+The AI pipeline now includes:
 
 - Vercel API route for AI requests
 - quota checks
@@ -73,11 +73,11 @@ The backend AI pipeline now includes:
 - Firestore persistence
 - telemetry
 
-For details, see [SmartBudget AI Architecture](./ai-architecture.md) and [Financial Signals](./financial-signals.md).
+For details, see [Vydra AI Architecture](./ai-architecture.md) and [Financial Signals](./financial-signals.md).
 
 ## Telemetry
 
-SmartBudget records AI pipeline telemetry so system behavior and reliability can be measured.
+Vydra records AI pipeline telemetry so system behavior and reliability can be measured.
 
 It tracks:
 
@@ -89,11 +89,11 @@ It tracks:
 - generated insights
 - pipeline and agent duration
 
-For details, see [Backend AI Telemetry](./backend-ai-telemetry.md).
+For details, see [AI Telemetry](./ai-telemetry.md).
 
 ## External Data Sources
 
-SmartBudget supports scoped ingestion of structured customer and transaction data without coupling file transport to domain logic.
+Vydra supports scoped ingestion of structured customer and transaction data without coupling file transport to domain logic.
 
 ```text
 External data source
@@ -106,7 +106,7 @@ For details, see [Secure Data Ingestion](./data-ingestion.md).
 
 ## Direction
 
-SmartBudget is evolving toward stronger backend reliability, safer AI execution, measurable system behavior, and clearer service boundaries.
+Vydra is evolving toward stronger backend reliability, safer AI execution, measurable system behavior, and clearer service boundaries.
 
 The core design remains the same:
 

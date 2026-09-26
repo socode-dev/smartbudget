@@ -1,28 +1,41 @@
-const InsightSkeleton = () => {
-  return (
-    <main className="px-5 md:px-10 py-8">
-      {/* Heading */}
-      <div className="w-52 h-[50px] animate-pulse bg-[rgb(var(--color-skeleton-bg))] rounded-lg mb-2"></div>
-      <div className="w-full max-w-2xl h-[35px] animate-pulse bg-[rgb(var(--color-skeleton-bg))] rounded-lg mb-10"></div>
-
-      {/* Insight Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {Array.from({ length: 6 }).map((_, i) => (
-          <div
-            key={i}
-            className="flex flex-col gap-4 bg-[rgb(var(--color-skeleton-bg))] animate-pulse p-4 rounded-lg"
-          >
-            <div className="flex items-center gap-2">
-              <div className="w-5 h-5 rounded-full  bg-[rgb(var(--color-skeleton-bg-deep))] animate-pulse"></div>
-              <div className="w-20 h-5 rounded-sm bg-[rgb(var(--color-skeleton-bg-deep))] animate-pulse"></div>
-            </div>
-            <div className="w-full h-10  bg-[rgb(var(--color-skeleton-bg-deep))] animate-pulse rounded-sm"></div>
-            <div className="w-10/12 h-5  bg-[rgb(var(--color-skeleton-bg-deep))] animate-pulse rounded-sm"></div>
-          </div>
-        ))}
+const InsightSkeleton = () => (
+  <div
+    className="mx-auto min-w-0 w-full max-w-[90rem] space-y-6 px-4 py-8 sm:px-6"
+    role="status"
+    aria-label="Loading insights"
+  >
+    <span className="sr-only">Loading insights...</span>
+    <div aria-hidden="true" className="space-y-6 motion-safe:animate-pulse">
+      <div className="space-y-3">
+        <div className="h-9 w-48 rounded bg-[rgb(var(--color-skeleton-bg))]" />
+        <div className="h-4 w-full max-w-sm rounded bg-[rgb(var(--color-skeleton-bg))]" />
       </div>
-    </main>
-  );
-};
-
+      <div className="h-11 w-64 max-w-full rounded-md bg-[rgb(var(--color-skeleton-bg))]" />
+      <div className="mt-8 grid gap-4">
+        {Array.from(
+          {
+            length: 3,
+          },
+          (_, index) => (
+            <div
+              key={index}
+              className="grid min-w-0 grid-cols-1 gap-5 rounded-xl border border-border bg-card p-5 min-[1100px]:grid-cols-[minmax(0,1fr)_20rem]"
+            >
+              <div className="min-w-0 space-y-4">
+                <div className="h-6 w-2/3 rounded bg-[rgb(var(--color-skeleton-bg))]" />
+                <div className="h-16 w-full rounded bg-[rgb(var(--color-skeleton-bg))]" />
+                <div className="h-3 w-1/2 rounded bg-[rgb(var(--color-skeleton-bg))]" />
+              </div>
+              <div className="min-w-0 rounded-lg border border-border bg-surface p-4 [&>h3]:text-[11px] [&>h3]:uppercase space-y-4">
+                <div className="h-4 w-1/2 rounded bg-[rgb(var(--color-skeleton-bg))]" />
+                <div className="h-12 w-full rounded bg-[rgb(var(--color-skeleton-bg))]" />
+                <div className="h-11 w-3/4 rounded bg-[rgb(var(--color-skeleton-bg))]" />
+              </div>
+            </div>
+          ),
+        )}
+      </div>
+    </div>
+  </div>
+);
 export default InsightSkeleton;

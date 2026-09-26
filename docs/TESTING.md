@@ -1,8 +1,8 @@
-# SmartBudget Testing
+# Vydra Testing
 
-SmartBudget uses Vitest to test deterministic financial analysis, AI orchestration, import behavior, account activation, and frontend utilities.
+Vydra uses Vitest to test deterministic financial analysis, AI orchestration, import behavior, account activation, and frontend utilities.
 
-For system context, see the [SmartBudget overview](./overview.md), [AI architecture](./ai-architecture.md), [financial signals](./financial-signals.md), and [secure data ingestion](./data-ingestion.md).
+For system context, see the [Vydra overview](./overview.md), [AI architecture](./ai-architecture.md), [financial signals](./financial-signals.md), and [secure data ingestion](./data-ingestion.md).
 
 ## Test Layout
 
@@ -81,6 +81,6 @@ npm run build
 
 ## Testing Principle
 
-SmartBudget separates deterministic facts from AI communication. Financial signal tests therefore assert exact behavior, while AI tests focus on controlled execution, validated communication, and safe fallback behavior.
+Vydra separates deterministic facts from AI communication. Financial signal tests therefore assert exact behavior, while AI tests focus on controlled execution, validated communication, and safe fallback behavior.
 
 Related documentation: [Identity and Account Activation](./identity-and-activation.md) and [Reliability and Failure Recovery](./reliability-and-recovery.md).

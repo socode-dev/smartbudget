@@ -1,21 +1,20 @@
-import { useEffect } from "react";
+import TransactionEmptyState from "../components/transaction/TransactionEmptyState";
+import TransactionSummary from "../components/transaction/TransactionSummary";
+import { motion, useReducedMotion } from "framer-motion";
+import { FiPlus } from "react-icons/fi";
 import TransactionTable from "../components/transaction/TransactionTable";
-import { FaPlus } from "react-icons/fa";
 import Filter from "../components/transaction/Filter";
+import Button from "../components/ui/Button";
 import useTransactionStore from "../store/useTransactionStore";
 import { useModalContext } from "../context/ModalContext";
 import ScrollToTop from "../layout/ScrollToTop";
 import { useTransactionsContext } from "../context/TransactionsContext";
 import useCurrencyStore from "../store/useCurrencyStore";
-import { formatAmount } from "../utils/formatAmount";
-import { motion } from "framer-motion";
-import useOnboardingStore from "../store/useOnboardingStore";
 import { showDemoReadOnlyToast, useDemoMode } from "../demo/useDemoMode";
-import useAuthStore from "../store/useAuthStore";
 
 const Transactions = () => {
   const isDemoMode = useDemoMode();
-  const userId = useAuthStore((state) => state.currentUser?.uid);
+  const reducedMotion = useReducedMotion();
   const { onOpenModal } = useModalContext();
   const transactions = useTransactionStore((state) => state.transactions);
   const selectedCurrency = useCurrencyStore((state) => state.selectedCurrency);
@@ -25,126 +24,99 @@ const Transactions = () => {
     totalExpenses,
     totalIncome,
     netBalance,
+    resetFilters,
   } = useTransactionsContext();
 
-  const { setCurrentPage, startTourIfNotCompleted } = useOnboardingStore();
-
-  useEffect(() => {
-    setCurrentPage("transactions");
-    // Start tour if not completed when navigating to transactions page
-    const timer = setTimeout(() => {
-      startTourIfNotCompleted("transactions", userId);
-    }, 500); // Small delay to ensure page is rendered
-
-    return () => clearTimeout(timer);
-  }, [setCurrentPage, startTourIfNotCompleted, userId]);
-
+  const addTransaction = () => isDemoMode ? showDemoReadOnlyToast() : onOpenModal("transactions", "add");
+  const hasTransactions = transactions.length > 0;
+  
+  const summary = [
+    {
+      label: "Total income",
+      value: totalIncome,
+      tone: "success",
+    },
+    {
+      label: "Total expenses",
+      value: totalExpenses,
+      tone: "danger",
+    },
+    {
+      label: "Total activity",
+      value: totalBalance,
+      tone: "primary",
+    },
+    {
+      label: "Net balance",
+      value: netBalance,
+      tone: netBalance < 0 ? "danger" : "success",
+    },
+  ];
+  
   return (
-    <motion.main
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20 }}
-      transition={{ duration: 0.4, ease: "easeOut" }}
-      className="px-5 md:px-10 py-8"
+    <motion.div
+      initial={
+        reducedMotion
+          ? false
+          : {
+              opacity: 0,
+              y: 12,
+            }
+      }
+      animate={{
+        opacity: 1,
+        y: 0,
+      }}
+      transition={{
+        duration: 0.25,
+      }}
+      className="mx-auto min-w-0 w-full max-w-[90rem] space-y-6 px-4 py-8 sm:px-6"
     >
       <ScrollToTop />
-      <section id="transactions-header" className="flex items-center justify-between gap-8 mb-6">
-        <div className="flex flex-col gap-5">
-          <h2 className="text-3xl md:text-4xl font-semibold">Transactions</h2>
-          <p className="text-base text-[rgb(var(--color-muted))]">
+      <header
+        id="transactions-header"
+        className="flex flex-wrap items-center justify-between gap-4"
+      >
+        <div className="min-w-0">
+          <h1 className="font-display text-3xl font-semibold">Transactions</h1>
+          <p className="mt-2 text-sm text-muted-foreground">
             Track all your expenses and income in one place.
           </p>
         </div>
+        <Button onClick={addTransaction} aria-haspopup="dialog">
+          <span className="flex items-center gap-2">
+            <FiPlus aria-hidden="true" />
+            Add transaction
+          </span>
+        </Button>
+      </header>
 
-        {transactions?.length > 0 && (
-          <button
-            onClick={() => isDemoMode ? showDemoReadOnlyToast() : onOpenModal("transactions", "add")}
-            title="Add transaction"
-            aria-label="Add transaction"
-            className="bg-green-500 hover:bg-green-600 transition cursor-pointer text-white px-4 py-2 rounded-md text-xl"
-          >
-            <FaPlus />
-          </button>
-        )}
-      </section>
-
-      {/* Filter Row (Search by note, date range and category) */}
-      {transactions?.length > 0 && (
-        <div id="transactions-filters">
+      {hasTransactions && (
+        <section id="transactions-filters" aria-label="Filter transactions">
           <Filter />
-        </div>
+        </section>
       )}
 
-      {sortedTransactions?.length > 0 && (
-        <>
-          {/* Transaction Table */}
-          <div id="transactions-list">
-            <TransactionTable />
-          </div>
-
-          {/* Amount Summary */}
-          <section id="transactions-summary" className="w-fit grid grid-cols-2 md:grid-cols-4 items-center text-[12px] mt-8 gap-x-8 gap-y-4">
-            <p className="text-[rgb(var(--color-muted))] text-sm font-medium">
-              Total Income:{" "}
-              <span className="font-semibold text-green-500 text-base">
-                +{formatAmount(totalIncome, selectedCurrency)}
-              </span>
-            </p>
-            <p className="text-[rgb(var(--color-muted))] text-sm font-medium">
-              Total Expenses:{" "}
-              <span className="font-semibold text-red-500 text-base">
-                -{formatAmount(totalExpenses, selectedCurrency)}
-              </span>
-            </p>
-            <p className="text-[rgb(var(--color-muted))] text-sm font-medium">
-              Total Balance:{" "}
-              <span className="font-semibold text-[rgb(var(--color-brand-deep))] text-base">
-                {formatAmount(totalBalance, selectedCurrency)}
-              </span>
-            </p>
-            <p className="text-[rgb(var(--color-muted))] text-sm font-medium">
-              Net Balance:{" "}
-              <span className="font-semibold text-yellow-500 text-base">
-                {formatAmount(netBalance, selectedCurrency)}
-              </span>
-            </p>
-          </section>
-        </>
+      {sortedTransactions.length > 0 ? (
+        <section
+          id="transactions-list"
+          aria-label="Transaction history"
+          className="border border-border rounded-lg p-5"
+        >
+          <TransactionTable />
+          <TransactionSummary
+            summary={summary}
+            selectedCurrency={selectedCurrency}
+          />
+        </section>
+      ) : (
+        <TransactionEmptyState
+          hasTransactions={hasTransactions}
+          resetFilters={resetFilters}
+          addTransaction={addTransaction}
+        />
       )}
-
-      {/* Show if filtered transaction is empty */}
-      {sortedTransactions?.length === 0 && transactions.length > 0 && (
-        <p className="text-center text-sm text-[rgb(var(--color-muted))]">
-          The transaction you are looking for does not exist.
-        </p>
-      )}
-
-      {/* Empty transaction state */}
-      {transactions?.length === 0 && (
-        <>
-          <div
-            id="transactions-empty-state"
-            className="text-center text-sm text-[rgb(var(--color-muted))] flex flex-col items-center gap-4"
-          >
-            <h3 className="text-xl text-[rgb(var(--color-muted))] font-semibold mb-2">
-              No transactions yet.
-            </h3>
-            <p className="text-base text-[rgb(var(--color-muted))]">
-              Start by adding your first expense.
-            </p>
-          </div>
-
-          <button
-            id="add-first-transaction-btn"
-            onClick={() => isDemoMode ? showDemoReadOnlyToast() : onOpenModal("transactions", "add")}
-            className="mt-8 mx-auto bg-green-500 hover:bg-green-600 transition cursor-pointer text-white px-4 py-2 rounded-md text-base flex items-center gap-2"
-          >
-            <FaPlus className="text-lg" />
-            <span>Add First Transaction</span>
-          </button>
-        </>
-      )}
-    </motion.main>
+    </motion.div>
   );
 };
 

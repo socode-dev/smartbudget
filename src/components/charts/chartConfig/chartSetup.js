@@ -9,6 +9,7 @@ import {
   ArcElement,
   PointElement,
   LineElement,
+  Filler,
 } from "chart.js";
 
 // Register the required components globally
@@ -21,5 +22,6 @@ ChartJS.register(
   Legend,
   ArcElement,
   PointElement,
-  LineElement
+  LineElement,
+  Filler,
 );

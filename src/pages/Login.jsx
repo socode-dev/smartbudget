@@ -1,13 +1,17 @@
 import { useState } from "react";
-import { FaEye, FaEyeSlash, FaGoogle, FaMicrosoft } from "react-icons/fa6";
 import { Link } from "react-router-dom";
 import useAuthStore from "../store/useAuthStore";
-import { useAuthFormContext } from "../context/AuthFormContext.jsx";
-import ScrollToTop from "../layout/ScrollToTop";
-import LoadingSpinner from "../components/ui/LoadingSpinner.jsx";
-import useThresholdForm from "../hooks/useThresholdForm.js";
+import { useAuthFormContext } from "../context/AuthFormContext";
+import useThresholdForm from "../hooks/useThresholdForm";
 import { getThresholdsValue } from "../utils/getValues";
-import { motion } from "framer-motion";
+import AuthFormShell from "../components/auth/AuthFormShell";
+import AuthFooter from "../components/auth/AuthFooter";
+import PasswordField from "../components/auth/PasswordField";
+import SocialAuthButtons from "../components/auth/SocialAuthButtons";
+import Alert from "../components/ui/Alert";
+import Button from "../components/ui/Button";
+import FormField from "../components/ui/FormField";
+import Input from "../components/ui/Input";
 
 const Login = () => {
   const onLogin = useAuthStore((state) => state.onLogin);
@@ -16,6 +20,7 @@ const Login = () => {
   const onLoginErr = useAuthStore((state) => state.onLoginErr);
   const googleErr = useAuthStore((state) => state.googleErr);
   const microsoftErr = useAuthStore((state) => state.microsoftErr);
+  
   const {
     loginRegister: register,
     loginErrors: errors,
@@ -23,195 +28,97 @@ const Login = () => {
     loginHandleSubmit: handleSubmit,
     loginFormReset: reset,
   } = useAuthFormContext();
+  
   const { getValues } = useThresholdForm();
-
-  const [revealPassword, setRevealPassword] = useState(false);
-
-  const togglePasswordReveal = () => setRevealPassword((prev) => !prev);
-
-  const Icon = revealPassword ? FaEye : FaEyeSlash;
-
+  const [socialPending, setSocialPending] = useState(false);
+  const busy = isSubmitting || socialPending;
+  
   return (
-    <motion.main
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20 }}
-      transition={{ duration: 0.4, ease: "easeOut" }}
-      className="w-full max-w-[500px] h-auto px-2 py-8 flex flex-col items-center mx-auto"
+    <AuthFormShell
+      title="Welcome Back"
+      description="Sign in to access your financial intelligence dashboard."
     >
-      <ScrollToTop />
-      <h2 className="text-3xl md:text-4xl text-[rgb(var(--color-brand))] text-center font-medium tracking-wide">
-        Welcome Back
-      </h2>
-      <p className="text-base text-[rgb(var(--color-muted))] text-center mt-4 mb-6">
-        Please log in to access your SmartBudget
-      </p>
-
-      {/* Display authentication error if there is any */}
-      {microsoftErr && (
-        <p role="alert" className="max-w-11/12 bg-[rgb(var(--color-status-bg-red))] px-4 py-2 rounded text-red-600 text-sm mb-2">
-          {microsoftErr}
-        </p>
-      )}
-
-      {googleErr && (
-        <p role="alert" className="max-w-11/12 bg-[rgb(var(--color-status-bg-red))] px-4 py-2 rounded text-red-600 text-sm mb-2">
-          {googleErr}
-        </p>
-      )}
-
-      {onLoginErr && (
-        <p role="alert" className="bg-[rgb(var(--color-status-bg-red))] px-4 py-2 rounded text-red-600 text-sm mb-2">
-          {onLoginErr}
-        </p>
-      )}
-
+      {[onLoginErr, googleErr, microsoftErr]
+        .filter(Boolean)
+        .map((error, index) => (
+          <Alert key={index} className="mb-4">
+            {error}
+          </Alert>
+        ))}
       <form
-        onSubmit={handleSubmit((data) => {
-          onLogin(data);
-          reset();
+        noValidate
+        onSubmit={handleSubmit(async (data) => {
+          if (socialPending) return;
+          const result = await onLogin(data);
+          if (result?.ok) reset();
         })}
-        className="w-11/12"
+        aria-busy={busy}
       >
-        <fieldset className=" w-full mb-4">
-          <div className="flex flex-col gap-1">
-            <label
-              htmlFor="email"
-              className="text-base text-[rgb(var(--color-muted))] font-medium after:content-['*'] after:text-red-500 after:ml-0.5"
-            >
-              Email
-            </label>
-            <input
-              {...register("email")}
-              type="email"
-              id="email"
-              aria-invalid={errors.email ? "true" : "false"}
-              aria-describedby={errors.email ? "email-error" : undefined}
-              placeholder="Enter your email"
-              className="w-full text-base text-[rgb(var(--color-muted))] px-4 py-2 rounded-lg border-2 border-[rgb(var(--color-gray-border))] outline-none focus:border-[rgb(var(--color-brand))] focus:ring-2 focus:ring-[rgb(var(--color-brand))] focus:ring-offset-2 transition"
-            />
-          </div>
-          {errors.email && (
-            <p role="alert" id="email-error" className="text-[12px] text-red-600 mt-1">
-              {errors.email.message}
-            </p>
-          )}
-        </fieldset>
-
-        <fieldset className="w-full mb-3">
-          <div className="flex flex-col gap-1">
-            <label
-              htmlFor="loginPassword"
-              className="text-base text-[rgb(var(--color-muted))] font-medium after:content-['*'] after:text-red-500 after:ml-0.5"
-            >
-              Password
-            </label>
-            <div className="relative">
-              <input
-                {...register("password")}
-                type={revealPassword ? "text" : "password"}
-                id="loginPassword"
-                aria-invalid={errors.password ? "true" : "false"}
-                aria-describedby={errors.password ? "password-error" : undefined}
-                placeholder="Enter your password"
-                className="w-full text-base text-[rgb(var(--color-muted))] px-4 py-2 rounded-lg border-2 border-[rgb(var(--color-gray-border))] outline-none focus:border-[rgb(var(--color-brand))] focus:ring-2 focus:ring-[rgb(var(--color-brand))] focus:ring-offset-2 transition"
-              />
-
-              <button 
-              type="button"
-              onClick={togglePasswordReveal}
-              aria-label={revealPassword ? "Show password" : "Hide password"}
-              className="text-lg text-gray-400 absolute top-[50%] -translate-y-[50%] right-2 cursor-pointer"
-              >
-                <Icon aria-hidden="true" />
-              </button>
-            </div>
-          </div>
-          {errors.password && (
-            <p role="alert" id="password-error" className="text-[12px] text-red-600 mt-1">
-              {errors.password.message}
-            </p>
-          )}
-        </fieldset>
-
-        <div className="flex justify-between items-center mb-6">
-          <fieldset className="w-fit flex items-center gap-1 text-sm">
-            <input
-              {...register("remember")}
-              type="checkbox"
-              id="remember-me"
-              className="cursor-pointer"
-            />
-            <label htmlFor="remember-me" className="cursor-pointer">
-              Remember me
-            </label>
-          </fieldset>
-
-          <Link
-            to="/forgot-password"
-            aria-label="Reset password"
-            className="text-sm text-[rgb(var(--color-brand))]"
+        <fieldset disabled={busy} className="min-w-0 space-y-4">
+          <FormField
+            id="login-email"
+            label="Email"
+            required
+            error={errors.email}
           >
-            Forget password?
-          </Link>
-        </div>
+            {(fieldProps) => (
+              <Input
+                {...register("email")}
+                {...fieldProps}
+                type="email"
+                autoComplete="email"
+                placeholder="Enter your email"
+              />
+            )}
+          </FormField>
 
-        <button
-          type="submit"
-          disabled={isSubmitting}
-          aria-label="Sign in"
-          aria-busy={isSubmitting}
-          className="w-full text-base text-center font-medium py-2 rounded-lg shadow bg-[rgb(var(--color-brand))] text-white hover:scale-97 active:scale-103 transition cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          {isSubmitting ? <LoadingSpinner size={25} /> : "Sign In"}
-        </button>
+          <PasswordField
+            {...register("password")}
+            id="login-password"
+            label="Password"
+            error={errors.password}
+            autoComplete="current-password"
+            placeholder="Enter your password"
+            labelAction={
+              <Link
+                to="/forgot-password"
+                className="text-xs font-medium text-primary underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring sm:text-sm"
+              >
+                Forgot password?
+              </Link>
+            }
+          />
 
-        <Link
+          <Button
+            type="submit"
+            className="w-full"
+            loading={isSubmitting}
+            loadingText="Signing in..."
+            disabled={busy}
+          >
+            Sign In
+          </Button>
+        </fieldset>
+        <Button
+          as={Link}
           to="/demo"
-          aria-current="page"
-          className="mt-3 block w-full rounded-lg border-2 border-[rgb(var(--color-brand))] px-4 py-2 text-center text-base font-medium text-[rgb(var(--color-brand))] transition hover:bg-[rgb(var(--color-status-bg-blue))]"
+          variant="outline"
+          className="mt-3 w-full"
+          disabled={busy}
         >
           Explore Demo
-        </Link>
+        </Button>
       </form>
-
-      <section className="w-11/12 flex flex-col gap-3 mt-6">
-        <p className="text-sm text-center">OR CONTINUE WITH:</p>
-
-        <fieldset className="w-full flex gap-4">
-          {/* Google login */}
-          <button
-            aria-label="Sign in with google"
-            onClick={() => onGoogleSignIn(getThresholdsValue(getValues))}
-            className="w-1/2 px-4 py-2 flex items-center justify-center gap-3 border-2 border-[rgb(var(--color-gray-border))] hover:bg-[rgb(var(--color-gray-bg))] transition rounded-lg text-base text-[rgb(var(--color-muted))] font-medium cursor-pointer"
-          >
-            <FaGoogle aria-hidden="true" />
-            <span>Google</span>
-          </button>
-
-          <button
-            aria-label="Sign in with microsoft"
-            onClick={() => onMicrosoftSignIn(getThresholdsValue(getValues))}
-            className="w-1/2 px-4 py-2 flex items-center justify-center gap-3 border-2 border-[rgb(var(--color-gray-border))] hover:bg-[rgb(var(--color-gray-bg))] transition rounded-lg text-base text-[rgb(var(--color-muted))] font-medium cursor-pointer"
-          >
-            <FaMicrosoft aria-hidden="true" />
-            <span>Microsoft</span>
-          </button>
-        </fieldset>
-      </section>
-
-      <p className="text-sm text-center text-[rgb(var(--color-muted))] mt-6">
-        Don't have an account?{" "}
-        <Link
-          to="/signup"
-          aria-current="page"
-          className="text-[rgb(var(--color-brand))] font-medium"
-        >
-          Sign up
-        </Link>
-      </p>
-    </motion.main>
+      <SocialAuthButtons
+        disabled={isSubmitting}
+        onPendingChange={setSocialPending}
+        onGoogle={() => onGoogleSignIn(getThresholdsValue(getValues))}
+        onMicrosoft={() => onMicrosoftSignIn(getThresholdsValue(getValues))}
+      />
+      <AuthFooter to="/signup" linkText="Sign up">
+        Don't have an account?
+      </AuthFooter>
+    </AuthFormShell>
   );
 };
-
 export default Login;

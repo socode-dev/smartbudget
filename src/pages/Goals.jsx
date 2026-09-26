@@ -1,106 +1,117 @@
-import { useEffect } from "react";
-import { FaPlus } from "react-icons/fa";
+import { motion, useReducedMotion } from "framer-motion";
+import { FiPlus, FiSearch, FiTarget } from "react-icons/fi";
 import ScrollToTop from "../layout/ScrollToTop";
 import { useGoalsContext } from "../context/GoalsContext";
 import Cards from "../components/goals/Cards";
-import { motion } from "framer-motion";
-import useOnboardingStore from "../store/useOnboardingStore";
+import Button from "../components/ui/Button";
+import Input from "../components/ui/Input";
 import { showDemoReadOnlyToast, useDemoMode } from "../demo/useDemoMode";
-import useAuthStore from "../store/useAuthStore";
 
 const Goals = () => {
   const isDemoMode = useDemoMode();
-  const userId = useAuthStore((state) => state.currentUser?.uid);
+  const reducedMotion = useReducedMotion();
   const { goals, filteredGoals, onOpenModal, searchName, setSearchName } =
     useGoalsContext();
+  const addGoal = () =>
+    isDemoMode ? showDemoReadOnlyToast() : onOpenModal("goals", "add");
 
-  const { setCurrentPage, startTourIfNotCompleted } = useOnboardingStore();
-
-  useEffect(() => {
-    setCurrentPage("goals");
-    
-    const timer = setTimeout(() => {
-      startTourIfNotCompleted("goals", userId);
-    }, 500);
-
-    return () => clearTimeout(timer);
-  }, [setCurrentPage, startTourIfNotCompleted, userId]);
+  const hasGoals = goals.length > 0;
 
   return (
-    <motion.main
-      initial={{ opacity: 0, y: 20 }}
+    <motion.div
+      initial={reducedMotion ? false : { opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20 }}
-      transition={{ duration: 0.4, ease: "easeOut" }}
-      className="px-5 md:px-10 py-8"
+      transition={{ duration: 0.25 }}
+      className="mx-auto min-w-0 w-full max-w-[90rem] space-y-6 px-4 py-8 sm:px-6"
     >
       <ScrollToTop />
-      <section id="goals-header" className="flex justify-between items-start gap-8 mb-6">
-        <div>
-          <h2 className="text-3xl md:text-4xl font-semibold mb-2">Goals</h2>
-          <p className="text-base text-[rgb(var(--color-muted))] mb-6">
+      <header
+        id="goals-header"
+        className="flex flex-wrap items-center justify-between gap-4"
+      >
+        <div className="min-w-0">
+          <h1 className="font-display text-3xl font-semibold">Goals</h1>
+          <p className="mt-2 text-sm text-muted-foreground">
             Stay focused on what you are saving for.
           </p>
         </div>
 
-        {filteredGoals.length > 0 && (
-          <button
-            type="button"
-            aria-label="Open form to add goal"
-            aria-haspopup="dialog"
-            onClick={() => isDemoMode ? showDemoReadOnlyToast() : onOpenModal("goals", "add")}
-            className="bg-[rgb(var(--color-brand-deep))] hover:bg-[rgb(var(--color-brand))] transition cursor-pointer text-white px-4 py-2 rounded-md text-xl"
-          >
-            <FaPlus aria-hidden="true" />
-          </button>
+        {hasGoals && (
+          <Button onClick={addGoal} aria-haspopup="dialog">
+            <span className="flex items-center gap-2">
+              <FiPlus aria-hidden="true" />
+              Set goal
+            </span>
+          </Button>
         )}
-      </section>
+      </header>
 
-      {goals?.length > 0 && (
-        <input
-          id="goals-search"
-          type="text"
-          aria-live="polite"
-          placeholder="Search by name..."
-          className="w-full mx-auto mb-10 rounded border border-[rgb(var(--color-gray-border))] bg-[rgb(var(--color-bg-card))] outline-none focus:border-[rgb(var(--color-brand))] focus:ring-2 focus:ring-[rgb(var(--color-brand))] focus:ring-offset-2 transition text-sm p-2"
-          value={searchName}
-          onChange={(e) => setSearchName(e.target.value)}
-        />
-      )}
-
-      {goals.length === 0 && (
-        <div aria-live="polite" className="mt-4 flex flex-col items-center w-full">
-          <p
-            id="goals-empty-state"
-            className="text-base text-[rgb(var(--color-muted))] text-center mb-6"
-          >
-            You have not set any financial goals yet. Start saving
-            intentionally.
-          </p>
-
-          <button
-            type="button"
-            aria-label="Open form to add goal"
-            aria-haspopup="dialog"
-            id="add-first-goal-btn"
-            onClick={() => isDemoMode ? showDemoReadOnlyToast() : onOpenModal("goals", "add")}
-            className=" bg-blue-500 hover:bg-blue-600 transition cursor-pointer text-white px-4 py-2 rounded-md text-base flex items-center gap-2"
-          >
-            <FaPlus aria-hidden="true" className="text-lg" />
-            <span>Add Your First Goal</span>
-          </button>
+      {hasGoals && (
+        <div className="w-full max-w-md">
+          <label htmlFor="goals-search" className="sr-only">
+            Search goals by name
+          </label>
+          <div className="relative">
+            <FiSearch
+              className="pointer-events-none absolute top-1/2 left-3.5 -translate-y-1/2 text-muted-foreground"
+              aria-hidden="true"
+            />
+            <Input
+              id="goals-search"
+              type="search"
+              placeholder="Search by name..."
+              className="pl-10"
+              value={searchName}
+              onChange={(event) => setSearchName(event.target.value)}
+            />
+          </div>
         </div>
       )}
 
-      {filteredGoals?.length === 0 && goals.length > 0 && (
-        <p className="text-center text-base text-[rgb(var(--color-muted))] mb-6">
-          The goal you are looking for does not exist.
-        </p>
+      {filteredGoals.length > 0 ? (
+        <Cards key={searchName} />
+      ) : (
+        <section
+          id={hasGoals ? "goals-no-results" : "goals-empty-state"}
+          className="flex min-h-80 flex-col items-center justify-center gap-4 px-4 py-8 text-center"
+          aria-labelledby="goals-empty-heading"
+        >
+          <span
+            className="grid size-12 place-items-center rounded-lg bg-info-soft text-2xl text-primary"
+            aria-hidden="true"
+          >
+            {hasGoals ? <FiSearch /> : <FiTarget />}
+          </span>
+          <h2
+            id="goals-empty-heading"
+            className="font-display text-xl font-semibold"
+          >
+            {hasGoals ? "No matching goals" : "No goals yet"}
+          </h2>
+          <p className="text-sm text-muted-foreground">
+            {hasGoals
+              ? "No goals match your search."
+              : "You have not set any financial goals yet. Start saving intentionally."}
+          </p>
+          {hasGoals ? (
+            <Button variant="outline" onClick={() => setSearchName("")}>
+              Clear search
+            </Button>
+          ) : (
+            <Button
+              id="add-first-goal-btn"
+              onClick={addGoal}
+              aria-haspopup="dialog"
+            >
+              <span className="flex items-center gap-2">
+                <FiPlus aria-hidden="true" />
+                Add your first goal
+              </span>
+            </Button>
+          )}
+        </section>
       )}
-
-      <Cards />
-    </motion.main>
+    </motion.div>
   );
 };
-
 export default Goals;

@@ -3,15 +3,14 @@ import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import useAuthStore from "../../store/useAuthStore";
 import Dialog from "../ui/Dialog";
+import Button from "../ui/Button";
 
 const ResetLink = () => {
   const navigate = useNavigate();
   const resetLinkModalOpen = useAuthStore((state) => state.resetLinkModalOpen);
-  const setResetLinkModalOpen = useAuthStore(
-    (state) => state.setResetLinkModalOpen
-  );
+  const setResetLinkModalOpen = useAuthStore(state => state.setResetLinkModalOpen);
 
-  if (!resetLinkModalOpen) return;
+  if (!resetLinkModalOpen) return null;
 
   const onClose = () => {
     setResetLinkModalOpen(false);
@@ -21,31 +20,31 @@ const ResetLink = () => {
       () =>
         toast.success(
           "Please check your inbox and spam folder for the password reset link",
-          { duration: 10000, position: "top-center" }
+          { duration: 10000, position: "top-center" },
         ),
-      10
+      10,
     );
   };
 
   return (
-    <Dialog ariaLabel="reset-link-sent">
-      <div className="border rounded-full border-green-500 p-3">
-        <FaCheck className="text-green-600" />
+    <Dialog ariaLabel="Password reset email sent">
+      <div className="border rounded-full border-green-600 dark:border-green-400 p-3">
+        <FaCheck
+          aria-hidden="true"
+          className="text-green-600 dark:text-green-400"
+        />
       </div>
-      <h4 className="text-xl font-semibold text-[rgb(var(--color-text))]">
+      <h4 className="font-display text-xl text-center font-semibold text-[rgb(var(--color-text))]">
         Email is sent
       </h4>
-      <p className="text-base text-[rgb(var(--color-muted))] font-medium">
+      <p className="text-sm text-center leading-relaxed text-[rgb(var(--color-muted))]">
         A message has been sent to your e-mail address for confirmation of
         password reset
       </p>
 
-      <button
-        onClick={onClose}
-        className="text-base font-medium px-4 py-2 bg-[rgb(var(--color-brand))] hover:bg-[rgb(var(--color-brand-hover))] text-white rounded transition cursor-pointer"
-      >
+      <Button onClick={onClose} className="w-full">
         OK
-      </button>
+      </Button>
     </Dialog>
   );
 };

@@ -20,10 +20,10 @@ export const MainProvider = ({ children }) => {
   const user = useAuthStore((state) => state.currentUser);
   const isDemoSession = isDemoMode || isDemoUser(user);
   const loadTransactions = useTransactionStore(
-    (state) => state.loadTransactions
+    (state) => state.loadTransactions,
   );
   const loadNotifications = useNotificationStore(
-    (state) => state.loadNotifications
+    (state) => state.loadNotifications,
   );
   const fetchCurrencies = useCurrencyStore((state) => state.fetchCurrencies);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -42,13 +42,13 @@ export const MainProvider = ({ children }) => {
     settingsRef,
     setIsSettingsOpen,
     setIsCurrencyOpen,
-    setIsExportOpen
+    setIsExportOpen,
   );
   useDropdownClose(isProfileOpen, profileRef, setIsProfileOpen);
 
   const handleSidebarOpen = useCallback(
     () => setIsSidebarOpen((prev) => !prev),
-    []
+    [],
   );
   const handleSidebarClose = useCallback(() => setIsSidebarOpen(false), []);
 
@@ -59,31 +59,35 @@ export const MainProvider = ({ children }) => {
   }, []);
   const handlePreferencesClose = useCallback(
     () => setIsPreferencesOpen(false),
-    []
+    [],
   );
 
   // Handle to open and close settings
-  const handleSettingsToggle = useCallback(
-    () => setIsSettingsOpen((prev) => !prev),
-    []
-  );
+  const handleSettingsToggle = useCallback(() => {
+    setIsProfileOpen(false);
+    setIsCurrencyOpen(false);
+    setIsExportOpen(false);
+    setIsSettingsOpen((prev) => !prev);
+  }, []);
 
   // Handle to open and close profile
-  const handleProfileToggle = useCallback(
-    () => setIsProfileOpen((prev) => !prev),
-    []
-  );
+  const handleProfileToggle = useCallback(() => {
+    setIsSettingsOpen(false);
+    setIsCurrencyOpen(false);
+    setIsExportOpen(false);
+    setIsProfileOpen((prev) => !prev);
+  }, []);
 
   // Handle currency open and close
   const handleCurrencyToggle = useCallback(
     () => setIsCurrencyOpen((prev) => !prev),
-    []
+    [],
   );
   const handleCurrencyClose = useCallback(() => setIsCurrencyOpen(false), []);
 
   const handleExportToggle = useCallback(
     () => setIsExportOpen((prev) => !prev),
-    []
+    [],
   );
 
   // Handle Open Sign out prompt and close profile
@@ -93,7 +97,7 @@ export const MainProvider = ({ children }) => {
   }, []);
   const handleSignoutPromptClose = useCallback(
     () => setIsSignoutPromptOpen(false),
-    []
+    [],
   );
 
   // Load all transactions, budgets, goals on mount
@@ -104,19 +108,18 @@ export const MainProvider = ({ children }) => {
     let isCancelled = false;
 
     const fetchUserData = async () => {
-
       try {
         const types = ["transactions", "budgets", "goals", "contributions"];
 
         await Promise.all([
           fetchCurrencies(),
           loadNotifications(currentUserId),
-          ...types.map(label => loadTransactions(currentUserId, label))
-        ])
+          ...types.map((label) => loadTransactions(currentUserId, label)),
+        ]);
 
         if (isCancelled) return;
       } catch (err) {
-        if(!isCancelled) {
+        if (!isCancelled) {
           console.log("Error loading user financial data:", err);
         }
       }
@@ -127,12 +130,18 @@ export const MainProvider = ({ children }) => {
     return () => {
       isCancelled = true;
     };
-  }, [isDemoSession, user, fetchCurrencies, loadNotifications, loadTransactions]);
+  }, [
+    isDemoSession,
+    user,
+    fetchCurrencies,
+    loadNotifications,
+    loadTransactions,
+  ]);
 
   // Close sidebar on resize
   useEffect(() => {
     const handleResize = () => {
-      if (window.innerWidth > 922 && isSidebarOpen) {
+      if (window.innerWidth >= 992 && isSidebarOpen) {
         setIsSidebarOpen(false);
       }
     };

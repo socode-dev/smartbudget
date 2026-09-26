@@ -1,8 +1,8 @@
-# SmartBudget Backend AI Telemetry
+# Vydra AI Telemetry
 
-SmartBudget records how the backend insight pipeline behaves during real usage. This is operational telemetry: it explains whether the pipeline ran, which control path it followed, whether fallback logic was needed, and whether an insight was saved.
+Vydra records how the insight pipeline behaves during real usage. This is operational telemetry: it explains whether the pipeline ran, which control path it followed, whether fallback logic was needed, and whether an insight was saved.
 
-For the wider insight flow, see [SmartBudget AI Architecture](./ai-architecture.md). For product engagement events, see [Business Telemetry](./business-telemetry.md).
+For the wider insight flow, see [Vydra AI Architecture](./ai-architecture.md). For product engagement events, see [Business Telemetry](./business-telemetry.md).
 
 ## Purpose
 

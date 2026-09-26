@@ -2,14 +2,15 @@ import { useNavigate } from "react-router-dom";
 import { FaCheck } from "react-icons/fa";
 import useAuthStore from "../../store/useAuthStore";
 import Dialog from "../ui/Dialog";
+import Button from "../ui/Button";
 
 const ResetSuccessful = () => {
   const navigate = useNavigate();
   const openResetSuccessModal = useAuthStore(
-    (state) => state.openResetSuccessModal
+    (state) => state.openResetSuccessfulModal,
   );
   const setOpenResetSuccessModal = useAuthStore(
-    (state) => state.setOpenResetSuccessModal
+    (state) => state.setOpenResetSuccessfulModal,
   );
 
   if (!openResetSuccessModal) return null;
@@ -20,23 +21,23 @@ const ResetSuccessful = () => {
   };
 
   return (
-    <Dialog ariaLabel="reset-successful">
-      <div className="border rounded-full border-green-500 p-3">
-        <FaCheck className="text-green-600" />
+    <Dialog ariaLabel="Password changed successfully">
+      <div className="border rounded-full border-green-600 dark:border-green-400 p-3">
+        <FaCheck
+          aria-hidden="true"
+          className="text-green-600 dark:text-green-400"
+        />
       </div>
-      <h4 className="text-xl font-semibold text-[rgb(var(--color-text))]">
+      <h4 className="font-display text-xl text-center font-semibold text-[rgb(var(--color-text))]">
         Password Changed
       </h4>
-      <p className="text-base text-[rgb(var(--color-muted))] font-medium">
+      <p className="text-sm text-center leading-relaxed text-[rgb(var(--color-muted))]">
         Your password has changed successfully
       </p>
 
-      <button
-        onClick={onClose}
-        className="text-base font-medium px-4 py-2 bg-[rgb(var(--color-brand))] hover:bg-[rgb(var(--color-brand-hover))] text-white rounded transition cursor-pointer"
-      >
+      <Button onClick={onClose} className="w-full">
         Back to Login
-      </button>
+      </Button>
     </Dialog>
   );
 };

@@ -29,7 +29,7 @@ import toast from "react-hot-toast";
 const emailVerificationEmail = {
   subject: "Verify Your Email Address",
   message:
-    'To complete your SmartBudget registration and unlock all features, please verify your email address. To receive a new verification link, please click on the "Resend" bottun on the top of the page. A new verification link will be sent to the email you provided during sign-up. Kindly check your inbox(or spam). Once you click the verification link, your account will be fully activated and ready to help you manage your finances smarter.',
+    'To complete your Vydra registration and unlock all features, please verify your email address. To receive a new verification link, please click on the "Resend" bottun on the top of the page. A new verification link will be sent to the email you provided during sign-up. Kindly check your inbox(or spam). Once you click the verification link, your account will be fully activated and ready to help you manage your finances smarter.',
   type: "System",
 };
 
@@ -134,7 +134,11 @@ export const useAuthStore = create((set, get) => ({
           "thresholds-storage",
           "currency-storage",
         ];
-        set({ currentUser: null, userLoggedIn: false, userName: emptyUserName });
+        set({
+          currentUser: null,
+          userLoggedIn: false,
+          userName: emptyUserName,
+        });
 
         storageItems.forEach((item) => localStorage.removeItem(item));
 
@@ -164,10 +168,10 @@ export const useAuthStore = create((set, get) => ({
   // wrapper handlers, call those wrappers and then call these methods
   onLogin: async (data) => {
     try {
-      set({ loading: true });
+      set({ loading: true, onLoginErr: null });
       const userCredential = await doSignUserWithEmailAndPassword(
         data.email,
-        data.password
+        data.password,
       );
       const user = userCredential.user;
 
@@ -191,19 +195,22 @@ export const useAuthStore = create((set, get) => ({
       } else {
         throw new Error("No profile found for this user");
       }
+      return { ok: true };
     } catch (err) {
       console.error(err);
       set({ onLoginErr: getAuthErrorMessage(err) });
       set({ loading: false });
       setTimeout(() => set({ onLoginErr: null }), 10000);
+      return { ok: false };
     }
   },
 
   onSignup: async (data, thresholdsData = null) => {
     try {
+      set({ onSignupErr: null });
       const userCredential = await doCreateUserWithEmailAndPassword(
         data.email,
-        data.password
+        data.password,
       );
       const user = userCredential.user;
 
@@ -220,7 +227,7 @@ export const useAuthStore = create((set, get) => ({
       await setDoc(
         doc(db, "users", user.uid),
         { profile: userDocData },
-        { merge: true }
+        { merge: true },
       );
 
       set({ currentUser: { uid: user.uid, ...userDocData } });
@@ -245,15 +252,17 @@ export const useAuthStore = create((set, get) => ({
         await setDoc(
           doc(db, "users", user.uid),
           { thresholds: thresholdsData },
-          { merge: true }
+          { merge: true },
         );
       }
 
       // Send welcome notification
       createWelcomeNotification(user.uid);
+      return { ok: true };
     } catch (err) {
       set({ onSignupErr: getAuthErrorMessage(err) });
       setTimeout(() => set({ onSignupErr: null }), 10000);
+      return { ok: false };
     }
   },
 
@@ -295,13 +304,13 @@ export const useAuthStore = create((set, get) => ({
         await setDoc(
           doc(db, "users", user.uid),
           { profile: userDocData },
-          { merge: true }
+          { merge: true },
         );
         if (thresholdsData) {
           await setDoc(
             doc(db, "users", user.uid),
             { thresholds: thresholdsData },
-            { merge: true }
+            { merge: true },
           );
         }
         createWelcomeNotification(user.uid);
@@ -349,7 +358,7 @@ export const useAuthStore = create((set, get) => ({
       await setDoc(
         doc(db, "users", user.uid),
         { profile: userDocData },
-        { merge: true }
+        { merge: true },
       );
 
       const userDocRef = doc(db, "users", user.uid);
@@ -360,7 +369,7 @@ export const useAuthStore = create((set, get) => ({
           await setDoc(
             doc(db, "users", user.uid),
             { thresholds: thresholdsData },
-            { merge: true }
+            { merge: true },
           );
         }
         createWelcomeNotification(user.uid);
@@ -379,8 +388,9 @@ export const useAuthStore = create((set, get) => ({
         handleCodeInApp: true,
       });
       set({ resetLinkModalOpen: true });
+      return { ok: true };
     } catch (err) {
-      console.error(err);
+      return { ok: false, error: getAuthErrorMessage(err) };
     }
   },
 

@@ -1,5 +1,3 @@
-import React from "react";
-
 const size = 70; // px
 const strokeWidth = 8;
 const radius = (size - strokeWidth) / 2;

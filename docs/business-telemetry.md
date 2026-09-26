@@ -1,6 +1,6 @@
-# SmartBudget Business Telemetry
+# Vydra Business Telemetry
 
-SmartBudget business telemetry records whether the product is delivering useful financial guidance and measurable engagement.
+Vydra business telemetry records whether the product is delivering useful financial guidance and measurable engagement.
 
 It is different from AI pipeline telemetry. AI telemetry answers, "Did the insight engine run correctly?" Business telemetry answers, "Did customers receive, see, and respond to useful financial insights?"
 
@@ -42,15 +42,15 @@ import failed
 
 ## Why It Matters
 
-SmartBudget needs to show more than technical activity. It needs to show that:
+Vydra needs to show more than technical activity. It needs to show that:
 
 - customers entered or received usable financial data
-- SmartBudget generated insights from that data
+- Vydra generated insights from that data
 - customers saw the insights
 - customers acknowledged or dismissed the insights
 - financial behavior can be compared across meaningful evaluation periods
 
-Reports should describe observed changes without claiming that SmartBudget alone caused them.
+Reports should describe observed changes without claiming that Vydra alone caused them.
 
 ## Insight Responses
 

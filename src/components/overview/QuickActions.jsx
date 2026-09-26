@@ -1,106 +1,127 @@
-import { FiPlus, FiTarget, FiDownload } from "react-icons/fi";
+import clsx from "clsx";
+import { FiPlus, FiTarget, FiDownload, FiCreditCard } from "react-icons/fi";
+import { useRef, useState } from "react";
 import { useModalContext } from "../../context/ModalContext";
 import { useOverviewContext } from "../../context/OverviewContext";
-import { useRef, useState } from "react";
 import { useDropdownClose } from "../../hooks/useDropdownClose";
-import Export from "../ui/Export";
 import { showDemoReadOnlyToast, useDemoMode } from "../../demo/useDemoMode";
+import useTransactionStore from "../../store/useTransactionStore";
+import Button from "../ui/Button";
+
+const ACTIONS = [
+  {
+    type: "transactions",
+    label: "Add Entry",
+    icon: FiPlus,
+  },
+  {
+    type: "budgets",
+    label: "Set Budget",
+    icon: FiCreditCard,
+  },
+  {
+    type: "goals",
+    label: "Set Goal",
+    icon: FiTarget,
+  },
+];
 
 const QuickActions = () => {
   const isDemoMode = useDemoMode();
   const exportRef = useRef(null);
   const { handleCSVExport, handlePDFExport } = useOverviewContext();
   const { onOpenModal } = useModalContext();
+  const hasTransactions = useTransactionStore(state => state.transactions.length > 0);
   const [isExportOpen, setIsExportOpen] = useState(false);
-
   useDropdownClose(isExportOpen, exportRef, setIsExportOpen);
-
-  const handleExportToggle = () => setIsExportOpen((prev) => !prev);
-
-  const exportCSV = () => {
-    if (isDemoMode) {
-      showDemoReadOnlyToast();
-      setIsExportOpen(false);
-      return;
-    }
-
-    handleCSVExport();
+  
+  const open = (type) => isDemoMode ? showDemoReadOnlyToast() : onOpenModal(type, "add");
+  
+  const exportData = (type) => {
+    if (isDemoMode) showDemoReadOnlyToast();
+    else if (type === "csv") handleCSVExport();
+    else handlePDFExport();
     setIsExportOpen(false);
   };
-
-  const exportPDF = () => {
-    if (isDemoMode) {
-      showDemoReadOnlyToast();
-      setIsExportOpen(false);
-      return;
-    }
-
-    handlePDFExport();
-    setIsExportOpen(false);
-  };
-
+  
   return (
     <>
-      <h2 className="text-3xl font-semibold mb-2">Quick Actions</h2>
-      <p className="text-base text-[rgb(var(--color-muted))]">
-        Take control of your finances with just one click.
-      </p>
+      <header className="mb-4 flex flex-wrap items-start justify-between gap-3 border-b border-border pb-4">
+        <div>
+          <h2 className="font-display text-base font-semibold">Quick Actions</h2>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Take control of your finances.
+          </p>
+        </div>
+      </header>
 
-      {/* Action Buttons */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 justify-between gap-4 mt-10">
-        <button
-          type="button"
-          aria-label="Add transaction"
-          aria-haspopup="dialog"
-          onClick={() => isDemoMode ? showDemoReadOnlyToast() : onOpenModal("transactions", "add")}
-          className="bg-green-600 hover:bg-green-700  text-white text-base  px-4 py-2 rounded-lg shadow-md transition cursor-pointer flex justify-center items-center gap-2"
-        >
-          <FiPlus aria-hidden="true" className="text-lg" />
-          <span>Add Entry</span>
-        </button>
-
-        <button
-          type="button"
-          aria-label="Set budget"
-          aria-haspopup="dialog"
-          onClick={() => isDemoMode ? showDemoReadOnlyToast() : onOpenModal("budgets")}
-          className="bg-[rgb(var(--color-brand-deep))] hover:bg-[rgb(var(--color-brand))]  text-white text-base px-4 py-2 rounded-lg shadow-md transition cursor-pointer flex justify-center items-center gap-2"
-        >
-          <FiTarget aria-hidden="true" className="text-lg" />
-          <span>Set Budget</span>
-        </button>
-
-        <button
-          type="button"
-          aria-label="Set goal"
-          aria-haspopup="dialog"
-          onClick={() => isDemoMode ? showDemoReadOnlyToast() : onOpenModal("goals")}
-          className="bg-[rgb(var(--color-brand-deep))] hover:bg-[rgb(var(--color-brand))]  text-white text-base px-4 py-2 rounded-lg shadow-md transition cursor-pointer flex justify-center items-center gap-2"
-        >
-          <FiTarget aria-hidden="true" className="text-lg" />
-          <span>Set Goal</span>
-        </button>
-
-        <div className="relative" ref={exportRef}>
-          {/* Export button */}
-          <button
-            type="button"
-            aria-label="Export transactions log"
-            aria-haspopup="true"
-            aria-expanded={isExportOpen}
-            onClick={handleExportToggle}
-            className="w-full bg-gray-700 hover:bg-gray-800  text-white text-base px-4 py-2 rounded-lg shadow-md transition cursor-pointer flex justify-center items-center gap-2"
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        {ACTIONS.map(({ type, label, icon: Icon }) => (
+          <Button
+            key={type}
+            variant="outline"
+            onClick={() => open(type)}
+            aria-haspopup="dialog"
           >
-            <FiDownload aria-hidden="true" className="text-lg" />
-            <span>Export Log</span>
-          </button>
+            <span className="flex items-center gap-2">
+              <Icon className="shrink-0 text-primary" aria-hidden="true" />
+              {label}
+            </span>
+          </Button>
+        ))}
 
-          {/* CSV and PDF button */}
-          <Export
-            isExportOpen={isExportOpen}
-            exportCSV={exportCSV}
-            exportPDF={exportPDF}
-          />
+        <div
+          className="relative"
+          ref={exportRef}
+          onKeyDown={(event) => {
+            if (event.key === "Escape") {
+              setIsExportOpen(false);
+              exportRef.current?.querySelector("button")?.focus();
+            }
+          }}
+        >
+          <Button
+            variant="outline"
+            disabled={!hasTransactions}
+            title={!hasTransactions ? "No transactions to export" : undefined}
+            aria-expanded={isExportOpen}
+            aria-controls="overview-export-options"
+            onClick={() => setIsExportOpen((value) => !value)}
+            className="w-full"
+          >
+            <span className="flex items-center gap-2">
+              <FiDownload className="shrink-0" aria-hidden="true" />
+              Export Log
+            </span>
+          </Button>
+
+          {isExportOpen && (
+            <div
+              id="overview-export-options"
+              className="absolute bottom-full right-0 z-20 mb-2 w-full min-w-32 rounded-md border border-border bg-card p-1 shadow-lg"
+            >
+              <button
+                type="button"
+                className={clsx(
+                  "flex min-h-11 w-full items-center justify-between gap-3 rounded-md px-3 py-2.5 text-left [&:is(button)]:cursor-pointer",
+                  "[&:is(button)]:hover:bg-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
+                )}
+                onClick={() => exportData("csv")}
+              >
+                As CSV
+              </button>
+              <button
+                type="button"
+                className={clsx(
+                  "flex min-h-11 w-full items-center justify-between gap-3 rounded-md px-3 py-2.5 text-left [&:is(button)]:cursor-pointer",
+                  "[&:is(button)]:hover:bg-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
+                )}
+                onClick={() => exportData("pdf")}
+              >
+                As PDF
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </>

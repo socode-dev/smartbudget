@@ -1,4 +1,5 @@
 import { Outlet } from "react-router-dom";
+import { useState } from "react";
 import Header from "../components/layouts/Header";
 import Sidebar from "../components/layouts/Sidebar";
 import SignoutPrompt from "../components/modals/SignoutPrompt";
@@ -6,24 +7,18 @@ import { Toaster } from "react-hot-toast";
 import FormModal from "../components/modals/FormModal";
 import NotificationDialog from "../components/modals/NotificationDialog";
 import Preferences from "../components/modals/Preferences";
-import useAuthStore from "../store/useAuthStore";
 import WelcomeModal from "../components/modals/WelcomeModal";
 import TourJoyride from "../components/ui/TourJoyride";
 import DemoBadge from "../demo/DemoBadge";
 import { useDemoMode } from "../demo/useDemoMode";
+import AccountVerificationBanner from "../components/layouts/AccountVerificationBanner";
 
 const MainLayout = () => {
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const isDemoMode = useDemoMode();
-  const user = useAuthStore((state) => state.currentUser);
-  const isUserEmailVerified = useAuthStore(
-    (state) => state.isUserEmailVerified
-  );
-  const resendVerificationLink = useAuthStore(
-    (state) => state.resendVerificationLink
-  );
 
   return (
-    <div className="relative flex h-svh bg-[rgb(var(--color-bg))]">
+    <div className="relative flex h-dvh min-w-0 overflow-hidden bg-background font-sans text-foreground tracking-normal">
       <Toaster />
 
       <WelcomeModal />
@@ -43,28 +38,20 @@ const MainLayout = () => {
       <Preferences />
 
       {/* Sidebar */}
-      <Sidebar />
+      <Sidebar collapsed={sidebarCollapsed} />
 
       {/* Main Content */}
-      <div className="flex flex-col grow">
-        <Header />
-        
-        <main className="bg-[rgb(var(--color-bg))] overflow-y-auto grow transition-all duration-200 lg:pt-0 pt-14 scrollbar-thin">
-          {/* Display under header if user email is not verified */}
-          {!isDemoMode && !isUserEmailVerified && (
-            <div className="w-full mx-auto mt-2 lg:mt-0 px-6 py-3 shadow bg-[rgb(var(--color-bg-card))] border-t-2 border-[rgb(var(--color-brand-deep))] flex justify-between items-center gap-5">
-              <p className="text-[rgb(var(--color-muted))] text-sm">
-                Your account is not verified. Resend link to verify.
-              </p>
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col">
+        <Header
+          collapsed={sidebarCollapsed}
+          onToggleSidebar={() => setSidebarCollapsed((value) => !value)}
+        />
 
-              <button
-                onClick={() => resendVerificationLink(user)}
-                className="px-4 py-2 bg-[rgb(var(--color-brand-deep))] hover:bg-[rgb(var(--color-brand))] text-white rounded-lg shadow-2xl cursor-pointer font-medium"
-              >
-                Resend
-              </button>
-            </div>
-          )}
+        <main
+          id="main-content"
+          className="min-h-0 min-w-0 flex-1 overflow-y-auto scrollbar-thin"
+        >
+          <AccountVerificationBanner />
 
           {/* Outlet for nested routes */}
           <Outlet />

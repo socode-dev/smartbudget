@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 360" role="img" aria-labelledby="title">
+  <title id="title">Vydra monochrome logo</title>
+  <g fill="#102F5B">
+    <path d="M83 57 C121 57 159 57 188 60 C208 62 223 73 236 90 L294 165 C312 188 321 209 321 233 C321 260 310 281 292 299 C276 315 259 330 240 345 C224 358 206 354 194 339 C181 323 182 303 196 286 L215 263 C229 246 234 230 229 213 C224 196 212 184 194 175 L153 154 C133 144 119 131 110 116 Z"/>
+    <path d="M310 60 C339 60 371 60 402 60 C414 60 419 67 413 77 L321 219 C313 232 302 234 293 224 L257 182 C252 176 252 168 257 162 L301 102 C308 92 313 81 310 60 Z"/>
+    <text x="450" y="252" font-family="Inter, Avenir Next, Avenir, Helvetica Neue, Arial, sans-serif" font-size="145" font-weight="700" letter-spacing="-7">Vydra</text>
+  </g>
+</svg>

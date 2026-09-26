@@ -5,6 +5,9 @@ import { jsPDF } from "jspdf";
 import { autoTable } from "jspdf-autotable";
 import useCurrencyStore from "../store/useCurrencyStore";
 import { formatAmount } from "../utils/formatAmount";
+import { addPdfHeader, pdfColors } from "../utils/addPdfHeader";
+import { downloadCsv } from "../utils/downloadCsv";
+import { formatPdfAmount } from "../utils/formatPdfAmount";
 
 const ReportContext = createContext();
 
@@ -14,46 +17,47 @@ export const ReportProvider = ({ children }) => {
 
   const expenses = useMemo(
     () => transactions?.filter((tx) => tx.type === "expense"),
-    [transactions]
+    [transactions],
   );
 
-  const reportTableData = useCallback(() => {
-    // Group transactions by category e.g, {other: [{...transaction details}]}
-    const categoryGroups = expenses?.reduce((acc, tx) => {
-      if (!acc[tx.category]) {
-        acc[tx.category] = [];
-      }
-      acc[tx.category].push(tx);
-      return acc;
-    }, {});
+  const totalExpenses = useMemo(
+    () =>
+      expenses.reduce(
+        (total, transaction) => total + Number(transaction.amount),
+        0,
+      ),
+    [expenses],
+  );
 
-    // Convert object to array format [category, transactions]
-    const transactionEntries = Object.entries(categoryGroups);
-    // Create array of objects with aggregated data
-    const totalAmount = expenses?.reduce((acc, tx) => acc + tx.amount, 0);
-    const tableData = transactionEntries?.map(
-      ([category, reportItems], index) => {
-        const totalCategoryAmount = reportItems?.reduce(
-          (sum, item) => sum + item.amount,
-          0
-        );
-        const percentage = totalAmount
-          ? ((totalCategoryAmount / totalAmount) * 100).toFixed(1)
-          : 0;
+  const categoryBreakdown = useMemo(() => {
+    const groups = new Map();
+    for (const transaction of expenses) {
+      const category = transaction.category || "Uncategorized";
+      const group = groups.get(category) || { category, amount: 0, count: 0 };
+      group.amount += Number(transaction.amount);
+      group.count += 1;
+      groups.set(category, group);
+    }
+    return [...groups.values()]
+      .sort((a, b) => b.amount - a.amount)
+      .map((group) => ({
+        ...group,
+        percentage:
+          totalExpenses > 0 ? (group.amount / totalExpenses) * 100 : 0,
+      }));
+  }, [expenses, totalExpenses]);
 
-        return {
-          No: index + 1,
-          Category: category,
-          Amount: formatAmount(totalCategoryAmount, selectedCurrency),
-          Percentage: `${parseFloat(percentage)}%`,
-          Count: reportItems.length,
-        };
-      }
-    );
-
-    // Sort by amount descending
-    return tableData?.sort((a, b) => b.Amount - a.Amount);
-  }, [expenses, selectedCurrency]);
+  const reportTableData = useCallback(
+    () =>
+      categoryBreakdown.map((row, index) => ({
+        No: index + 1,
+        Category: row.category,
+        Amount: formatAmount(row.amount, selectedCurrency),
+        Percentage: `${row.percentage.toFixed(1)}%`,
+        Count: row.count,
+      })),
+    [categoryBreakdown, selectedCurrency],
+  );
 
   // Handler for exporting via CSV
   const handleCSVExport = useCallback(() => {
@@ -61,62 +65,87 @@ export const ReportProvider = ({ children }) => {
 
     // Convert table data to CSV
     const csvData = Papa.unparse(data);
-    // Create a Blob and trigger download
-    const blob = new Blob([csvData], { type: "text/csv;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const temporaryLink = document.createElement("a");
-    temporaryLink.setAttribute("href", url);
-    temporaryLink.setAttribute("download", "smartbudget-expense-report.csv");
-    temporaryLink.style.visibility = "hidden";
-    document.body.appendChild(temporaryLink);
-    temporaryLink.click();
-    document.body.removeChild(temporaryLink);
+    downloadCsv(csvData, "vydra-expense-report.csv");
   }, [reportTableData]);
 
   // Handler for exporting via PDF
-  const handlePDFExport = useCallback(() => {
-    const expensesByCategory = reportTableData();
-
+  const handlePDFExport = useCallback(async () => {
     const doc = new jsPDF();
 
-    // Add PDF heading and style
-    doc.setFontSize(23);
-    doc.text("SmartBudget Expenses Report by Category", 25, 15);
+    await addPdfHeader(
+      doc,
+      "Vydra Expenses Report",
+      "Expense distribution by category and share of total spending.",
+    );
 
     // Set table columns and and rows value for PDF
     const tableColumn = ["S/N", "Category", "Amount", "% of Total", "Count"];
-    const tableRows = expensesByCategory.map((category) => {
-      return Object.values(category);
-    });
+    const tableRows = categoryBreakdown.map((category, index) => [
+      index + 1,
+      category.category,
+      formatPdfAmount(category.amount, selectedCurrency),
+      `${category.percentage.toFixed(1)}%`,
+      category.count,
+    ]);
 
     // Define the table structure and style
     autoTable(doc, {
       head: [tableColumn],
       body: tableRows,
-      startY: 30,
-      theme: "grid",
+      startY: 36,
+      theme: "striped",
       styles: {
-        fontSize: 10,
-        cellPadding: 4,
+        fontSize: 9,
+        cellPadding: { top: 3.5, right: 4, bottom: 3.5, left: 4 },
+        lineColor: pdfColors.border,
+        lineWidth: 0.2,
+        textColor: pdfColors.text,
       },
       headStyles: {
-        fillColor: [37, 99, 235],
-        textColor: 255,
+        fillColor: pdfColors.blue,
+        textColor: pdfColors.headerText,
+        fontStyle: "bold",
         halign: "center",
+        lineColor: pdfColors.blue,
       },
       bodyStyles: {
         halign: "left",
       },
+      alternateRowStyles: {
+        fillColor: pdfColors.rowAlternate,
+      },
+      columnStyles: {
+        0: { halign: "center", cellWidth: 14 },
+        2: { halign: "right" },
+        3: { halign: "right" },
+        4: { halign: "center", cellWidth: 18 },
+      },
+      foot: [
+        [
+          "",
+          "Total",
+          formatPdfAmount(totalExpenses, selectedCurrency),
+          "100%",
+          expenses.length,
+        ],
+      ],
+      footStyles: {
+        fillColor: pdfColors.navy,
+        textColor: pdfColors.headerText,
+        fontStyle: "bold",
+      },
     });
 
     // Save the PDF
-    doc.save("smartbudget-expense-report.pdf");
-  }, [reportTableData]);
+    doc.save("vydra-expense-report.pdf");
+  }, [categoryBreakdown, expenses, selectedCurrency, totalExpenses]);
 
   return (
     <ReportContext.Provider
       value={{
         expenses,
+        categoryBreakdown,
+        totalExpenses,
         reportTableData,
         handleCSVExport,
         handlePDFExport,
