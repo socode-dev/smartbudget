@@ -163,6 +163,7 @@ const ActivateInvite = () => {
                   />
                 )}
               </FormField>
+
               <PasswordField
                 id="activation-password"
                 label="Password"
@@ -170,7 +171,6 @@ const ActivateInvite = () => {
                 value={form.password}
                 onChange={handleChange}
                 placeholder="Enter password"
-                className="mb-0"
               />
               <PasswordField
                 id="activation-confirm-password"
@@ -179,7 +179,6 @@ const ActivateInvite = () => {
                 value={form.confirmPassword}
                 onChange={handleChange}
                 placeholder="Confirm password"
-                className="mb-0"
               />
               <Button
                 type="submit"
