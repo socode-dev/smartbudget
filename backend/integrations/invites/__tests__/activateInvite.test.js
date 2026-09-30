@@ -137,6 +137,23 @@ describe("activateInvite()", () => {
             status: INVITE_STATE_STATUSES.CLAIMED,
             userId: "firebase-user-001",
         });
+
+        const telemetry = await db
+            .collection("users")
+            .doc("firebase-user-001")
+            .collection("telemetry")
+            .doc("businessEvents")
+            .collection("events")
+            .where("eventType", "==", "customer_claimed")
+            .get();
+
+        expect(telemetry.docs).toHaveLength(1);
+        expect(telemetry.docs[0].data()).toMatchObject({
+            eventType: "customer_claimed",
+            institutionId: "ins-a",
+            pilotId: "pilot-001",
+            source: "invite_activation",
+        });
     });
 
     it("preserves an existing user profile while filling missing imported fields", async () => {
@@ -408,6 +425,17 @@ describe("activateInvite()", () => {
             migratedFromImportCustomerId: "import-customer-001",
         });
         expect(stagedTransaction.exists).toBe(false);
+
+        const telemetry = await db
+            .collection("users")
+            .doc("firebase-user-001")
+            .collection("telemetry")
+            .doc("businessEvents")
+            .collection("events")
+            .where("eventType", "==", "customer_claimed")
+            .get();
+
+        expect(telemetry.docs).toHaveLength(1);
     });
 
     it("marks expired active invite as expired", async () => {

@@ -279,22 +279,6 @@ export const runOrchestrator = async ({
             error: new Error("Insight persistence failed"),
         });
         
-        await logBusinessEvent({
-            ...telemetryContext,
-            userId,
-            eventType: "insight_generated",
-            insightId,
-            insightType: insight?.type ?? null,
-            severity: insight?.severity ?? selectedSignal?.severity ?? null,
-            source: "backend",
-            dataSource,
-            enrollmentSource,
-            metadata: {
-                selectedSignalId: selectedSignal?.id ?? null,
-                selectedSignalType: selectedSignal?.type ?? null
-            },
-        });
-
         await markSignalTriggerFailed({
             userId,
             signal: selectedSignal,
@@ -320,6 +304,22 @@ export const runOrchestrator = async ({
         isFallback: Boolean(insight?.isFallback),
         modelUsed: insight?.modelUsed ?? null,
         reason: attentionDecision.reason,
+    });
+
+    await logBusinessEvent({
+        ...telemetryContext,
+        userId,
+        eventType: "insight_generated",
+        insightId,
+        insightType: insight?.type ?? null,
+        severity: insight?.severity ?? selectedSignal?.severity ?? null,
+        source: "backend",
+        dataSource,
+        enrollmentSource,
+        metadata: {
+            selectedSignalId: selectedSignal?.id ?? null,
+            selectedSignalType: selectedSignal?.type ?? null
+        },
     });
 
     await markSignalTriggered({userId, signal: selectedSignal, insight});

@@ -1,4 +1,5 @@
 import { logBusinessEvent } from "../../backend/ai/telemetry/businessLogger.js";
+import { recordCustomerActiveTelemetry } from "../../backend/ai/telemetry/businessBehaviourTelemetry.js";
 import { loadPilotContext } from "../../backend/userData/loadPilotContext.js";
 
 export default async function handler(req, res) {
@@ -28,6 +29,26 @@ export default async function handler(req, res) {
 
     try {
         const pilotContext = await loadPilotContext({ userId });
+
+        if (eventType === "customer_active") {
+            const activity = await recordCustomerActiveTelemetry({
+                userId,
+                ...pilotContext,
+                surface,
+            });
+
+            if (!activity.ok) {
+                return res.status(503).json({
+                    ok: false,
+                    error: "BUSINESS_TELEMETRY_WRITE_FAILED",
+                });
+            }
+
+            return res.status(200).json({
+                ok: true,
+                recorded: activity.recorded,
+            });
+        }
 
         const logged = await logBusinessEvent({
             userId,

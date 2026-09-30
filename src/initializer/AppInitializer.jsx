@@ -11,6 +11,7 @@ import useCurrencyStore from "../store/useCurrencyStore";
 import { doc, onSnapshot } from "firebase/firestore";
 import { db } from "../firebase/firebase";
 import { runInsightPipeline } from "../api/insights";
+import { trackBusinessEvent } from "../api/businessTelemetry";
 import { isDemoUser, useDemoMode } from "../demo/useDemoMode";
 
 const AppInitializer = () => {
@@ -38,6 +39,18 @@ const AppInitializer = () => {
 
     return () => stopAuthListener();
   }, [isDemoSession, startAuthListener, stopAuthListener]);
+
+  // Record observed product activity once per customer per UTC day.
+  useEffect(() => {
+    if (isDemoSession) return;
+    if (!userId) return;
+
+    void trackBusinessEvent({
+      userId,
+      eventType: "customer_active",
+      surface: "authenticated_session",
+    });
+  }, [isDemoSession, userId]);
 
   // Real-time listener for thresholds
   useEffect(() => {

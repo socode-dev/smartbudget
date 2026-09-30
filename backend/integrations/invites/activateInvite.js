@@ -5,6 +5,7 @@ import {
     PILOT_IDENTITY_STATUSES
 } from "./inviteTypes.js";
 import { getInviteByToken } from "./validateInvite.js";
+import { logBusinessEvent } from "../../ai/telemetry/businessLogger.js";
 
 const MIGRATION_BATCH_SIZE = 400;
 const DEFAULT_THRESHOLDS = Object.freeze({
@@ -42,10 +43,28 @@ export const activateInvite = async ({
         throw new Error(activation.error);
     }
 
+    let claimCompleted = false;
+
     if (migrateTransactions) {
-        await migratePilotTransactionsToUser({
+        claimCompleted = await migratePilotTransactionsToUser({
             importCustomerId: activation.importCustomerId,
             userId: activation.userId,
+        });
+    }
+
+    if (claimCompleted) {
+        await logBusinessEvent({
+            userId: activation.userId,
+            institutionId: activation.institutionId,
+            pilotId: activation.pilotId,
+            cohortId: activation.cohortId,
+            eventType: "customer_claimed",
+            source: "invite_activation",
+            dataSource: "institution_invite",
+            enrollmentSource: "institution_invite",
+            metadata: {
+                activationState: PILOT_IDENTITY_STATUSES.CLAIMED,
+            },
         });
     }
 
@@ -98,7 +117,7 @@ export const migratePilotTransactionsToUser = async ({
         await batch.commit();
     }
 
-    await finalizeActivation({ importCustomerId, userId });
+    return finalizeActivation({ importCustomerId, userId });
 };
 
 const claimInvite = ({
@@ -334,31 +353,46 @@ const finalizeActivation = async ({
         throw new Error("TRANSACTION_MIGRATION_INCOMPLETE");
     }
 
-    const batch = db.batch();
+    return db.runTransaction(async transaction => {
+        const identityRef = db
+            .collection("pilotIdentities")
+            .doc(importCustomerId);
+        const inviteStateRef = db
+            .collection("pilotInviteStates")
+            .doc(importCustomerId);
+        const pilotCustomerRef = db
+            .collection("pilotCustomers")
+            .doc(importCustomerId);
 
-    batch.set(
-        db.collection("pilotIdentities").doc(importCustomerId),
-        {
-            status: PILOT_IDENTITY_STATUSES.CLAIMED,
-            claimedAt: FieldValue.serverTimestamp(),
-            updatedAt: FieldValue.serverTimestamp(),
-        },
-        { merge: true }
-    );
+        const identitySnapshot = await transaction.get(identityRef);
 
-    batch.set(
-        db.collection("pilotInviteStates").doc(importCustomerId),
-        {
-            status: INVITE_STATE_STATUSES.CLAIMED,
-            userId,
-            claimedAt: FieldValue.serverTimestamp(),
-            updatedAt: FieldValue.serverTimestamp(),
-        },
-        { merge: true }
-    );
+        if (identitySnapshot.data()?.status === PILOT_IDENTITY_STATUSES.CLAIMED) {
+            return false;
+        }
 
-    batch.set(
-        db.collection("pilotCustomers").doc(importCustomerId),
+        transaction.set(
+            identityRef,
+            {
+                status: PILOT_IDENTITY_STATUSES.CLAIMED,
+                claimedAt: FieldValue.serverTimestamp(),
+                updatedAt: FieldValue.serverTimestamp(),
+            },
+            { merge: true }
+        );
+
+        transaction.set(
+            inviteStateRef,
+            {
+                status: INVITE_STATE_STATUSES.CLAIMED,
+                userId,
+                claimedAt: FieldValue.serverTimestamp(),
+                updatedAt: FieldValue.serverTimestamp(),
+            },
+            { merge: true }
+        );
+
+        transaction.set(
+            pilotCustomerRef,
             {
                 status: "CLAIMED",
                 claimedUserId: userId,
@@ -368,5 +402,6 @@ const finalizeActivation = async ({
             { merge: true }
         );
 
-    await batch.commit();
+        return true;
+    });
 };
