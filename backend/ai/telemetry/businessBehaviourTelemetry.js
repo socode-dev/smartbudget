@@ -1,6 +1,8 @@
 import { db } from "../../../lib/firebaseAdmin.js";
 import { logBusinessEvent } from "./businessLogger.js";
 
+const getUtcDateKey = () => new Date().toISOString().slice(0, 10);
+
 const getStateRef = ({ userId, stateKey }) => {
     return db
     .collection("users")
@@ -44,6 +46,47 @@ const markTransitionIfChanged = async ({
             previousActive,
         };
     });
+};
+
+export const recordCustomerActiveTelemetry = async ({
+    userId,
+    institutionId = null,
+    pilotId = null,
+    cohortId = null,
+    dataSource = null,
+    enrollmentSource = null,
+    surface = "authenticated_session",
+} = {}) => {
+    if (!userId) return { ok: false, recorded: false };
+
+    const dateKey = getUtcDateKey();
+    const transition = await markTransitionIfChanged({
+        userId,
+        stateKey: `customer_active_${dateKey}`,
+        currentlyActive: true,
+    });
+
+    if (!transition.changed) {
+        return { ok: true, recorded: false };
+    }
+
+    const logged = await logBusinessEvent({
+        userId,
+        institutionId,
+        pilotId,
+        cohortId,
+        dataSource,
+        enrollmentSource,
+        eventType: "customer_active",
+        source: "frontend",
+        surface,
+        metadata: {
+            activityDate: dateKey,
+            activityType: "authenticated_session",
+        },
+    });
+
+    return { ok: logged, recorded: Boolean(logged) };
 };
 
 export const recordFinancialBehaviourTelemetry = async ({

@@ -77,6 +77,7 @@ import {
   logAIPipelineRun,
   logInsightEvent,
 } from "../ai/telemetry/logger.js";
+import { logBusinessEvent } from "../ai/telemetry/businessLogger.js";
 
 const anomaly = {
   id: "anomaly-food",
@@ -211,6 +212,14 @@ describe("orchestrator", () => {
       persisted: true,
       selectedSignalId: "risk-jun",
     }));
+    expect(logBusinessEvent).toHaveBeenCalledTimes(1);
+    expect(logBusinessEvent).toHaveBeenCalledWith(expect.objectContaining({
+      userId: "user-orchestrator",
+      eventType: "insight_generated",
+      insightId: "insight-test",
+      insightType: "financial-risk",
+      source: "backend",
+    }));
   });
 
   it("preserves deterministic engine output for the selected top signal", async () => {
@@ -308,6 +317,7 @@ describe("orchestrator", () => {
     });
     expect(markSignalTriggerFailed).toHaveBeenCalledTimes(1);
     expect(markSignalTriggered).not.toHaveBeenCalled();
+    expect(logBusinessEvent).not.toHaveBeenCalled();
   });
 
   it("returns no insight when the top signal reservation loses a race", async () => {

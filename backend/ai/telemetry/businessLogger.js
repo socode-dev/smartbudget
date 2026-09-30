@@ -1,5 +1,6 @@
 import { randomUUID } from "crypto";
 import { writeTelemetryEvent } from "./writeTelemetryEvent.js";
+import { isBusinessEventType } from "./businessEventTypes.js";
 
 export const logBusinessEvent = async ({
     userId,
@@ -19,7 +20,7 @@ export const logBusinessEvent = async ({
     writeSubjectEvent = true,
     metadata = {}
 } = {}) => {
-    if(!userId || !eventType) return false;
+    if(!userId || !isBusinessEventType(eventType)) return false;
 
     const eventId = `${eventType}_${randomUUID()}`;
 
