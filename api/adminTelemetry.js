@@ -1,7 +1,7 @@
 import {
     adminTelemetryEventsHandler,
     createAdminTelemetryHandler,
-} from "../../../backend/ai/telemetry/adminRoute.js";
+} from "../backend/ai/telemetry/adminRoute.js";
 
 const handlers = {
     overview: createAdminTelemetryHandler("overview"),
@@ -12,10 +12,9 @@ const handlers = {
 };
 
 export default async function handler(req, res) {
-    const path = Array.isArray(req.query?.path)
-        ? req.query.path.join("/")
-        : String(req.query?.path || "");
-    const routeHandler = handlers[path];
+    const rawSection = req.query?.section;
+    const section = Array.isArray(rawSection) ? rawSection[0] : rawSection;
+    const routeHandler = handlers[section];
 
     if (!routeHandler) {
         return res.status(404).json({
