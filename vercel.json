@@ -1,8 +1,8 @@
 {
   "rewrites": [
     {
-      "source": "/((?!api/|src/|@vite/|@react-refresh|node_modules/|@fs/|favicon\\.png|og-image\\.jpg).*)",
-      "destination": "/index.html"
+      "source": "/((?!api/|assets/|src/|@vite/|@react-refresh|node_modules/|@fs/|favicon\\.png|og-image\\.jpg|site\\.webmanifest).*)",
+      "destination": "/"
     }
   ]
 }

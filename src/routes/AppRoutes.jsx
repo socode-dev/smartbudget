@@ -3,6 +3,8 @@ import AuthLayout from "../layout/AuthLayouts";
 import MainLayout from "../layout/MainLayout";
 import PublicRoute from "./PublicRoute";
 import ProtectedRoute from "./ProtectedRoute";
+import AdminRoute from "./AdminRoute";
+import AdminLayout from "../layout/AdminLayout";
 import Login from "../pages/Login";
 import Signup from "../pages/Signup";
 import ActivateInvite from "../pages/ActivateInvite";
@@ -13,6 +15,12 @@ import DemoInitializer from "../demo/DemoInitializer";
 import LazyWrapper from "./LazyWrapper";
 import { dashboardPages } from "./dashboardPages";
 import AuthLoadingScreen from "../components/ui/AuthLoadingScreen";
+import AdminAccessPending from "../pages/AdminAccessPending";
+import AdminOverview from "../pages/AdminOverview";
+import AdminIntelligence from "../pages/AdminIntelligence";
+import AdminDataOperations from "../pages/AdminDataOperations";
+import AdminCustomerActivity from "../pages/AdminCustomerActivity";
+import AdminInvestigation from "../pages/AdminInvestigation";
 
 export default function AppRoutes() {
   const dashboardRoutes = dashboardPages.map(
@@ -79,6 +87,20 @@ export default function AppRoutes() {
         }
       >
         {dashboardRoutes}
+      </Route>
+      <Route
+        path="/admin"
+        element={
+          <AdminRoute>
+            <AdminLayout />
+          </AdminRoute>
+        }
+      >
+        <Route index element={<AdminOverview />} />
+        <Route path="intelligence" element={<AdminIntelligence />} />
+        <Route path="data-operations" element={<AdminDataOperations />} />
+        <Route path="customer-activity" element={<AdminCustomerActivity />} />
+        <Route path="investigation" element={<AdminInvestigation />} />
       </Route>
       <Route path="*" element={<ErrorPage />} />
     </Routes>

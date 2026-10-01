@@ -1,6 +1,7 @@
 import { logBusinessEvent } from "../../backend/ai/telemetry/businessLogger.js";
 import { recordCustomerActiveTelemetry } from "../../backend/ai/telemetry/businessBehaviourTelemetry.js";
 import { loadPilotContext } from "../../backend/userData/loadPilotContext.js";
+import { requireUser, sendUserAuthError } from "../../backend/auth/requireUser.js";
 
 export default async function handler(req, res) {
     if(req.method !== "POST") {
@@ -26,6 +27,9 @@ export default async function handler(req, res) {
             error: "MISSING_REQUIRED_FIELDS" 
         });
     }
+
+    const authResult = await requireUser(req, userId);
+    if (!authResult.ok) return sendUserAuthError(res, authResult);
 
     try {
         const pilotContext = await loadPilotContext({ userId });

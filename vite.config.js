@@ -6,17 +6,31 @@ import path from "path";
 import { VitePWA } from "vite-plugin-pwa";
 
 const isVitest = process.env.VITEST;
+const isProduction = process.env.NODE_ENV === "production";
 
 if (!isVitest) {
   dotenv.config({ path: path.resolve(process.cwd(), '.env.local') });
 }
 
 export default defineConfig({
+  resolve: {
+    alias: isProduction
+      ? undefined
+      : {
+          "virtual:pwa-register/react": path.resolve(
+            process.cwd(),
+            "src/components/pwa/pwaRegisterDev.js",
+          ),
+        },
+  },
   plugins: [
     react(), 
     tailwindcss(),
     VitePWA({
       registerType: "prompt",
+      devOptions: {
+        enabled: true,
+      },
       manifestFilename: "site.webmanifest",
 
       includeAssets: [

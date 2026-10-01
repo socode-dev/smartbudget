@@ -150,6 +150,7 @@ export const readTelemetryModel = async ({
     endDate,
     institutionId = null,
     pilotId = null,
+    includeUniqueCustomers = true,
 } = {}) => {
     const dateKeys = getDateKeysInRange({ startDate, endDate });
     const daily = await Promise.all(dateKeys.map(async dateKey => ({
@@ -157,11 +158,26 @@ export const readTelemetryModel = async ({
         metrics: await readDailyMetrics({ dateKey, institutionId, pilotId }),
     })));
 
-    const uniqueCustomers = await readUniqueCustomerMetrics({
-        markerCollection: getUniqueCustomerMarkerCollection({ institutionId, pilotId }),
-        startDate,
-        endDate,
-    });
+    let uniqueCustomers = null;
+
+    if (includeUniqueCustomers) {
+        try {
+            uniqueCustomers = {
+                available: true,
+                values: await readUniqueCustomerMetrics({
+                    markerCollection: getUniqueCustomerMarkerCollection({ institutionId, pilotId }),
+                    startDate,
+                    endDate,
+                }),
+            };
+        } catch (error) {
+            console.error("UNIQUE_CUSTOMER_METRICS_READ_FAILED:", error);
+            uniqueCustomers = {
+                available: false,
+                values: {},
+            };
+        }
+    }
 
     return {
         scope: institutionId || pilotId
@@ -171,10 +187,13 @@ export const readTelemetryModel = async ({
         metricDefinitions: TELEMETRY_METRIC_DEFINITIONS,
         daily,
         totals: sumDailyMetrics(daily),
-        uniqueCustomers: {
-            metricType: "unique_customers",
-            values: uniqueCustomers,
-        },
+        uniqueCustomers: uniqueCustomers
+            ? {
+                metricType: "unique_customers",
+                available: uniqueCustomers.available,
+                values: uniqueCustomers.values,
+            }
+            : null,
     };
 };
 

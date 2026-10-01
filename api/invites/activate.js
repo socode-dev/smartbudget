@@ -1,5 +1,5 @@
-import { adminAuth } from "../../lib/firebaseAdmin.js";
 import { activateInvite } from "../../backend/integrations/invites/activateInvite.js";
+import { requireUser, sendUserAuthError } from "../../backend/auth/requireUser.js";
 
 export default async function handler(req, res) {
     if (req.method !== "POST") {
@@ -12,9 +12,9 @@ export default async function handler(req, res) {
         });
     }
 
-    const { token, idToken } = req.body || {};
+    const { token } = req.body || {};
 
-    if (!token || !idToken) {
+    if (!token) {
         return res.status(400).json({
             ok: false,
             error: {
@@ -25,19 +25,10 @@ export default async function handler(req, res) {
     }
 
     try {
-        const decoded = await adminAuth.verifyIdToken(idToken);
+        const authResult = await requireUser(req);
+        if (!authResult.ok) return sendUserAuthError(res, authResult);
 
-        if (!decoded.uid) {
-            return res.status(401).json({
-                ok: false,
-                error: {
-                    code: "AUTH_UID_REQUIRED",
-                    message: "Authentication could not be verified",
-                },
-            });
-        }
-
-        if (!decoded.email) {
+        if (!authResult.claims.email) {
             return res.status(400).json({
                 ok: false,
                 error: {
@@ -49,8 +40,8 @@ export default async function handler(req, res) {
 
         const activation = await activateInvite({
             token,
-            authUid: decoded.uid,
-            email: decoded.email,
+            authUid: authResult.uid,
+            email: authResult.claims.email,
         });
 
         return res.status(200).json({

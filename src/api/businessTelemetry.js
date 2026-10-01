@@ -1,3 +1,5 @@
+import { getAuthHeaders } from "./authToken";
+
 export const trackBusinessEvent = async ({
     userId,
     eventType,
@@ -14,6 +16,7 @@ export const trackBusinessEvent = async ({
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
+                ...(await getAuthHeaders()),
             },
             body: JSON.stringify({
                 userId,

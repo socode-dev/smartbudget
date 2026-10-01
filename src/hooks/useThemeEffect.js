@@ -6,12 +6,10 @@ export const useThemeEffect = () => {
   const initializeTheme = useThemeStore((state) => state.initializeTheme);
 
   useEffect(() => {
-    // Initialize theme on mount
     initializeTheme();
-  }, []);
+  }, [initializeTheme]);
 
   useEffect(() => {
-    // Apply theme changes to DOM
     if (theme === "dark") {
       document.documentElement.classList.add("dark");
     } else {

@@ -15,7 +15,8 @@
     "test:coverage": "vitest run --coverage",
     "sftp:onboard": "node --env-file-if-exists=.env.local scripts/onboardingInstitution.js",
 "sftp:run-transports": "node --env-file-if-exists=.env.local scripts/runSftpTransports.js",
-    "sftp:retry-deliveries": "node --env-file-if-exists=.env.local scripts/retrySftpDeliveries.js"
+    "sftp:retry-deliveries": "node --env-file-if-exists=.env.local scripts/retrySftpDeliveries.js",
+    "admin:revoke": "node --env-file-if-exists=.env.local scripts/revokeAdminAccess.js"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",

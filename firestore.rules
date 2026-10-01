@@ -1,0 +1,110 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return signedIn() && request.auth.uid == userId;
+    }
+
+    function changedOnly(fields) {
+      return request.resource.data.diff(resource.data).affectedKeys().hasOnly(fields);
+    }
+
+    match /users/{userId} {
+      allow read: if isOwner(userId);
+
+      // Profile and threshold writes are user-owned. The server remains the
+      // only writer for telemetry and generated intelligence.
+      allow create: if isOwner(userId)
+        && request.resource.data.keys().hasOnly(['profile', 'thresholds', 'createdAt']);
+      allow update: if isOwner(userId)
+        && changedOnly(['profile', 'thresholds']);
+      allow delete: if false;
+
+      match /transactions/{transactionId} {
+        allow read, create, update, delete: if isOwner(userId);
+      }
+
+      match /budgets/{budgetId} {
+        allow read, create, update, delete: if isOwner(userId);
+      }
+
+      match /goals/{goalId} {
+        allow read, create, update, delete: if isOwner(userId);
+      }
+
+      match /contributions/{contributionId} {
+        allow read, create, update, delete: if isOwner(userId);
+      }
+
+      match /categories/{categoryId} {
+        allow read, create, update, delete: if isOwner(userId);
+      }
+
+      match /notifications/{notificationId} {
+        allow read, delete: if isOwner(userId);
+        allow create: if isOwner(userId)
+          && request.resource.data.keys().hasOnly(['subject', 'message', 'type', 'read', 'createdAt']);
+        allow update: if isOwner(userId)
+          && changedOnly(['read']);
+      }
+
+      match /insights/{insightId} {
+        allow read: if isOwner(userId);
+        allow create, delete: if false;
+        allow update: if isOwner(userId)
+          && changedOnly(['status', 'firstViewedAtMs', 'valid', 'expiredAtMs'])
+          && request.resource.data.status in ['VIEWED', 'EXPIRED'];
+      }
+
+      // All telemetry state and event records are server-owned. The client
+      // submits activity through authenticated API routes instead.
+      match /telemetry/{document=**} {
+        allow read, write: if false;
+      }
+
+      match /businessTelemetryState/{document=**} {
+        allow read, write: if false;
+      }
+    }
+
+    // Institution, pilot, aggregate, invite, and imported-customer data are
+    // server-owned. Admin SDK access is governed by the API authorization
+    // layer and is not restricted by Firestore client rules.
+    match /institutions/{document=**} {
+      allow read, write: if false;
+    }
+
+    match /globalMetrics/{document=**} {
+      allow read, write: if false;
+    }
+
+    match /pilotCustomers/{document=**} {
+      allow read, write: if false;
+    }
+
+    match /pilotIdentities/{document=**} {
+      allow read, write: if false;
+    }
+
+    match /pilotInviteStates/{document=**} {
+      allow read, write: if false;
+    }
+
+    match /invites/{document=**} {
+      allow read, write: if false;
+    }
+
+    match /integrationOnboardingRequests/{document=**} {
+      allow read, write: if false;
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
