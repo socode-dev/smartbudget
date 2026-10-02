@@ -83,12 +83,15 @@ const Transactions = () => {
             Track all your expenses and income in one place.
           </p>
         </div>
-        <Button onClick={addTransaction} aria-haspopup="dialog">
-          <span className="flex items-center gap-2">
-            <FiPlus aria-hidden="true" />
-            Add transaction
-          </span>
-        </Button>
+
+        {hasTransactions && (
+          <Button onClick={addTransaction} aria-haspopup="dialog">
+            <span className="flex items-center gap-2">
+              <FiPlus aria-hidden="true" />
+              Add transaction
+            </span>
+          </Button>
+        )}
       </header>
 
       {hasTransactions && (

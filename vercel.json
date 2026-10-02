@@ -1,8 +1,28 @@
 {
   "rewrites": [
     {
-      "source": "/((?!api/|src/|@vite/|@react-refresh|node_modules/|@fs/|favicon\\.png|og-image\\.jpg).*)",
-      "destination": "/index.html"
+      "source": "/api/admin/telemetry/overview",
+      "destination": "/api/adminTelemetry?section=overview"
+    },
+    {
+      "source": "/api/admin/telemetry/intelligence",
+      "destination": "/api/adminTelemetry?section=intelligence"
+    },
+    {
+      "source": "/api/admin/telemetry/data-operations",
+      "destination": "/api/adminTelemetry?section=data-operations"
+    },
+    {
+      "source": "/api/admin/telemetry/customer-activity",
+      "destination": "/api/adminTelemetry?section=customer-activity"
+    },
+    {
+      "source": "/api/admin/telemetry/events",
+      "destination": "/api/adminTelemetry?section=events"
+    },
+    {
+      "source": "/((?!api/|assets/|src/|@vite/|@react-refresh|node_modules/|@fs/|favicon\\.png|og-image\\.jpg|site\\.webmanifest).*)",
+      "destination": "/"
     }
   ]
 }

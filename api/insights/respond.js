@@ -1,6 +1,7 @@
 import { db } from "../../lib/firebaseAdmin.js";
 import { logBusinessEvent } from "../../backend/ai/telemetry/businessLogger.js";
 import { loadPilotContext } from "../../backend/userData/loadPilotContext.js";
+import { requireUser, sendUserAuthError } from "../../backend/auth/requireUser.js";
 
 const TERMINAL_STATUSES = new Set(["ACKNOWLEDGED", "DISMISSED", "EXPIRED"]);
 
@@ -42,6 +43,9 @@ export default async function handler(req, res) {
             }
         });
     }
+
+    const authResult = await requireUser(req, userId);
+    if (!authResult.ok) return sendUserAuthError(res, authResult);
 
     const insightRef = db
     .collection("users")

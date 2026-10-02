@@ -36,7 +36,7 @@ const Button = forwardRef(function Button(
         onClick?.(event);
       }}
       className={clsx(
-        "inline-flex min-h-10 min-w-0 cursor-pointer items-center justify-center gap-2 rounded-xl border px-4 py-2 text-center text-sm leading-5 font-medium wrap-anywhere transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring disabled:cursor-not-allowed disabled:opacity-55 aria-disabled:cursor-not-allowed aria-disabled:opacity-55 motion-reduce:transition-none",
+        "inline-flex min-h-10 min-w-0 flex-row cursor-pointer items-center justify-center gap-2 rounded-xl border px-4 py-2 text-center text-sm leading-5 font-medium whitespace-nowrap transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring disabled:cursor-not-allowed disabled:opacity-55 aria-disabled:cursor-not-allowed aria-disabled:opacity-55 motion-reduce:transition-none",
         {
           "border-transparent": variant !== "outline",
           "bg-primary text-primary-foreground shadow-xs hover:bg-primary/90":
@@ -59,7 +59,7 @@ const Button = forwardRef(function Button(
           borderTopColor="transparent"
         />
       )}
-      <span>{loading ? loadingText || children : children}</span>
+      <span className="flex items-center justify-center gap-2">{loading ? loadingText || children : children}</span>
     </Component>
   );
 });

@@ -3,6 +3,7 @@ import { runFinancialSignals } from "../../backend/financial-signals/runFinancia
 import { runOrchestrator } from "../../backend/ai/services/orchestrator.js";
 import { recordFinancialBehaviourTelemetry } from "../../backend/ai/telemetry/businessBehaviourTelemetry.js";
 import { loadPilotContext } from "../../backend/userData/loadPilotContext.js";
+import { requireUser, sendUserAuthError } from "../../backend/auth/requireUser.js";
 
 export default async function handler(req, res) {
     if(req.method !== "POST") {
@@ -20,6 +21,9 @@ export default async function handler(req, res) {
             message: "Missing userId"
         });
     }
+
+    const authResult = await requireUser(req, userId);
+    if (!authResult.ok) return sendUserAuthError(res, authResult);
 
     try {
         const { transactions, budgets } = await loadFinancialData({ userId });

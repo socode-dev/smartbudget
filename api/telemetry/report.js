@@ -1,4 +1,5 @@
 import { buildPilotBusinessReport } from "../../backend/ai/telemetry/businessReport.js";
+import { requireAdmin, sendAdminAuthError } from "../../backend/auth/requireAdmin.js";
 
 export default async function handler(req, res) {
     if (req.method !== "GET") {
@@ -10,6 +11,9 @@ export default async function handler(req, res) {
             }
         });
     }
+
+    const authResult = await requireAdmin(req);
+    if (!authResult.ok) return sendAdminAuthError(res, authResult);
 
     const {
         institutionId,

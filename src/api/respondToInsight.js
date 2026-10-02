@@ -1,3 +1,5 @@
+import { getAuthHeaders } from "./authToken";
+
 export const respondToInsight = async ({
     userId,
     insight,
@@ -7,7 +9,8 @@ export const respondToInsight = async ({
     const result = await fetch("/api/insights/respond", {
         method: "POST",
         headers: {
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
+            ...(await getAuthHeaders()),
         },
         body: JSON.stringify({
             userId,

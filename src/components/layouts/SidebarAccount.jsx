@@ -1,15 +1,17 @@
 import clsx from "clsx";
-import { FiLogOut, FiSettings } from "react-icons/fi";
+import { FiLogOut, FiSettings, FiShield } from "react-icons/fi";
 import useAuthStore from "../../store/useAuthStore";
 import { getDemoPath, useDemoMode } from "../../demo/useDemoMode";
 import { useMainContext } from "../../context/MainContext";
 import SidebarLink from "./SidebarLink";
 import Tooltip from "../ui/Tooltip";
+import useAdminAccess from "../../hooks/useAdminAccess";
 
 const SidebarAccount = ({ collapsed, onNavigate }) => {
   const user = useAuthStore((state) => state.currentUser);
   const userName = useAuthStore((state) => state.userName);
   const demo = useDemoMode();
+  const isAdmin = useAdminAccess();
   const { handleSignoutPromptOpen } = useMainContext();
   const logout = () => {
     onNavigate();
@@ -30,6 +32,15 @@ const SidebarAccount = ({ collapsed, onNavigate }) => {
         collapsed={collapsed}
         onClick={onNavigate}
       />
+      {!demo && isAdmin && (
+        <SidebarLink
+          to="/admin"
+          label="Admin Dashboard"
+          icon={FiShield}
+          collapsed={collapsed}
+          onClick={onNavigate}
+        />
+      )}
       <div
         className={clsx(
           "mt-2",

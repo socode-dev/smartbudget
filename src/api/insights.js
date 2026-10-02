@@ -1,3 +1,5 @@
+import { getAuthHeaders } from "./authToken";
+
 export const runInsightPipeline = async ({
   userId,
   currency,
@@ -9,6 +11,7 @@ export const runInsightPipeline = async ({
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        ...(await getAuthHeaders()),
       },
       body: JSON.stringify({ userId, currency, isDemo }),
     });

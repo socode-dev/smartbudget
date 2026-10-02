@@ -60,10 +60,8 @@ const useInviteActivation = (token) => {
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  const activateCurrentUser = async (user) => {
-    const idToken = await user.getIdToken(true);
-
-    return activateInviteToken({ token, idToken });
+  const activateCurrentUser = async () => {
+    return activateInviteToken({ token });
   };
 
   const handleSubmit = async (event) => {

@@ -1,0 +1,66 @@
+import { useEffect, useMemo, useState } from "react";
+import { FiCalendar } from "react-icons/fi";
+
+const formatDate = dateKey => new Intl.DateTimeFormat(undefined, {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+    timeZone: "UTC",
+}).format(new Date(`${dateKey}T00:00:00.000Z`));
+
+const AdminDailyMetricCard = ({ daily, metricKey, label, description, icon: Icon }) => {
+    const availableDates = useMemo(
+        () => daily.map(day => day.dateKey).filter(Boolean),
+        [daily],
+    );
+    const [selectedDate, setSelectedDate] = useState(availableDates.at(-1) || "");
+
+    useEffect(() => {
+        if (!availableDates.length) {
+            setSelectedDate("");
+            return;
+        }
+
+        setSelectedDate(currentDate => availableDates.includes(currentDate)
+            ? currentDate
+            : availableDates.at(-1));
+    }, [availableDates]);
+
+    const selectedDay = daily.find(day => day.dateKey === selectedDate);
+    const value = selectedDay?.metrics?.[metricKey] || 0;
+
+    return (
+        <article className="min-w-0 rounded-xl border border-border border-t-2 border-t-success bg-card p-5 shadow-xs">
+            <div className="flex items-start justify-between gap-3">
+                <h2 className="text-xs font-semibold uppercase text-muted-foreground">{label}</h2>
+                <span className="flex size-8 shrink-0 items-center justify-center rounded-xl bg-success-soft text-success">
+                    <Icon className="size-4" aria-hidden="true" />
+                </span>
+            </div>
+            <p className="mt-5 font-display text-3xl font-semibold tabular-nums text-foreground">
+                {value.toLocaleString()}
+            </p>
+            <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
+                {selectedDate ? `${description} on ${formatDate(selectedDate)}.` : description}
+            </p>
+            <label className="mt-4 block text-xs font-medium text-muted-foreground">
+                Select date
+                <span className="relative mt-1.5 block">
+                    <FiCalendar className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
+                    <input
+                        type="date"
+                        value={selectedDate}
+                        min={availableDates[0]}
+                        max={availableDates.at(-1)}
+                        onChange={event => setSelectedDate(event.target.value)}
+                        aria-label={`${label} date`}
+                        className="h-10 w-full min-w-0 rounded-xl border border-border bg-background pl-9 pr-2 text-sm text-foreground shadow-xs outline-none transition-colors focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-ring/40"
+                        disabled={!availableDates.length}
+                    />
+                </span>
+            </label>
+        </article>
+    );
+};
+
+export default AdminDailyMetricCard;

@@ -1,3 +1,5 @@
+import { getAuthHeaders } from "./authToken";
+
 export const validateInviteToken = async token => {
     const response = await fetch(
         `/api/invites/validate?token=${encodeURIComponent(token)}`
@@ -17,13 +19,14 @@ export const validateInviteToken = async token => {
     return payload.invite;
 }
 
-export const activateInviteToken = async ({ token, idToken }) => {
+export const activateInviteToken = async ({ token }) => {
     const response = await fetch("/api/invites/activate", {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
+            ...(await getAuthHeaders()),
         },
-        body: JSON.stringify({ token, idToken }),
+        body: JSON.stringify({ token }),
     });
 
     const payload = await response.json();

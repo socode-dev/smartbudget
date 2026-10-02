@@ -133,7 +133,7 @@ body {
 
 .scrollbar-thin {
   scrollbar-width: thin;
-  scrollbar-color: rgb(29, 78, 216) #e5e7eb;
+  scrollbar-color: var(--primary) var(--surface);
 }
 
 .scrollbar-thin::-webkit-scrollbar {
@@ -146,7 +146,7 @@ body {
 }
 
 .scrollbar-thin::-webkit-scrollbar-thumb {
-  background-color: rgb(29, 78, 216);
+  background-color: var(--primary);
   border-radius: 9999px;
-  border: 2px solid #e5e7eb;
+  border: 2px solid var(--surface);
 }

@@ -1,5 +1,6 @@
 import HeaderActions from "./HeaderActions";
-import { FiSidebar, FiMenu } from "react-icons/fi";
+import { FiSidebar } from "react-icons/fi";
+import { LuChevronsRight, LuChevronsLeft } from "react-icons/lu";
 import { useLocation } from "react-router-dom";
 import Button from "../ui/Button";
 import Tooltip from "../ui/Tooltip";
@@ -51,7 +52,7 @@ const Header = ({ collapsed, onToggleSidebar }) => {
             aria-expanded={!collapsed}
             aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
           >
-            <FiSidebar size={18} aria-hidden="true" />
+            {collapsed ? <LuChevronsRight size={18} aria-hidden="true" /> : <LuChevronsLeft size={18} aria-hidden="true" />}
           </Button>
         </Tooltip>
 

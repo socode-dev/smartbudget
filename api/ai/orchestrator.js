@@ -1,5 +1,6 @@
 import { consumeQuota } from "../../lib/quota.js";
 import { runOrchestrator } from "../../backend/ai/services/orchestrator.js"
+import { requireUser, sendUserAuthError } from "../../backend/auth/requireUser.js";
 
 export default async function handler(req, res) {
 const {userId, riskData, anomalies, budgetComplianceList, cashflowData, isDemo} = req.body;
@@ -7,6 +8,9 @@ const {userId, riskData, anomalies, budgetComplianceList, cashflowData, isDemo} 
   if(!userId) {
     return res.status(400).json({error: "Missing userId"})
   }
+
+  const authResult = await requireUser(req, userId);
+  if (!authResult.ok) return sendUserAuthError(res, authResult);
 
   try {
 

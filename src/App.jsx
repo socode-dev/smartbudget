@@ -5,7 +5,6 @@ import AppRoutes from "./routes/AppRoutes";
 import { AnimatePresence } from "framer-motion";
 
 function App() {
-  // Initialize and handle theme changes
   useThemeEffect();
 
   return (
