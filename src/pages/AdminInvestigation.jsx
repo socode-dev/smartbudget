@@ -103,11 +103,11 @@ const AdminInvestigation = () => {
                     </label>
                     <label className="text-sm font-medium text-foreground">
                         Start date
-                        <input type="date" value={startDate} max={endDate} onChange={event => setStartDate(event.target.value)} className="mt-1.5 h-11 w-full rounded-xl border border-border bg-background px-3 text-sm text-foreground shadow-xs outline-none focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-ring/40" />
+                        <input type="date" value={startDate} max={endDate} onChange={event => setStartDate(event.target.value)} className="box-border mt-1.5 h-11 w-full max-w-full min-w-0 rounded-xl border border-border bg-background px-3 text-sm text-foreground shadow-xs outline-none focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-ring/40" />
                     </label>
                     <label className="text-sm font-medium text-foreground">
                         End date
-                        <input type="date" value={endDate} min={startDate || undefined} onChange={event => setEndDate(event.target.value)} className="mt-1.5 h-11 w-full rounded-xl border border-border bg-background px-3 text-sm text-foreground shadow-xs outline-none focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-ring/40" />
+                        <input type="date" value={endDate} min={startDate || undefined} onChange={event => setEndDate(event.target.value)} className="box-border mt-1.5 h-11 w-full max-w-full min-w-0 rounded-xl border border-border bg-background px-3 text-sm text-foreground shadow-xs outline-none focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-ring/40" />
                     </label>
                     <label className="text-sm font-medium text-foreground">
                         Maximum events

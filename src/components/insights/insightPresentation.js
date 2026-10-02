@@ -16,6 +16,9 @@ export const titleCase = (value = "") =>
 
 export const insightTypeLabel = (type) => typeLabels[type] || titleCase(type) || "Unknown";
 
+export const getInsightExplanation = (insight) =>
+  insight?.message || insight?.agent?.explanation || "";
+
 export const toInsightDate = (value) => {
   if (value === null || value === undefined || value === "") return null;
   const date =
