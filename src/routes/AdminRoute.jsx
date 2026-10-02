@@ -77,7 +77,9 @@ const AdminRoute = ({ children }) => {
     };
   }, [authLoading, user]);
 
-  if (authLoading || status === "loading") return <AuthLoadingScreen />;
+  if (authLoading || status === "loading") {
+    return <AuthLoadingScreen message="Loading Admin Dashboard..." />;
+  }
   if (status === "signed_out") return <Navigate to="/login" replace />;
   if (status === "forbidden") return <AdminAccessDenied />;
 

@@ -1,11 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import { CATEGORY_OPTIONS } from "../data/categoryData";
+import AuthLoadingScreen from "../components/ui/AuthLoadingScreen";
 import useAuthStore from "../store/useAuthStore";
 import useCurrencyStore from "../store/useCurrencyStore";
 import useInsightsStore from "../store/useInsightsStore";
 import useNotificationStore from "../store/useNotificationStore";
 import useThresholdStore from "../store/useThresholdStore";
 import useTransactionStore from "../store/useTransactionStore";
+import { DEMO_CURRENCY, DEMO_CURRENCY_SYMBOL } from "./demoConfig";
 import {
   demoBudgets,
   demoContributions,
@@ -34,11 +36,7 @@ const DemoInitializer = ({ children }) => {
   }, []);
 
   if (!isReady) {
-    return (
-      <div className="flex h-svh w-full items-center justify-center bg-[rgb(var(--color-bg))] text-[rgb(var(--color-muted))]">
-        Loading demo...
-      </div>
-    );
+    return <AuthLoadingScreen message="Preparing your Vydra demo..." />;
   }
 
   return children;
@@ -77,8 +75,8 @@ const hydrateDemoState = () => {
 
   useThresholdStore.setState({ thresholds: demoThresholds });
   useCurrencyStore.setState({
-    selectedCurrency: "USD",
-    currencySymbol: "$",
+    selectedCurrency: DEMO_CURRENCY,
+    currencySymbol: DEMO_CURRENCY_SYMBOL,
     currencies: ["USD", "NGN", "EUR", "GBP"],
   });
 };

@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { FiClock } from "react-icons/fi";
 import Button from "../ui/Button";
 import Pagination from "../ui/Pagination";
-import { toInsightDate } from "./insightPresentation";
+import { getInsightExplanation, toInsightDate } from "./insightPresentation";
 
 const initialFilters = {
   type: "all",
@@ -79,13 +79,15 @@ const InsightHistoryTable = ({ histories = [] }) => {
     setPage(1);
   };
 
-  const explanation = (history) => (
-    <>
-      <p className="line-clamp-2" title={history.message || undefined}>
-        {history.message || "No explanation recorded."}
+  const explanation = (history) => {
+    const message = getInsightExplanation(history);
+
+    return (
+      <p className="line-clamp-2" title={message || undefined}>
+        {message || "No explanation recorded."}
       </p>
-    </>
-  );
+    );
+  };
 
   return (
     <div className="space-y-5">
